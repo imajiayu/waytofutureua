@@ -94,22 +94,22 @@ export async function getAllProjectsWithStats(filters?: ProjectFilters) {
 
   if (error) throw error
 
-  // Sort by status: active first, then by ID
+  // Sort by status: active > paused > planned > completed, then by ID descending
   const sortedData = (data as ProjectStats[]).sort((a, b) => {
     const statusOrder: Record<string, number> = {
       active: 0,
-      planned: 1,
-      completed: 2,
-      paused: 3
+      paused: 1,
+      planned: 2,
+      completed: 3
     }
 
     const aOrder = statusOrder[a.status ?? 'paused'] ?? 999
     const bOrder = statusOrder[b.status ?? 'paused'] ?? 999
     const statusDiff = aOrder - bOrder
 
-    // If same status, sort by ID (ascending)
+    // If same status, sort by ID (descending — newer projects first)
     if (statusDiff === 0) {
-      return (a.id ?? 0) - (b.id ?? 0)
+      return (b.id ?? 0) - (a.id ?? 0)
     }
 
     return statusDiff
