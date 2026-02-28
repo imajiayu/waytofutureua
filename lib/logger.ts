@@ -62,8 +62,8 @@ function getMinLogLevel(): LogLevel {
   if (envLevel && envLevel in LOG_LEVEL_PRIORITY) {
     return envLevel
   }
-  // Default: production = warn, development = debug
-  return process.env.NODE_ENV === 'production' ? 'warn' : 'debug'
+  // Default: production = info, development = debug
+  return process.env.NODE_ENV === 'production' ? 'info' : 'debug'
 }
 
 function shouldLog(level: LogLevel): boolean {
