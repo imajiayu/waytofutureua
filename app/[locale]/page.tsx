@@ -1,4 +1,6 @@
 import { getTranslations } from 'next-intl/server'
+import { BASE_URL, getAlternates } from '@/lib/constants'
+import { locales } from '@/i18n/config'
 import ProjectsGrid from '@/components/projects/ProjectsGrid'
 import MissionSection from '@/components/home/MissionSection'
 import ApproachSection from '@/components/home/ApproachSection'
@@ -14,16 +16,29 @@ type Props = {
 }
 
 export function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'zh' }]
+  return locales.map((locale) => ({ locale }))
 }
 
-export async function generateMetadata() {
-  const t = await getTranslations('common')
-  const tMeta = await getTranslations('metadata')
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string }
+}) {
+  const tMeta = await getTranslations({ locale, namespace: 'metadata' })
+  const tCommon = await getTranslations({ locale, namespace: 'common' })
+
+  const title = tCommon('appName')
+  const description = tMeta('homeDescription')
 
   return {
-    title: t('appName'),
-    description: tMeta('homeDescription'),
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${BASE_URL}/${locale}`,
+    },
+    twitter: { title, description },
+    alternates: getAlternates(`/${locale}`),
   }
 }
 

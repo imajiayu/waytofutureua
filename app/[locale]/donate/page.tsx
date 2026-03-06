@@ -1,4 +1,6 @@
 import { getTranslations, getLocale } from 'next-intl/server'
+import { BASE_URL, getAlternates } from '@/lib/constants'
+import { locales } from '@/i18n/config'
 import { getAllProjectsWithStats } from '@/lib/supabase/queries'
 import DonatePageClient from './DonatePageClient'
 
@@ -11,15 +13,30 @@ type Props = {
 }
 
 export function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'zh' }]
+  return locales.map((locale) => ({ locale }))
 }
 
-export async function generateMetadata() {
-  const t = await getTranslations('donate')
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string }
+}) {
+  const t = await getTranslations({ locale, namespace: 'donate' })
+  const tMeta = await getTranslations({ locale, namespace: 'metadata' })
+
+  const title = t('title')
+  const description = tMeta('donateDescription')
 
   return {
-    title: t('title'),
-    description: t('selectProjectDescription'),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${BASE_URL}/${locale}/donate`,
+    },
+    twitter: { title, description },
+    alternates: getAlternates(`/${locale}/donate`),
   }
 }
 

@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from 'next'
 import { Fraunces, Source_Sans_3, JetBrains_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { Analytics } from '@vercel/analytics/react'
 import { locales } from '@/i18n/config'
+import { BASE_URL, getAlternates } from '@/lib/constants'
 import Navigation from '@/components/layout/Navigation'
 import Footer from '@/components/layout/Footer'
+import JsonLd from '@/components/seo/JsonLd'
 import '../globals.css'
 
 // 标题字体 - Fraunces 可变字体 (温暖有机的衬线字体)
@@ -33,18 +35,51 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500', '600', '700'],
 })
 
-export const metadata: Metadata = {
-  title: 'WAY - Making a Difference',
-  description: 'Support meaningful projects and make a real impact',
-  icons: {
-    icon: [
-      { url: '/favicon-128.webp', sizes: '128x128', type: 'image/webp' },
-      { url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' },
-    ],
-    apple: [
-      { url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' },
-    ],
-  },
+const localeToHtmlLang: Record<string, string> = { ua: 'uk' }
+
+const localeToOgLocale: Record<string, string> = {
+  en: 'en_US',
+  zh: 'zh_CN',
+  ua: 'uk_UA',
+}
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale, namespace: 'metadata' })
+  const tCommon = await getTranslations({ locale, namespace: 'common' })
+
+  const title = tCommon('appName')
+  const description = t('homeDescription')
+
+  return {
+    metadataBase: new URL(BASE_URL),
+    title: {
+      default: `${title} — ${t('titleSuffix')}`,
+      template: `%s | ${title}`,
+    },
+    description,
+    icons: {
+      icon: [
+        { url: '/favicon-128.webp', sizes: '128x128', type: 'image/webp' },
+        { url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' },
+      ],
+      apple: [
+        { url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' },
+      ],
+    },
+    openGraph: {
+      siteName: title,
+      locale: localeToOgLocale[locale] || 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+    },
+    alternates: getAlternates(`/${locale}`),
+  }
 }
 
 // viewport-fit=cover 让内容延伸到iOS安全区域，配合env(safe-area-inset-*)使用
@@ -72,8 +107,9 @@ export default async function RootLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale}>
+    <html lang={localeToHtmlLang[locale] || locale}>
       <body className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} font-body antialiased`}>
+        <JsonLd locale={locale} />
         <NextIntlClientProvider messages={messages}>
           <Navigation />
           <main className="min-h-screen">

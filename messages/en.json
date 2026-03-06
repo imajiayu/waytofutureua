@@ -720,8 +720,14 @@
     "publicAgreement": "Public Agreement"
   },
   "metadata": {
-    "homeDescription": "Empowering communities through meaningful projects",
-    "logoAlt": "WAY Logo"
+    "homeDescription": "A charity foundation in Dnipro, Ukraine. We operate a rehabilitation center helping war victims rebuild their lives through medical aid, children's programs, and community support.",
+    "donateDescription": "Support our projects in Ukraine — medical rehabilitation, children's education, humanitarian aid. Every donation directly helps war-affected families in Dnipro.",
+    "trackDonationDescription": "Track your donation progress in real time — from payment to delivery. Full transparency with photo updates at every step.",
+    "logoAlt": "WAY Logo",
+    "orgDescription": "Way to Future UA is a registered charity foundation in Dnipro, Ukraine, operating a rehabilitation center dedicated to helping war victims rebuild their lives.",
+    "titleSuffix": "Charity Foundation in Dnipro, Ukraine",
+    "ogBadge": "Charity Foundation",
+    "ogTagline": "Rehabilitation center in Dnipro, Ukraine. Helping war victims rebuild their lives."
   },
   "privacyPolicy": {
     "title": "Privacy Policy",

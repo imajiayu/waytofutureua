@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from 'next-intl/server'
+import { BASE_URL, getAlternates } from '@/lib/constants'
 import Image from 'next/image'
 import TrackDonationForm from './track-donation-form'
 
@@ -8,9 +9,21 @@ export async function generateMetadata({
   params: { locale: string }
 }) {
   const t = await getTranslations({ locale, namespace: 'trackDonation' })
+  const tMeta = await getTranslations({ locale, namespace: 'metadata' })
+
+  const title = t('pageTitle')
+  const description = tMeta('trackDonationDescription')
 
   return {
-    title: t('pageTitle'),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${BASE_URL}/${locale}/track-donation`,
+    },
+    twitter: { title, description },
+    alternates: getAlternates(`/${locale}/track-donation`),
   }
 }
 

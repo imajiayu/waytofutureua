@@ -1,9 +1,10 @@
 import { getTranslations, getLocale } from 'next-intl/server'
+import { locales } from '@/i18n/config'
 import DonationDetails from './DonationDetails'
 import SuccessActionButtons from './SuccessActionButtons'
 
 export function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'zh' }]
+  return locales.map((locale) => ({ locale }))
 }
 
 export async function generateMetadata() {

@@ -721,8 +721,14 @@
     "publicAgreement": "用户协议"
   },
   "metadata": {
-    "homeDescription": "通过有意义的项目赋能社区",
-    "logoAlt": "WAY 标志"
+    "homeDescription": "乌克兰第聂伯罗慈善基金会，运营康复中心，帮助战争受害者重建生活。提供医疗援助、儿童项目和社区支持。",
+    "donateDescription": "支持我们在乌克兰的项目 — 医疗康复、儿童教育、人道主义援助。每一笔捐赠都直接帮助第聂伯罗受战争影响的家庭。",
+    "trackDonationDescription": "实时追踪您的捐赠进度 — 从支付到交付，每一步都有照片更新，全程透明。",
+    "logoAlt": "WAY 标志",
+    "orgDescription": "Way to Future UA 是一家位于乌克兰第聂伯罗的注册慈善基金会，运营康复中心，致力于帮助战争受害者重建生活。",
+    "titleSuffix": "乌克兰第聂伯罗慈善基金会",
+    "ogBadge": "慈善基金会",
+    "ogTagline": "乌克兰第聂伯罗康复中心，帮助战争受害者重建生活。"
   },
   "privacyPolicy": {
     "title": "隐私政策",

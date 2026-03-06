@@ -1,12 +1,9 @@
 # robots.txt for waytofutureua.org.ua
-# Allow all search engines to crawl everything
+# Allow all search engines to crawl public pages
 
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
-# Sitemap location (you can add this later when you create sitemap.xml)
-# Sitemap: https://waytofutureua.org.ua/sitemap.xml
-
-# Optional: Disallow certain paths if needed
-# Disallow: /api/
-# Disallow: /admin/
+Sitemap: https://waytofutureua.org.ua/sitemap.xml
