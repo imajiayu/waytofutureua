@@ -229,6 +229,11 @@
       "heroImageAlt": "Різдвяна програма подарунків",
       "receiptImageAlt": "Квитанція {number}"
     },
+    "project5": {
+      "defaultTitle": "Гарячі обіди для Дніпра",
+      "badge": "Громадська допомога",
+      "heroImageAlt": "Пункт роздачі їжі для мешканців Дніпра"
+    },
     "project4": {
       "defaultTitle": "Підтримка родини з Миколаївки",
       "familySupport": "Підтримка родини",

@@ -229,6 +229,11 @@
       "heroImageAlt": "Christmas Gift Program",
       "receiptImageAlt": "Receipt {number}"
     },
+    "project5": {
+      "defaultTitle": "Hot Meals for Dnipro",
+      "badge": "Community Aid",
+      "heroImageAlt": "Food distribution point for Dnipro residents"
+    },
     "project4": {
       "defaultTitle": "Mykolaivka Family Support",
       "familySupport": "Family Support",

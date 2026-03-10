@@ -13,7 +13,9 @@
  * │   └── CollapsibleGallery.tsx
  * ├── Project3/          # Christmas Gift Program
  * │   └── index.tsx      # Main component
- * └── Project4/          # Mykolaivka Family Support
+ * ├── Project4/          # Mykolaivka Family Support
+ * │   └── index.tsx      # Main component
+ * └── Project5/          # Hot Meals for Dnipro
  *     └── index.tsx      # Main component
  *
  * Adding a New Project:
@@ -31,6 +33,9 @@ export { default as Project3DetailContent } from './Project3'
 
 // Project 4: Mykolaivka Family Support
 export { default as Project4DetailContent } from './Project4'
+
+// Project 5: Hot Meals and Support for Dnipro Residents
+export { default as Project5DetailContent } from './Project5'
 
 // Component type for project detail pages
 import type { ProjectStats } from '@/types'

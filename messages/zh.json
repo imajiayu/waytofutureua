@@ -229,6 +229,11 @@
       "heroImageAlt": "圣诞礼物项目",
       "receiptImageAlt": "收据 {number}"
     },
+    "project5": {
+      "defaultTitle": "第聂伯罗热餐援助",
+      "badge": "社区援助",
+      "heroImageAlt": "第聂伯罗居民食物分发点"
+    },
     "project4": {
       "defaultTitle": "米科拉伊夫卡家庭援助",
       "familySupport": "家庭援助",

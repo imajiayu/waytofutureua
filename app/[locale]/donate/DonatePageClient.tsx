@@ -10,6 +10,7 @@ import {
   Project0DetailContent,
   Project3DetailContent,
   Project4DetailContent,
+  Project5DetailContent,
 } from '@/components/projects/detail-pages'
 import DonationFormCard from '@/components/donate-form/DonationFormCard'
 // P2 优化: 动态加载折叠区域组件（默认折叠，用户点击后才显示）
@@ -55,6 +56,8 @@ function renderProjectDetail(
       return <Project3DetailContent key={key} project={project} locale={locale} />
     case 4:
       return <Project4DetailContent key={key} project={project} locale={locale} />
+    case 5:
+      return <Project5DetailContent key={key} project={project} locale={locale} />
     default:
       // Fallback for projects without dedicated detail pages
       return (
