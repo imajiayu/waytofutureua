@@ -1,5 +1,28 @@
 {
   "title": "为第聂伯罗受袭居民提供餐食与支持",
   "subtitle": "为受战争影响的居民带来温暖与尊严——从一顿热餐开始",
-  "location": "第聂伯罗，乌克兰"
+  "location": "第聂伯罗，乌克兰",
+  "background": {
+    "title": "项目背景",
+    "paragraphs": [
+      "2025年底以来，俄罗斯持续对乌克兰能源基础设施发动打击，大规模停电成为乌克兰城市的日常。年轻人尚可四处寻找电源为设备充电，或前往依靠发电机运营的超市和餐厅。然而对于老年群体，尤其是居住在高层住宅中的老人，停电往往意味着基本生活条件的全面中断。",
+      "电梯停运后，高层住户每日上下楼一次已是体力极限；电磁炉和热水器无法使用，日常烹饪和取暖成为难题。大量独居老人仅依靠养老金维持生活，他们缺乏获取信息的渠道和能力，也无力承担每日外出就餐的费用。"
+    ]
+  },
+  "events": {
+    "title": "活动记录",
+    "list": [
+      {
+        "date": "2026-03-07",
+        "location": "卡利诺瓦街（Калинова вулиця）",
+        "images": [
+          "/images/projects/project-5/details/event-1/crowd-receiving-meals.webp",
+          "/images/projects/project-5/details/event-1/volunteer-serving-food.webp",
+          "/images/projects/project-5/details/event-1/volunteers-cooking.webp",
+          "/images/projects/project-5/details/event-1/elderly-woman-eating.webp",
+          "/images/projects/project-5/details/event-1/men-eating-meal.webp"
+        ]
+      }
+    ]
+  }
 }

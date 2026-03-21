@@ -1,36 +1,39 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { FadeInSection } from '@/components/projects/shared'
-import { clientLogger } from '@/lib/logger-client'
+import { useProjectContent } from '@/lib/hooks/useProjectContent'
+import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { Project5Content, Project5DetailContentProps } from './types'
-import { HeroSection } from './sections'
+import { HeroSection, BackgroundSection, EventsSection } from './sections'
+
+const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project5DetailContent({ project, locale }: Project5DetailContentProps) {
-  const [content, setContent] = useState<Project5Content | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: content, loading } = useProjectContent<Project5Content>(
+    `/content/projects/project-5-${locale}.json`,
+    5
+  )
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await fetch(`/content/projects/project-5-${locale}.json`)
-        if (response.ok) {
-          setContent(await response.json())
-        } else {
-          clientLogger.warn('UI', 'No content found for project-5', { locale })
-        }
-      } catch (error) {
-        clientLogger.error('UI', 'Error loading project content', {
-          project: 5,
-          error: error instanceof Error ? error.message : String(error),
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
-  }, [locale])
+  const lightbox = useLightbox()
+  const [selectedEventIndex, setSelectedEventIndex] = useState(0)
+
+  // Prepare per-event lightbox image arrays
+  const eventLightboxImagesMap = useMemo(() => {
+    if (!content?.events?.list) return []
+    return content.events.list.map((event) =>
+      event.images.map((url) => ({ url }))
+    )
+  }, [content?.events?.list])
+
+  const lightboxImages = eventLightboxImagesMap[selectedEventIndex] ?? []
+
+  const handleEventImageClick = (eventIndex: number, imageIndex: number) => {
+    setSelectedEventIndex(eventIndex)
+    lightbox.open(imageIndex)
+  }
 
   if (loading) {
     return (
@@ -59,10 +62,36 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
     <div className="space-y-3 md:space-y-4">
       <HeroSection content={content} project={project} locale={locale} />
 
-      {/* Progress */}
+      {/* Background */}
       <FadeInSection>
+        <BackgroundSection background={content.background} />
+      </FadeInSection>
+
+      {/* Events */}
+      {content.events && content.events.list.length > 0 && (
+        <FadeInSection delay={100}>
+          <EventsSection
+            events={content.events}
+            locale={locale}
+            onImageClick={handleEventImageClick}
+          />
+        </FadeInSection>
+      )}
+
+      {/* Progress */}
+      <FadeInSection delay={200}>
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
+
+      {/* Lightbox */}
+      {lightbox.isOpen && (
+        <ImageLightbox
+          images={lightboxImages}
+          initialIndex={lightbox.currentIndex}
+          isOpen={lightbox.isOpen}
+          onClose={lightbox.close}
+        />
+      )}
     </div>
   )
 }

@@ -232,7 +232,9 @@
     "project5": {
       "defaultTitle": "Hot Meals for Dnipro",
       "badge": "Community Aid",
-      "heroImageAlt": "Food distribution point for Dnipro residents"
+      "heroImageAlt": "Food distribution point for Dnipro residents",
+      "expenses": "Expenses",
+      "total": "Total"
     },
     "project4": {
       "defaultTitle": "Mykolaivka Family Support",

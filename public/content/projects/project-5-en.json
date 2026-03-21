@@ -1,5 +1,28 @@
 {
   "title": "Hot Meals and Support for Dnipro Residents in Need",
   "subtitle": "Bringing warmth and dignity to those affected by war — one hot meal at a time",
-  "location": "Dnipro, Ukraine"
+  "location": "Dnipro, Ukraine",
+  "background": {
+    "title": "Background",
+    "paragraphs": [
+      "Since late 2025, sustained Russian strikes on Ukraine's energy infrastructure have made large-scale power outages a daily occurrence in Ukrainian cities. While younger residents can seek out charging points or visit generator-powered shops and restaurants, the elderly — particularly those living in high-rise apartment buildings — face a near-total collapse of basic living conditions when the power goes out.",
+      "With elevators out of service, a single trip up and down the stairs each day pushes many to their physical limits. Electric stoves and water heaters become unusable, making cooking and heating a daily struggle. A large number of elderly residents live alone on modest pensions, with limited access to information and no means to afford eating out."
+    ]
+  },
+  "events": {
+    "title": "Activity Log",
+    "list": [
+      {
+        "date": "2026-03-07",
+        "location": "Kalynova Street (Калинова вулиця)",
+        "images": [
+          "/images/projects/project-5/details/event-1/crowd-receiving-meals.webp",
+          "/images/projects/project-5/details/event-1/volunteer-serving-food.webp",
+          "/images/projects/project-5/details/event-1/volunteers-cooking.webp",
+          "/images/projects/project-5/details/event-1/elderly-woman-eating.webp",
+          "/images/projects/project-5/details/event-1/men-eating-meal.webp"
+        ]
+      }
+    ]
+  }
 }

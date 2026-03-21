@@ -253,7 +253,7 @@
 - `idx_projects_aggregate_donations` - 聚合标志
 - `idx_projects_name_i18n_en/zh/ua` - 多语言名称（3个）
 
-### donations 表（9个）
+### donations 表（8个）
 - `idx_donations_project_id` - 项目关联
 - `idx_donations_status` - 状态查询
 - `idx_donations_public_id` - 公开ID查询
