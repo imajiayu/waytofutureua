@@ -13,6 +13,7 @@ import {
   type DonationStatus,
 } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
+import type { SupportedLocale } from '@/lib/i18n-utils'
 
 /**
  * WayForPay Webhook Handler
@@ -220,7 +221,7 @@ export async function POST(req: Request) {
               donations: donationItems,
               totalAmount: parseFloat(body.amount),
               currency: body.currency,
-              locale: firstDonation.locale as 'en' | 'zh' | 'ua',
+              locale: firstDonation.locale as SupportedLocale,
             })
 
             logger.info('WEBHOOK:WAYFORPAY', 'Confirmation email sent', {
@@ -256,7 +257,7 @@ export async function POST(req: Request) {
               donationIds: updatedDonations.map((d) => d.donation_public_id),
               refundAmount,
               currency: body.currency || 'USD',
-              locale: firstDonation.locale as 'en' | 'zh' | 'ua',
+              locale: firstDonation.locale as SupportedLocale,
               refundReason: body.reason || undefined,
             })
 

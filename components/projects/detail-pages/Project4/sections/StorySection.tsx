@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+import { SectionHeader } from '@/components/projects/shared'
 import type { SectionProps } from '../types'
 
 interface StorySectionProps extends SectionProps {
@@ -14,13 +15,7 @@ export default function StorySection({ content, onTalentImageClick }: StorySecti
 
   return (
     <section>
-      {/* Section Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-1 h-6 bg-gradient-to-b from-violet-400 to-purple-500 rounded-full" />
-        <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
-          {content.childrenTalents.title}
-        </h2>
-      </div>
+      <SectionHeader title={content.childrenTalents.title} gradientClassName="from-violet-400 to-purple-500" className="mb-4" />
 
       {/* Description */}
       <p className="text-gray-700 leading-relaxed mb-5">

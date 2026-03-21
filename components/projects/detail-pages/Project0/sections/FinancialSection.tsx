@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+import { SectionHeader } from '@/components/projects/shared'
 import type { SectionProps } from '../types'
 
 interface FinancialSectionProps extends Pick<SectionProps, 'content'> {
@@ -18,12 +19,7 @@ export default function FinancialSection({ content, onReportClick }: FinancialSe
   return (
     <section>
       <div className="mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-1 h-6 bg-gradient-to-b from-slate-400 to-slate-600 rounded-full" />
-          <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
-            {content.financialStatus.title}
-          </h2>
-        </div>
+        <SectionHeader title={content.financialStatus.title} gradientClassName="from-slate-400 to-slate-600" className="mb-2" />
         <p className="text-sm md:text-base text-gray-600 leading-relaxed">
           {content.financialStatus.description}
         </p>

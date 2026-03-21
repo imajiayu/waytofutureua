@@ -388,7 +388,7 @@ export default function DonationFormCard({
         contact_telegram: contactTelegram ? contactTelegram.trim() : undefined,
         contact_whatsapp: contactWhatsapp ? contactWhatsapp.trim() : undefined,
         tip_amount: tipAmount > 0 ? tipAmount : undefined,
-        locale: locale as 'en' | 'zh' | 'ua',
+        locale: locale as SupportedLocale,
       })
 
       // Update projects stats if available
@@ -443,7 +443,7 @@ export default function DonationFormCard({
       if (subscribeToNewsletter && donorEmail) {
         createEmailSubscription(
           donorEmail.trim(),
-          locale as 'en' | 'zh' | 'ua'
+          locale as SupportedLocale
         ).catch(subscriptionError => {
           clientLogger.error('FORM:DONATION', 'Failed to create email subscription', { error: subscriptionError instanceof Error ? subscriptionError.message : String(subscriptionError) })
         })
@@ -484,7 +484,7 @@ export default function DonationFormCard({
         contact_telegram: contactTelegram ? contactTelegram.trim() : undefined,
         contact_whatsapp: contactWhatsapp ? contactWhatsapp.trim() : undefined,
         tip_amount: tipAmount > 0 ? tipAmount : undefined,
-        locale: locale as 'en' | 'zh' | 'ua',
+        locale: locale as SupportedLocale,
         pay_currency: cryptoCurrency,
       })
 
@@ -534,7 +534,7 @@ export default function DonationFormCard({
       if (subscribeToNewsletter && donorEmail) {
         createEmailSubscription(
           donorEmail.trim(),
-          locale as 'en' | 'zh' | 'ua'
+          locale as SupportedLocale
         ).catch(subscriptionError => {
           clientLogger.error('FORM:DONATION', 'Failed to create email subscription', { error: subscriptionError instanceof Error ? subscriptionError.message : String(subscriptionError) })
         })

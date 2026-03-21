@@ -116,3 +116,27 @@ export function formatDate(
     return 'N/A'
   }
 }
+
+/**
+ * Format a date string with time for display (uses toLocaleString)
+ */
+export function formatDateTime(
+  dateString: string | null | undefined,
+  locale: SupportedLocale = 'en',
+  options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }
+): string {
+  if (!dateString) return 'N/A'
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'N/A'
+    return date.toLocaleString(getJsLocale(locale), options)
+  } catch {
+    return 'N/A'
+  }
+}

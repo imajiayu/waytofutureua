@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { FadeInSection } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
-import { clientLogger } from '@/lib/logger-client'
+import { useProjectContents } from '@/lib/hooks/useProjectContent'
+import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
 import type { ProjectContent, SuppliesData, Project3DetailContentProps } from './types'
 
@@ -22,35 +23,14 @@ import {
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project3DetailContent({ project, locale }: Project3DetailContentProps) {
-  const [content, setContent] = useState<ProjectContent | null>(null)
-  const [suppliesData, setSuppliesData] = useState<SuppliesData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [expandedShelters, setExpandedShelters] = useState<Set<number>>(new Set())
-  const [detailLightboxOpen, setDetailLightboxOpen] = useState(false)
-  const [detailLightboxIndex, setDetailLightboxIndex] = useState(0)
-  const [receiptLightboxOpen, setReceiptLightboxOpen] = useState(false)
-  const [receiptLightboxIndex, setReceiptLightboxIndex] = useState(0)
+  const { data: [content, suppliesData], loading } = useProjectContents<[ProjectContent, SuppliesData]>([
+    { url: `/content/projects/project-3-${locale}.json`, projectId: 3 },
+    { url: `/content/projects/project-3-supplies-${locale}.json`, projectId: 3 },
+  ])
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [contentRes, suppliesRes] = await Promise.all([
-          fetch(`/content/projects/project-3-${locale}.json`),
-          fetch(`/content/projects/project-3-supplies-${locale}.json`),
-        ])
-        if (contentRes.ok) setContent(await contentRes.json())
-        if (suppliesRes.ok) setSuppliesData(await suppliesRes.json())
-      } catch (error) {
-        clientLogger.error('UI', 'Error loading project content', {
-          project: 3,
-          error: error instanceof Error ? error.message : String(error),
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
-  }, [locale])
+  const [expandedShelters, setExpandedShelters] = useState<Set<number>>(new Set())
+  const detailLightbox = useLightbox()
+  const receiptLightbox = useLightbox()
 
   const toggleShelter = useCallback((index: number) => {
     setExpandedShelters((prev) => {
@@ -72,25 +52,6 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
       [],
     [suppliesData]
   )
-
-  // P2 优化: useCallback 避免不必要的重渲染
-  const handleDetailImageClick = useCallback((index: number) => {
-    setDetailLightboxIndex(index)
-    setDetailLightboxOpen(true)
-  }, [])
-
-  const handleReceiptClick = useCallback((index: number) => {
-    setReceiptLightboxIndex(index)
-    setReceiptLightboxOpen(true)
-  }, [])
-
-  const handleDetailLightboxClose = useCallback(() => {
-    setDetailLightboxOpen(false)
-  }, [])
-
-  const handleReceiptLightboxClose = useCallback(() => {
-    setReceiptLightboxOpen(false)
-  }, [])
 
   if (loading) {
     return (
@@ -146,7 +107,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                 <div className="grid grid-cols-12 gap-2 md:gap-3">
                   <div
                     className="col-span-8 row-span-2 relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
-                    onClick={() => handleDetailImageClick(0)}
+                    onClick={() => detailLightbox.open(0)}
                   >
                     <Image
                       src={content.images[0]}
@@ -161,7 +122,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                     <div
                       key={idx}
                       className="col-span-4 relative aspect-square rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
-                      onClick={() => handleDetailImageClick(idx + 1)}
+                      onClick={() => detailLightbox.open(idx + 1)}
                     >
                       <Image
                         src={img}
@@ -176,7 +137,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                     <div
                       key={idx}
                       className="col-span-4 relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
-                      onClick={() => handleDetailImageClick(idx + 3)}
+                      onClick={() => detailLightbox.open(idx + 3)}
                     >
                       <Image
                         src={img}
@@ -225,7 +186,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
           <SuppliesSection
             suppliesData={suppliesData}
             locale={locale}
-            onReceiptClick={handleReceiptClick}
+            onReceiptClick={receiptLightbox.open}
           />
         </FadeInSection>
       )}
@@ -243,20 +204,20 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
       )}
 
       {/* Lightboxes */}
-      {detailLightboxOpen && (
+      {detailLightbox.isOpen && (
         <ImageLightbox
           images={detailLightboxImages}
-          initialIndex={detailLightboxIndex}
-          isOpen={detailLightboxOpen}
-          onClose={handleDetailLightboxClose}
+          initialIndex={detailLightbox.currentIndex}
+          isOpen={detailLightbox.isOpen}
+          onClose={detailLightbox.close}
         />
       )}
-      {receiptLightboxOpen && (
+      {receiptLightbox.isOpen && (
         <ImageLightbox
           images={receiptLightboxImages}
-          initialIndex={receiptLightboxIndex}
-          isOpen={receiptLightboxOpen}
-          onClose={handleReceiptLightboxClose}
+          initialIndex={receiptLightbox.currentIndex}
+          isOpen={receiptLightbox.isOpen}
+          onClose={receiptLightbox.close}
         />
       )}
     </div>

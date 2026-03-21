@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { SectionHeader } from '@/components/projects/shared'
 import type { SectionProps } from '../types'
 
 export default function FamilySection({ content }: SectionProps) {
@@ -8,13 +9,7 @@ export default function FamilySection({ content }: SectionProps) {
 
   return (
     <section className="space-y-4">
-      {/* Section Title */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-1 h-6 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full" />
-        <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
-          {t('familyMembers')}
-        </h2>
-      </div>
+      <SectionHeader title={t('familyMembers')} gradientClassName="from-amber-500 to-orange-600" />
 
       {/* Parents & Grandmother - Responsive grid */}
       <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 rounded-xl p-4 border border-amber-100/50">

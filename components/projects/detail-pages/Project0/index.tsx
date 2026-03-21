@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import CollapsibleGallery from './CollapsibleGallery'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
-import { FadeInSection } from '@/components/projects/shared'
+import { FadeInSection, SectionHeader } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
+import { useProjectContent } from '@/lib/hooks/useProjectContent'
+import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { Project0Content, Project0DetailContentProps } from './types'
-import { clientLogger } from '@/lib/logger-client'
 
 // Sections
 import {
@@ -29,51 +30,19 @@ const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'),
 
 export default function Project0DetailContent({ project, locale }: Project0DetailContentProps) {
   const t = useTranslations('projects')
-  const [content, setContent] = useState<Project0Content | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [employerImages, setEmployerImages] = useState<string[]>([])
+  const { data: content, loading } = useProjectContent<Project0Content>(
+    `/content/projects/project-0-${locale}.json`,
+    0
+  )
+  const [employerImages] = useState(() =>
+    Array.from({ length: 13 }, (_, i) => `/images/projects/project-0/employer/employer${i}.webp`)
+  )
 
   // Lightbox states
-  const [eventLightboxOpen, setEventLightboxOpen] = useState(false)
-  const [eventLightboxIndex, setEventLightboxIndex] = useState(0)
-  const [successLightboxOpen, setSuccessLightboxOpen] = useState(false)
-  const [successLightboxIndex, setSuccessLightboxIndex] = useState(0)
-  const [reportLightboxOpen, setReportLightboxOpen] = useState(false)
-  const [reportLightboxIndex, setReportLightboxIndex] = useState(0)
-  const [employerLightboxOpen, setEmployerLightboxOpen] = useState(false)
-  const [employerLightboxIndex, setEmployerLightboxIndex] = useState(0)
-
-  // Load content from JSON file
-  useEffect(() => {
-    const loadContent = async () => {
-      try {
-        const response = await fetch(`/content/projects/project-0-${locale}.json`)
-        if (response.ok) {
-          const data = await response.json()
-          setContent(data)
-        } else {
-          clientLogger.warn('UI', `No content found for project-0`, { locale })
-        }
-      } catch (error) {
-        clientLogger.error('UI', 'Error loading project content', {
-          project: 0,
-          error: error instanceof Error ? error.message : String(error),
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadContent()
-  }, [locale])
-
-  // Load employer images
-  useEffect(() => {
-    const images = Array.from({ length: 13 }, (_, i) =>
-      `/images/projects/project-0/employer/employer${i}.webp`
-    )
-    setEmployerImages(images)
-  }, [])
+  const eventLightbox = useLightbox()
+  const successLightbox = useLightbox()
+  const reportLightbox = useLightbox()
+  const employerLightbox = useLightbox()
 
   // Prepare lightbox images
   const eventLightboxImages = useMemo<LightboxImage[]>(
@@ -98,27 +67,6 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
     () => employerImages.map((url) => ({ url })),
     [employerImages]
   )
-
-  // Lightbox handlers
-  const handleEventImageClick = (index: number) => {
-    setEventLightboxIndex(index)
-    setEventLightboxOpen(true)
-  }
-
-  const handleSuccessImageClick = (index: number) => {
-    setSuccessLightboxIndex(index)
-    setSuccessLightboxOpen(true)
-  }
-
-  const handleReportClick = (index: number) => {
-    setReportLightboxIndex(index)
-    setReportLightboxOpen(true)
-  }
-
-  const handleEmployerImageClick = (index: number) => {
-    setEmployerLightboxIndex(index)
-    setEmployerLightboxOpen(true)
-  }
 
   if (loading) {
     return (
@@ -178,7 +126,7 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
           {/* Event Gallery */}
           {content.images && content.images.length > 0 && (
             <FadeInSection delay={100}>
-              <EventGallerySection content={content} onImageClick={handleEventImageClick} />
+              <EventGallerySection content={content} onImageClick={eventLightbox.open} />
             </FadeInSection>
           )}
 
@@ -191,12 +139,7 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
           {content.progressGallery && content.results && (
             <FadeInSection delay={300}>
               <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-6 bg-gradient-to-b from-ukraine-blue-500 to-ukraine-gold-500 rounded-full" />
-                  <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
-                    {content.progressGallery.title}
-                  </h2>
-                </div>
+                <SectionHeader title={content.progressGallery.title} gradientClassName="from-ukraine-blue-500 to-ukraine-gold-500" />
                 <CollapsibleGallery
                   results={[
                     ...content.progressGallery.images.map((img) => ({
@@ -225,7 +168,7 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
               <TeamSection
                 content={content}
                 employerImages={employerImages}
-                onImageClick={handleEmployerImageClick}
+                onImageClick={employerLightbox.open}
               />
             </FadeInSection>
           )}
@@ -237,7 +180,7 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
 
           {/* Success Stories */}
           <FadeInSection delay={600}>
-            <SuccessStoriesSection content={content} onImageClick={handleSuccessImageClick} />
+            <SuccessStoriesSection content={content} onImageClick={successLightbox.open} />
           </FadeInSection>
 
           {/* Challenges */}
@@ -248,7 +191,7 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
           {/* Financial Status */}
           {content.financialStatus && (
             <FadeInSection delay={800}>
-              <FinancialSection content={content} onReportClick={handleReportClick} />
+              <FinancialSection content={content} onReportClick={reportLightbox.open} />
             </FadeInSection>
           )}
 
@@ -261,36 +204,36 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
         </div>
 
         {/* Lightboxes */}
-        {eventLightboxOpen && (
+        {eventLightbox.isOpen && (
           <ImageLightbox
             images={eventLightboxImages}
-            initialIndex={eventLightboxIndex}
-            isOpen={eventLightboxOpen}
-            onClose={() => setEventLightboxOpen(false)}
+            initialIndex={eventLightbox.currentIndex}
+            isOpen={eventLightbox.isOpen}
+            onClose={eventLightbox.close}
           />
         )}
-        {successLightboxOpen && (
+        {successLightbox.isOpen && (
           <ImageLightbox
             images={successLightboxImages}
-            initialIndex={successLightboxIndex}
-            isOpen={successLightboxOpen}
-            onClose={() => setSuccessLightboxOpen(false)}
+            initialIndex={successLightbox.currentIndex}
+            isOpen={successLightbox.isOpen}
+            onClose={successLightbox.close}
           />
         )}
-        {reportLightboxOpen && (
+        {reportLightbox.isOpen && (
           <ImageLightbox
             images={reportLightboxImages}
-            initialIndex={reportLightboxIndex}
-            isOpen={reportLightboxOpen}
-            onClose={() => setReportLightboxOpen(false)}
+            initialIndex={reportLightbox.currentIndex}
+            isOpen={reportLightbox.isOpen}
+            onClose={reportLightbox.close}
           />
         )}
-        {employerLightboxOpen && (
+        {employerLightbox.isOpen && (
           <ImageLightbox
             images={employerLightboxImages}
-            initialIndex={employerLightboxIndex}
-            isOpen={employerLightboxOpen}
-            onClose={() => setEmployerLightboxOpen(false)}
+            initialIndex={employerLightbox.currentIndex}
+            isOpen={employerLightbox.isOpen}
+            onClose={employerLightbox.close}
           />
         )}
       </article>

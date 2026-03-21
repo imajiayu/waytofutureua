@@ -81,11 +81,9 @@ export async function createWayForPayDonation(data: {
     // Validate input
     const validated = donationFormSchema.parse(data)
 
-    // Get project details with stats (includes total_raised)
-    const project = await getProjectStats(validated.project_id) as any
-
-    // Get all projects stats for updating the entire page
+    // Get all projects stats (includes the specific project we need)
     const allProjectsStats = await getProjectStats() as any[]
+    const project = allProjectsStats.find((p: any) => p.id === validated.project_id)
 
     if (!project) {
       return {
@@ -442,11 +440,9 @@ export async function createNowPaymentsDonation(data: {
     // Validate input
     const validated = donationFormSchema.parse(data)
 
-    // Get project details with stats
-    const project = await getProjectStats(validated.project_id) as any
-
-    // Get all projects stats for updating the entire page
+    // Get all projects stats (includes the specific project we need)
     const allProjectsStats = await getProjectStats() as any[]
+    const project = allProjectsStats.find((p: any) => p.id === validated.project_id)
 
     if (!project) {
       return {

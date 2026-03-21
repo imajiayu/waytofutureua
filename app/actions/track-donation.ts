@@ -14,6 +14,7 @@ import {
   type DonationStatus
 } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
+import type { SupportedLocale } from '@/lib/i18n-utils'
 import { trackDonationSchema, requestRefundSchema } from '@/lib/validations'
 
 /**
@@ -329,7 +330,7 @@ export async function requestRefund(data: {
               donationIds: refundableDonations.map(d => d.donation_public_id),
               refundAmount: totalOrderAmount,
               currency: (donationData.currency as string) || 'USD',
-              locale: (firstDonation.locale as 'en' | 'zh' | 'ua') || 'en',
+              locale: (firstDonation.locale as SupportedLocale) || 'en',
             })
             logger.info('REFUND', 'Refund success email sent', { to: firstDonation.donor_email })
           }

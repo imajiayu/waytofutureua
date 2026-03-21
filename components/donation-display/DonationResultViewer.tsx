@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { XIcon, ImageIcon, Loader2Icon, DownloadIcon, PlayCircleIcon } from '@/components/icons'
 import { getAllDonationResultFiles } from '@/app/actions/donation-result'
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
 import JSZip from 'jszip'
 import { clientLogger } from '@/lib/logger-client'
@@ -132,28 +133,7 @@ export default function DonationResultViewer({
     setLightboxOpen(true)
   }
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    // Save current scroll position
-    const scrollY = window.scrollY
-
-    // Prevent scrolling
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollY}px`
-    document.body.style.width = '100%'
-
-    return () => {
-      // Restore scrolling
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-
-      // Restore scroll position
-      window.scrollTo(0, scrollY)
-    }
-  }, [])
+  useBodyScrollLock()
 
   return (
     <>

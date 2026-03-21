@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { FadeInSection } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
-import { clientLogger } from '@/lib/logger-client'
+import { useProjectContents } from '@/lib/hooks/useProjectContent'
+import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
 import type { Project4Content, Project4DetailContentProps, AidListData } from './types'
 
@@ -23,51 +24,16 @@ import {
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project4DetailContent({ project, locale }: Project4DetailContentProps) {
-  const [content, setContent] = useState<Project4Content | null>(null)
-  const [aidData, setAidData] = useState<AidListData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [detailLightboxOpen, setDetailLightboxOpen] = useState(false)
-  const [detailLightboxIndex, setDetailLightboxIndex] = useState(0)
-  const [galleryLightboxOpen, setGalleryLightboxOpen] = useState(false)
-  const [galleryLightboxIndex, setGalleryLightboxIndex] = useState(0)
-  const [livingConditionsLightboxOpen, setLivingConditionsLightboxOpen] = useState(false)
-  const [livingConditionsLightboxIndex, setLivingConditionsLightboxIndex] = useState(0)
-  const [talentLightboxOpen, setTalentLightboxOpen] = useState(false)
-  const [talentLightboxIndex, setTalentLightboxIndex] = useState(0)
-  const [receiptLightboxOpen, setReceiptLightboxOpen] = useState(false)
-  const [receiptLightboxIndex, setReceiptLightboxIndex] = useState(0)
+  const { data: [content, aidData], loading } = useProjectContents<[Project4Content, AidListData]>([
+    { url: `/content/projects/project-4-${locale}.json`, projectId: 4 },
+    { url: `/content/projects/project-4-aid-${locale}.json`, projectId: 4 },
+  ])
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load both content and aid data in parallel
-        const [contentResponse, aidResponse] = await Promise.all([
-          fetch(`/content/projects/project-4-${locale}.json`),
-          fetch(`/content/projects/project-4-aid-${locale}.json`),
-        ])
-
-        if (contentResponse.ok) {
-          setContent(await contentResponse.json())
-        } else {
-          clientLogger.warn('UI', 'No content found for project-4', { locale })
-        }
-
-        if (aidResponse.ok) {
-          setAidData(await aidResponse.json())
-        } else {
-          clientLogger.warn('UI', 'No aid data found for project-4', { locale })
-        }
-      } catch (error) {
-        clientLogger.error('UI', 'Error loading project content', {
-          project: 4,
-          error: error instanceof Error ? error.message : String(error),
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
-  }, [locale])
+  const detailLightbox = useLightbox()
+  const galleryLightbox = useLightbox()
+  const livingConditionsLightbox = useLightbox()
+  const talentLightbox = useLightbox()
+  const receiptLightbox = useLightbox()
 
   const detailLightboxImages = useMemo<LightboxImage[]>(
     () => content?.images?.map((url) => ({ url })) || [],
@@ -101,39 +67,6 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
     () => aidData?.receipts?.images?.map((url) => ({ url })) || [],
     [aidData]
   )
-
-  // P2 优化: useCallback 避免不必要的重渲染
-  const handleDetailImageClick = useCallback((index: number) => {
-    setDetailLightboxIndex(index)
-    setDetailLightboxOpen(true)
-  }, [])
-
-  const handleGalleryImageClick = useCallback((index: number) => {
-    setGalleryLightboxIndex(index)
-    setGalleryLightboxOpen(true)
-  }, [])
-
-  const handleLivingConditionsImageClick = useCallback((index: number) => {
-    setLivingConditionsLightboxIndex(index)
-    setLivingConditionsLightboxOpen(true)
-  }, [])
-
-  const handleTalentImageClick = useCallback((index: number) => {
-    setTalentLightboxIndex(index)
-    setTalentLightboxOpen(true)
-  }, [])
-
-  const handleReceiptClick = useCallback((index: number) => {
-    setReceiptLightboxIndex(index)
-    setReceiptLightboxOpen(true)
-  }, [])
-
-  // Lightbox close handlers
-  const handleDetailLightboxClose = useCallback(() => setDetailLightboxOpen(false), [])
-  const handleGalleryLightboxClose = useCallback(() => setGalleryLightboxOpen(false), [])
-  const handleLivingConditionsLightboxClose = useCallback(() => setLivingConditionsLightboxOpen(false), [])
-  const handleTalentLightboxClose = useCallback(() => setTalentLightboxOpen(false), [])
-  const handleReceiptLightboxClose = useCallback(() => setReceiptLightboxOpen(false), [])
 
   if (loading) {
     return (
@@ -228,7 +161,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
                     <div
                       key={idx}
                       className="relative aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
-                      onClick={() => handleDetailImageClick(idx)}
+                      onClick={() => detailLightbox.open(idx)}
                     >
                       <Image
                         src={img}
@@ -252,18 +185,18 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
 
           {/* Living Conditions */}
           <FadeInSection delay={200}>
-            <LivingConditionsSection content={content} onImageClick={handleLivingConditionsImageClick} />
+            <LivingConditionsSection content={content} onImageClick={livingConditionsLightbox.open} />
           </FadeInSection>
 
           {/* Children's Talents */}
           <FadeInSection delay={250}>
-            <StorySection content={content} onTalentImageClick={handleTalentImageClick} />
+            <StorySection content={content} onTalentImageClick={talentLightbox.open} />
           </FadeInSection>
 
           {/* Family Gallery */}
           {content.familyGallery && content.familyGallery.images.length > 0 && (
             <FadeInSection delay={300}>
-              <FamilyGallerySection content={content} onImageClick={handleGalleryImageClick} />
+              <FamilyGallerySection content={content} onImageClick={galleryLightbox.open} />
             </FadeInSection>
           )}
 
@@ -277,7 +210,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       {/* Aid List - Standalone Section */}
       {aidData && (
         <FadeInSection delay={450}>
-          <AidListSection aidData={aidData} locale={locale} onReceiptClick={handleReceiptClick} />
+          <AidListSection aidData={aidData} locale={locale} onReceiptClick={receiptLightbox.open} />
         </FadeInSection>
       )}
 
@@ -287,44 +220,44 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       </FadeInSection>
 
       {/* Lightboxes */}
-      {detailLightboxOpen && (
+      {detailLightbox.isOpen && (
         <ImageLightbox
           images={detailLightboxImages}
-          initialIndex={detailLightboxIndex}
-          isOpen={detailLightboxOpen}
-          onClose={handleDetailLightboxClose}
+          initialIndex={detailLightbox.currentIndex}
+          isOpen={detailLightbox.isOpen}
+          onClose={detailLightbox.close}
         />
       )}
-      {galleryLightboxOpen && (
+      {galleryLightbox.isOpen && (
         <ImageLightbox
           images={galleryLightboxImages}
-          initialIndex={galleryLightboxIndex}
-          isOpen={galleryLightboxOpen}
-          onClose={handleGalleryLightboxClose}
+          initialIndex={galleryLightbox.currentIndex}
+          isOpen={galleryLightbox.isOpen}
+          onClose={galleryLightbox.close}
         />
       )}
-      {livingConditionsLightboxOpen && (
+      {livingConditionsLightbox.isOpen && (
         <ImageLightbox
           images={livingConditionsLightboxImages}
-          initialIndex={livingConditionsLightboxIndex}
-          isOpen={livingConditionsLightboxOpen}
-          onClose={handleLivingConditionsLightboxClose}
+          initialIndex={livingConditionsLightbox.currentIndex}
+          isOpen={livingConditionsLightbox.isOpen}
+          onClose={livingConditionsLightbox.close}
         />
       )}
-      {talentLightboxOpen && (
+      {talentLightbox.isOpen && (
         <ImageLightbox
           images={talentLightboxImages}
-          initialIndex={talentLightboxIndex}
-          isOpen={talentLightboxOpen}
-          onClose={handleTalentLightboxClose}
+          initialIndex={talentLightbox.currentIndex}
+          isOpen={talentLightbox.isOpen}
+          onClose={talentLightbox.close}
         />
       )}
-      {receiptLightboxOpen && receiptLightboxImages.length > 0 && (
+      {receiptLightbox.isOpen && receiptLightboxImages.length > 0 && (
         <ImageLightbox
           images={receiptLightboxImages}
-          initialIndex={receiptLightboxIndex}
-          isOpen={receiptLightboxOpen}
-          onClose={handleReceiptLightboxClose}
+          initialIndex={receiptLightbox.currentIndex}
+          isOpen={receiptLightbox.isOpen}
+          onClose={receiptLightbox.close}
         />
       )}
     </div>

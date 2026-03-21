@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import type { Database } from '@/types/database'
 import { updateProject } from '@/app/actions/admin'
-import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
+import { formatDateTime } from '@/lib/i18n-utils'
+import AdminBaseModal from './AdminBaseModal'
 
 type Project = Database['public']['Tables']['projects']['Row']
 
@@ -17,9 +18,6 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
   const [formData, setFormData] = useState<Project>(project)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  // Lock body scroll when modal is open
-  useBodyScrollLock()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,32 +38,10 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
     setFormData({ ...formData, [field]: value })
   }
 
-  const formatDateTime = (date: string | null) => {
-    if (!date) return 'N/A'
-    return new Date(date).toLocaleString()
-  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold font-body">Edit Project #{project.id}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ✕
-            </button>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded">
-              {error}
-            </div>
-          )}
-
-          {/* Read-only fields */}
+    <AdminBaseModal title={`Edit Project #${project.id}`} onClose={onClose} error={error}>
+      {/* Read-only fields */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-2 text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -409,9 +385,7 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                 {loading ? 'Saving...' : 'Save'}
               </button>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
+      </form>
+    </AdminBaseModal>
   )
 }

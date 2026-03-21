@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { Database } from '@/types/database'
-import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
+import AdminBaseModal from './AdminBaseModal'
 import {
   updateDonationStatus,
   uploadDonationResultFile,
@@ -10,6 +10,7 @@ import {
   deleteDonationResultFile
 } from '@/app/actions/admin'
 import { clientLogger } from '@/lib/logger-client'
+import { formatDateTime } from '@/lib/i18n-utils'
 import DonationStatusProgress from './DonationStatusProgress'
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import {
@@ -62,9 +63,6 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
 
   // 检查是否可以管理文件（只有 completed 状态才能独立管理文件）
   const canManageFiles = checkCanManageFiles(currentStatus)
-
-  // Lock body scroll when modal is open
-  useBodyScrollLock()
 
   // 加载现有文件
   useEffect(() => {
@@ -239,35 +237,10 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
     }
   }
 
-  const formatDateTime = (date: string | null) => {
-    if (!date) return 'N/A'
-    return new Date(date).toLocaleString()
-  }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold font-body">
-              Edit Donation #{donation.id}
-            </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ✕
-            </button>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded">
-              {error}
-            </div>
-          )}
-
-          {/* Status Progress Visualization + Action Buttons */}
+    <AdminBaseModal title={`Edit Donation #${donation.id}`} onClose={onClose} error={error}>
+      <form onSubmit={handleSubmit}>
+        {/* Status Progress Visualization + Action Buttons */}
           <div className="mb-6">
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <h3 className="text-sm font-semibold text-gray-700 mb-3 font-body">Donation Status Flow</h3>
@@ -640,7 +613,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
                   {statusHistory.map((history) => (
                     <div key={history.id} className="flex items-center gap-2 text-sm text-gray-700 bg-white p-2 rounded">
                       <span className="text-xs text-gray-500 font-data">
-                        {new Date(history.changed_at).toLocaleString('zh-CN', {
+                        {formatDateTime(history.changed_at, 'zh', {
                           year: 'numeric',
                           month: '2-digit',
                           day: '2-digit',
@@ -667,8 +640,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
               </div>
             )}
           </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </AdminBaseModal>
   )
 }

@@ -12,6 +12,7 @@ import {
   type DonationStatus
 } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
+import type { SupportedLocale } from '@/lib/i18n-utils'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
@@ -112,26 +113,28 @@ export async function updateProject(id: number, updates: ProjectUpdate) {
 export async function getAdminDonations() {
   const supabase = await getAdminClient()
 
-  // 获取所有捐赠
-  const { data, error } = await supabase
-    .from('donations')
-    .select(`
-      *,
-      projects (
-        project_name,
-        project_name_i18n
-      )
-    `)
+  // 并行获取捐赠和状态历史
+  const [donationsResult, historyResult] = await Promise.all([
+    supabase
+      .from('donations')
+      .select(`
+        *,
+        projects (
+          project_name,
+          project_name_i18n
+        )
+      `),
+    supabase
+      .from('donation_status_history')
+      .select('*')
+      .order('changed_at', { ascending: true })
+  ])
 
-  if (error) throw error
+  if (donationsResult.error) throw donationsResult.error
+  if (historyResult.error) throw historyResult.error
 
-  // 获取所有状态历史
-  const { data: history, error: historyError } = await supabase
-    .from('donation_status_history')
-    .select('*')
-    .order('changed_at', { ascending: true })
-
-  if (historyError) throw historyError
+  const data = donationsResult.data
+  const history = historyResult.data
 
   // 自定义排序：failed 状态排在最后，其他按 donated_at 降序
   const sorted = (data || []).sort((a, b) => {
@@ -272,7 +275,7 @@ export async function updateDonationStatus(
           quantity: 1,
           totalAmount: current.amount,
           currency: 'UAH',
-          locale: (current.locale || 'en') as 'en' | 'zh' | 'ua',
+          locale: (current.locale || 'en') as SupportedLocale,
           resultImageUrl
         })
 

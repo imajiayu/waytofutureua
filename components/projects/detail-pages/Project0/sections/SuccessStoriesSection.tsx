@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+import { SectionHeader } from '@/components/projects/shared'
 import type { SectionProps } from '../types'
 
 interface SuccessStoriesSectionProps extends Pick<SectionProps, 'content'> {
@@ -13,12 +14,7 @@ export default function SuccessStoriesSection({ content, onImageClick }: Success
 
   return (
     <section>
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-1 h-6 bg-gradient-to-b from-ukraine-gold-500 to-amber-400 rounded-full" />
-        <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
-          {t('project0.storiesOfHope')}
-        </h2>
-      </div>
+      <SectionHeader title={t('project0.storiesOfHope')} gradientClassName="from-ukraine-gold-500 to-amber-400" />
 
       <div className="grid grid-cols-2 gap-2 md:gap-3">
         {content.successStories.map((story, idx) => (

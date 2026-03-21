@@ -6,6 +6,7 @@ import DonationEditModal from './DonationEditModal'
 import BatchDonationEditModal from './BatchDonationEditModal'
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import { canBatchEdit, requiresFileUploadToTransition, type DonationStatus } from '@/lib/donation-status'
+import { formatDate, formatDateTime } from '@/lib/i18n-utils'
 
 type Donation = Database['public']['Tables']['donations']['Row'] & {
   projects: { project_name: string; project_name_i18n: any }
@@ -352,9 +353,9 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                         className="px-3 py-3 text-sm text-gray-500 cursor-pointer"
                         onClick={() => handleEdit(donation)}
                       >
-                        <div>{new Date(donation.donated_at).toLocaleDateString()}</div>
+                        <div>{formatDate(donation.donated_at)}</div>
                         <div className="text-xs text-gray-400">
-                          {new Date(donation.donated_at).toLocaleTimeString()}
+                          {formatDateTime(donation.donated_at, 'en', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </td>
                     </tr>

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { Database } from '@/types/database'
 import { createProject } from '@/app/actions/admin'
+import AdminBaseModal from './AdminBaseModal'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
@@ -26,29 +27,6 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    // Save current scroll position
-    const scrollY = window.scrollY
-
-    // Prevent scrolling
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollY}px`
-    document.body.style.width = '100%'
-
-    return () => {
-      // Restore scrolling
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-
-      // Restore scroll position
-      window.scrollTo(0, scrollY)
-    }
-  }, [])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -69,26 +47,8 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold font-body">Create New Project</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ✕
-            </button>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+    <AdminBaseModal title="Create New Project" onClose={onClose} error={error}>
+      <form onSubmit={handleSubmit} className="space-y-4">
             {/* Basic Info */}
             <div className="border-b pb-4">
               <h3 className="text-lg font-semibold mb-3 font-body">Basic Information</h3>
@@ -444,9 +404,7 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
                 {loading ? 'Creating...' : 'Create Project'}
               </button>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
+      </form>
+    </AdminBaseModal>
   )
 }

@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import { EmailSubscription } from '@/app/actions/subscription'
+import { formatDateTime } from '@/lib/i18n-utils'
 
 interface SubscriptionsTableProps {
   subscriptions: EmailSubscription[]
@@ -199,13 +200,7 @@ export default function SubscriptionsTable({
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(subscription.updated_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {formatDateTime(subscription.updated_at)}
                     </td>
                   </tr>
                 ))

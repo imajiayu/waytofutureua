@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import type { Database } from '@/types/database'
-import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { batchUpdateDonationStatus } from '@/app/actions/admin'
+import AdminBaseModal from './AdminBaseModal'
 import DonationStatusProgress from './DonationStatusProgress'
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import { getNextAllowedStatuses, type DonationStatus } from '@/lib/donation-status'
@@ -20,9 +20,6 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
   const [newStatus, setNewStatus] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  // Lock body scroll when modal is open
-  useBodyScrollLock()
 
   if (donations.length === 0) {
     return null
@@ -49,27 +46,8 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold font-body">
-              Batch Edit Donations ({donations.length} selected)
-            </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ✕
-            </button>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded">
-              {error}
-            </div>
-          )}
+    <AdminBaseModal title={`Batch Edit Donations (${donations.length} selected)`} onClose={onClose} error={error} maxWidth="3xl">
+      <form onSubmit={handleSubmit}>
 
           {/* Status Progress Visualization */}
           <div className="mb-6">
@@ -189,8 +167,7 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
               </div>
             </div>
           </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </AdminBaseModal>
   )
 }

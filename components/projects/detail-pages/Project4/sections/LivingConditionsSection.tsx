@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+import { SectionHeader } from '@/components/projects/shared'
 import type { SectionProps } from '../types'
 
 interface LivingConditionsSectionProps extends SectionProps {
@@ -21,13 +22,7 @@ export default function LivingConditionsSection({ content, onImageClick }: Livin
 
   return (
     <section>
-      {/* Section Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-1 h-6 bg-gradient-to-b from-stone-500 to-stone-700 rounded-full" />
-        <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
-          {content.livingConditions.title}
-        </h2>
-      </div>
+      <SectionHeader title={content.livingConditions.title} gradientClassName="from-stone-500 to-stone-700" className="mb-4" />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:items-stretch">
