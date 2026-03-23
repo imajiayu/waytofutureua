@@ -159,6 +159,10 @@
     "projectResults": "Project Results",
     "projectResultsDescription": "See the direct impact of your donation through photos and updates",
     "scrollToViewMore": "Scroll to view more",
+    "contentNotAvailable": "Content not available",
+    "receiptImageAlt": "Receipt {index}",
+    "eventImageAlt": "Event photo {index}",
+    "photoAlt": "Photo {index}",
     "rehabilitationCenter": "Rehabilitation Center",
     "children": "children",
     "totalChildren": "Total Children",
@@ -265,6 +269,7 @@
     "noProjectSelected": "Please select a project above to continue",
     "scrollToViewAll": "Scroll to view all projects",
     "donateNowButton": "Donate Now",
+    "detailsComingSoon": "Project details coming soon.",
     "trackDonationTitle": "Track Your Donation",
     "trackDonationDescription": "Follow your contribution from payment to completion with full transparency and real-time updates",
     "showDetails": "Show Details",
@@ -631,7 +636,8 @@
       "invalidStatus": "This donation cannot be refunded due to its current status.",
       "refundDeclined": "Refund was declined by the payment provider. Please contact support for assistance.",
       "refundApiError": "Failed to process refund with payment provider. Please try again later or contact support."
-    }
+    },
+    "noDonationsFound": "No Donations Found"
   },
   "donationStatusFlow": {
     "title": "Donation Process",

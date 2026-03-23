@@ -159,6 +159,10 @@
     "projectResults": "项目成果",
     "projectResultsDescription": "通过照片和更新查看您捐赠的直接影响",
     "scrollToViewMore": "滑动查看更多",
+    "contentNotAvailable": "内容暂不可用",
+    "receiptImageAlt": "收据 {index}",
+    "eventImageAlt": "活动照片 {index}",
+    "photoAlt": "照片 {index}",
     "rehabilitationCenter": "康复中心",
     "children": "名儿童",
     "totalChildren": "儿童总数",
@@ -265,6 +269,7 @@
     "noProjectSelected": "请在上方选择一个项目以继续",
     "scrollToViewAll": "滚动查看所有项目",
     "donateNowButton": "立即捐赠",
+    "detailsComingSoon": "项目详情即将发布。",
     "trackDonationTitle": "追踪您的捐款",
     "trackDonationDescription": "以完全透明和实时更新的方式跟踪您的捐款从支付到完成的整个过程",
     "showDetails": "显示详情",
@@ -632,7 +637,8 @@
       "invalidStatus": "此捐赠当前状态无法申请退款。",
       "refundDeclined": "支付平台拒绝了退款请求。请联系客服寻求帮助。",
       "refundApiError": "退款处理失败，请稍后重试或联系客服。"
-    }
+    },
+    "noDonationsFound": "未找到捐赠记录"
   },
   "donationStatusFlow": {
     "title": "捐赠流程",

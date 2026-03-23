@@ -17,6 +17,7 @@ interface UnsubscribedClientProps {
 
 export default function UnsubscribedClient({ locale, hasError }: UnsubscribedClientProps) {
   const t = useTranslations('unsubscribed')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [isNavigating, setIsNavigating] = useState(false)
 
@@ -27,7 +28,7 @@ export default function UnsubscribedClient({ locale, hasError }: UnsubscribedCli
 
   return (
     <>
-      <GlobalLoadingSpinner isLoading={isNavigating} loadingText="Loading..." />
+      <GlobalLoadingSpinner isLoading={isNavigating} loadingText={tc('loading')} />
 
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">

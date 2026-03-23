@@ -159,6 +159,10 @@
     "projectResults": "Результати проєкту",
     "projectResultsDescription": "Побачте прямий вплив вашого донату через фото та оновлення",
     "scrollToViewMore": "Прокрутіть, щоб побачити більше",
+    "contentNotAvailable": "Вміст недоступний",
+    "receiptImageAlt": "Квитанція {index}",
+    "eventImageAlt": "Фото заходу {index}",
+    "photoAlt": "Фото {index}",
     "rehabilitationCenter": "Реабілітаційний центр",
     "children": "дітей",
     "totalChildren": "Всього дітей",
@@ -265,6 +269,7 @@
     "noProjectSelected": "Будь ласка, виберіть проєкт вище, щоб продовжити",
     "scrollToViewAll": "Прокрутіть, щоб переглянути всі проєкти",
     "donateNowButton": "Зробити внесок",
+    "detailsComingSoon": "Деталі проєкту скоро будуть доступні.",
     "trackDonationTitle": "Відстежити ваш внесок",
     "trackDonationDescription": "Відстежуйте свій внесок від оплати до завершення з повною прозорістю та оновленнями в реальному часі",
     "showDetails": "Показати деталі",
@@ -632,7 +637,8 @@
       "invalidStatus": "Неможливо повернути кошти через поточний статус донату.",
       "refundDeclined": "Платіжна система відхилила повернення коштів. Будь ласка, зверніться до служби підтримки.",
       "refundApiError": "Не вдалося обробити повернення коштів. Спробуйте пізніше або зверніться до підтримки."
-    }
+    },
+    "noDonationsFound": "Донати не знайдено"
   },
   "donationStatusFlow": {
     "title": "Процес донату",

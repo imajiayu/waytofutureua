@@ -45,7 +45,8 @@ const BottomSheet = dynamic(() => import('@/components/common/BottomSheet'), {
 function renderProjectDetail(
   projectId: number,
   project: ProjectStats,
-  locale: string
+  locale: string,
+  t: (key: string) => string
 ): React.ReactNode {
   const key = `detail-${projectId}`
 
@@ -63,11 +64,7 @@ function renderProjectDetail(
       return (
         <div className="bg-white rounded-xl border-2 border-gray-200 shadow-sm overflow-hidden p-8 text-center">
           <p className="text-gray-600">
-            {locale === 'en'
-              ? 'Project details coming soon.'
-              : locale === 'zh'
-              ? '项目详情即将发布。'
-              : 'Деталі проекту скоро будуть доступні.'}
+            {t('detailsComingSoon')}
           </p>
         </div>
       )
@@ -299,7 +296,7 @@ export default function DonatePageClient({
               {/* Left Side: Project Detail Content (60%) */}
               <div className="lg:col-span-3 space-y-3 md:space-y-4">
                 {/* Render project-specific detail component */}
-                {renderProjectDetail(selectedProjectId, selectedProject, locale)}
+                {renderProjectDetail(selectedProjectId, selectedProject, locale, t)}
               </div>
 
               {/* Right Side: Donation Form (40%) - Desktop Only */}

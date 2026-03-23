@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { FadeInSection } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
+import { useTranslations } from 'next-intl'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
@@ -23,6 +24,7 @@ import {
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project3DetailContent({ project, locale }: Project3DetailContentProps) {
+  const t = useTranslations('projects')
   const { data: [content, suppliesData], loading } = useProjectContents<[ProjectContent, SuppliesData]>([
     { url: `/content/projects/project-3-${locale}.json`, projectId: 3 },
     { url: `/content/projects/project-3-supplies-${locale}.json`, projectId: 3 },
@@ -48,7 +50,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
   )
   const receiptLightboxImages = useMemo<LightboxImage[]>(
     () =>
-      suppliesData?.receipts?.images?.map((url, idx) => ({ url, caption: `Receipt ${idx + 1}` })) ||
+      suppliesData?.receipts?.images?.map((url, idx) => ({ url, caption: t('receiptImageAlt', { index: idx + 1 }) })) ||
       [],
     [suppliesData]
   )
@@ -111,7 +113,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                   >
                     <Image
                       src={content.images[0]}
-                      alt="Event"
+                      alt={t('eventImageAlt', { index: 1 })}
                       fill
                       sizes="(max-width: 768px) 66vw, 50vw"
                       className="object-cover transition-all duration-500 group-hover:scale-105"
@@ -126,7 +128,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                     >
                       <Image
                         src={img}
-                        alt={`Event ${idx + 2}`}
+                        alt={t('eventImageAlt', { index: idx + 2 })}
                         fill
                         sizes="(max-width: 768px) 33vw, 25vw"
                         className="object-cover transition-all duration-500 group-hover:scale-105"
@@ -141,7 +143,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                     >
                       <Image
                         src={img}
-                        alt={`Event ${idx + 4}`}
+                        alt={t('eventImageAlt', { index: idx + 4 })}
                         fill
                         sizes="(max-width: 768px) 33vw, 25vw"
                         className="object-cover transition-all duration-500 group-hover:scale-105"

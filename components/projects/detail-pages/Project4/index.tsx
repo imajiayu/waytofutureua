@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { FadeInSection } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
+import { useTranslations } from 'next-intl'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
@@ -24,6 +25,7 @@ import {
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project4DetailContent({ project, locale }: Project4DetailContentProps) {
+  const t = useTranslations('projects')
   const { data: [content, aidData], loading } = useProjectContents<[Project4Content, AidListData]>([
     { url: `/content/projects/project-4-${locale}.json`, projectId: 4 },
     { url: `/content/projects/project-4-aid-${locale}.json`, projectId: 4 },
@@ -94,7 +96,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
   if (!content) {
     return (
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
-        <p className="text-gray-600 text-center">Content not available</p>
+        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
       </div>
     )
   }
@@ -165,7 +167,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
                     >
                       <Image
                         src={img}
-                        alt={`Photo ${idx + 1}`}
+                        alt={t('photoAlt', { index: idx + 1 })}
                         fill
                         sizes="(max-width: 768px) 33vw, 33vw"
                         className="object-cover transition-all duration-500 group-hover:scale-105"

@@ -9,7 +9,7 @@ interface BottomSheetProps {
   children: React.ReactNode
   snapPoints?: number[] // Percentages of viewport height [min, mid, max]
   title?: string
-  minimizedHint?: string // Text to show when minimized
+  minimizedHint: string // Text to show when minimized
   hideWhenMinimized?: boolean // Hide completely when minimized (to show footer)
   expandTrigger?: number // Increment to trigger expand (used for external control)
 }
@@ -190,7 +190,7 @@ export default function BottomSheet({
           >
             <ChevronUpIcon className="w-6 h-6 text-ukraine-blue-900" />
             <span className="text-ukraine-blue-900 font-bold text-lg">
-              {minimizedHint || 'Donate Now'}
+              {minimizedHint}
             </span>
             <ChevronUpIcon className="w-6 h-6 text-ukraine-blue-900" />
           </div>

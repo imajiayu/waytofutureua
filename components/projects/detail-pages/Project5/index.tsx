@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { FadeInSection } from '@/components/projects/shared'
+import { useTranslations } from 'next-intl'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { Project5Content, Project5DetailContentProps } from './types'
@@ -12,6 +13,7 @@ import { HeroSection, BackgroundSection, EventsSection } from './sections'
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project5DetailContent({ project, locale }: Project5DetailContentProps) {
+  const t = useTranslations('projects')
   const { data: content, loading } = useProjectContent<Project5Content>(
     `/content/projects/project-5-${locale}.json`,
     5
@@ -53,7 +55,7 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
   if (!content) {
     return (
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
-        <p className="text-gray-600 text-center">Content not available</p>
+        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
       </div>
     )
   }

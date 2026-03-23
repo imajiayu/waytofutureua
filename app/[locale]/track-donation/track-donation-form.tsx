@@ -532,7 +532,7 @@ export default function TrackDonationForm({ locale }: Props) {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
             <SearchIcon className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 font-display">No Donations Found</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 font-display">{t('noDonationsFound')}</h3>
           <p className="text-gray-600">{t('errors.donationNotFound')}</p>
         </div>
       )}
