@@ -1,3 +1,6 @@
+import { Suspense } from 'react'
+import { readFile } from 'fs/promises'
+import path from 'path'
 import { getTranslations } from 'next-intl/server'
 import { BASE_URL, getAlternates } from '@/lib/constants'
 import { locales } from '@/i18n/config'
@@ -49,19 +52,18 @@ export default async function Home({ params }: Props) {
   // Load home marquee results from dedicated JSON file
   const projectResults: ProjectResult[] = []
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/content/home/marquee-${locale}.json`)
-    if (response.ok) {
-      const data = await response.json()
-      if (data.results && data.results.length > 0) {
-        projectResults.push(...data.results)
-      }
+    const filePath = path.join(process.cwd(), 'public', 'content', 'home', `marquee-${locale}.json`)
+    const fileContent = await readFile(filePath, 'utf-8')
+    const data = JSON.parse(fileContent)
+    if (data.results && data.results.length > 0) {
+      projectResults.push(...data.results)
     }
   } catch (error) {
     logger.errorWithStack('DB', 'Error loading home marquee', error)
   }
 
   return (
-    <main className="w-full">
+    <div className="w-full">
       {/* Section 1: Mission */}
       <MissionSection />
 
@@ -87,7 +89,19 @@ export default async function Home({ params }: Props) {
             </div>
 
             {/* Projects Grid */}
-            <ProjectsGrid />
+            <Suspense fallback={
+              <div className="w-full">
+                <div className="overflow-x-auto pb-4 pt-2 scrollbar-hide">
+                  <div className="flex gap-6 min-w-min px-6">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="w-[300px] md:w-[350px] h-[400px] bg-gray-100 rounded-2xl animate-pulse flex-shrink-0" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            }>
+              <ProjectsGrid />
+            </Suspense>
           </div>
         </section>
 
@@ -100,6 +114,6 @@ export default async function Home({ params }: Props) {
         {/* Section 7: Legal Compliance */}
         <ComplianceSection />
       </div>
-    </main>
+    </div>
   )
 }

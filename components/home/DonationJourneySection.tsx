@@ -3,8 +3,13 @@
 import { useTranslations } from 'next-intl'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { useState, useEffect } from 'react'
-import DonationStatusFlow from '@/components/donation-display/DonationStatusFlow'
+import dynamic from 'next/dynamic'
 import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
+
+const DonationStatusFlow = dynamic(
+  () => import('@/components/donation-display/DonationStatusFlow'),
+  { ssr: false }
+)
 
 export default function DonationJourneySection() {
   const t = useTranslations('home.hero.donationJourney')
