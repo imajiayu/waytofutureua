@@ -108,9 +108,9 @@ export async function POST(req: Request) {
         break
 
       case NOWPAYMENTS_STATUS.PARTIALLY_PAID:
-        newStatus = 'paid'
-        shouldSendEmail = true
-        logger.warn('WEBHOOK:NOWPAYMENTS', 'Partial payment - requires reconciliation', {
+        newStatus = 'failed'
+        shouldSendEmail = false
+        logger.warn('WEBHOOK:NOWPAYMENTS', 'Partial payment - requires manual reconciliation', {
           orderId,
           expected: body.pay_amount,
           received: body.actually_paid,

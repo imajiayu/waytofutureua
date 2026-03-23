@@ -47,10 +47,10 @@ export function useProjectContent<T>(
 /**
  * Load multiple project content JSON files in parallel
  */
-export function useProjectContents<T extends any[]>(
+export function useProjectContents<T extends unknown[]>(
   configs: { url: string; projectId: number }[]
 ): { data: { [K in keyof T]: T[K] | null }; loading: boolean } {
-  const [data, setData] = useState<any[]>(() => configs.map(() => null))
+  const [data, setData] = useState<(T[number] | null)[]>(() => configs.map(() => null))
   const [loading, setLoading] = useState(true)
 
   const configKey = configs.map(c => c.url).join('|')
@@ -87,5 +87,5 @@ export function useProjectContents<T extends any[]>(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configKey])
 
-  return { data: data as any, loading }
+  return { data: data as { [K in keyof T]: T[K] | null }, loading }
 }

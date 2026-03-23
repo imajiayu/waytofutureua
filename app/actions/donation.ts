@@ -11,22 +11,22 @@ import {
 import { getProjectStats } from '@/lib/supabase/queries'
 import { donationFormSchema } from '@/lib/validations'
 import { getPublicClient } from '@/lib/supabase/action-clients'
-import type { DonationStatus } from '@/types'
+import type { DonationStatus, ProjectStats } from '@/types'
 import { getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
 
 type WayForPayPaymentResult =
-  | { success: true; paymentParams: any; amount: number; orderReference: string; allProjectsStats: any[] }
-  | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: any[] }
-  | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: any[] }
-  | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: any[] }
+  | { success: true; paymentParams: any; amount: number; orderReference: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: ProjectStats[] }
 
 type NowPaymentsResult =
-  | { success: true; paymentData: CreatePaymentResponse; amount: number; orderReference: string; allProjectsStats: any[] }
-  | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: any[] }
-  | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: any[] }
-  | { success: false; error: 'api_error'; message: string; allProjectsStats: any[] }
-  | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: any[] }
+  | { success: true; paymentData: CreatePaymentResponse; amount: number; orderReference: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'api_error'; message: string; allProjectsStats: ProjectStats[] }
+  | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: ProjectStats[] }
 
 /**
  * Helper function: Create quantity exceeded error
@@ -34,7 +34,7 @@ type NowPaymentsResult =
 function createQuantityExceededError(
   remainingUnits: number,
   unitName: string,
-  allProjectsStats: any[]
+  allProjectsStats: ProjectStats[]
 ): WayForPayPaymentResult {
   return {
     success: false,
@@ -51,7 +51,7 @@ function createQuantityExceededError(
 function createAmountLimitExceededError(
   maxQuantity: number,
   unitName: string,
-  allProjectsStats: any[]
+  allProjectsStats: ProjectStats[]
 ): WayForPayPaymentResult {
   return {
     success: false,
@@ -82,8 +82,8 @@ export async function createWayForPayDonation(data: {
     const validated = donationFormSchema.parse(data)
 
     // Get all projects stats (includes the specific project we need)
-    const allProjectsStats = await getProjectStats() as any[]
-    const project = allProjectsStats.find((p: any) => p.id === validated.project_id)
+    const allProjectsStats = await getProjectStats() as ProjectStats[]
+    const project = allProjectsStats.find((p) => p.id === validated.project_id)
 
     if (!project) {
       return {
@@ -109,7 +109,7 @@ export async function createWayForPayDonation(data: {
     )
 
     // Calculate project amount based on project type
-    const unitPrice = project.unit_price
+    const unitPrice = project.unit_price ?? 0
     let projectAmount: number
 
     if (project.aggregate_donations) {
@@ -441,8 +441,8 @@ export async function createNowPaymentsDonation(data: {
     const validated = donationFormSchema.parse(data)
 
     // Get all projects stats (includes the specific project we need)
-    const allProjectsStats = await getProjectStats() as any[]
-    const project = allProjectsStats.find((p: any) => p.id === validated.project_id)
+    const allProjectsStats = await getProjectStats() as ProjectStats[]
+    const project = allProjectsStats.find((p) => p.id === validated.project_id)
 
     if (!project) {
       return {
@@ -468,7 +468,7 @@ export async function createNowPaymentsDonation(data: {
     )
 
     // Calculate project amount based on project type
-    const unitPrice = project.unit_price
+    const unitPrice = project.unit_price ?? 0
     let projectAmount: number
 
     if (project.aggregate_donations) {

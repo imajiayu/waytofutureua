@@ -38,8 +38,8 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
       const donationIds = donations.map(d => d.id)
       const updated = await batchUpdateDonationStatus(donationIds, newStatus)
       onSaved(updated)
-    } catch (err: any) {
-      setError(err.message || 'Failed to update donations')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update donations')
     } finally {
       setLoading(false)
     }

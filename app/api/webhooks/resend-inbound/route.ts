@@ -45,6 +45,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Extract email data from verified payload
+    if (!payload.data) {
+      logger.error('WEBHOOK:RESEND', 'Missing payload.data')
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
     const { email_id, from, to, subject, cc, bcc } = payload.data
 
     logger.info('WEBHOOK:RESEND', 'Inbound email received', {

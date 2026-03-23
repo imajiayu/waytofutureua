@@ -46,7 +46,7 @@ export async function getDonationResultUrl(donationPublicId: string) {
         donationId: donationPublicId,
         error: storageError.message,
       })
-      return { error: 'storageFailed', details: storageError.message }
+      return { error: 'storageFailed' }
     }
 
     if (!files || files.length === 0) {
@@ -68,7 +68,7 @@ export async function getDonationResultUrl(donationPublicId: string) {
     logger.errorWithStack('STORAGE', 'getDonationResultUrl failed', error, {
       donationId: donationPublicId,
     })
-    return { error: 'serverError', details: error instanceof Error ? error.message : 'Unknown error' }
+    return { error: 'serverError' }
   }
 }
 
@@ -186,7 +186,6 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
     return {
       error: 'serverError',
       files: [],
-      details: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }

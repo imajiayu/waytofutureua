@@ -2,13 +2,11 @@
  * Email System Type Definitions
  */
 
+import type { I18nText } from '@/types'
+
 export type Locale = 'en' | 'zh' | 'ua'
 
-export interface I18nText {
-  en: string
-  zh: string
-  ua: string
-}
+export { type I18nText }
 
 // Base email parameters
 export interface BaseEmailParams {

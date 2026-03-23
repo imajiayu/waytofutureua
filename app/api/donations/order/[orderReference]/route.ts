@@ -42,7 +42,7 @@ export async function GET(
 
     if (error) {
       logger.error('API', 'Error fetching order donations', { orderReference, error: error.message })
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 
     // Transform the view data to match expected frontend format

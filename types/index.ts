@@ -8,7 +8,7 @@ export * from './database'
 export { DONATION_STATUSES, type DonationStatus }
 
 // I18n text type (used for multilingual fields)
-export type I18nText = Json
+export type I18nText = { en?: string; zh?: string; ua?: string }
 
 // Application-level types
 export type Project = Tables<'projects'>

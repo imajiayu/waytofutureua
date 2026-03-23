@@ -52,13 +52,13 @@ export async function createEmailSubscription(
 
     if (error) {
       logger.error('SUBSCRIPTION', 'Error creating subscription', { error: error.message })
-      return { success: false, error: error.message }
+      return { success: false, error: 'Failed to create subscription' }
     }
 
     return { success: true }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message }
+      return { success: false, error: 'Invalid subscription data' }
     }
     logger.errorWithStack('SUBSCRIPTION', 'Unexpected error creating subscription', error)
     return { success: false, error: 'Failed to create subscription' }
@@ -84,6 +84,12 @@ export async function getSubscriptions(
       return { data: null, error: 'Unauthorized' }
     }
 
+    // 验证管理员角色
+    const { data: adminCheck } = await supabase.rpc('is_admin')
+    if (!adminCheck) {
+      return { data: null, error: 'Forbidden' }
+    }
+
     // Build query
     let query = supabase
       .from('email_subscriptions')
@@ -107,7 +113,7 @@ export async function getSubscriptions(
 
     if (error) {
       logger.error('SUBSCRIPTION', 'Error fetching subscriptions', { error: error.message })
-      return { data: null, error: error.message }
+      return { data: null, error: 'Failed to fetch subscriptions' }
     }
 
     return { data: data as EmailSubscription[] }

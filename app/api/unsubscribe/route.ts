@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       logger.error('SUBSCRIPTION', 'Unsubscribe failed', { error: error.message })
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: 'Failed to unsubscribe' },
         { status: 500 }
       )
     }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Database } from '@/types/database'
+import type { I18nText } from '@/types'
 import { updateProject } from '@/app/actions/admin'
 import { formatDateTime } from '@/lib/i18n-utils'
 import AdminBaseModal from './AdminBaseModal'
@@ -27,8 +28,8 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
     try {
       const updated = await updateProject(project.id, formData)
       onSaved(updated)
-    } catch (err: any) {
-      setError(err.message || 'Failed to update project')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update project')
     } finally {
       setLoading(false)
     }
@@ -220,9 +221,9 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.project_name_i18n as any)?.en || ''}
+                        value={(formData.project_name_i18n as I18nText)?.en || ''}
                         onChange={(e) => {
-                          const current = (formData.project_name_i18n as any) || {}
+                          const current = (formData.project_name_i18n as I18nText) || {}
                           updateField('project_name_i18n', { ...current, en: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -235,13 +236,13 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.project_name_i18n as any)?.zh || ''}
+                        value={(formData.project_name_i18n as I18nText)?.zh || ''}
                         onChange={(e) => {
-                          const current = (formData.project_name_i18n as any) || {}
+                          const current = (formData.project_name_i18n as I18nText) || {}
                           updateField('project_name_i18n', { ...current, zh: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="项目名称"
+                        placeholder="Project name"
                       />
                     </div>
                     <div>
@@ -250,9 +251,9 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.project_name_i18n as any)?.ua || ''}
+                        value={(formData.project_name_i18n as I18nText)?.ua || ''}
                         onChange={(e) => {
-                          const current = (formData.project_name_i18n as any) || {}
+                          const current = (formData.project_name_i18n as I18nText) || {}
                           updateField('project_name_i18n', { ...current, ua: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -272,9 +273,9 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.location_i18n as any)?.en || ''}
+                        value={(formData.location_i18n as I18nText)?.en || ''}
                         onChange={(e) => {
-                          const current = (formData.location_i18n as any) || {}
+                          const current = (formData.location_i18n as I18nText) || {}
                           updateField('location_i18n', { ...current, en: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -287,13 +288,13 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.location_i18n as any)?.zh || ''}
+                        value={(formData.location_i18n as I18nText)?.zh || ''}
                         onChange={(e) => {
-                          const current = (formData.location_i18n as any) || {}
+                          const current = (formData.location_i18n as I18nText) || {}
                           updateField('location_i18n', { ...current, zh: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="位置"
+                        placeholder="Location"
                       />
                     </div>
                     <div>
@@ -302,9 +303,9 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.location_i18n as any)?.ua || ''}
+                        value={(formData.location_i18n as I18nText)?.ua || ''}
                         onChange={(e) => {
-                          const current = (formData.location_i18n as any) || {}
+                          const current = (formData.location_i18n as I18nText) || {}
                           updateField('location_i18n', { ...current, ua: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -324,9 +325,9 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.unit_name_i18n as any)?.en || ''}
+                        value={(formData.unit_name_i18n as I18nText)?.en || ''}
                         onChange={(e) => {
-                          const current = (formData.unit_name_i18n as any) || {}
+                          const current = (formData.unit_name_i18n as I18nText) || {}
                           updateField('unit_name_i18n', { ...current, en: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -339,13 +340,13 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.unit_name_i18n as any)?.zh || ''}
+                        value={(formData.unit_name_i18n as I18nText)?.zh || ''}
                         onChange={(e) => {
-                          const current = (formData.unit_name_i18n as any) || {}
+                          const current = (formData.unit_name_i18n as I18nText) || {}
                           updateField('unit_name_i18n', { ...current, zh: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="单位"
+                        placeholder="Unit"
                       />
                     </div>
                     <div>
@@ -354,9 +355,9 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
                       </label>
                       <input
                         type="text"
-                        value={(formData.unit_name_i18n as any)?.ua || ''}
+                        value={(formData.unit_name_i18n as I18nText)?.ua || ''}
                         onChange={(e) => {
-                          const current = (formData.unit_name_i18n as any) || {}
+                          const current = (formData.unit_name_i18n as I18nText) || {}
                           updateField('unit_name_i18n', { ...current, ua: e.target.value || undefined })
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"

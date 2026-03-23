@@ -120,7 +120,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   }
 
   const handleDeleteFile = async (filePath: string) => {
-    if (!confirm('确定要删除这个文件吗？')) {
+    if (!confirm('Are you sure you want to delete this file?')) {
       return
     }
 
@@ -128,8 +128,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
       setDeletingFile(filePath)
       await deleteDonationResultFile(donation.id, filePath)
       await loadFiles()
-    } catch (err: any) {
-      alert(`删除失败: ${err.message}`)
+    } catch (err: unknown) {
+      alert(`Delete failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setDeletingFile(null)
     }
@@ -137,7 +137,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
 
   const handleUploadOnly = async () => {
     if (filesToUpload.length === 0) {
-      setError('请选择要上传的文件')
+      setError('Please select files to upload')
       return
     }
 
@@ -167,8 +167,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
       // 清空文件输入
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
       if (fileInput) fileInput.value = ''
-    } catch (err: any) {
-      setError(`上传失败: ${err.message}`)
+    } catch (err: unknown) {
+      setError(`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setUploading(false)
       setUploadProgress(0)
@@ -219,8 +219,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
             const progressAfter = Math.round(((i + 1) / filesToUpload.length) * 100)
             setUploadProgress(progressAfter)
           }
-        } catch (err: any) {
-          throw new Error(`File upload failed: ${err.message}`)
+        } catch (err: unknown) {
+          throw new Error(`File upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
         } finally {
           setUploading(false)
           setUploadProgress(0)
@@ -230,8 +230,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
       // 更新状态
       const updated = await updateDonationStatus(donation.id, newStatus)
       onSaved(updated)
-    } catch (err: any) {
-      setError(err.message || 'Failed to update donation')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update donation')
     } finally {
       setLoading(false)
     }

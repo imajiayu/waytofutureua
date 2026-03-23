@@ -4,9 +4,12 @@
  * Helper functions to extract translated text from i18n JSON fields
  */
 
-import type { I18nText } from '@/types'
+import type { I18nText, Json } from '@/types'
 
 export type SupportedLocale = 'en' | 'zh' | 'ua'
+
+// Accept both precise I18nText and database Json type for compatibility
+type I18nInput = I18nText | Json | undefined | null
 
 /**
  * Get translated text from i18n object
@@ -18,7 +21,7 @@ export type SupportedLocale = 'en' | 'zh' | 'ua'
  * @returns Translated text
  */
 export function getTranslatedText(
-  i18nText: I18nText | undefined | null,
+  i18nText: I18nInput,
   fallbackText: string | null,
   locale: SupportedLocale = 'en'
 ): string {
@@ -48,7 +51,7 @@ export function getTranslatedText(
  * Helper to get project name in current locale
  */
 export function getProjectName(
-  projectNameI18n: I18nText | undefined | null,
+  projectNameI18n: I18nInput,
   fallbackName: string | null,
   locale: SupportedLocale = 'en'
 ): string {
@@ -59,7 +62,7 @@ export function getProjectName(
  * Helper to get location in current locale
  */
 export function getLocation(
-  locationI18n: I18nText | undefined | null,
+  locationI18n: I18nInput,
   fallbackLocation: string | null,
   locale: SupportedLocale = 'en'
 ): string {
@@ -70,7 +73,7 @@ export function getLocation(
  * Helper to get unit name in current locale
  */
 export function getUnitName(
-  unitNameI18n: I18nText | undefined | null,
+  unitNameI18n: I18nInput,
   fallbackUnitName: string | null,
   locale: SupportedLocale = 'en'
 ): string {

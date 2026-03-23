@@ -21,10 +21,13 @@ export const createProjectSchema = z.object({
     { message: 'Invalid date format' }
   ),
   is_long_term: z.boolean().optional().default(false),
-  target_units: z.number().int().min(1, 'Target units must be at least 1'),
+  target_units: z.number().int().min(0),
   unit_name: z.string().max(50).optional().default('kit'),
   status: z.enum(['planned', 'active']).optional().default('planned'),
-})
+}).passthrough().refine(
+  (data) => data.is_long_term || data.target_units >= 1,
+  { message: 'Fixed-term projects require target_units >= 1', path: ['target_units'] }
+)
 
 export const updateProjectSchema = z.object({
   project_name: z.string().min(3).max(255).optional(),
@@ -37,11 +40,11 @@ export const updateProjectSchema = z.object({
     { message: 'Invalid date format' }
   ).optional(),
   is_long_term: z.boolean().optional(),
-  target_units: z.number().int().min(1).optional(),
+  target_units: z.number().int().min(0).optional(),
   current_units: z.number().int().min(0).optional(),
   unit_name: z.string().max(50).optional(),
   status: z.enum(['planned', 'active', 'completed', 'paused']).optional(),
-})
+}).passthrough()
 
 // ============================================
 // Donation Schemas

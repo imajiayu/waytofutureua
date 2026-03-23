@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
       url.searchParams.get('order')
 
     // Extract locale from query params or default to 'en'
-    const locale = url.searchParams.get('locale') || 'en'
+    const rawLocale = url.searchParams.get('locale') || 'en'
+    const locale = ['en', 'zh', 'ua'].includes(rawLocale) ? rawLocale : 'en'
 
     logger.debug('REDIRECT', 'GET received', { orderReference, locale })
 
@@ -65,10 +66,11 @@ export async function POST(request: NextRequest) {
       url.searchParams.get('orderReference')
 
     // Extract locale from query params or default to 'en'
-    const locale =
+    const rawLocale =
       url.searchParams.get('locale') ||
       (formData.get('locale') as string) ||
       'en'
+    const locale = ['en', 'zh', 'ua'].includes(rawLocale) ? rawLocale : 'en'
 
     logger.debug('REDIRECT', 'POST received', { orderReference, locale })
 

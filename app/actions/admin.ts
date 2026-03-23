@@ -12,6 +12,8 @@ import {
   type DonationStatus
 } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+import { createProjectSchema, updateProjectSchema } from '@/lib/validations'
 import type { SupportedLocale } from '@/lib/i18n-utils'
 
 type Project = Database['public']['Tables']['projects']['Row']
@@ -67,9 +69,20 @@ export async function getAdminProjects() {
 export async function createProject(project: ProjectInsert) {
   const supabase = await getAdminClient()
 
+  // 运行时验证已知字段，passthrough 放行 i18n 等额外字段
+  let validated: ProjectInsert
+  try {
+    validated = createProjectSchema.parse(project) as ProjectInsert
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      throw new Error(`Validation failed: ${err.errors.map(e => e.message).join(', ')}`)
+    }
+    throw err
+  }
+
   const { data, error } = await supabase
     .from('projects')
-    .insert(project)
+    .insert(validated)
     .select()
     .single()
 
@@ -89,9 +102,20 @@ export async function updateProject(id: number, updates: ProjectUpdate) {
   // 确保不修改这些字段
   const { id: _, created_at, updated_at, ...safeUpdates } = updates as any
 
+  // 运行时验证已知字段，passthrough 放行 i18n 等额外字段
+  let validated: ProjectUpdate
+  try {
+    validated = updateProjectSchema.passthrough().parse(safeUpdates) as ProjectUpdate
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      throw new Error(`Validation failed: ${err.errors.map(e => e.message).join(', ')}`)
+    }
+    throw err
+  }
+
   const { data, error } = await supabase
     .from('projects')
-    .update(safeUpdates)
+    .update(validated)
     .eq('id', id)
     .select()
     .single()
@@ -326,9 +350,17 @@ export async function uploadDonationResultFile(formData: FormData) {
     throw new Error('Donation not found')
   }
 
-  // 验证文件类型
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime']
-  if (!validTypes.includes(file.type)) {
+  // 验证文件类型并从 MIME 类型反查扩展名（避免双扩展名攻击）
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'video/mp4': 'mp4',
+    'video/quicktime': 'mov',
+  }
+  const fileExt = mimeToExt[file.type]
+  if (!fileExt) {
     throw new Error('Invalid file type')
   }
 
@@ -339,7 +371,6 @@ export async function uploadDonationResultFile(formData: FormData) {
 
   // 生成文件路径：{donation_public_id}/{timestamp}.{ext}
   const timestamp = Date.now()
-  const fileExt = file.name.split('.').pop()
   const fileName = `${timestamp}.${fileExt}`
   const filePath = `${donation.donation_public_id}/${fileName}`
 

@@ -5,8 +5,15 @@ import { useTranslations } from 'next-intl'
 import { markDonationWidgetFailed } from '@/app/actions/donation'
 import { clientLogger } from '@/lib/logger-client'
 
+interface PaymentParams {
+  orderReference: string
+  returnUrl: string
+  currency: string
+  [key: string]: unknown
+}
+
 interface Props {
-  paymentParams: any
+  paymentParams: PaymentParams
   amount: number
   locale: string
   onBack?: () => void

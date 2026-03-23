@@ -7,9 +7,10 @@ import BatchDonationEditModal from './BatchDonationEditModal'
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import { canBatchEdit, requiresFileUploadToTransition, type DonationStatus } from '@/lib/donation-status'
 import { formatDate, formatDateTime } from '@/lib/i18n-utils'
+import type { I18nText } from '@/types'
 
 type Donation = Database['public']['Tables']['donations']['Row'] & {
-  projects: { project_name: string; project_name_i18n: any }
+  projects: { project_name: string; project_name_i18n: I18nText }
 }
 type StatusHistory = Database['public']['Tables']['donation_status_history']['Row']
 

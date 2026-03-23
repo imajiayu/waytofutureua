@@ -31,7 +31,7 @@ type PreviewLocale = DonationLocale
 
 const LOCALE_LABELS: Record<PreviewLocale, string> = {
   en: 'English',
-  zh: '中文',
+  zh: 'Chinese',
   ua: 'Українська'
 }
 

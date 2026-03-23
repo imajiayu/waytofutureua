@@ -138,7 +138,7 @@ export default function SubscriptionsTable({
             >
               <option value="all">All Languages</option>
               <option value="en">English</option>
-              <option value="zh">中文</option>
+              <option value="zh">Chinese</option>
               <option value="ua">Українська</option>
             </select>
           </div>
