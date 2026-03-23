@@ -78,10 +78,7 @@ export default function TrackDonationForm({ locale }: Props) {
     // 记录本次查询参数
     lastAutoQueryParams.current = { email: urlEmail, id: urlId }
 
-    // 延迟执行查询，确保组件已完全挂载
-    setTimeout(() => {
-      handleAutoQuery(urlEmail, urlId)
-    }, 100)
+    handleAutoQuery(urlEmail, urlId)
   }, [searchParams, donations])
 
   // 自动查询函数

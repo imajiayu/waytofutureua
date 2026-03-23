@@ -8,6 +8,7 @@ import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
 
 export default function DonationJourneySection() {
   const t = useTranslations('home.hero.donationJourney')
+  const tFlow = useTranslations('donationStatusFlow')
   const router = useRouter()
   const pathname = usePathname()
   const [isNavigating, setIsNavigating] = useState(false)
@@ -46,7 +47,7 @@ export default function DonationJourneySection() {
                 className="group relative px-5 py-2 text-sm font-semibold tracking-wide text-white bg-ukraine-blue-500 hover:bg-ukraine-blue-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                <span className="relative z-10">{useTranslations('donationStatusFlow')('trackButton')}</span>
+                <span className="relative z-10">{tFlow('trackButton')}</span>
               </button>
             </div>
           </div>

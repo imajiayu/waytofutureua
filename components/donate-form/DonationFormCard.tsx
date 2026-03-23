@@ -13,24 +13,23 @@ import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
 import { getProjectName, getLocation, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
 import { clientLogger } from '@/lib/logger-client'
 
+export interface DonorInfo {
+  name: string
+  email: string
+  message: string
+  telegram: string
+  whatsapp: string
+  subscribeToNewsletter: boolean
+}
+
 interface DonationFormCardProps {
   project: ProjectStats | null
   locale: string
   onProjectsUpdate?: (projects: ProjectStats[]) => void
   // Shared form fields (preserved across project switches)
   // Only donor personal information, NOT project-specific fields
-  donorName: string
-  setDonorName: (value: string) => void
-  donorEmail: string
-  setDonorEmail: (value: string) => void
-  donorMessage: string
-  setDonorMessage: (value: string) => void
-  contactTelegram: string
-  setContactTelegram: (value: string) => void
-  contactWhatsapp: string
-  setContactWhatsapp: (value: string) => void
-  subscribeToNewsletter: boolean
-  setSubscribeToNewsletter: (value: boolean) => void
+  donorInfo: DonorInfo
+  updateDonorInfo: <K extends keyof DonorInfo>(key: K, value: DonorInfo[K]) => void
 }
 
 interface PaymentWidgetContainerProps {
@@ -194,19 +193,18 @@ export default function DonationFormCard({
   project,
   locale,
   onProjectsUpdate,
-  donorName,
-  setDonorName,
-  donorEmail,
-  setDonorEmail,
-  donorMessage,
-  setDonorMessage,
-  contactTelegram,
-  setContactTelegram,
-  contactWhatsapp,
-  setContactWhatsapp,
-  subscribeToNewsletter,
-  setSubscribeToNewsletter,
+  donorInfo,
+  updateDonorInfo,
 }: DonationFormCardProps) {
+  // Destructure donorInfo for convenient access throughout the component
+  const {
+    name: donorName,
+    email: donorEmail,
+    message: donorMessage,
+    telegram: contactTelegram,
+    whatsapp: contactWhatsapp,
+    subscribeToNewsletter,
+  } = donorInfo
   const t = useTranslations('donate')
 
   // Get translated project data
@@ -297,10 +295,12 @@ export default function DonationFormCard({
   // Effect to scroll when payment params are set (widget appears)
   useEffect(() => {
     if (paymentParams && widgetContainerRef.current) {
-      // Scroll again when widget actually renders
-      setTimeout(() => {
-        scrollToFormArea()
-      }, 150) // Small delay to ensure widget is fully rendered
+      // Double rAF ensures the widget DOM has been painted before scrolling
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToFormArea()
+        })
+      })
     }
   }, [paymentParams, scrollToFormArea])
 
@@ -1031,7 +1031,7 @@ export default function DonationFormCard({
                 minLength={2}
                 maxLength={255}
                 value={donorName}
-                onChange={(e) => setDonorName(e.target.value)}
+                onChange={(e) => updateDonorInfo('name', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('donor.namePlaceholder')}
               />
@@ -1047,8 +1047,8 @@ export default function DonationFormCard({
                 type="email"
                 required
                 value={donorEmail}
-                onChange={(e) => setDonorEmail(e.target.value)}
-                onBlur={(e) => setDonorEmail(e.target.value.trim())}
+                onChange={(e) => updateDonorInfo('email', e.target.value)}
+                onBlur={(e) => updateDonorInfo('email', e.target.value.trim())}
                 pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('donor.emailPlaceholder')}
@@ -1074,7 +1074,7 @@ export default function DonationFormCard({
                 type="text"
                 maxLength={255}
                 value={contactTelegram}
-                onChange={(e) => setContactTelegram(e.target.value)}
+                onChange={(e) => updateDonorInfo('telegram', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('contact.telegramPlaceholder')}
               />
@@ -1088,7 +1088,7 @@ export default function DonationFormCard({
                 type="text"
                 maxLength={255}
                 value={contactWhatsapp}
-                onChange={(e) => setContactWhatsapp(e.target.value)}
+                onChange={(e) => updateDonorInfo('whatsapp', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('contact.whatsappPlaceholder')}
               />
@@ -1104,7 +1104,7 @@ export default function DonationFormCard({
               maxLength={1000}
               rows={3}
               value={donorMessage}
-              onChange={(e) => setDonorMessage(e.target.value)}
+              onChange={(e) => updateDonorInfo('message', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent resize-none"
               placeholder={t('message.placeholder')}
             />
@@ -1119,7 +1119,7 @@ export default function DonationFormCard({
               <input
                 type="checkbox"
                 checked={subscribeToNewsletter}
-                onChange={(e) => setSubscribeToNewsletter(e.target.checked)}
+                onChange={(e) => updateDonorInfo('subscribeToNewsletter', e.target.checked)}
                 className="mt-0.5 w-3.5 h-3.5 text-gray-400 bg-transparent border-gray-300 rounded focus:ring-0 focus:ring-offset-0"
               />
               <span className="text-xs text-gray-500">

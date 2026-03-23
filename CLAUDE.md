@@ -497,7 +497,9 @@ supabase gen types typescript --linked > types/database.ts
 - `messages/zh.json` - 中文
 - `messages/ua.json` - 乌克兰语
 
-**例外情况：** 品牌名称可以硬编码，无需翻译（如 "Way to Health"）。
+**例外情况：**
+- 品牌名称可以硬编码，无需翻译（如 "Way to Health"）
+- **Admin 后台**（`app/admin/`、`components/admin/`）全英文，不使用 i18n，UI 文本直接硬编码英文即可
 
 ### 使用方式
 

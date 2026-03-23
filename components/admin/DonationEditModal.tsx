@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Database } from '@/types/database'
 import AdminBaseModal from './AdminBaseModal'
 import {
@@ -53,6 +53,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   const [files, setFiles] = useState<DonationFile[]>([])
   const [loadingFiles, setLoadingFiles] = useState(true)
   const [deletingFile, setDeletingFile] = useState<string | null>(null)
+  const [confirmDeletePath, setConfirmDeletePath] = useState<string | null>(null)
 
   const currentStatus = (donation.donation_status || '') as DonationStatus
   const allowedStatuses = getNextAllowedStatuses(currentStatus)
@@ -65,15 +66,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   const canManageFiles = checkCanManageFiles(currentStatus)
 
   // 加载现有文件
-  useEffect(() => {
-    if (canManageFiles) {
-      loadFiles()
-    } else {
-      setLoadingFiles(false)
-    }
-  }, [donation.id])
-
-  const loadFiles = async () => {
+  const loadFiles = useCallback(async () => {
     try {
       setLoadingFiles(true)
       const result = await getDonationResultFiles(donation.id)
@@ -83,7 +76,15 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
     } finally {
       setLoadingFiles(false)
     }
-  }
+  }, [donation.id])
+
+  useEffect(() => {
+    if (canManageFiles) {
+      loadFiles()
+    } else {
+      setLoadingFiles(false)
+    }
+  }, [canManageFiles, loadFiles])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || [])
@@ -120,16 +121,13 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   }
 
   const handleDeleteFile = async (filePath: string) => {
-    if (!confirm('Are you sure you want to delete this file?')) {
-      return
-    }
-
     try {
       setDeletingFile(filePath)
+      setConfirmDeletePath(null)
       await deleteDonationResultFile(donation.id, filePath)
       await loadFiles()
     } catch (err: unknown) {
-      alert(`Delete failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      setError(`Delete failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setDeletingFile(null)
     }
@@ -426,14 +424,34 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
                               </div>
                             </div>
 
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteFile(file.path)}
-                              disabled={deletingFile === file.path}
-                              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 transition-colors"
-                            >
-                              {deletingFile === file.path ? 'Deleting...' : 'Delete'}
-                            </button>
+                            {confirmDeletePath === file.path ? (
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteFile(file.path)}
+                                  disabled={deletingFile === file.path}
+                                  className="px-3 py-1 text-sm bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 transition-colors"
+                                >
+                                  {deletingFile === file.path ? 'Deleting...' : 'Confirm?'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmDeletePath(null)}
+                                  className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setConfirmDeletePath(file.path)}
+                                disabled={deletingFile === file.path}
+                                className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 transition-colors"
+                              >
+                                {deletingFile === file.path ? 'Deleting...' : 'Delete'}
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}

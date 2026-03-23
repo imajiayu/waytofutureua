@@ -12,7 +12,7 @@ import {
   Project4DetailContent,
   Project5DetailContent,
 } from '@/components/projects/detail-pages'
-import DonationFormCard from '@/components/donate-form/DonationFormCard'
+import DonationFormCard, { type DonorInfo } from '@/components/donate-form/DonationFormCard'
 // P2 优化: 动态加载折叠区域组件（默认折叠，用户点击后才显示）
 const DonationStatusFlow = dynamic(
   () => import('@/components/donation-display/DonationStatusFlow'),
@@ -97,12 +97,17 @@ export default function DonatePageClient({
 
   // Shared form fields state (preserved across project switches)
   // Only preserve donor personal information, NOT project-specific fields
-  const [donorName, setDonorName] = useState('')
-  const [donorEmail, setDonorEmail] = useState('')
-  const [donorMessage, setDonorMessage] = useState('')
-  const [contactTelegram, setContactTelegram] = useState('')
-  const [contactWhatsapp, setContactWhatsapp] = useState('')
-  const [subscribeToNewsletter, setSubscribeToNewsletter] = useState(true)
+  const [donorInfo, setDonorInfo] = useState<DonorInfo>({
+    name: '',
+    email: '',
+    message: '',
+    telegram: '',
+    whatsapp: '',
+    subscribeToNewsletter: true,
+  })
+  const updateDonorInfo = useCallback(<K extends keyof DonorInfo>(key: K, value: DonorInfo[K]) => {
+    setDonorInfo(prev => ({ ...prev, [key]: value }))
+  }, [])
 
   // Constants
   const FOOTER_SAFE_ZONE = 150 // px from bottom to hide sheet
@@ -308,18 +313,8 @@ export default function DonatePageClient({
                   project={selectedProject}
                   locale={locale}
                   onProjectsUpdate={handleProjectsUpdate}
-                  donorName={donorName}
-                  setDonorName={setDonorName}
-                  donorEmail={donorEmail}
-                  setDonorEmail={setDonorEmail}
-                  donorMessage={donorMessage}
-                  setDonorMessage={setDonorMessage}
-                  contactTelegram={contactTelegram}
-                  setContactTelegram={setContactTelegram}
-                  contactWhatsapp={contactWhatsapp}
-                  setContactWhatsapp={setContactWhatsapp}
-                  subscribeToNewsletter={subscribeToNewsletter}
-                  setSubscribeToNewsletter={setSubscribeToNewsletter}
+                  donorInfo={donorInfo}
+                  updateDonorInfo={updateDonorInfo}
                 />
                 </div>
               </div>
@@ -340,18 +335,8 @@ export default function DonatePageClient({
                   project={selectedProject}
                   locale={locale}
                   onProjectsUpdate={handleProjectsUpdate}
-                  donorName={donorName}
-                  setDonorName={setDonorName}
-                  donorEmail={donorEmail}
-                  setDonorEmail={setDonorEmail}
-                  donorMessage={donorMessage}
-                  setDonorMessage={setDonorMessage}
-                  contactTelegram={contactTelegram}
-                  setContactTelegram={setContactTelegram}
-                  contactWhatsapp={contactWhatsapp}
-                  setContactWhatsapp={setContactWhatsapp}
-                  subscribeToNewsletter={subscribeToNewsletter}
-                  setSubscribeToNewsletter={setSubscribeToNewsletter}
+                  donorInfo={donorInfo}
+                  updateDonorInfo={updateDonorInfo}
                 />
               </div>
               </BottomSheet>
