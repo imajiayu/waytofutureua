@@ -108,8 +108,11 @@ export default function ProjectResultsMarquee({
                     return (
                       <div
                         key={`${rowIndex}-${itemIndex}`}
+                        role="button"
+                        tabIndex={0}
                         className="flex-shrink-0 group cursor-pointer"
                         onClick={() => handleImageClick(result.projectId)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleImageClick(result.projectId) } }}
                       >
                         <div className="relative w-[280px] md:w-[350px] h-[180px] md:h-[220px] rounded-lg overflow-hidden shadow-lg">
                           {/* Image */}

@@ -678,7 +678,7 @@ export default function DonationFormCard({
           {isAggregatedProject ? (
             /* Aggregated Project: Direct Amount Input */
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="donation-amount" className="block text-sm font-medium mb-2">
                 {t('amount.label')} *
               </label>
               <div className="grid grid-cols-4 gap-2 mb-3">
@@ -698,6 +698,7 @@ export default function DonationFormCard({
                 ))}
               </div>
               <input
+                id="donation-amount"
                 type="number"
                 min="0.1"
                 max="10000"
@@ -766,7 +767,7 @@ export default function DonationFormCard({
           ) : (
             /* Unit-based Project: Quantity Selection */
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="donation-quantity" className="block text-sm font-medium mb-2">
                 {t('quantity.label')} *
               </label>
               <div className="grid grid-cols-4 gap-2 mb-3">
@@ -786,6 +787,7 @@ export default function DonationFormCard({
                 ))}
               </div>
               <input
+                id="donation-quantity"
                 type="number"
                 min="1"
                 max="10"
@@ -1021,10 +1023,11 @@ export default function DonationFormCard({
             </h4>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="donor-name" className="block text-sm font-medium mb-1">
                 {t('donor.name')} *
               </label>
               <input
+                id="donor-name"
                 ref={nameInputRef}
                 type="text"
                 required
@@ -1039,10 +1042,11 @@ export default function DonationFormCard({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="donor-email" className="block text-sm font-medium mb-1">
                 {t('donor.email')} *
               </label>
               <input
+                id="donor-email"
                 ref={emailInputRef}
                 type="email"
                 required
@@ -1067,10 +1071,11 @@ export default function DonationFormCard({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="contact-telegram" className="block text-sm font-medium mb-1">
                 {t('contact.telegram')}
               </label>
               <input
+                id="contact-telegram"
                 type="text"
                 maxLength={255}
                 value={contactTelegram}
@@ -1081,10 +1086,11 @@ export default function DonationFormCard({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label htmlFor="contact-whatsapp" className="block text-sm font-medium mb-1">
                 {t('contact.whatsapp')}
               </label>
               <input
+                id="contact-whatsapp"
                 type="text"
                 maxLength={255}
                 value={contactWhatsapp}
@@ -1097,10 +1103,11 @@ export default function DonationFormCard({
 
           {/* Message (Optional) */}
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label htmlFor="donor-message" className="block text-sm font-medium mb-1">
               {t('message.label')}
             </label>
             <textarea
+              id="donor-message"
               maxLength={1000}
               rows={3}
               value={donorMessage}

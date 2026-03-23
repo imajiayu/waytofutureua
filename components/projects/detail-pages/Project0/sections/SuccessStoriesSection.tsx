@@ -20,8 +20,11 @@ export default function SuccessStoriesSection({ content, onImageClick }: Success
         {content.successStories.map((story, idx) => (
           <div
             key={idx}
+            role="button"
+            tabIndex={0}
             className="group relative rounded-xl md:rounded-2xl overflow-hidden cursor-pointer"
             onClick={() => onImageClick(idx)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(idx) } }}
           >
             <div className="relative">
               <Image

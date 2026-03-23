@@ -44,8 +44,11 @@ export default function EventsSection({ events, locale, onImageClick }: EventsSe
               <div className="grid grid-cols-4 gap-1.5 md:gap-2">
                 {/* Large feature image - spans 2 cols and 2 rows */}
                 <div
+                  role="button"
+                  tabIndex={0}
                   className="col-span-2 row-span-2 relative aspect-[3/2] rounded-lg md:rounded-xl overflow-hidden cursor-pointer group"
                   onClick={() => onImageClick(eventIdx, 0)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(eventIdx, 0) } }}
                 >
                   <Image
                     src={event.images[0]}
@@ -61,8 +64,11 @@ export default function EventsSection({ events, locale, onImageClick }: EventsSe
                 {event.images.slice(1).map((img, imgIdx) => (
                   <div
                     key={imgIdx}
+                    role="button"
+                    tabIndex={0}
                     className="relative aspect-square rounded-lg md:rounded-xl overflow-hidden cursor-pointer group"
                     onClick={() => onImageClick(eventIdx, imgIdx + 1)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(eventIdx, imgIdx + 1) } }}
                   >
                     <Image
                       src={img}

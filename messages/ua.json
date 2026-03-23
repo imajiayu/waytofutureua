@@ -11,6 +11,16 @@
     "close": "Закрити",
     "confirm": "Підтвердити",
     "back": "Назад",
+    "lightbox": {
+      "title": "Перегляд зображень",
+      "close": "Закрити перегляд зображень",
+      "previousImage": "Попереднє зображення",
+      "nextImage": "Наступне зображення",
+      "goToImage": "Перейти до зображення {number}"
+    },
+    "carousel": {
+      "goToSlide": "Перейти до слайда {number}"
+    },
     "donationStatus": {
       "pending": "Очікування підтвердження",
       "widget_load_failed": "Не оплачено",

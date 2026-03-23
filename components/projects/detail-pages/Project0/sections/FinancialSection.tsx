@@ -95,8 +95,11 @@ export default function FinancialSection({ content, onReportClick }: FinancialSe
             .map((year, idx) => (
               <div
                 key={idx}
+                role="button"
+                tabIndex={0}
                 className="group relative rounded-lg overflow-hidden cursor-pointer"
                 onClick={() => onReportClick(idx)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onReportClick(idx) } }}
               >
                 <div className="relative aspect-[3/4]">
                   <Image

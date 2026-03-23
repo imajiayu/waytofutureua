@@ -42,7 +42,7 @@ export default async function TrackDonationPage() {
             <div className="relative w-1/3 h-full">
               <Image
                 src="/images/track-donation/bg-1.webp"
-                alt="Background 1"
+                alt=""
                 fill
                 className="object-cover"
                 quality={85}
@@ -52,7 +52,7 @@ export default async function TrackDonationPage() {
             <div className="relative w-1/3 h-full">
               <Image
                 src="/images/track-donation/bg-2.webp"
-                alt="Background 2"
+                alt=""
                 fill
                 className="object-cover"
                 quality={85}
@@ -62,7 +62,7 @@ export default async function TrackDonationPage() {
             <div className="relative w-1/3 h-full">
               <Image
                 src="/images/track-donation/bg-3.webp"
-                alt="Background 3"
+                alt=""
                 fill
                 className="object-cover"
                 quality={85}
@@ -75,7 +75,7 @@ export default async function TrackDonationPage() {
           <div className="md:hidden absolute inset-0">
             <Image
               src="/images/track-donation/bg-1.webp"
-              alt="Background"
+              alt=""
               fill
               className="object-cover"
               quality={85}

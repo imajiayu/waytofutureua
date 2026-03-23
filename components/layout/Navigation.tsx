@@ -128,6 +128,8 @@ export default function Navigation() {
                 disabled={isPending}
                 className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ukraine-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={t('language.label')}
+                aria-expanded={isDropdownOpen}
+                aria-haspopup="listbox"
               >
                 <svg
                   className="w-5 h-5 text-gray-500"
@@ -169,10 +171,12 @@ export default function Navigation() {
                     onClick={() => setIsDropdownOpen(false)}
                   />
                   {/* Dropdown */}
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                  <div role="listbox" aria-label={t('language.label')} className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
                     {locales.map((loc) => (
                       <button
                         key={loc}
+                        role="option"
+                        aria-selected={locale === loc}
                         onClick={() => handleLocaleChange(loc)}
                         className={`w-full text-left px-4 py-3 text-sm transition-colors ${
                           locale === loc

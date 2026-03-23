@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface MobileCarouselProps {
   children: ReactNode[]
@@ -21,6 +22,7 @@ export default function MobileCarousel({
   className = '',
   indicatorTheme = 'dark'
 }: MobileCarouselProps) {
+  const t = useTranslations('common.carousel')
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const itemCount = children.length
@@ -94,6 +96,7 @@ export default function MobileCarousel({
             <button
               key={index}
               onClick={() => scrollToIndex(index)}
+              aria-label={t('goToSlide', { number: index + 1 })}
               className={`transition-all duration-300 rounded-full ${isActive ? activeClass : inactiveClass}`}
             />
           )

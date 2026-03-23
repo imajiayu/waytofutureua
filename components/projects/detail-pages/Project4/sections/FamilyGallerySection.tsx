@@ -28,8 +28,11 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
         {highPriority.map((img) => (
           <div
             key={img.url}
+            role="button"
+            tabIndex={0}
             className="col-span-2 row-span-2 relative rounded-xl overflow-hidden cursor-pointer group"
             onClick={() => onImageClick(getOriginalIndex(img.url))}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(getOriginalIndex(img.url)) } }}
           >
             <Image
               src={img.url}
@@ -46,8 +49,11 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
         {mediumPriority.map((img) => (
           <div
             key={img.url}
+            role="button"
+            tabIndex={0}
             className="col-span-2 row-span-2 relative rounded-xl overflow-hidden cursor-pointer group"
             onClick={() => onImageClick(getOriginalIndex(img.url))}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(getOriginalIndex(img.url)) } }}
           >
             <Image
               src={img.url}
@@ -64,10 +70,13 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
         {lowPriority.map((img, idx) => (
           <div
             key={img.url}
+            role="button"
+            tabIndex={0}
             className={`relative rounded-xl overflow-hidden cursor-pointer group ${
               idx === 0 ? 'col-span-2 row-span-1' : 'col-span-1 row-span-1'
             }`}
             onClick={() => onImageClick(getOriginalIndex(img.url))}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(getOriginalIndex(img.url)) } }}
           >
             <Image
               src={img.url}

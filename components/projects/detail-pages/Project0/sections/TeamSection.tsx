@@ -84,8 +84,11 @@ export default function TeamSection({ content, employerImages, onImageClick }: T
             {employerImages.map((image, index) => (
               <div
                 key={index}
+                role="button"
+                tabIndex={0}
                 className="flex-shrink-0 w-28 md:w-36 snap-start cursor-pointer group/card"
                 onClick={() => onImageClick(index)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(index) } }}
               >
                 <div className="relative aspect-[3/4] rounded-lg md:rounded-xl overflow-hidden shadow-sm group-hover/card:shadow-md transition-shadow">
                   <Image

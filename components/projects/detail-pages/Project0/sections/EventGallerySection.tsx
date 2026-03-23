@@ -20,8 +20,11 @@ export default function EventGallerySection({ content, onImageClick }: EventGall
       <div className="grid grid-cols-12 gap-2 md:gap-3">
         {/* Large Feature Image */}
         <div
+          role="button"
+          tabIndex={0}
           className="col-span-8 row-span-2 relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
           onClick={() => onImageClick(0)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(0) } }}
         >
           <Image
             src={content.images[0]}
@@ -36,8 +39,11 @@ export default function EventGallerySection({ content, onImageClick }: EventGall
         {content.images.slice(1, 3).map((img, idx) => (
           <div
             key={idx}
+            role="button"
+            tabIndex={0}
             className="col-span-4 relative aspect-square rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
             onClick={() => onImageClick(idx + 1)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(idx + 1) } }}
           >
             <Image
               src={img}
@@ -52,8 +58,11 @@ export default function EventGallerySection({ content, onImageClick }: EventGall
         {content.images.slice(3, 6).map((img, idx) => (
           <div
             key={idx}
+            role="button"
+            tabIndex={0}
             className="col-span-4 relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
             onClick={() => onImageClick(idx + 3)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(idx + 3) } }}
           >
             <Image
               src={img}

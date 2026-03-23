@@ -47,8 +47,11 @@ export default function LivingConditionsSection({ content, onImageClick }: Livin
           {images.slice(0, 2).map((img, idx) => (
             <div
               key={idx}
+              role="button"
+              tabIndex={0}
               className="relative aspect-[16/9] lg:aspect-auto lg:flex-1 rounded-xl overflow-hidden cursor-pointer group"
               onClick={() => onImageClick?.(idx)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick?.(idx) } }}
             >
               <Image
                 src={img}

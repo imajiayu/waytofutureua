@@ -28,8 +28,11 @@ export default function StorySection({ content, onTalentImageClick }: StorySecti
         {talents.map((talent, idx) => (
           <div
             key={idx}
+            role="button"
+            tabIndex={0}
             className="group relative rounded-xl overflow-hidden cursor-pointer"
             onClick={() => onTalentImageClick?.(idx)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTalentImageClick?.(idx) } }}
           >
             {/* Image */}
             <div className="relative aspect-[4/5]">
@@ -56,8 +59,11 @@ export default function StorySection({ content, onTalentImageClick }: StorySecti
         {/* Artwork Showcase - Special card */}
         {artworkImage && (
           <div
+            role="button"
+            tabIndex={0}
             className="group relative rounded-xl overflow-hidden cursor-pointer"
             onClick={() => onTalentImageClick?.(talents.length)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTalentImageClick?.(talents.length) } }}
           >
             <div className="relative aspect-[4/5]">
               <Image

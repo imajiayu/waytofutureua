@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { XIcon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon } from '@/components/icons'
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import Image from 'next/image'
@@ -28,16 +29,33 @@ export default function ImageLightbox({
   isOpen,
   onClose,
 }: ImageLightboxProps) {
+  const t = useTranslations('common.lightbox')
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<Element | null>(null)
 
   // Client-side only mounting for portal
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Focus management: capture trigger element and focus dialog on open
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement
+      // Use requestAnimationFrame to ensure the dialog is rendered before focusing
+      requestAnimationFrame(() => {
+        dialogRef.current?.focus()
+      })
+    } else if (triggerRef.current instanceof HTMLElement) {
+      triggerRef.current.focus()
+      triggerRef.current = null
+    }
+  }, [isOpen])
 
   // Update current index when initial index changes
   useEffect(() => {
@@ -108,7 +126,12 @@ export default function ImageLightbox({
 
   const lightboxContent = (
     <div
-      className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center touch-none"
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('title')}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center touch-none outline-none"
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -118,7 +141,7 @@ export default function ImageLightbox({
       <button
         onClick={onClose}
         className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-        aria-label="Close lightbox"
+        aria-label={t('close')}
       >
         <XIcon className="w-6 h-6" />
       </button>
@@ -131,7 +154,7 @@ export default function ImageLightbox({
             goToPrevious()
           }}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          aria-label="Previous image"
+          aria-label={t('previousImage')}
         >
           <ChevronLeftIcon className="w-8 h-8" />
         </button>
@@ -145,7 +168,7 @@ export default function ImageLightbox({
             goToNext()
           }}
           className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-          aria-label="Next image"
+          aria-label={t('nextImage')}
         >
           <ChevronRightIcon className="w-8 h-8" />
         </button>
@@ -226,7 +249,7 @@ export default function ImageLightbox({
                         ? 'bg-white w-6'
                         : 'bg-white/40 hover:bg-white/60 w-2'
                     }`}
-                    aria-label={`Go to image ${index + 1}`}
+                    aria-label={t('goToImage', { number: index + 1 })}
                   />
                 )
               }
@@ -257,7 +280,7 @@ export default function ImageLightbox({
                       setCurrentIndex(index)
                     }}
                     className="w-1 h-1 rounded-full bg-white/30 transition-all"
-                    aria-label={`Go to image ${index + 1}`}
+                    aria-label={t('goToImage', { number: index + 1 })}
                   />
                 )
               }
@@ -276,7 +299,7 @@ export default function ImageLightbox({
                         ? 'bg-white/40 hover:bg-white/60 w-2'
                         : 'bg-white/30 hover:bg-white/50 w-1.5'
                   }`}
-                  aria-label={`Go to image ${index + 1}`}
+                  aria-label={t('goToImage', { number: index + 1 })}
                 />
               )
             })}

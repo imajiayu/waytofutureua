@@ -95,8 +95,11 @@ export default function ProjectResultsMasonry({
           {masonryItems.map((item, index) => (
             <div
               key={index}
+              role="button"
+              tabIndex={0}
               className={`${getSizeClasses(item.size)} group relative overflow-hidden rounded-lg cursor-pointer`}
               onClick={() => openLightbox(index)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(index) } }}
             >
               {/* Image */}
               <Image

@@ -145,7 +145,7 @@ export default async function Footer() {
         {/* Desktop background image */}
         <Image
           src="/images/footer/footer.webp"
-          alt="Footer Background"
+          alt=""
           fill
           sizes="100vw"
           className="hidden md:block object-cover object-right"
@@ -156,7 +156,7 @@ export default async function Footer() {
         {/* Mobile background image */}
         <Image
           src="/images/footer/footer-mobile.webp"
-          alt="Footer Background"
+          alt=""
           fill
           sizes="100vw"
           className="md:hidden object-cover object-right"

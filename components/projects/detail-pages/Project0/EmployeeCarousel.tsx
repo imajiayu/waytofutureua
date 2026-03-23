@@ -79,8 +79,11 @@ export default function EmployeeCarousel({
           {images.map((image, index) => (
             <div
               key={index}
+              role="button"
+              tabIndex={0}
               className="flex-shrink-0 w-40 md:w-48 snap-start cursor-pointer"
               onClick={() => openLightbox(index)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(index) } }}
             >
               <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-md">
                 <Image

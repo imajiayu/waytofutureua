@@ -11,6 +11,16 @@
     "close": "Close",
     "confirm": "Confirm",
     "back": "Back",
+    "lightbox": {
+      "title": "Image viewer",
+      "close": "Close image viewer",
+      "previousImage": "Previous image",
+      "nextImage": "Next image",
+      "goToImage": "Go to image {number}"
+    },
+    "carousel": {
+      "goToSlide": "Go to slide {number}"
+    },
     "donationStatus": {
       "pending": "Payment Pending",
       "widget_load_failed": "Not Paid",
