@@ -39,7 +39,7 @@ export default function EventsSection({ events, locale, onImageClick }: EventsSe
               </div>
             </div>
 
-            {/* Photo Grid: 1 large + 4 small */}
+            {/* Photo Grid: 1 large + all remaining as small */}
             {event.images.length > 0 && (
               <div className="grid grid-cols-4 gap-1.5 md:gap-2">
                 {/* Large feature image - spans 2 cols and 2 rows */}
@@ -57,8 +57,8 @@ export default function EventsSection({ events, locale, onImageClick }: EventsSe
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                 </div>
 
-                {/* Remaining images */}
-                {event.images.slice(1, 5).map((img, imgIdx) => (
+                {/* All remaining images */}
+                {event.images.slice(1).map((img, imgIdx) => (
                   <div
                     key={imgIdx}
                     className="relative aspect-square rounded-lg md:rounded-xl overflow-hidden cursor-pointer group"

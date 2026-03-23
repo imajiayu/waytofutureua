@@ -22,6 +22,24 @@
           "/images/projects/project-5/details/event-1/elderly-woman-eating.webp",
           "/images/projects/project-5/details/event-1/men-eating-meal.webp"
         ]
+      },
+      {
+        "date": "2026-03-20",
+        "location": "别列津斯卡街（Березинська вулиця）",
+        "images": [
+          "/images/projects/project-5/details/event-2/crowd-at-distribution.webp",
+          "/images/projects/project-5/details/event-2/volunteers-at-station.webp",
+          "/images/projects/project-5/details/event-2/serving-hot-meals.webp",
+          "/images/projects/project-5/details/event-2/volunteer-serving-residents.webp",
+          "/images/projects/project-5/details/event-2/sharing-meal-on-bench.webp",
+          "/images/projects/project-5/details/event-2/volunteer-preparing-food.webp",
+          "/images/projects/project-5/details/event-2/residents-queuing.webp",
+          "/images/projects/project-5/details/event-2/distributing-bread.webp",
+          "/images/projects/project-5/details/event-2/residents-eating-together.webp",
+          "/images/projects/project-5/details/event-2/organizer-with-resident.webp",
+          "/images/projects/project-5/details/event-2/serving-elderly-woman.webp",
+          "/images/projects/project-5/details/event-2/elderly-residents-eating.webp"
+        ]
       }
     ]
   }
