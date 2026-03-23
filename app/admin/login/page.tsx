@@ -13,9 +13,9 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { user } } = await supabase.auth.getUser()
 
-      if (session) {
+      if (user) {
         // 已登录，重定向到项目页面
         router.push('/admin/projects')
       } else {

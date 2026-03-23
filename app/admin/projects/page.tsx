@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
-import { getAdminSession } from '@/lib/supabase/admin-auth'
+import { getAdminUser } from '@/lib/supabase/admin-auth'
 import { getAdminProjects } from '@/app/actions/admin'
 import ProjectsTable from '@/components/admin/ProjectsTable'
 
 export default async function AdminProjectsPage() {
-  const session = await getAdminSession()
-  if (!session) {
+  const user = await getAdminUser()
+  if (!user) {
     redirect('/admin/login')
   }
 

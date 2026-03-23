@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Source_Sans_3, JetBrains_Mono } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import { getAdminSession } from '@/lib/supabase/admin-auth'
+import { getAdminUser } from '@/lib/supabase/admin-auth'
 import AdminNav from '@/components/admin/AdminNav'
 import '../globals.css'
 
@@ -32,13 +32,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getAdminSession()
+  const user = await getAdminUser()
 
   // Get English messages for admin panel
   const messages = await getMessages({ locale: 'en' })
 
   // 如果未登录且不是登录页面，返回登录页面布局
-  if (!session) {
+  if (!user) {
     return (
       <html lang="en">
         <body className={`${sourceSans.variable} ${jetbrainsMono.variable} font-body antialiased`}>

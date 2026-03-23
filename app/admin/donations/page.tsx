@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
-import { getAdminSession } from '@/lib/supabase/admin-auth'
+import { getAdminUser } from '@/lib/supabase/admin-auth'
 import { getAdminDonations } from '@/app/actions/admin'
 import DonationsTable from '@/components/admin/DonationsTable'
 
 export default async function AdminDonationsPage() {
-  const session = await getAdminSession()
-  if (!session) {
+  const user = await getAdminUser()
+  if (!user) {
     redirect('/admin/login')
   }
 

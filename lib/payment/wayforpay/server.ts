@@ -141,7 +141,10 @@ export function verifyWayForPaySignature(
   ]
 
   const calculatedSignature = generateSignature(signatureValues)
-  return calculatedSignature === receivedSignature
+  const a = Buffer.from(calculatedSignature, 'utf-8')
+  const b = Buffer.from(receivedSignature, 'utf-8')
+  if (a.length !== b.length) return false
+  return crypto.timingSafeEqual(a, b)
 }
 
 /**
@@ -273,7 +276,10 @@ export function verifyRefundResponseSignature(
   ]
 
   const calculatedSignature = generateSignature(signatureValues)
-  return calculatedSignature === receivedSignature
+  const a = Buffer.from(calculatedSignature, 'utf-8')
+  const b = Buffer.from(receivedSignature, 'utf-8')
+  if (a.length !== b.length) return false
+  return crypto.timingSafeEqual(a, b)
 }
 
 /**

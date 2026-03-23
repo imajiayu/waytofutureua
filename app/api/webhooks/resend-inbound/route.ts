@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { Webhook } from 'svix'
 import { logger } from '@/lib/logger'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -7,12 +8,43 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 /**
  * Webhook handler for incoming emails from Resend
  * Automatically forwards emails to majiayu110@gmail.com
+ *
+ * Security: Verifies Svix signature before processing
  */
 export async function POST(req: NextRequest) {
   try {
-    const payload = await req.json()
+    // Verify webhook signature
+    const webhookSecret = process.env.RESEND_WEBHOOK_SECRET
+    if (!webhookSecret) {
+      logger.error('WEBHOOK:RESEND', 'RESEND_WEBHOOK_SECRET not configured')
+      return NextResponse.json(
+        { error: 'Webhook not configured' },
+        { status: 500 }
+      )
+    }
 
-    // Extract email data from webhook payload
+    const rawBody = await req.text()
+    const svixHeaders = {
+      'svix-id': req.headers.get('svix-id') || '',
+      'svix-timestamp': req.headers.get('svix-timestamp') || '',
+      'svix-signature': req.headers.get('svix-signature') || '',
+    }
+
+    const wh = new Webhook(webhookSecret)
+    let payload: Record<string, any>
+    try {
+      payload = wh.verify(rawBody, svixHeaders) as Record<string, any>
+    } catch (err) {
+      logger.error('WEBHOOK:RESEND', 'Signature verification failed', {
+        error: err instanceof Error ? err.message : String(err),
+      })
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      )
+    }
+
+    // Extract email data from verified payload
     const { email_id, from, to, subject, cc, bcc } = payload.data
 
     logger.info('WEBHOOK:RESEND', 'Inbound email received', {

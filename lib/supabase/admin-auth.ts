@@ -31,22 +31,24 @@ export async function createAuthClient() {
 }
 
 /**
- * 获取当前管理员 session
+ * 获取当前管理员用户（通过服务器端验证）
  */
-export async function getAdminSession() {
+export async function getAdminUser() {
   const supabase = await createAuthClient()
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  return session
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+  if (error || !user) return null
+  return user
 }
 
 /**
  * 检查是否为管理员
  */
 export async function isAdmin() {
-  const session = await getAdminSession()
-  return !!session?.user
+  const user = await getAdminUser()
+  return !!user
 }
 
 /**

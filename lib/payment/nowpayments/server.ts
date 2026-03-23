@@ -64,8 +64,11 @@ export function verifyNowPaymentsSignature(
     hmac.update(bodyString)
     const calculatedSignature = hmac.digest('hex')
 
-    // Compare signatures (case-insensitive)
-    return calculatedSignature.toLowerCase() === receivedSignature.toLowerCase()
+    // Compare signatures (case-insensitive, timing-safe)
+    const a = Buffer.from(calculatedSignature.toLowerCase(), 'utf-8')
+    const b = Buffer.from(receivedSignature.toLowerCase(), 'utf-8')
+    if (a.length !== b.length) return false
+    return crypto.timingSafeEqual(a, b)
   } catch (error) {
     logger.errorWithStack('PAYMENT:NOWPAYMENTS', 'Signature verification error', error)
     return false
