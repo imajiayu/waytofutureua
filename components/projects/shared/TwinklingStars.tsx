@@ -40,13 +40,6 @@ export default function TwinklingStars({ count = 6 }: TwinklingStarsProps) {
           ✦
         </div>
       ))}
-      <style jsx>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-        .animate-twinkle { animation: twinkle 2s ease-in-out infinite; }
-      `}</style>
     </div>
   )
 }

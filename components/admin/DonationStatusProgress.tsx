@@ -122,7 +122,7 @@ export default function DonationStatusProgress({
 
               {/* Connecting Line */}
               {!isLast && (
-                <div className="flex-1 h-0.5 mx-2 relative" style={{ top: '-20px' }}>
+                <div className="flex-1 h-0.5 mx-2 relative -top-5">
                   <div className={`h-full ${styles.line}`} />
                 </div>
               )}

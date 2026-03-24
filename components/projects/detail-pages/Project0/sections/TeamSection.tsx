@@ -79,7 +79,6 @@ export default function TeamSection({ content, employerImages, onImageClick }: T
           <div
             ref={scrollRef}
             className="flex gap-2 md:gap-3 overflow-x-auto scroll-smooth pb-2 scrollbar-hide snap-x snap-mandatory"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {employerImages.map((image, index) => (
               <div

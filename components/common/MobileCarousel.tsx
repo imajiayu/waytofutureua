@@ -71,8 +71,7 @@ export default function MobileCarousel({
         {children.map((child, index) => (
           <div
             key={index}
-            className="flex-shrink-0 snap-center"
-            style={{ width: '78%' }}
+            className="flex-shrink-0 snap-center w-[78%]"
           >
             {child}
           </div>

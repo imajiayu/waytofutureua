@@ -75,16 +75,18 @@ export default function ImpactSection() {
           <div className="flex flex-col gap-3 mt-auto">
             {/* Value with backdrop - Large stat number */}
             <div
-              className="font-bold text-white tracking-tight px-4 py-2 bg-black/25 backdrop-blur-md rounded-xl shadow-2xl self-start font-data"
-              style={{ fontSize: isMobile ? 'clamp(1.75rem, 3vw + 0.5rem, 2.5rem)' : 'clamp(2rem, 4vw + 0.5rem, 3.75rem)' }}
+              className={`font-bold text-white tracking-tight px-4 py-2 bg-black/25 backdrop-blur-md rounded-xl shadow-2xl self-start font-data ${
+                isMobile ? 'text-[clamp(1.75rem,_3vw+0.5rem,_2.5rem)]' : 'text-[clamp(2rem,_4vw+0.5rem,_3.75rem)]'
+              }`}
             >
               {t(`${key}.value` as any)}
             </div>
 
             {/* Label with backdrop */}
             <div
-              className="text-white font-semibold leading-snug px-3 py-2 bg-black/20 backdrop-blur-sm rounded-lg shadow-lg self-start"
-              style={{ fontSize: isMobile ? 'clamp(0.875rem, 1.5vw + 0.25rem, 1rem)' : 'clamp(1rem, 2vw + 0.25rem, 1.25rem)' }}
+              className={`text-white font-semibold leading-snug px-3 py-2 bg-black/20 backdrop-blur-sm rounded-lg shadow-lg self-start ${
+                isMobile ? 'text-[clamp(0.875rem,_1.5vw+0.25rem,_1rem)]' : 'text-[clamp(1rem,_2vw+0.25rem,_1.25rem)]'
+              }`}
             >
               {t(`${key}.label` as any)}
             </div>

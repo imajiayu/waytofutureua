@@ -3,18 +3,16 @@
 import type { SectionProps, Statistic } from '../types'
 import AnimatedNumber from '@/components/projects/shared/AnimatedNumber'
 
+const STAT_CARD_GRADIENTS = [
+  'bg-gradient-to-br from-ukraine-blue-500 to-ukraine-blue-700',
+  'bg-gradient-to-br from-ukraine-gold-500 to-ukraine-gold-600',
+  'bg-gradient-to-br from-slate-50 to-slate-200',
+] as const
+
 function AnimatedStatCard({ stat, index }: { stat: Statistic; index: number }) {
   return (
     <div
-      className="relative p-4 md:p-5 rounded-xl md:rounded-2xl overflow-hidden group"
-      style={{
-        background:
-          index === 0
-            ? 'linear-gradient(135deg, #076CB3 0%, #054878 100%)'
-            : index === 1
-              ? 'linear-gradient(135deg, #F5B800 0%, #D19A00 100%)'
-              : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-      }}
+      className={`relative p-4 md:p-5 rounded-xl md:rounded-2xl overflow-hidden group ${STAT_CARD_GRADIENTS[index] ?? STAT_CARD_GRADIENTS[2]}`}
     >
       {/* Decorative Elements */}
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />

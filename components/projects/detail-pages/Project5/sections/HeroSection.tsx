@@ -30,31 +30,16 @@ export default function HeroSection({ content, project, locale }: SectionProps) 
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-8 h-8 rounded-full opacity-0"
+              className="absolute w-8 h-8 rounded-full opacity-0 animate-steam-rise"
               style={{
                 left: `${20 + i * 14}%`,
                 bottom: '10%',
                 background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
-                animation: `steamRise ${4 + i * 0.8}s ease-out infinite`,
+                animationDuration: `${4 + i * 0.8}s`,
                 animationDelay: `${i * 1.2}s`,
               }}
             />
           ))}
-          <style jsx>{`
-            @keyframes steamRise {
-              0% {
-                opacity: 0;
-                transform: translateY(0) scale(1);
-              }
-              20% {
-                opacity: 0.6;
-              }
-              100% {
-                opacity: 0;
-                transform: translateY(-120px) scale(2.5);
-              }
-            }
-          `}</style>
         </div>
       }
     >

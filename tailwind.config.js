@@ -19,6 +19,10 @@ module.exports = {
       },
       animation: {
         snowfall: 'snowfall linear infinite',
+        twinkle: 'twinkle 2s ease-in-out infinite',
+        marquee: 'marquee linear infinite',
+        'marquee-reverse': 'marquee-reverse linear infinite',
+        'steam-rise': 'steam-rise ease-out infinite',
       },
       keyframes: {
         snowfall: {
@@ -26,6 +30,23 @@ module.exports = {
           '10%': { opacity: '1' },
           '90%': { opacity: '1' },
           '100%': { transform: 'translateY(100vh) rotate(360deg)', opacity: '0' },
+        },
+        twinkle: {
+          '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.2)' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        'marquee-reverse': {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        'steam-rise': {
+          '0%': { opacity: '0', transform: 'translateY(0) scale(1)' },
+          '20%': { opacity: '0.6' },
+          '100%': { opacity: '0', transform: 'translateY(-120px) scale(2.5)' },
         },
       },
       colors: {

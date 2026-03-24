@@ -80,7 +80,6 @@ export default function ProjectResultsMarquee({
 
             // Determine scroll direction (alternate rows)
             const isReverse = rowIndex % 2 === 1
-            const animationName = isReverse ? 'marquee-reverse' : 'marquee'
 
             // Calculate duration based on row item count for consistent speed
             const duration = getAnimationDuration(rowResults.length)
@@ -98,10 +97,9 @@ export default function ProjectResultsMarquee({
                 }}
               >
                 <div
-                  className="flex gap-4 hover:pause-animation"
+                  className={`flex gap-4 w-fit hover:pause-animation ${isReverse ? 'animate-marquee-reverse' : 'animate-marquee'}`}
                   style={{
-                    animation: `${animationName} ${duration}s linear infinite`,
-                    width: 'fit-content',
+                    animationDuration: `${duration}s`,
                   }}
                 >
                   {duplicatedItems.map((result, itemIndex) => {
@@ -146,31 +144,6 @@ export default function ProjectResultsMarquee({
           })}
         </div>
       </div>
-
-      {/* Keyframe Animations */}
-      <style jsx>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-
-        @keyframes marquee-reverse {
-          0% {
-            transform: translateX(-50%);
-          }
-          100% {
-            transform: translateX(0);
-          }
-        }
-
-        .hover\:pause-animation:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
 
       {/* Global Loading Spinner */}
       <GlobalLoadingSpinner isLoading={isNavigating} />

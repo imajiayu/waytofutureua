@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronUpIcon, ChevronDownIcon } from '@/components/icons'
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 
 interface BottomSheetProps {
   isOpen: boolean
@@ -134,27 +135,18 @@ export default function BottomSheet({
     }
   }, [isDragging, handleDragEnd])
 
-  // Lock body scroll when sheet is expanded (mobile only)
+  // Track mobile breakpoint for scroll lock
+  const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const MOBILE_BREAKPOINT = 1024
+    const check = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
-    const updateScrollLock = () => {
-      const isMobile = window.innerWidth < MOBILE_BREAKPOINT
-      if (isOpen && isExpanded && isMobile) {
-        document.body.style.overflow = 'hidden'
-      } else {
-        document.body.style.overflow = 'unset'
-      }
-    }
-
-    updateScrollLock()
-    window.addEventListener('resize', updateScrollLock)
-
-    return () => {
-      document.body.style.overflow = 'unset'
-      window.removeEventListener('resize', updateScrollLock)
-    }
-  }, [isOpen, isExpanded])
+  // Lock body scroll when sheet is expanded (mobile only)
+  useBodyScrollLock(isOpen && isExpanded && isMobile)
 
   if (!isOpen) return null
 
@@ -183,10 +175,7 @@ export default function BottomSheet({
           }}
         >
           <div
-            className="flex items-center justify-center gap-3 py-4 px-6 bg-ukraine-gold-500 rounded-3xl mx-4"
-            style={{
-              boxShadow: '0 4px 20px -4px rgba(0, 0, 0, 0.2)',
-            }}
+            className="flex items-center justify-center gap-3 py-4 px-6 bg-ukraine-gold-500 rounded-3xl mx-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.2)]"
           >
             <ChevronUpIcon className="w-6 h-6 text-ukraine-blue-900" />
             <span className="text-ukraine-blue-900 font-bold text-lg">
