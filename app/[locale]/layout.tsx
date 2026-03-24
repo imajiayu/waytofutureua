@@ -87,6 +87,8 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+export const dynamicParams = false
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
