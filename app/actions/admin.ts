@@ -329,6 +329,7 @@ export async function uploadDonationResultFile(formData: FormData) {
 
   const donationIdStr = formData.get('donationId') as string
   const file = formData.get('file') as File
+  const faceBlur = formData.get('faceBlur') !== '0' // 默认开启
 
   if (!file || !donationIdStr) {
     throw new Error('Missing file or donation ID')
@@ -383,8 +384,8 @@ export async function uploadDonationResultFile(formData: FormData) {
   // 判断是否为图片
   const isImage = file.type.startsWith('image/')
 
-  // 如果是图片且 Cloudinary 已配置，使用 Cloudinary 处理（压缩 + 人脸打码）
-  if (isImage && isCloudinaryConfigured()) {
+  // 如果是图片且 Cloudinary 已配置且开启了人脸打码，使用 Cloudinary 处理（压缩 + 人脸打码）
+  if (isImage && faceBlur && isCloudinaryConfigured()) {
     try {
       logger.info('ADMIN', 'Processing image with Cloudinary', { fileName: file.name })
 
@@ -497,9 +498,11 @@ export async function uploadDonationResultFile(formData: FormData) {
       }
     }
   } else {
-    // 非图片文件（视频）或 Cloudinary 未配置，直接上传原始文件
+    // 非图片文件（视频）、人脸打码已关闭、或 Cloudinary 未配置，直接上传原始文件
     if (!isImage) {
       logger.debug('MEDIA', 'Uploading video file directly', { fileName: file.name })
+    } else if (!faceBlur) {
+      logger.info('MEDIA', 'Face blur disabled by admin, uploading original image', { fileName: file.name })
     } else {
       logger.warn('MEDIA', 'Cloudinary not configured, uploading original image')
     }

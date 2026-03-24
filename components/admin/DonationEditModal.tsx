@@ -54,6 +54,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   const [loadingFiles, setLoadingFiles] = useState(true)
   const [deletingFile, setDeletingFile] = useState<string | null>(null)
   const [confirmDeletePath, setConfirmDeletePath] = useState<string | null>(null)
+  const [faceBlur, setFaceBlur] = useState(true)
 
   const currentStatus = (donation.donation_status || '') as DonationStatus
   const allowedStatuses = getNextAllowedStatuses(currentStatus)
@@ -61,6 +62,9 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
 
   // 检查是否需要上传文件（delivering → completed）
   const needsFileUpload = checkNeedsFileUpload(currentStatus, newStatus as DonationStatus)
+
+  // 检查待上传文件中是否包含图片（用于显示打码开关）
+  const hasImageFiles = filesToUpload.some(f => f.type.startsWith('image/'))
 
   // 检查是否可以管理文件（只有 completed 状态才能独立管理文件）
   const canManageFiles = checkCanManageFiles(currentStatus)
@@ -115,6 +119,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
     const formData = new FormData()
     formData.append('file', file)
     formData.append('donationId', donation.id.toString())
+    formData.append('faceBlur', faceBlur ? '1' : '0')
 
     // 上传文件（进度由外层控制）
     await uploadDonationResultFile(formData)
@@ -349,6 +354,19 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
                     </div>
                   </div>
                 )}
+                {hasImageFiles && (
+                  <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={faceBlur}
+                      onChange={(e) => setFaceBlur(e.target.checked)}
+                      disabled={uploading}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Auto face blur</span>
+                    <span className="text-xs text-gray-400">(pixelate detected faces via Cloudinary)</span>
+                  </label>
+                )}
                 <p className="mt-2 text-xs text-gray-500">
                   Accepted formats: JPEG, PNG, GIF, MP4, MOV (max 50MB per file)
                 </p>
@@ -496,6 +514,19 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
                           />
                         </div>
                       </div>
+                    )}
+                    {hasImageFiles && (
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={faceBlur}
+                          onChange={(e) => setFaceBlur(e.target.checked)}
+                          disabled={uploading}
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Auto face blur</span>
+                        <span className="text-xs text-gray-400">(pixelate detected faces via Cloudinary)</span>
+                      </label>
                     )}
                     <button
                       type="button"
