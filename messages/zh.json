@@ -16,10 +16,13 @@
       "close": "关闭图片查看器",
       "previousImage": "上一张图片",
       "nextImage": "下一张图片",
-      "goToImage": "跳转到第 {number} 张图片"
+      "goToImage": "跳转到第 {number} 张图片",
+      "imageAlt": "图片 {index}"
     },
     "carousel": {
-      "goToSlide": "跳转到第 {number} 页"
+      "goToSlide": "跳转到第 {number} 页",
+      "scrollLeft": "向左滚动",
+      "scrollRight": "向右滚动"
     },
     "donationStatus": {
       "pending": "支付待确认",
@@ -268,7 +271,12 @@
       "artworkCollectionAlt": "艺术作品集",
       "woodStoveAlt": "柴火炉取暖",
       "studyAreaAlt": "学习区域",
-      "familyMomentAlt": "家庭时刻"
+      "familyMomentAlt": "家庭时刻",
+      "suppliesExpenses": "物资与支出",
+      "suppliesExpensesDesc": "完全透明",
+      "supplyList": "物资清单",
+      "expenseReceipts": "支出收据",
+      "receiptImageAlt": "收据 {number}"
     }
   },
   "donate": {
@@ -501,6 +509,7 @@
     "copyAddress": "复制地址",
     "addressCopied": "地址已复制！",
     "scanQrCode": "或扫描二维码：",
+    "qrCodeAlt": "支付二维码",
     "waitingForPayment": "等待支付中...",
     "paymentDetected": "已检测到支付！正在区块链上确认...",
     "confirmations": "确认数",
@@ -712,6 +721,8 @@
     "download": "下载图片",
     "downloadAll": "下载所有文件",
     "downloading": "下载中...",
+    "close": "关闭",
+    "resultThumbnailAlt": "结果 {index}",
     "imageAlt": "捐赠 {donationId} 的结果图片",
     "contactSupport": "如果您认为这是错误，请联系我们的支持团队。",
     "errors": {

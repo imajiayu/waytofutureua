@@ -192,7 +192,7 @@ export default function ImageLightbox({
             {!imageLoaded && currentImage.thumbnailUrl && (
               <img
                 src={currentImage.thumbnailUrl}
-                alt={currentImage.alt || currentImage.caption || `Image ${currentIndex + 1}`}
+                alt={currentImage.alt || currentImage.caption || t('imageAlt', { index: currentIndex + 1 })}
                 className="max-w-[calc(100vw-80px)] max-h-[calc(100vh-80px)] object-contain rounded-lg blur-sm"
               />
             )}
@@ -200,7 +200,7 @@ export default function ImageLightbox({
             {/* Main image */}
             <img
               src={currentImage.url}
-              alt={currentImage.alt || currentImage.caption || `Image ${currentIndex + 1}`}
+              alt={currentImage.alt || currentImage.caption || t('imageAlt', { index: currentIndex + 1 })}
               className={`max-w-[calc(100vw-80px)] max-h-[calc(100vh-80px)] object-contain rounded-lg transition-opacity duration-300 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0 absolute'
               }`}

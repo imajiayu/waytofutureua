@@ -143,7 +143,11 @@ export function verifyWayForPaySignature(
   const calculatedSignature = generateSignature(signatureValues)
   const a = Buffer.from(calculatedSignature, 'utf-8')
   const b = Buffer.from(receivedSignature, 'utf-8')
-  if (a.length !== b.length) return false
+  if (a.length !== b.length) {
+    // Dummy constant-time comparison to prevent timing leakage on length mismatch
+    crypto.timingSafeEqual(a, Buffer.alloc(a.length))
+    return false
+  }
   return crypto.timingSafeEqual(a, b)
 }
 
@@ -278,7 +282,11 @@ export function verifyRefundResponseSignature(
   const calculatedSignature = generateSignature(signatureValues)
   const a = Buffer.from(calculatedSignature, 'utf-8')
   const b = Buffer.from(receivedSignature, 'utf-8')
-  if (a.length !== b.length) return false
+  if (a.length !== b.length) {
+    // Dummy constant-time comparison to prevent timing leakage on length mismatch
+    crypto.timingSafeEqual(a, Buffer.alloc(a.length))
+    return false
+  }
   return crypto.timingSafeEqual(a, b)
 }
 

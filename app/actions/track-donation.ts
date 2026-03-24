@@ -348,9 +348,9 @@ export async function requestRefund(data: {
         totalAmount: totalOrderAmount
       }
 
-    } catch (wayforpayError: any) {
+    } catch (wayforpayError: unknown) {
       logger.error('REFUND', 'WayForPay refund API error', {
-        error: wayforpayError?.message || String(wayforpayError),
+        error: wayforpayError instanceof Error ? wayforpayError.message : String(wayforpayError),
         orderReference: donationData.order_reference,
       })
 
@@ -375,7 +375,7 @@ export async function requestRefund(data: {
 
       return {
         error: 'refundApiError',
-        message: wayforpayError.message || 'Failed to process refund with payment provider'
+        message: wayforpayError instanceof Error ? wayforpayError.message : 'Failed to process refund with payment provider'
       }
     }
 

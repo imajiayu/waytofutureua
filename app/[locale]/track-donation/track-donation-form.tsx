@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import { trackDonations, requestRefund } from '@/app/actions/track-donation'
@@ -102,29 +103,7 @@ export default function TrackDonationForm({ locale }: Props) {
   }
 
   // Lock body scroll when confirmation dialog is open
-  useEffect(() => {
-    if (!confirmRefundId) return
-
-    // Save current scroll position
-    const scrollY = window.scrollY
-
-    // Prevent scrolling
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollY}px`
-    document.body.style.width = '100%'
-
-    return () => {
-      // Restore scrolling
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-
-      // Restore scroll position
-      window.scrollTo(0, scrollY)
-    }
-  }, [confirmRefundId])
+  useBodyScrollLock(!!confirmRefundId)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -550,14 +529,14 @@ export default function TrackDonationForm({ locale }: Props) {
         const currency = refundableDonations[0]?.currency || 'UAH'
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="refund-dialog-title">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
                   <AlertTriangleIcon className="w-6 h-6 text-orange-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 font-display">
+                  <h3 id="refund-dialog-title" className="text-lg font-bold text-gray-900 mb-2 font-display">
                     {t('refundDialog.title')}
                   </h3>
                   <p className="text-sm text-gray-600 mb-1">

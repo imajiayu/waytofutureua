@@ -159,7 +159,7 @@ export default function DonationResultViewer({
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Close"
+              aria-label={t('close')}
             >
               <XIcon className="w-6 h-6 text-gray-600" />
             </button>
@@ -200,7 +200,7 @@ export default function DonationResultViewer({
                           {file.thumbnailUrl ? (
                             <img
                               src={file.thumbnailUrl}
-                              alt={`Result ${index + 1}`}
+                              alt={t('resultThumbnailAlt', { index: index + 1 })}
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />

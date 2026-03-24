@@ -16,10 +16,13 @@
       "close": "Закрити перегляд зображень",
       "previousImage": "Попереднє зображення",
       "nextImage": "Наступне зображення",
-      "goToImage": "Перейти до зображення {number}"
+      "goToImage": "Перейти до зображення {number}",
+      "imageAlt": "Зображення {index}"
     },
     "carousel": {
-      "goToSlide": "Перейти до слайда {number}"
+      "goToSlide": "Перейти до слайда {number}",
+      "scrollLeft": "Прокрутити вліво",
+      "scrollRight": "Прокрутити вправо"
     },
     "donationStatus": {
       "pending": "Очікування підтвердження",
@@ -268,7 +271,12 @@
       "artworkCollectionAlt": "Колекція творчих робіт",
       "woodStoveAlt": "Опалення дровами",
       "studyAreaAlt": "Навчальна зона",
-      "familyMomentAlt": "Родинний момент"
+      "familyMomentAlt": "Родинний момент",
+      "suppliesExpenses": "Витрати та матеріали",
+      "suppliesExpensesDesc": "Повна прозорість",
+      "supplyList": "Список матеріалів",
+      "expenseReceipts": "Чеки витрат",
+      "receiptImageAlt": "Чек {number}"
     }
   },
   "donate": {
@@ -501,6 +509,7 @@
     "copyAddress": "Копіювати адресу",
     "addressCopied": "Адресу скопійовано!",
     "scanQrCode": "Або відскануйте QR-код:",
+    "qrCodeAlt": "QR-код для оплати",
     "waitingForPayment": "Очікування оплати...",
     "paymentDetected": "Оплату виявлено! Підтверджується на блокчейні...",
     "confirmations": "Підтвердження",
@@ -712,6 +721,8 @@
     "download": "Завантажити зображення",
     "downloadAll": "Завантажити всі файли",
     "downloading": "Завантаження...",
+    "close": "Закрити",
+    "resultThumbnailAlt": "Результат {index}",
     "imageAlt": "Зображення результату для донату {donationId}",
     "contactSupport": "Якщо ви вважаєте, що це помилка, будь ласка, зверніться до нашої служби підтримки.",
     "errors": {

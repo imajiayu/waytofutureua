@@ -52,7 +52,7 @@ export default function MissionSection() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero/1.webp"
-          alt="Mission"
+          alt=""
           fill
           className="object-cover"
           priority

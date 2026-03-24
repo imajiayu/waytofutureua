@@ -63,9 +63,11 @@ export default function AidListSection({ aidData, locale, onReceiptClick }: AidL
 
   return (
     <ExpenseTableSection
-      title={t('project3.suppliesExpenses')}
-      description={t('project3.suppliesExpensesDesc')}
-      tableTitle={t('project3.supplyList')}
+      title={t('project4.suppliesExpenses')}
+      description={t('project4.suppliesExpensesDesc')}
+      tableTitle={t('project4.supplyList')}
+      receiptsTitle={t('project4.expenseReceipts')}
+      receiptImageAlt={(n) => t('project4.receiptImageAlt', { number: n })}
       total={aidData.total}
       exchangeRateNote={aidData.exchangeRateNote}
       note={aidData.note}

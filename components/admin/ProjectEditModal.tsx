@@ -36,7 +36,7 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
     }
   }
 
-  const updateField = (field: keyof Project, value: any) => {
+  const updateField = (field: keyof Project, value: Project[keyof Project]) => {
     setFormData({ ...formData, [field]: value })
   }
 

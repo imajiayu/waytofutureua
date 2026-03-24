@@ -5,6 +5,10 @@ import { logger } from '@/lib/logger'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 /**
  * Webhook handler for incoming emails from Resend
  * Automatically forwards emails to majiayu110@gmail.com
@@ -59,10 +63,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Fetch full email content using Resend Inbound API
-    // Note: TypeScript might not recognize 'receiving' yet, using type assertion
-    const { data: emailContent, error: fetchError } = await (
-      resend.emails as any
-    ).receiving.get(email_id)
+    const { data: emailContent, error: fetchError } = await resend.emails.receiving.get(email_id)
 
     if (fetchError || !emailContent) {
       throw new Error(
@@ -88,15 +89,15 @@ export async function POST(req: NextRequest) {
           <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
             <h3 style="margin: 0 0 12px 0; color: #374151;">📨 Forwarded Email</h3>
             <div style="font-size: 14px; color: #6b7280;">
-              <p style="margin: 4px 0;"><strong>From:</strong> ${from}</p>
-              <p style="margin: 4px 0;"><strong>To:</strong> ${toAddresses}</p>
-              <p style="margin: 4px 0;"><strong>Subject:</strong> ${subject || '(No Subject)'}</p>
-              ${ccAddresses ? `<p style="margin: 4px 0;"><strong>CC:</strong> ${ccAddresses}</p>` : ''}
+              <p style="margin: 4px 0;"><strong>From:</strong> ${escapeHtml(from)}</p>
+              <p style="margin: 4px 0;"><strong>To:</strong> ${escapeHtml(toAddresses)}</p>
+              <p style="margin: 4px 0;"><strong>Subject:</strong> ${escapeHtml(subject || '(No Subject)')}</p>
+              ${ccAddresses ? `<p style="margin: 4px 0;"><strong>CC:</strong> ${escapeHtml(ccAddresses)}</p>` : ''}
             </div>
           </div>
 
           <div style="border-top: 2px solid #e5e7eb; padding-top: 20px;">
-            ${htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody || '(No content)'}</pre>`}
+            ${htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody || '(No content)')}</pre>`}
           </div>
         </div>
       `,
@@ -133,11 +134,8 @@ ${textBody || '(No content)'}
     logger.errorWithStack('WEBHOOK:RESEND', 'Error forwarding email', error)
 
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 200 }
+      { success: false, error: 'Email forwarding failed' },
+      { status: 500 }
     )
   }
 }

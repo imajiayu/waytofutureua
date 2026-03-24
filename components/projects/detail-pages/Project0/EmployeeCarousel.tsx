@@ -24,6 +24,7 @@ export default function EmployeeCarousel({
   locale = 'en',
 }: EmployeeCarouselProps) {
   const t = useTranslations('projects')
+  const tCommon = useTranslations('common')
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
@@ -88,7 +89,7 @@ export default function EmployeeCarousel({
               <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-md">
                 <Image
                   src={image}
-                  alt={`Team member ${index + 1}`}
+                  alt={t('project0.teamMemberAlt', { number: index + 1 })}
                   fill
                   className="object-cover transition-transform duration-300 hover:scale-105"
                   sizes="(max-width: 768px) 160px, 192px"
@@ -106,7 +107,7 @@ export default function EmployeeCarousel({
             <button
               onClick={() => scroll('left')}
               className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 md:p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-              aria-label="Scroll left"
+              aria-label={tCommon('carousel.scrollLeft')}
             >
               <ChevronLeftIcon className="w-5 h-5 md:w-6 md:h-6" />
             </button>
@@ -115,7 +116,7 @@ export default function EmployeeCarousel({
             <button
               onClick={() => scroll('right')}
               className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 md:p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
-              aria-label="Scroll right"
+              aria-label={tCommon('carousel.scrollRight')}
             >
               <ChevronRightIcon className="w-5 h-5 md:w-6 md:h-6" />
             </button>

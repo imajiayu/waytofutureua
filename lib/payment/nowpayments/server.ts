@@ -67,7 +67,11 @@ export function verifyNowPaymentsSignature(
     // Compare signatures (case-insensitive, timing-safe)
     const a = Buffer.from(calculatedSignature.toLowerCase(), 'utf-8')
     const b = Buffer.from(receivedSignature.toLowerCase(), 'utf-8')
-    if (a.length !== b.length) return false
+    if (a.length !== b.length) {
+      // Dummy constant-time comparison to prevent timing leakage on length mismatch
+      crypto.timingSafeEqual(a, Buffer.alloc(a.length))
+      return false
+    }
     return crypto.timingSafeEqual(a, b)
   } catch (error) {
     logger.errorWithStack('PAYMENT:NOWPAYMENTS', 'Signature verification error', error)

@@ -148,6 +148,13 @@ export default function BottomSheet({
   // Lock body scroll when sheet is expanded (mobile only)
   useBodyScrollLock(isOpen && isExpanded && isMobile)
 
+  // Focus sheet when expanded for accessibility
+  useEffect(() => {
+    if (isExpanded && sheetRef.current) {
+      sheetRef.current.focus()
+    }
+  }, [isExpanded])
+
   if (!isOpen) return null
 
   // Hide completely when minimized and hideWhenMinimized is true
@@ -165,8 +172,9 @@ export default function BottomSheet({
     <>
       {/* CTA Button - 在 Liquid Glass 上方，使用 calc 额外偏移 */}
       {isMinimized && !shouldHide && (
-        <div
-          className="fixed left-0 right-0 z-40 cursor-pointer select-none"
+        <button
+          type="button"
+          className="fixed left-0 right-0 z-40 cursor-pointer select-none bg-transparent border-none p-0"
           onClick={toggleSheet}
           style={{
             // iOS 26 Liquid Glass 地址栏比 safe-area 更高
@@ -183,13 +191,17 @@ export default function BottomSheet({
             </span>
             <ChevronUpIcon className="w-6 h-6 text-ukraine-blue-900" />
           </div>
-        </div>
+        </button>
       )}
 
       {/* Sheet - 展开时覆盖屏幕，收起时向下滑出 */}
       <div
         ref={sheetRef}
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50"
+        role={isExpanded ? 'dialog' : undefined}
+        aria-modal={isExpanded || undefined}
+        aria-hidden={isMinimized}
+        tabIndex={-1}
+        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 outline-none"
         style={{
           height: `${currentHeight}px`,
           maxHeight: '95vh',

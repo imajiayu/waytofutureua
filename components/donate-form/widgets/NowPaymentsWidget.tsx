@@ -252,7 +252,7 @@ export default function NowPaymentsWidget({
         <div className="inline-block p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
           <img
             src={qrCodeUrl}
-            alt="Payment QR Code"
+            alt={t('qrCodeAlt')}
             width={160}
             height={160}
             className="mx-auto"

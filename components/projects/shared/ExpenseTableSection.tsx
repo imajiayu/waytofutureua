@@ -24,6 +24,8 @@ interface ExpenseTableSectionProps {
   exchangeRateNote?: string
   note?: string
   receipts?: ReceiptsData
+  receiptsTitle?: string
+  receiptImageAlt?: (index: number) => string
   onReceiptClick?: (index: number) => void
 }
 
@@ -36,6 +38,8 @@ export default function ExpenseTableSection({
   exchangeRateNote,
   note,
   receipts,
+  receiptsTitle,
+  receiptImageAlt,
   onReceiptClick,
 }: ExpenseTableSectionProps) {
   const t = useTranslations('projects')
@@ -112,7 +116,7 @@ export default function ExpenseTableSection({
             <div className="flex items-center gap-1.5 mb-2">
               <ReceiptIcon className="w-4 h-4 text-christmas-pine" />
               <h3 className="font-display text-sm font-bold text-gray-900">
-                {t('project3.expenseReceipts')}
+                {receiptsTitle || t('project3.expenseReceipts')}
               </h3>
             </div>
             <div className="grid grid-cols-4 md:grid-cols-7 gap-1.5">
@@ -124,7 +128,7 @@ export default function ExpenseTableSection({
                 >
                   <Image
                     src={img}
-                    alt={t('project3.receiptImageAlt', { number: idx + 1 })}
+                    alt={receiptImageAlt ? receiptImageAlt(idx + 1) : t('receiptImageAlt', { index: idx + 1 })}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     sizes="(max-width: 768px) 25vw, 14vw"
@@ -144,7 +148,7 @@ export default function ExpenseTableSection({
             <div className="flex items-center gap-1.5 mb-2">
               <ReceiptIcon className="w-4 h-4 text-christmas-pine" />
               <h3 className="font-display text-sm font-bold text-gray-900">
-                {t('project3.expenseReceipts')}
+                {receiptsTitle || t('project3.expenseReceipts')}
               </h3>
             </div>
             <p className="text-xs text-gray-400 italic">{receipts.description}</p>

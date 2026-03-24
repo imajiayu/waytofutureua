@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}/unsubscribed`, request.url))
   } catch (error) {
     logger.errorWithStack('SUBSCRIPTION', 'Unsubscribe GET error', error)
-    const locale = request.nextUrl.searchParams.get('locale') || 'en'
+    const rawLocale = request.nextUrl.searchParams.get('locale') || 'en'
+    const locale = ['en', 'zh', 'ua'].includes(rawLocale) ? rawLocale : 'en'
     return NextResponse.redirect(
       new URL(`/${locale}/unsubscribed?error=true`, request.url)
     )

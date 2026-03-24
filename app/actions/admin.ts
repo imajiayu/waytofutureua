@@ -3,6 +3,7 @@
 import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { revalidatePath } from 'next/cache'
 import type { Database } from '@/types/database'
+import type { I18nText } from '@/types'
 import sharp from 'sharp'
 import { processImageWithCloudinary, isCloudinaryConfigured } from '@/lib/cloudinary'
 import {
@@ -100,7 +101,7 @@ export async function updateProject(id: number, updates: ProjectUpdate) {
   const supabase = await getAdminClient()
 
   // 确保不修改这些字段
-  const { id: _, created_at, updated_at, ...safeUpdates } = updates as any
+  const { id: _, created_at, updated_at, ...safeUpdates } = updates as Record<string, unknown>
 
   // 运行时验证已知字段，passthrough 放行 i18n 等额外字段
   let validated: ProjectUpdate
@@ -175,7 +176,7 @@ export async function getAdminDonations() {
   })
 
   return {
-    donations: sorted as (Donation & { projects: { project_name: string; project_name_i18n: any } })[],
+    donations: sorted as (Donation & { projects: { project_name: string; project_name_i18n: I18nText } })[],
     history: history as Database['public']['Tables']['donation_status_history']['Row'][]
   }
 }
@@ -377,7 +378,7 @@ export async function uploadDonationResultFile(formData: FormData) {
 
   // 读取文件内容
   const arrayBuffer = await file.arrayBuffer()
-  let buffer: Buffer = Buffer.from(arrayBuffer) as any
+  let buffer: Buffer = Buffer.from(arrayBuffer) as Buffer
   let contentType = file.type
   let finalFileName = fileName
 

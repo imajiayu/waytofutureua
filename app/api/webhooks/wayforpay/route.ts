@@ -219,7 +219,7 @@ export async function POST(req: Request) {
               to: firstDonation.donor_email,
               donorName: firstDonation.donor_name,
               donations: donationItems,
-              totalAmount: parseFloat(body.amount),
+              totalAmount: updatedDonations.reduce((sum, d) => sum + Number(d.amount), 0),
               currency: body.currency,
               locale: firstDonation.locale as SupportedLocale,
             })

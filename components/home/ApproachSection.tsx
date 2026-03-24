@@ -128,7 +128,7 @@ export default function ApproachSection() {
       <div className="absolute inset-0 opacity-20">
         <Image
           src="/images/hero/2.webp"
-          alt="Approach"
+          alt=""
           fill
           className="object-cover mix-blend-multiply"
           quality={60}

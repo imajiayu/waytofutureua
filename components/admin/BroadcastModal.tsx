@@ -76,27 +76,30 @@ export default function BroadcastModal({
 
   // Load available templates on mount
   useEffect(() => {
-    if (isOpen && templates.length === 0) {
-      loadTemplates()
-    }
-  }, [isOpen])
-
-  const loadTemplates = async () => {
-    setIsLoadingTemplates(true)
-    try {
-      const response = await getAvailableBroadcastTemplates()
-      if (response.data) {
-        setTemplates(response.data)
-        if (response.data.length > 0 && !selectedTemplate) {
-          setSelectedTemplate(response.data[0].fileName)
+    if (!isOpen || templates.length > 0) return
+    let cancelled = false
+    const load = async () => {
+      setIsLoadingTemplates(true)
+      try {
+        const response = await getAvailableBroadcastTemplates()
+        if (cancelled) return
+        if (response.data) {
+          setTemplates(response.data)
+          if (response.data.length > 0) {
+            setSelectedTemplate(prev => prev || response.data![0].fileName)
+          }
         }
+      } catch (err) {
+        if (!cancelled) {
+          clientLogger.error('API', 'Failed to load email templates', { error: err instanceof Error ? err.message : String(err) })
+        }
+      } finally {
+        if (!cancelled) setIsLoadingTemplates(false)
       }
-    } catch (err) {
-      clientLogger.error('API', 'Failed to load email templates', { error: err instanceof Error ? err.message : String(err) })
-    } finally {
-      setIsLoadingTemplates(false)
     }
-  }
+    load()
+    return () => { cancelled = true }
+  }, [isOpen, templates.length])
 
   // Selection handlers
   const handleSelectAll = () => {

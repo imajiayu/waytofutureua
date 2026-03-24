@@ -47,8 +47,18 @@ export async function getAdminUser() {
  * 检查是否为管理员
  */
 export async function isAdmin() {
-  const user = await getAdminUser()
-  return !!user
+  const supabase = await createAuthClient()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+  if (error || !user) return false
+  const { data: adminCheck, error: rpcError } = await supabase.rpc('is_admin')
+  if (rpcError) {
+    console.error('[AUTH] is_admin RPC failed:', rpcError.message)
+    return false
+  }
+  return !!adminCheck
 }
 
 /**

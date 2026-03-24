@@ -1,6 +1,6 @@
 'use server'
 
-import { createWayForPayPayment } from '@/lib/payment/wayforpay/server'
+import { createWayForPayPayment, type WayForPayPaymentParams } from '@/lib/payment/wayforpay/server'
 import {
   createNowPaymentsPayment,
   fetchAvailableCurrencies,
@@ -16,7 +16,7 @@ import { getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-ut
 import { logger } from '@/lib/logger'
 
 type WayForPayPaymentResult =
-  | { success: true; paymentParams: any; amount: number; orderReference: string; allProjectsStats: ProjectStats[] }
+  | { success: true; paymentParams: WayForPayPaymentParams & Record<string, unknown>; amount: number; orderReference: string; allProjectsStats: ProjectStats[] }
   | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: ProjectStats[] }
   | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: ProjectStats[] }
   | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: ProjectStats[] }

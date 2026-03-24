@@ -105,7 +105,7 @@ export default function ImpactSection() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero/3.webp"
-          alt="Impact"
+          alt=""
           fill
           className="object-cover"
           quality={75}

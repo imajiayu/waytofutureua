@@ -16,13 +16,13 @@ import DonationFormCard, { type DonorInfo } from '@/components/donate-form/Donat
 // P2 优化: 动态加载折叠区域组件（默认折叠，用户点击后才显示）
 const DonationStatusFlow = dynamic(
   () => import('@/components/donation-display/DonationStatusFlow'),
-  { ssr: true }
+  { ssr: true, loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded-lg" /> }
 )
 
 // P2 优化: 动态加载页面底部组件（滚动后才可见）
 const ProjectDonationList = dynamic(
   () => import('@/components/donation-display/ProjectDonationList'),
-  { ssr: true }
+  { ssr: true, loading: () => <div className="h-32 animate-pulse bg-gray-100 rounded-lg" /> }
 )
 
 import { getProjectName, type SupportedLocale } from '@/lib/i18n-utils'

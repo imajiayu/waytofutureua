@@ -212,7 +212,7 @@ export default function DonationFormCard({
 
   // Project-specific fields (reset when project changes)
   const [quantity, setQuantity] = useState(1)
-  const [donationAmount, setDonationAmount] = useState(0.1) // For aggregate_donations projects
+  const [donationAmount, setDonationAmount] = useState(10) // For aggregate_donations projects
   const [tipAmount, setTipAmount] = useState(0)
 
   // UI state
@@ -227,14 +227,16 @@ export default function DonationFormCard({
   const formContainerRef = useRef<HTMLDivElement>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
   const emailInputRef = useRef<HTMLInputElement>(null)
+  const activeProjectIdRef = useRef(project?.id)
 
   // Check if this is an aggregated donation project
   const isAggregatedProject = project?.aggregate_donations === true
 
   // Reset project-specific fields when project changes
   useEffect(() => {
+    activeProjectIdRef.current = project?.id
     setQuantity(1)
-    setDonationAmount(0.1)
+    setDonationAmount(10)
     setTipAmount(0)
     setError(null)
     setShowWidget(false)
@@ -304,36 +306,49 @@ export default function DonationFormCard({
 
   // Set custom validation messages based on locale
   useEffect(() => {
-    // Name input validation messages
-    if (nameInputRef.current) {
-      nameInputRef.current.addEventListener('invalid', () => {
-        if (nameInputRef.current!.validity.valueMissing) {
-          nameInputRef.current!.setCustomValidity(t('validation.nameRequired'))
-        } else if (nameInputRef.current!.validity.tooShort) {
-          nameInputRef.current!.setCustomValidity(t('validation.nameMin'))
-        } else {
-          nameInputRef.current!.setCustomValidity('')
-        }
-      })
-      nameInputRef.current.addEventListener('input', () => {
-        nameInputRef.current!.setCustomValidity('')
-      })
+    const nameEl = nameInputRef.current
+    const emailEl = emailInputRef.current
+
+    const handleNameInvalid = () => {
+      if (nameEl!.validity.valueMissing) {
+        nameEl!.setCustomValidity(t('validation.nameRequired'))
+      } else if (nameEl!.validity.tooShort) {
+        nameEl!.setCustomValidity(t('validation.nameMin'))
+      } else {
+        nameEl!.setCustomValidity('')
+      }
+    }
+    const handleNameInput = () => { nameEl!.setCustomValidity('') }
+
+    const handleEmailInvalid = () => {
+      if (emailEl!.validity.valueMissing) {
+        emailEl!.setCustomValidity(t('validation.emailRequired'))
+      } else if (emailEl!.validity.typeMismatch || emailEl!.validity.patternMismatch) {
+        emailEl!.setCustomValidity(t('validation.emailInvalid'))
+      } else {
+        emailEl!.setCustomValidity('')
+      }
+    }
+    const handleEmailInput = () => { emailEl!.setCustomValidity('') }
+
+    if (nameEl) {
+      nameEl.addEventListener('invalid', handleNameInvalid)
+      nameEl.addEventListener('input', handleNameInput)
+    }
+    if (emailEl) {
+      emailEl.addEventListener('invalid', handleEmailInvalid)
+      emailEl.addEventListener('input', handleEmailInput)
     }
 
-    // Email input validation messages
-    if (emailInputRef.current) {
-      emailInputRef.current.addEventListener('invalid', () => {
-        if (emailInputRef.current!.validity.valueMissing) {
-          emailInputRef.current!.setCustomValidity(t('validation.emailRequired'))
-        } else if (emailInputRef.current!.validity.typeMismatch || emailInputRef.current!.validity.patternMismatch) {
-          emailInputRef.current!.setCustomValidity(t('validation.emailInvalid'))
-        } else {
-          emailInputRef.current!.setCustomValidity('')
-        }
-      })
-      emailInputRef.current.addEventListener('input', () => {
-        emailInputRef.current!.setCustomValidity('')
-      })
+    return () => {
+      if (nameEl) {
+        nameEl.removeEventListener('invalid', handleNameInvalid)
+        nameEl.removeEventListener('input', handleNameInput)
+      }
+      if (emailEl) {
+        emailEl.removeEventListener('invalid', handleEmailInvalid)
+        emailEl.removeEventListener('input', handleEmailInput)
+      }
     }
   }, [t])
 
@@ -356,6 +371,7 @@ export default function DonationFormCard({
   const handlePaymentMethodSelect = async (method: PaymentMethod) => {
     if (!project || project.id === null || project.id === undefined) return
 
+    const requestProjectId = project.id
     setSelectedPaymentMethod(method)
     setError(null)
 
@@ -388,6 +404,9 @@ export default function DonationFormCard({
         tip_amount: tipAmount > 0 ? tipAmount : undefined,
         locale: locale as SupportedLocale,
       })
+
+      // Discard stale response if user switched projects during the request
+      if (activeProjectIdRef.current !== requestProjectId) return
 
       // Update projects stats if available
       if (result.allProjectsStats && onProjectsUpdate) {
@@ -447,6 +466,7 @@ export default function DonationFormCard({
         })
       }
     } catch (err) {
+      if (activeProjectIdRef.current !== requestProjectId) return
       clientLogger.error('FORM:DONATION', 'Error creating payment intent', { error: err instanceof Error ? err.message : String(err) })
       if (err instanceof Error && err.message.includes('email')) {
         setError(t('errors.invalidEmail'))
@@ -463,6 +483,7 @@ export default function DonationFormCard({
   const handleCryptoSelect = async (cryptoCurrency: string) => {
     if (!project || project.id === null || project.id === undefined) return
 
+    const requestProjectId = project.id
     setError(null)
     setIsCryptoLoading(true)
 
@@ -485,6 +506,9 @@ export default function DonationFormCard({
         locale: locale as SupportedLocale,
         pay_currency: cryptoCurrency,
       })
+
+      // Discard stale response if user switched projects during the request
+      if (activeProjectIdRef.current !== requestProjectId) return
 
       // Update projects stats if available
       if (result.allProjectsStats && onProjectsUpdate) {
@@ -538,6 +562,7 @@ export default function DonationFormCard({
         })
       }
     } catch (err) {
+      if (activeProjectIdRef.current !== requestProjectId) return
       clientLogger.error('FORM:DONATION', 'Error creating crypto payment', { error: err instanceof Error ? err.message : String(err) })
       if (err instanceof Error && err.message.includes('email')) {
         setError(t('errors.invalidEmail'))
@@ -713,14 +738,14 @@ export default function DonationFormCard({
                 onChange={(e) => {
                   const val = e.target.value
                   if (val === '') {
-                    setDonationAmount(0.1)
+                    setDonationAmount(10)
                     return
                   }
 
                   const num = Number(val)
                   // Prevent negative values during input
                   if (num < 0) {
-                    setDonationAmount(0.1)
+                    setDonationAmount(10)
                     return
                   }
 
@@ -738,7 +763,7 @@ export default function DonationFormCard({
                   const num = Number(e.target.value)
 
                   if (isNaN(num) || num < 0.1) {
-                    setDonationAmount(0.1)
+                    setDonationAmount(10)
                   } else if (num > MAX_AMOUNT) {
                     setDonationAmount(MAX_AMOUNT)
                   } else {

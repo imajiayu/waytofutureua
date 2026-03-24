@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { clientLogger } from '@/lib/logger-client'
 
 interface UseProjectContentResult<T> {
@@ -53,15 +53,19 @@ export function useProjectContents<T extends unknown[]>(
   const [data, setData] = useState<(T[number] | null)[]>(() => configs.map(() => null))
   const [loading, setLoading] = useState(true)
 
+  const configsRef = useRef(configs)
+  configsRef.current = configs
   const configKey = configs.map(c => c.url).join('|')
 
   useEffect(() => {
+    const currentConfigs = configsRef.current
     setLoading(true)
-    setData(configs.map(() => null))
+    setData(currentConfigs.map(() => null))
+    let cancelled = false
     const load = async () => {
       try {
         const results = await Promise.all(
-          configs.map(async (config) => {
+          currentConfigs.map(async (config) => {
             try {
               const response = await fetch(config.url)
               if (response.ok) {
@@ -78,13 +82,13 @@ export function useProjectContents<T extends unknown[]>(
             }
           })
         )
-        setData(results)
+        if (!cancelled) setData(results)
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     load()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { cancelled = true }
   }, [configKey])
 
   return { data: data as { [K in keyof T]: T[K] | null }, loading }
