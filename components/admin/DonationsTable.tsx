@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react'
 import type { Database } from '@/types/database'
 import DonationEditModal from './DonationEditModal'
 import BatchDonationEditModal from './BatchDonationEditModal'
+import PrintLabelsModal from './PrintLabelsModal'
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import { canBatchEdit, requiresFileUploadToTransition, type DonationStatus } from '@/lib/donation-status'
 import { formatDate, formatDateTime } from '@/lib/i18n-utils'
@@ -28,6 +29,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
   // 批量编辑状态
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [showBatchEdit, setShowBatchEdit] = useState(false)
+  const [showPrintLabels, setShowPrintLabels] = useState(false)
 
   const handleEdit = (donation: Donation) => {
     setEditingDonation(donation)
@@ -230,6 +232,12 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                 </span>
               )}
               <button
+                onClick={() => setShowPrintLabels(true)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              >
+                Print Labels ({selectedIds.size})
+              </button>
+              <button
                 onClick={() => setShowBatchEdit(true)}
                 disabled={!canBatchEditSelected}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -382,6 +390,13 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
           donations={selectedDonations}
           onClose={() => setShowBatchEdit(false)}
           onSaved={handleBatchSaved}
+        />
+      )}
+
+      {showPrintLabels && (
+        <PrintLabelsModal
+          donations={selectedDonations}
+          onClose={() => setShowPrintLabels(false)}
         />
       )}
     </div>
