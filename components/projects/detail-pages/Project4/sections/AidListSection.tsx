@@ -1,9 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { PackageIcon, FileTextIcon, DollarSignIcon, ReceiptIcon } from '@/components/icons'
-import { TwinklingStars } from '../../Project3/components'
+import ExpenseTableSection from '@/components/projects/shared/ExpenseTableSection'
 import type { AidListData, AidItem } from '../types'
 
 interface AidListSectionProps {
@@ -12,7 +10,7 @@ interface AidListSectionProps {
   onReceiptClick?: (index: number) => void
 }
 
-// Category config with icons (labels now use translations)
+// Category config with icons
 const categoryIcons: Record<AidItem['category'], JSX.Element> = {
   toys: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
@@ -64,172 +62,63 @@ export default function AidListSection({ aidData, locale, onReceiptClick }: AidL
   )
 
   return (
-    <article className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-      {/* Header - matching Project3 style */}
-      <div className="relative bg-gradient-to-r from-christmas-pine via-emerald-700 to-teal-700 p-4 overflow-hidden">
-        <TwinklingStars count={4} />
-        <div className="relative z-10 flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <PackageIcon className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="font-display text-lg md:text-xl font-bold text-white">
-              {t('project3.suppliesExpenses')}
-            </h2>
-            <p className="text-xs text-white/80">{t('project3.suppliesExpensesDesc')}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-4 space-y-4">
-        {/* Table */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
-            <FileTextIcon className="w-4 h-4 text-christmas-pine" />
-            <h3 className="font-display text-sm font-bold text-gray-900">
-              {t('project3.supplyList')}
-            </h3>
-          </div>
-
-          <div className="rounded-xl overflow-hidden border border-gray-200">
-            {/* Table header */}
-            <div className="bg-gradient-to-r from-christmas-pine/10 to-emerald-50 px-3 py-2 grid grid-cols-12 gap-2 font-semibold text-xs text-gray-700 border-b border-gray-200">
-              <div className="col-span-5 md:col-span-6">{t('item')}</div>
-              <div className="col-span-3 md:col-span-2 text-center">{t('quantity')}</div>
-              <div className="col-span-4 text-right">{t('unitPrice')}</div>
+    <ExpenseTableSection
+      title={t('project3.suppliesExpenses')}
+      description={t('project3.suppliesExpensesDesc')}
+      tableTitle={t('project3.supplyList')}
+      total={aidData.total}
+      exchangeRateNote={aidData.exchangeRateNote}
+      note={aidData.note}
+      receipts={aidData.receipts}
+      onReceiptClick={onReceiptClick}
+    >
+      {(Object.entries(groupedItems) as [AidItem['category'], AidItem[]][]).map(([category, items], catIdx) => (
+        <div key={category}>
+          {/* Category header row */}
+          <div className={`flex items-center gap-2 px-3 py-1.5 bg-christmas-pine/5 ${catIdx > 0 ? 'border-t border-gray-100' : ''}`}>
+            <div className="w-5 h-5 rounded bg-christmas-pine/15 flex items-center justify-center text-christmas-pine">
+              {categoryIcons[category]}
             </div>
+            <span className="font-semibold text-xs text-christmas-pine">
+              {t(`project4.${categoryTranslationKeys[category]}`)}
+            </span>
+          </div>
 
-            {/* Grouped items by category */}
-            {(Object.entries(groupedItems) as [AidItem['category'], AidItem[]][]).map(([category, items], catIdx) => {
-              return (
-                <div key={category}>
-                  {/* Category header row */}
-                  <div className={`flex items-center gap-2 px-3 py-1.5 bg-christmas-pine/5 ${catIdx > 0 ? 'border-t border-gray-100' : ''}`}>
-                    <div className="w-5 h-5 rounded bg-christmas-pine/15 flex items-center justify-center text-christmas-pine">
-                      {categoryIcons[category]}
-                    </div>
-                    <span className="font-semibold text-xs text-christmas-pine">
-                      {t(`project4.${categoryTranslationKeys[category]}`)}
-                    </span>
-                  </div>
-
-                  {/* Items */}
-                  <div className="divide-y divide-gray-100">
-                    {items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="px-3 py-2 grid grid-cols-12 gap-2 items-center hover:bg-christmas-cream/30 transition-colors"
-                      >
-                        <div className="col-span-5 md:col-span-6 font-medium text-xs text-gray-800">
-                          {item.item}
-                          {item.forChild && (
-                            <span className="block text-[10px] text-gray-400 mt-0.5">→ {item.forChild}</span>
-                          )}
-                        </div>
-                        <div className="col-span-3 md:col-span-2 text-center">
-                          <span className="inline-block px-2 py-0.5 bg-christmas-pine/10 text-christmas-pine rounded-full font-bold text-[10px]">
-                            ×{item.quantity}
-                          </span>
-                        </div>
-                        <div className="col-span-4 text-right">
-                          {item.unitPrice ? (
-                            <>
-                              <div className="font-bold text-xs text-gray-900 font-data">
-                                ₴{item.unitPrice.uah.toLocaleString()}
-                              </div>
-                              <div className="text-[10px] text-gray-500">(${item.unitPrice.usd})</div>
-                            </>
-                          ) : (
-                            <span className="text-xs text-gray-300">—</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+          {/* Items */}
+          <div className="divide-y divide-gray-100">
+            {items.map((item, idx) => (
+              <div
+                key={idx}
+                className="px-3 py-2 grid grid-cols-12 gap-2 items-center hover:bg-christmas-cream/30 transition-colors"
+              >
+                <div className="col-span-5 md:col-span-6 font-medium text-xs text-gray-800">
+                  {item.item}
+                  {item.forChild && (
+                    <span className="block text-[10px] text-gray-400 mt-0.5">→ {item.forChild}</span>
+                  )}
                 </div>
-              )
-            })}
-
-            {/* Total row */}
-            {aidData.total && (
-              <div className="bg-gradient-to-r from-christmas-pine to-emerald-600 px-3 py-3 grid grid-cols-12 gap-2 items-center text-white">
-                <div className="col-span-5 md:col-span-6 font-display font-bold">{t('total')}</div>
                 <div className="col-span-3 md:col-span-2 text-center">
-                  <span className="inline-block px-2 py-0.5 bg-white/20 rounded-full font-bold text-xs">
-                    {aidData.total.items} {t('items')}
+                  <span className="inline-block px-2 py-0.5 bg-christmas-pine/10 text-christmas-pine rounded-full font-bold text-[10px]">
+                    ×{item.quantity}
                   </span>
                 </div>
                 <div className="col-span-4 text-right">
-                  <div className="font-display font-bold text-lg">
-                    ₴{aidData.total.totalCost.uah.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-white/80">(${aidData.total.totalCost.usd})</div>
+                  {item.unitPrice ? (
+                    <>
+                      <div className="font-bold text-xs text-gray-900 font-data">
+                        ₴{item.unitPrice.uah.toLocaleString()}
+                      </div>
+                      <div className="text-[10px] text-gray-500">(${item.unitPrice.usd})</div>
+                    </>
+                  ) : (
+                    <span className="text-xs text-gray-300">—</span>
+                  )}
                 </div>
               </div>
-            )}
+            ))}
           </div>
-
-          {/* Exchange rate note */}
-          {aidData.exchangeRateNote && (
-            <div className="mt-2 flex items-center gap-1.5 text-[10px] text-gray-500">
-              <DollarSignIcon className="w-3 h-3" />
-              <span className="italic">{aidData.exchangeRateNote}</span>
-            </div>
-          )}
-
-          {/* Note about remaining donations */}
-          {aidData.note && (
-            <div className="mt-2 text-xs text-gray-600 italic">
-              {aidData.note}
-            </div>
-          )}
-        </section>
-
-        {/* Receipts - matching Project3 style */}
-        {aidData.receipts && aidData.receipts.images && aidData.receipts.images.length > 0 && (
-          <section className="pt-3 border-t border-gray-100">
-            <div className="flex items-center gap-1.5 mb-2">
-              <ReceiptIcon className="w-4 h-4 text-christmas-pine" />
-              <h3 className="font-display text-sm font-bold text-gray-900">
-                {t('project3.expenseReceipts')}
-              </h3>
-            </div>
-            <div className="grid grid-cols-4 md:grid-cols-7 gap-1.5">
-              {aidData.receipts.images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => onReceiptClick?.(idx)}
-                  className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-gray-100 group cursor-pointer hover:border-christmas-gold/50 transition-all"
-                >
-                  <Image
-                    src={img}
-                    alt={t('project3.receiptImageAlt', { number: idx + 1 })}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="(max-width: 768px) 25vw, 14vw"
-                  />
-                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded text-[8px] text-white font-medium">
-                    #{idx + 1}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Empty receipts placeholder */}
-        {aidData.receipts && (!aidData.receipts.images || aidData.receipts.images.length === 0) && (
-          <section className="pt-3 border-t border-gray-100">
-            <div className="flex items-center gap-1.5 mb-2">
-              <ReceiptIcon className="w-4 h-4 text-christmas-pine" />
-              <h3 className="font-display text-sm font-bold text-gray-900">
-                {t('project3.expenseReceipts')}
-              </h3>
-            </div>
-            <p className="text-xs text-gray-400 italic">{aidData.receipts.description}</p>
-          </section>
-        )}
-      </div>
-    </article>
+        </div>
+      ))}
+    </ExpenseTableSection>
   )
 }

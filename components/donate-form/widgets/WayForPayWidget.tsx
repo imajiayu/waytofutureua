@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { markDonationWidgetFailed } from '@/app/actions/donation'
 import { clientLogger } from '@/lib/logger-client'
+import { SpinnerIcon } from '@/components/icons'
 
 interface PaymentParams {
   orderReference: string
@@ -354,10 +355,7 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
       {isRedirecting && !error && (
         <div className="p-5 bg-ukraine-blue-50 border-2 border-ukraine-blue-200 rounded-lg">
           <div className="flex gap-3 items-start">
-            <svg className="animate-spin h-6 w-6 text-ukraine-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <SpinnerIcon className="animate-spin h-6 w-6 text-ukraine-blue-500 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-base font-bold text-ukraine-blue-800 mb-2">
                 {tWidget('redirecting.title')}
@@ -400,10 +398,7 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
       {/* Loading State */}
       {isLoading && (
         <div className="py-12 flex flex-col items-center justify-center space-y-4">
-          <svg className="animate-spin h-12 w-12 text-ukraine-blue-500" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+          <SpinnerIcon className="animate-spin h-12 w-12 text-ukraine-blue-500" />
           <p className="text-gray-600 font-medium">{t('payment.loading')}</p>
           <p className="text-sm text-gray-500">
             {tWidget('preparing')}

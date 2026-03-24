@@ -6,6 +6,7 @@ import type { I18nText } from '@/types'
 import { updateProject } from '@/app/actions/admin'
 import { formatDateTime } from '@/lib/i18n-utils'
 import AdminBaseModal from './AdminBaseModal'
+import I18nFieldGroup from './I18nFieldGroup'
 
 type Project = Database['public']['Tables']['projects']['Row']
 
@@ -211,162 +212,24 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
               </p>
 
               <div className="space-y-6">
-                {/* Project Name i18n */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Project Name Translations</h4>
-                  <div className="grid grid-cols-1 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        English (en)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.project_name_i18n as I18nText)?.en || ''}
-                        onChange={(e) => {
-                          const current = (formData.project_name_i18n as I18nText) || {}
-                          updateField('project_name_i18n', { ...current, en: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Project Name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Chinese (zh)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.project_name_i18n as I18nText)?.zh || ''}
-                        onChange={(e) => {
-                          const current = (formData.project_name_i18n as I18nText) || {}
-                          updateField('project_name_i18n', { ...current, zh: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Project name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Ukrainian (ua)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.project_name_i18n as I18nText)?.ua || ''}
-                        onChange={(e) => {
-                          const current = (formData.project_name_i18n as I18nText) || {}
-                          updateField('project_name_i18n', { ...current, ua: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Назва проекту"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location i18n */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Location Translations</h4>
-                  <div className="grid grid-cols-1 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        English (en)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.location_i18n as I18nText)?.en || ''}
-                        onChange={(e) => {
-                          const current = (formData.location_i18n as I18nText) || {}
-                          updateField('location_i18n', { ...current, en: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Location"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Chinese (zh)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.location_i18n as I18nText)?.zh || ''}
-                        onChange={(e) => {
-                          const current = (formData.location_i18n as I18nText) || {}
-                          updateField('location_i18n', { ...current, zh: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Location"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Ukrainian (ua)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.location_i18n as I18nText)?.ua || ''}
-                        onChange={(e) => {
-                          const current = (formData.location_i18n as I18nText) || {}
-                          updateField('location_i18n', { ...current, ua: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Розташування"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Unit Name i18n */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Unit Name Translations</h4>
-                  <div className="grid grid-cols-1 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        English (en)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.unit_name_i18n as I18nText)?.en || ''}
-                        onChange={(e) => {
-                          const current = (formData.unit_name_i18n as I18nText) || {}
-                          updateField('unit_name_i18n', { ...current, en: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="unit"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Chinese (zh)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.unit_name_i18n as I18nText)?.zh || ''}
-                        onChange={(e) => {
-                          const current = (formData.unit_name_i18n as I18nText) || {}
-                          updateField('unit_name_i18n', { ...current, zh: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="Unit"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        Ukrainian (ua)
-                      </label>
-                      <input
-                        type="text"
-                        value={(formData.unit_name_i18n as I18nText)?.ua || ''}
-                        onChange={(e) => {
-                          const current = (formData.unit_name_i18n as I18nText) || {}
-                          updateField('unit_name_i18n', { ...current, ua: e.target.value || undefined })
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        placeholder="одиниця"
-                      />
-                    </div>
-                  </div>
-                </div>
-
+                <I18nFieldGroup
+                  title="Project Name Translations"
+                  value={formData.project_name_i18n as I18nText}
+                  onChange={(v) => updateField('project_name_i18n', v)}
+                  placeholders={{ en: 'Project Name', zh: 'Project name', ua: 'Назва проекту' }}
+                />
+                <I18nFieldGroup
+                  title="Location Translations"
+                  value={formData.location_i18n as I18nText}
+                  onChange={(v) => updateField('location_i18n', v)}
+                  placeholders={{ en: 'Location', zh: 'Location', ua: 'Розташування' }}
+                />
+                <I18nFieldGroup
+                  title="Unit Name Translations"
+                  value={formData.unit_name_i18n as I18nText}
+                  onChange={(v) => updateField('unit_name_i18n', v)}
+                  placeholders={{ en: 'unit', zh: 'Unit', ua: 'одиниця' }}
+                />
               </div>
             </div>
 

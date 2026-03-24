@@ -5,7 +5,9 @@ import ProjectProgressBar from './ProjectProgressBar'
 import ProjectStatusBadge from '../ProjectStatusBadge'
 import LongTermBadge from '../LongTermBadge'
 import type { ProjectStats } from '@/types'
+import { MapPinIcon } from '@/components/icons'
 import { getLocation, getUnitName, formatDate, type SupportedLocale } from '@/lib/i18n-utils'
+import { getProjectProgress } from '@/lib/project-utils'
 
 interface ProjectProgressSectionProps {
   project: ProjectStats
@@ -18,13 +20,7 @@ export default function ProjectProgressSection({ project, locale }: ProjectProgr
 
   const location = getLocation(project.location_i18n, project.location, locale as SupportedLocale)
   const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as SupportedLocale)
-  const currentUnits = project.current_units ?? 0
-  const targetUnits = project.target_units ?? 0
-  const totalRaised = project.total_raised ?? 0
-  const hasValidTarget = targetUnits > 0
-
-  // For progress bar: aggregated projects use total_raised (amount), non-aggregated use current_units
-  const progressCurrent = project.aggregate_donations ? totalRaised : currentUnits
+  const { currentUnits, targetUnits, totalRaised, hasValidTarget, progressCurrent } = getProjectProgress(project)
 
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 shadow-sm overflow-hidden">
@@ -47,25 +43,7 @@ export default function ProjectProgressSection({ project, locale }: ProjectProgr
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {/* Location */}
           <div className="flex items-start gap-1.5">
-            <svg
-              className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
+            <MapPinIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 mt-0.5 flex-shrink-0" />
             <span className="text-[10px] md:text-xs text-gray-700 leading-tight">{location}</span>
           </div>
 

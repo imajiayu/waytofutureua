@@ -1,46 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
 import type { SectionProps, Statistic } from '../types'
+import AnimatedNumber from '@/components/projects/shared/AnimatedNumber'
 
 function AnimatedStatCard({ stat, index }: { stat: Statistic; index: number }) {
-  const [count, setCount] = useState(0)
-  const [hasAnimated, setHasAnimated] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            setHasAnimated(true)
-            const startTime = Date.now()
-            const duration = 2000
-            const animate = () => {
-              const elapsed = Date.now() - startTime
-              const progress = Math.min(elapsed / duration, 1)
-              // Easing function: easeOutExpo
-              const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)
-              setCount(Math.floor(stat.value * eased))
-              if (progress < 1) {
-                requestAnimationFrame(animate)
-              }
-            }
-            requestAnimationFrame(animate)
-          }
-        })
-      },
-      { threshold: 0.3 }
-    )
-    if (ref.current) {
-      observer.observe(ref.current)
-    }
-    return () => observer.disconnect()
-  }, [stat.value, hasAnimated])
-
   return (
     <div
-      ref={ref}
       className="relative p-4 md:p-5 rounded-xl md:rounded-2xl overflow-hidden group"
       style={{
         background:
@@ -58,13 +23,12 @@ function AnimatedStatCard({ stat, index }: { stat: Statistic; index: number }) {
         <div
           className={`font-data text-3xl md:text-4xl lg:text-5xl font-bold mb-1 tracking-tight ${index < 2 ? 'text-white' : 'text-gray-900'}`}
         >
-          {stat.isAmount ? '$' : ''}
-          {stat.isAmount
-            ? count.toLocaleString()
-            : count >= 1000
-              ? `${(count / 1000).toFixed(1)}K`
-              : count}
-          {!stat.isAmount && '+'}
+          <AnimatedNumber
+            value={stat.value}
+            prefix={stat.isAmount ? '$' : ''}
+            suffix={stat.isAmount ? '' : '+'}
+            formatLargeNumber={!stat.isAmount}
+          />
         </div>
         <div
           className={`font-display text-xs md:text-sm font-semibold mb-0.5 ${index < 2 ? 'text-white/90' : 'text-gray-800'}`}
