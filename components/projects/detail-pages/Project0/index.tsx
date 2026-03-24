@@ -96,17 +96,9 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
 
   if (!content) {
     return (
-      <article className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="bg-ukraine-blue-500 p-8 text-white">
-          <h1 className="text-3xl font-bold mb-2 font-display">Way to Health</h1>
-          <p className="text-ukraine-blue-100">{t('rehabilitationCenter')}</p>
-        </div>
-        <div className="p-8">
-          <div className="p-8 bg-ukraine-blue-50 border-2 border-ukraine-blue-200 rounded-lg text-center">
-            <p className="text-gray-600">{t('contentLoading')}</p>
-          </div>
-        </div>
-      </article>
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
+        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
+      </div>
     )
   }
 
@@ -152,7 +144,7 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
                     const excludedImages = [
                       '/images/projects/project-0/result/result1.webp',
                       '/images/projects/project-0/progress/progress14.webp',
-                      '/images/projects/project-0/result/result13 2.webp',
+                      '/images/projects/project-0/result/result13-2.webp',
                       '/images/projects/project-0/progress/progress13.webp',
                     ]
                     return !excludedImages.includes(img.imageUrl)
@@ -239,7 +231,9 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
       </article>
 
       {/* Project Progress Section */}
-      <ProjectProgressSection project={project} locale={locale} />
+      <FadeInSection>
+        <ProjectProgressSection project={project} locale={locale} />
+      </FadeInSection>
     </div>
   )
 }

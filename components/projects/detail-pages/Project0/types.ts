@@ -122,8 +122,3 @@ export interface SectionProps {
   content: Project0Content
   locale: string
 }
-
-export interface LightboxState {
-  open: boolean
-  index: number
-}

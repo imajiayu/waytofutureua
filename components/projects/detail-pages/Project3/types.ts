@@ -17,7 +17,7 @@ export interface GiftList {
   children: Child[]
 }
 
-export interface ProjectContent {
+export interface Project3Content {
   title: string
   subtitle: string
   images: string[]
@@ -52,7 +52,7 @@ export interface Project3DetailContentProps {
 }
 
 export interface SectionProps {
-  content: ProjectContent
+  content: Project3Content
   locale: string
 }
 

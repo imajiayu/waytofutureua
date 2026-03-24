@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
-import type { ProjectContent, SuppliesData, Project3DetailContentProps } from './types'
+import type { Project3Content, SuppliesData, Project3DetailContentProps } from './types'
 
 // Sections
 import {
@@ -25,7 +25,7 @@ const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'),
 
 export default function Project3DetailContent({ project, locale }: Project3DetailContentProps) {
   const t = useTranslations('projects')
-  const { data: [content, suppliesData], loading } = useProjectContents<[ProjectContent, SuppliesData]>([
+  const { data: [content, suppliesData], loading } = useProjectContents<[Project3Content, SuppliesData]>([
     { url: `/content/projects/project-3-${locale}.json`, projectId: 3 },
     { url: `/content/projects/project-3-supplies-${locale}.json`, projectId: 3 },
   ])
@@ -74,6 +74,14 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
             ))}
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (!content) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
+        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
       </div>
     )
   }

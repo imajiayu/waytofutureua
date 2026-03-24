@@ -6,11 +6,11 @@ import ProjectStatusBadge from '@/components/projects/ProjectStatusBadge'
 import ProjectHeroBase from '@/components/projects/shared/ProjectHeroBase'
 import { Snowfall } from '../components'
 import TwinklingStars from '@/components/projects/shared/TwinklingStars'
-import type { ProjectContent } from '../types'
+import type { Project3Content } from '../types'
 import type { ProjectStats } from '@/types'
 
 interface HeroSectionProps {
-  content: ProjectContent | null
+  content: Project3Content | null
   project: ProjectStats
   locale: string
 }
