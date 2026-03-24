@@ -19,7 +19,6 @@
 - [第九阶段：代码重复提取](#第九阶段代码重复提取)
 - [第十阶段：样式一致性](#第十阶段样式一致性)
 - [第十一阶段：项目详情页一致性](#第十一阶段项目详情页一致性)
-- [第十二阶段：Admin i18n（可选）](#第十二阶段admin-i18n可选)
 - [附录：建议引入的新规范](#附录建议引入的新规范)
 
 ---
@@ -820,32 +819,6 @@
 
 ---
 
-## 第十二阶段：Admin i18n（可选）
-
-> 管理员后台当前固定 `locale: 'en'`，共 200+ 处硬编码英文文案。此阶段工作量较大，可作为未来迭代目标。
-
-**涉及文件**:
-- `components/admin/DonationsTable.tsx`
-- `components/admin/ProjectsTable.tsx`
-- `components/admin/ProjectCreateModal.tsx`
-- `components/admin/ProjectEditModal.tsx`
-- `components/admin/DonationEditModal.tsx`
-- `components/admin/BatchDonationEditModal.tsx`
-- `components/admin/BroadcastModal.tsx`
-- `components/admin/SubscriptionsTable.tsx`
-- `components/admin/AdminNav.tsx`
-- `components/admin/DonationStatusProgress.tsx`
-- `app/admin/login/page.tsx`
-- `app/admin/projects/page.tsx`
-- `app/admin/donations/page.tsx`
-
-**修复步骤**:
-
-1. 在 `messages/en.json` 中新增 `admin` 命名空间
-2. 提取所有硬编码文案为翻译键
-3. 在管理员组件中使用 `useTranslations('admin')`
-4. （可选）将来支持管理员界面多语言时，补充 zh/ua 翻译
-
 ---
 
 ## 附录：建议引入的新规范
@@ -902,17 +875,24 @@
 
 ## 执行进度追踪
 
-| 阶段 | 描述 | 状态 |
-|------|------|------|
-| 第一阶段 | 安全修复（紧急） | ⬜ |
-| 第二阶段 | 安全修复（高优先级） | ⬜ |
-| 第三阶段 | 安全修复（中优先级） | ⬜ |
-| 第四阶段 | TypeScript 类型安全 | ⬜ |
-| 第五阶段 | React 最佳实践 | ⬜ |
-| 第六阶段 | i18n 公开页面修复 | ⬜ |
-| 第七阶段 | 性能优化 | ⬜ |
-| 第八阶段 | 可访问性修复 | ⬜ |
-| 第九阶段 | 代码重复提取 | ⬜ |
-| 第十阶段 | 样式一致性 | ⬜ |
-| 第十一阶段 | 项目详情页一致性 | ✅ |
-| 第十二阶段 | Admin i18n（可选） | ⬜ |
+| 阶段 | 描述 | 状态 | Commit |
+|------|------|------|--------|
+| 第一阶段 | 安全修复（紧急） | ✅ | `8fa7724` |
+| 第二阶段 | 安全修复（高优先级） | ✅ | `b691946` |
+| 第三阶段 | 安全修复（中优先级） | ✅ | `b691946` |
+| 第四阶段 | TypeScript 类型安全 | ✅ | `b691946` |
+| 第五阶段 | React 最佳实践 | ✅ | `438892f` |
+| 第六阶段 | i18n 公开页面修复 | ✅ | `595536e` |
+| 第七阶段 | 性能优化 | ✅ | `ee3c213` |
+| 第八阶段 | 可访问性修复 | ✅ | `975335b` |
+| 第九阶段 | 代码重复提取 | ✅ | `2dc6cb3` |
+| 第十阶段 | 样式一致性 | ✅ | `4c9d242` |
+| 第十一阶段 | 项目详情页一致性 | ✅ | `3abade3` |
+| 复查修复 | 安全漏洞、事件泄漏、可访问性、i18n、类型安全 | ✅ | `d2398c0` |
+
+### 相关但非审计范围的 Commit
+
+| Commit | 描述 |
+|--------|------|
+| `8a5ab24` | 新增 Project5 event-2 活动记录，修复图片网格显示限制 |
+| `c622ff8` | Admin 人脸打码开关：允许管理员上传图片时选择是否启用自动人脸模糊 |
