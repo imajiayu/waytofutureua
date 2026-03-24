@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       logger.error('WEBHOOK:RESEND', 'Missing payload.data')
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
-    const { email_id, from, to, subject, cc, bcc } = payload.data
+    const { email_id, from, to, subject, cc, bcc, html, text } = payload.data
 
     logger.info('WEBHOOK:RESEND', 'Inbound email received', {
       emailId: email_id,
@@ -62,17 +62,8 @@ export async function POST(req: NextRequest) {
       subject,
     })
 
-    // Fetch full email content using Resend Inbound API
-    const { data: emailContent, error: fetchError } = await resend.emails.receiving.get(email_id)
-
-    if (fetchError || !emailContent) {
-      throw new Error(
-        `Failed to fetch email content: ${fetchError?.message || 'Unknown error'}`
-      )
-    }
-
-    const htmlBody = emailContent.html || ''
-    const textBody = emailContent.text || ''
+    const htmlBody = html || ''
+    const textBody = text || ''
 
     // Format recipient addresses
     const toAddresses = Array.isArray(to) ? to.join(', ') : to
