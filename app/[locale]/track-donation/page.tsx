@@ -1,7 +1,7 @@
 import { getTranslations, getLocale } from 'next-intl/server'
 import { BASE_URL, getAlternates } from '@/lib/constants'
-import Image from 'next/image'
 import TrackDonationForm from './track-donation-form'
+import HeroBackground from './hero-background'
 
 export async function generateMetadata({
   params: { locale },
@@ -35,57 +35,7 @@ export default async function TrackDonationPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden py-20 pb-32">
-        {/* Background Images - Three vertical photos */}
-        <div className="absolute inset-0 z-0">
-          {/* Desktop: Three photos side by side covering 100% width */}
-          <div className="hidden md:flex absolute inset-0">
-            <div className="relative w-1/3 h-full">
-              <Image
-                src="/images/track-donation/bg-1.webp"
-                alt=""
-                fill
-                className="object-cover"
-                quality={85}
-                priority={true}
-              />
-            </div>
-            <div className="relative w-1/3 h-full">
-              <Image
-                src="/images/track-donation/bg-2.webp"
-                alt=""
-                fill
-                className="object-cover"
-                quality={85}
-                priority={true}
-              />
-            </div>
-            <div className="relative w-1/3 h-full">
-              <Image
-                src="/images/track-donation/bg-3.webp"
-                alt=""
-                fill
-                className="object-cover"
-                quality={85}
-                priority={true}
-              />
-            </div>
-          </div>
-
-          {/* Mobile: Single first photo */}
-          <div className="md:hidden absolute inset-0">
-            <Image
-              src="/images/track-donation/bg-1.webp"
-              alt=""
-              fill
-              className="object-cover"
-              quality={85}
-              priority={true}
-            />
-          </div>
-
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/30"></div>
-        </div>
+        <HeroBackground />
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
           <span className="inline-block px-4 py-1.5 text-xs font-bold tracking-widest uppercase mb-6 text-white bg-white/20 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">

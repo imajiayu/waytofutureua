@@ -26,9 +26,8 @@ const PRINT_CSS = `
   }
   .label-page:last-child { page-break-after: auto; }
   .public-id { font-size: 90pt; font-weight: 900; line-height: 2.2; text-align: center; }
-  .donor-name { font-size: 76pt; font-weight: 700; line-height: 2.2; text-align: center; }
-  .donor-email { font-size: 42pt; line-height: 2.2; text-align: center; color: #333; }
-  .date-text { font-size: 56pt; font-weight: 700; line-height: 2.2; text-align: center; }
+  .donor-name { font-size: 96pt; font-weight: 700; line-height: 2.2; text-align: center; }
+  .date-text { font-size: 72pt; font-weight: 700; line-height: 2.2; text-align: center; }
 `
 
 function buildPrintPage(printWindow: Window, donations: Donation[], dateText: string) {
@@ -59,11 +58,6 @@ function buildPrintPage(printWindow: Window, donations: Donation[], dateText: st
     nameEl.className = 'donor-name'
     nameEl.textContent = donation.donor_name
     page.appendChild(nameEl)
-
-    const emailEl = doc.createElement('div')
-    emailEl.className = 'donor-email'
-    emailEl.textContent = donation.donor_email
-    page.appendChild(emailEl)
 
     if (dateText) {
       const dateEl = doc.createElement('div')
@@ -128,7 +122,6 @@ export default function PrintLabelsModal({ donations, onClose }: Props) {
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">#</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Public ID</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Donor</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Email</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -137,7 +130,6 @@ export default function PrintLabelsModal({ donations, onClose }: Props) {
                     <td className="px-3 py-2 text-gray-500">{i + 1}</td>
                     <td className="px-3 py-2 font-mono font-medium">{d.donation_public_id}</td>
                     <td className="px-3 py-2">{d.donor_name}</td>
-                    <td className="px-3 py-2 text-gray-500">{d.donor_email}</td>
                   </tr>
                 ))}
               </tbody>
