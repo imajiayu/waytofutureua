@@ -23,6 +23,7 @@ import {
   ChallengesSection,
   FinancialSection,
   CallToActionSection,
+  DonationResultsSection,
 } from './sections'
 
 // Dynamic import for Lightbox
@@ -234,6 +235,13 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
       <FadeInSection>
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
+
+      {/* Donation Results — standalone module */}
+      {content.donationResults && content.donationResults.items.length > 0 && (
+        <FadeInSection>
+          <DonationResultsSection donationResults={content.donationResults} />
+        </FadeInSection>
+      )}
     </div>
   )
 }

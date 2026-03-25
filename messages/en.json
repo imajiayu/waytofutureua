@@ -227,7 +227,8 @@
       "supportUs": "Support Us",
       "heroImageAlt": "Way to Health Rehabilitation Center",
       "teamMemberAlt": "Team member {number}",
-      "eventImageAlt": "Event photo {number}"
+      "eventImageAlt": "Event photo {number}",
+      "donationResultAlt": "Verified donation result photo {index}"
     },
     "project3": {
       "christmasYear": "Christmas 2025",

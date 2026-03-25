@@ -310,5 +310,33 @@
     { "imageUrl": "/images/projects/project-0/result/result12.webp", "priority": 6 },
     { "imageUrl": "/images/projects/project-0/result/result13.webp", "priority": 4 },
     { "imageUrl": "/images/projects/project-0/result/result14.webp", "priority": 8 }
-  ]
+  ],
+  "donationResults": {
+    "title": "Verified Donation Results",
+    "description": "Every donation is documented and verified with photographic proof. Below are the latest results from our rehabilitation center, each linked to specific donation IDs.",
+    "items": [
+      {
+        "image": "/images/projects/project-0/result/result15.webp",
+        "donationIds": ["0-AEDA46"],
+        "donorName": "薪薪向融",
+        "date": "2026.03.24",
+        "orientation": "landscape"
+      },
+      {
+        "image": "/images/projects/project-0/result/result16.webp",
+        "donationIds": ["0-8BE061", "0-91B94F"],
+        "donorName": "Hong Zhang",
+        "date": "2026.03.24",
+        "orientation": "portrait"
+      },
+      {
+        "image": "/images/projects/project-0/result/result17.webp",
+        "donationIds": [],
+        "date": "2026.02.11",
+        "orientation": "landscape",
+        "aspectRatio": 1.35
+      }
+    ],
+    "footer": "Every donation is tracked from payment to real-world impact. Donors receive photographic proof of their contribution, ensuring full transparency and accountability."
+  }
 }

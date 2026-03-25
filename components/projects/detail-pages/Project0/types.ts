@@ -85,6 +85,22 @@ export interface CallToAction {
   closing: string
 }
 
+export interface DonationResultItem {
+  image: string
+  donationIds: string[]
+  donorName?: string
+  date: string
+  orientation?: 'landscape' | 'portrait'
+  aspectRatio?: number
+}
+
+export interface DonationResultsData {
+  title: string
+  description: string
+  items: DonationResultItem[]
+  footer: string
+}
+
 export interface Project0Content {
   title: string
   subtitle: string
@@ -111,6 +127,7 @@ export interface Project0Content {
   callToAction?: CallToAction
   progressGallery: ProgressGallery
   results: ProjectResult[]
+  donationResults?: DonationResultsData
 }
 
 export interface Project0DetailContentProps {

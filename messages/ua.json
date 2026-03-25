@@ -227,7 +227,8 @@
       "supportUs": "Підтримайте нас",
       "heroImageAlt": "Реабілітаційний центр Way to Health",
       "teamMemberAlt": "Член команди {number}",
-      "eventImageAlt": "Фото заходу {number}"
+      "eventImageAlt": "Фото заходу {number}",
+      "donationResultAlt": "Фото підтвердженого результату пожертви {index}"
     },
     "project3": {
       "christmasYear": "Різдво 2025",

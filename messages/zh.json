@@ -227,7 +227,8 @@
       "supportUs": "支持我们",
       "heroImageAlt": "Way to Health 康复中心",
       "teamMemberAlt": "团队成员 {number}",
-      "eventImageAlt": "活动照片 {number}"
+      "eventImageAlt": "活动照片 {number}",
+      "donationResultAlt": "捐赠成果验证照片 {index}"
     },
     "project3": {
       "christmasYear": "2025 圣诞节",
