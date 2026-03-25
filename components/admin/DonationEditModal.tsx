@@ -6,9 +6,11 @@ import AdminBaseModal from './AdminBaseModal'
 import {
   updateDonationStatus,
   uploadDonationResultFile,
+  createSignedUploadUrl,
   getDonationResultFiles,
   deleteDonationResultFile
 } from '@/app/actions/admin'
+import { createClient } from '@/lib/supabase/client'
 import { clientLogger } from '@/lib/logger-client'
 import { formatDateTime } from '@/lib/i18n-utils'
 import DonationStatusProgress from './DonationStatusProgress'
@@ -115,14 +117,28 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   }
 
   const uploadFile = async (file: File): Promise<void> => {
-    // 使用 Server Action 上传文件（使用服务端管理员认证）
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('donationId', donation.id.toString())
-    formData.append('faceBlur', faceBlur ? '1' : '0')
+    const isImageFile = file.type.startsWith('image/')
 
-    // 上传文件（进度由外层控制）
-    await uploadDonationResultFile(formData)
+    if (isImageFile) {
+      // 图片走 Server Action（支持 Cloudinary 人脸打码，图片通常较小不会触发 Vercel 4.5MB 限制）
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('donationId', donation.id.toString())
+      formData.append('faceBlur', faceBlur ? '1' : '0')
+      await uploadDonationResultFile(formData)
+    } else {
+      // 视频走签名 URL 直传 Supabase Storage（绕过 Vercel 4.5MB 请求体限制）
+      const { path, token } = await createSignedUploadUrl(donation.id, file.type)
+      const supabase = createClient()
+      const { error } = await supabase.storage
+        .from('donation-results')
+        .uploadToSignedUrl(path, token, file, {
+          contentType: file.type,
+        })
+      if (error) {
+        throw new Error(`Upload failed: ${error.message}`)
+      }
+    }
   }
 
   const handleDeleteFile = async (filePath: string) => {

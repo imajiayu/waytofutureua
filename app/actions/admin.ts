@@ -568,6 +568,59 @@ export async function uploadDonationResultFile(formData: FormData) {
 }
 
 /**
+ * 为大文件（视频）创建签名上传 URL，让客户端直接上传到 Supabase Storage
+ * 绕过 Vercel Serverless 4.5MB 请求体限制
+ */
+export async function createSignedUploadUrl(donationId: number, fileType: string) {
+  const supabase = await getAdminClient()
+
+  // 验证文件类型
+  const mimeToExt: Record<string, string> = {
+    'video/mp4': 'mp4',
+    'video/quicktime': 'mov',
+    // 图片也支持，但通常走 uploadDonationResultFile
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+  }
+  const fileExt = mimeToExt[fileType]
+  if (!fileExt) {
+    throw new Error('Invalid file type')
+  }
+
+  // 获取捐赠的 donation_public_id
+  const { data: donation, error: donationError } = await supabase
+    .from('donations')
+    .select('donation_public_id')
+    .eq('id', donationId)
+    .single()
+
+  if (donationError || !donation) {
+    throw new Error('Donation not found')
+  }
+
+  // 生成文件路径
+  const timestamp = Date.now()
+  const fileName = `${timestamp}.${fileExt}`
+  const filePath = `${donation.donation_public_id}/${fileName}`
+
+  // 创建签名上传 URL
+  const { data, error } = await supabase.storage
+    .from('donation-results')
+    .createSignedUploadUrl(filePath)
+
+  if (error || !data) {
+    throw new Error(`Failed to create upload URL: ${error?.message}`)
+  }
+
+  return {
+    path: data.path,
+    token: data.token,
+  }
+}
+
+/**
  * 获取捐赠的所有结果文件
  */
 export async function getDonationResultFiles(donationId: number) {
