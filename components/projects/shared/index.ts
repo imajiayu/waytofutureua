@@ -10,6 +10,7 @@
  * - FadeInSection: Scroll-triggered fade-in animation wrapper
  * - AnimatedNumber: Animated number counter with intersection observer
  * - SectionHeader: Gradient bar + title header for detail page sections
+ * - SectionNav: Sticky horizontal section quick-navigation bar
  */
 
 export { default as ProjectProgressBar } from './ProjectProgressBar'
@@ -17,3 +18,4 @@ export { default as ProjectResultsMasonry } from './ProjectResultsMasonry'
 export { default as FadeInSection } from './FadeInSection'
 export { default as AnimatedNumber } from './AnimatedNumber'
 export { default as SectionHeader } from './SectionHeader'
+export { default as SectionNav } from './SectionNav'

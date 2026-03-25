@@ -3,7 +3,8 @@
 import { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { FadeInSection } from '@/components/projects/shared'
+import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useTranslations } from 'next-intl'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
@@ -70,6 +71,18 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
     [aidData]
   )
 
+  // Section navigation
+  const sections = useMemo(() => {
+    if (!content) return []
+    return [
+      { id: 'p4-introduction', label: t('sectionNav.introduction') },
+      ...(aidData ? [{ id: 'p4-aid-list', label: t('sectionNav.aidList') }] : []),
+      { id: 'p4-project-progress', label: t('sectionNav.projectProgress') },
+    ]
+  }, [content, aidData, t])
+
+  const activeSectionId = useActiveSection(sections.map((s) => s.id))
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -106,8 +119,11 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       {/* Hero */}
       <HeroSection content={content} project={project} locale={locale} />
 
+      {/* Section Quick Nav */}
+      <SectionNav sections={sections} activeSectionId={activeSectionId} />
+
       {/* Main Content */}
-      <article className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <article id="p4-introduction" className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 md:p-6 space-y-6 md:space-y-8">
           {/* Introduction with Highlights */}
           {content.introduction && (
@@ -211,13 +227,13 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
 
       {/* Aid List - Standalone Section */}
       {aidData && (
-        <FadeInSection delay={450}>
+        <FadeInSection id="p4-aid-list" delay={450}>
           <AidListSection aidData={aidData} locale={locale} onReceiptClick={receiptLightbox.open} />
         </FadeInSection>
       )}
 
       {/* Progress */}
-      <FadeInSection>
+      <FadeInSection id="p4-project-progress">
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
 

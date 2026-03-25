@@ -265,7 +265,7 @@ MissionSection, ApproachSection, ImpactSection, DonationJourneySection, Complian
 | ProjectStatusBadge | 状态徽章 |
 | LongTermBadge | 长期项目标签 |
 
-**共享组件** (`shared/`): ProjectProgressBar, ProjectProgressSection, ProjectResultsMasonry
+**共享组件** (`shared/`): ProjectProgressBar, ProjectProgressSection, ProjectResultsMasonry, SectionNav
 
 **项目详情页** (`detail-pages/`):
 
@@ -276,11 +276,24 @@ MissionSection, ApproachSection, ImpactSection, DonationJourneySection, Complian
 | Project0 | `detail-pages/Project0/` | `public/content/projects/project-0-{en,zh,ua}.json` | `public/images/projects/project-0/` |
 | Project3 | `detail-pages/Project3/` | `public/content/projects/project-3-{en,zh,ua}.json` | `public/images/projects/project-3/` |
 | Project4 | `detail-pages/Project4/` | `public/content/projects/project-4-{en,zh,ua}.json` | `public/images/projects/project-4/` |
+| Project5 | `detail-pages/Project5/` | `public/content/projects/project-5-{en,zh,ua}.json` | `public/images/projects/project-5/` |
 
 组件目录结构：
 - `index.tsx` - 主组件入口
 - `types.ts` - 类型定义
 - `sections/` - 区块组件
+
+**新增项目时需手动集成 SectionNav（快速索引导航）：**
+
+Section 指顶层大区块（如"项目介绍"=整个 article 卡片、"项目进度"、"捐赠成果"），不是 article 内部的子模块。
+
+1. 在 `index.tsx` 中 import `SectionNav`（from shared）和 `useActiveSection`（from `lib/hooks/useActiveSection`）
+2. 用 `useMemo` 定义 `sections` 数组，每项 `{ id, label: t('sectionNav.xxx') }`
+3. 调用 `const activeSectionId = useActiveSection(sections.map(s => s.id))`
+4. 在 Hero 和主内容之间渲染 `<SectionNav sections={sections} activeSectionId={activeSectionId} />`
+5. 给顶层区块添加 `id`：`<article>` 加 `id="pN-introduction"`，独立的 `<FadeInSection>` 加对应 id
+6. 在 `messages/{en,zh,ua}.json` 的 `projects.sectionNav` 下添加新 section 的翻译键
+7. sections 数组为空时导航不渲染
 
 ### 捐赠表单组件 (`components/donate-form/`)
 
@@ -331,6 +344,7 @@ MissionSection, ApproachSection, ImpactSection, DonationJourneySection, Complian
 | Hook | 说明 | 使用场景 |
 |------|------|----------|
 | `useBodyScrollLock(isLocked)` | 锁定页面滚动（移动端安全） | Modal, Lightbox, BottomSheet, 全屏弹层 |
+| `useActiveSection(sectionIds)` | 追踪视口内可见区块（IntersectionObserver） | SectionNav 快速索引导航 |
 
 ### 工具函数 (`lib/`)
 

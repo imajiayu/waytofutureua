@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
-import { FadeInSection } from '@/components/projects/shared'
+import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import { useTranslations } from 'next-intl'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
@@ -37,6 +38,18 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
     lightbox.open(imageIndex)
   }
 
+  // Section navigation
+  const sections = useMemo(() => {
+    if (!content) return []
+    return [
+      { id: 'p5-background', label: t('sectionNav.background') },
+      ...(content.events?.list?.length ? [{ id: 'p5-events', label: t('sectionNav.events') }] : []),
+      { id: 'p5-project-progress', label: t('sectionNav.projectProgress') },
+    ]
+  }, [content, t])
+
+  const activeSectionId = useActiveSection(sections.map((s) => s.id))
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -64,14 +77,17 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
     <div className="space-y-3 md:space-y-4">
       <HeroSection content={content} project={project} locale={locale} />
 
+      {/* Section Quick Nav */}
+      <SectionNav sections={sections} activeSectionId={activeSectionId} />
+
       {/* Background */}
-      <FadeInSection>
+      <FadeInSection id="p5-background">
         <BackgroundSection background={content.background} />
       </FadeInSection>
 
       {/* Events */}
       {content.events && content.events.list.length > 0 && (
-        <FadeInSection delay={100}>
+        <FadeInSection id="p5-events" delay={100}>
           <EventsSection
             events={content.events}
             locale={locale}
@@ -81,7 +97,7 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
       )}
 
       {/* Progress */}
-      <FadeInSection delay={200}>
+      <FadeInSection id="p5-project-progress" delay={200}>
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
 

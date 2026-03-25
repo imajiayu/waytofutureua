@@ -173,6 +173,16 @@
     "projectResultsDescription": "通过照片和更新查看您捐赠的直接影响",
     "scrollToViewMore": "滑动查看更多",
     "contentNotAvailable": "内容暂不可用",
+    "sectionNav": {
+      "introduction": "项目介绍",
+      "projectProgress": "项目进度",
+      "donationResults": "捐赠成果",
+      "supplies": "物资采购",
+      "results": "成果展示",
+      "aidList": "援助清单",
+      "background": "背景介绍",
+      "events": "活动记录"
+    },
     "receiptImageAlt": "收据 {index}",
     "eventImageAlt": "活动照片 {index}",
     "photoAlt": "照片 {index}",

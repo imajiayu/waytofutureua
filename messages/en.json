@@ -173,6 +173,16 @@
     "projectResultsDescription": "See the direct impact of your donation through photos and updates",
     "scrollToViewMore": "Scroll to view more",
     "contentNotAvailable": "Content not available",
+    "sectionNav": {
+      "introduction": "Project Info",
+      "projectProgress": "Progress",
+      "donationResults": "Donation Results",
+      "supplies": "Supplies",
+      "results": "Results",
+      "aidList": "Aid List",
+      "background": "Background",
+      "events": "Events"
+    },
     "receiptImageAlt": "Receipt {index}",
     "eventImageAlt": "Event photo {index}",
     "photoAlt": "Photo {index}",

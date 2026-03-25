@@ -3,7 +3,8 @@
 import { useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { FadeInSection } from '@/components/projects/shared'
+import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useTranslations } from 'next-intl'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
@@ -55,6 +56,19 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
     [suppliesData]
   )
 
+  // Section navigation
+  const sections = useMemo(() => {
+    if (!content) return []
+    return [
+      { id: 'p3-introduction', label: t('sectionNav.introduction') },
+      ...(suppliesData ? [{ id: 'p3-supplies', label: t('sectionNav.supplies') }] : []),
+      { id: 'p3-project-progress', label: t('sectionNav.projectProgress') },
+      ...(content.results?.length ? [{ id: 'p3-results', label: t('sectionNav.results') }] : []),
+    ]
+  }, [content, suppliesData, t])
+
+  const activeSectionId = useActiveSection(sections.map((s) => s.id))
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -91,8 +105,11 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
       {/* Hero */}
       <HeroSection content={content} project={project} locale={locale} />
 
+      {/* Section Quick Nav */}
+      <SectionNav sections={sections} activeSectionId={activeSectionId} />
+
       {/* Main Content */}
-      <article className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <article id="p3-introduction" className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 md:p-6 space-y-5 md:space-y-6">
           {/* Introduction */}
           {content?.introduction && (
@@ -192,7 +209,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
 
       {/* Supplies */}
       {suppliesData && (
-        <FadeInSection>
+        <FadeInSection id="p3-supplies">
           <SuppliesSection
             suppliesData={suppliesData}
             locale={locale}
@@ -202,13 +219,13 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
       )}
 
       {/* Progress */}
-      <FadeInSection>
+      <FadeInSection id="p3-project-progress">
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
 
       {/* Results */}
       {content?.results && content.results.length > 0 && (
-        <FadeInSection>
+        <FadeInSection id="p3-results">
           <ResultsSection results={content.results} />
         </FadeInSection>
       )}

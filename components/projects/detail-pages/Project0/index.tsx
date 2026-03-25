@@ -5,7 +5,8 @@ import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import CollapsibleGallery from './CollapsibleGallery'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
-import { FadeInSection, SectionHeader } from '@/components/projects/shared'
+import { FadeInSection, SectionHeader, SectionNav } from '@/components/projects/shared'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
@@ -69,6 +70,18 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
     [employerImages]
   )
 
+  // Section navigation
+  const sections = useMemo(() => {
+    if (!content) return []
+    return [
+      { id: 'p0-introduction', label: t('sectionNav.introduction') },
+      { id: 'p0-project-progress', label: t('sectionNav.projectProgress') },
+      ...(content.donationResults?.items?.length ? [{ id: 'p0-donation-results', label: t('sectionNav.donationResults') }] : []),
+    ]
+  }, [content, t])
+
+  const activeSectionId = useActiveSection(sections.map((s) => s.id))
+
   if (loading) {
     return (
       <article className="space-y-4">
@@ -108,8 +121,11 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
       {/* Hero Section */}
       <HeroSection content={content} locale={locale} />
 
+      {/* Section Quick Nav */}
+      <SectionNav sections={sections} activeSectionId={activeSectionId} />
+
       {/* Main Content Card */}
-      <article className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <article id="p0-introduction" className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
           {/* Introduction */}
           <FadeInSection>
@@ -232,13 +248,13 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
       </article>
 
       {/* Project Progress Section */}
-      <FadeInSection>
+      <FadeInSection id="p0-project-progress">
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
 
       {/* Donation Results — standalone module */}
       {content.donationResults && content.donationResults.items.length > 0 && (
-        <FadeInSection>
+        <FadeInSection id="p0-donation-results">
           <DonationResultsSection donationResults={content.donationResults} />
         </FadeInSection>
       )}

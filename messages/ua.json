@@ -173,6 +173,16 @@
     "projectResultsDescription": "Побачте прямий вплив вашого донату через фото та оновлення",
     "scrollToViewMore": "Прокрутіть, щоб побачити більше",
     "contentNotAvailable": "Вміст недоступний",
+    "sectionNav": {
+      "introduction": "Про проєкт",
+      "projectProgress": "Прогрес",
+      "donationResults": "Результати донатів",
+      "supplies": "Закупівлі",
+      "results": "Результати",
+      "aidList": "Список допомоги",
+      "background": "Передісторія",
+      "events": "Заходи"
+    },
     "receiptImageAlt": "Квитанція {index}",
     "eventImageAlt": "Фото заходу {index}",
     "photoAlt": "Фото {index}",
