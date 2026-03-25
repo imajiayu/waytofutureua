@@ -210,7 +210,7 @@ export async function updateDonationStatus(
     )
   }
 
-  // 如果是 delivering → completed，尝试获取结果图片（非强制）
+  // 如果是 delivering → completed，获取结果图片用于邮件
   let resultImageUrl: string | undefined
   if (needsFileUpload(currentStatus, newStatus as DonationStatus)) {
     try {
@@ -219,51 +219,40 @@ export async function updateDonationStatus(
         .list(current.donation_public_id, { limit: 100 })
 
       if (listError) {
-        logger.error('ADMIN', 'Error listing result files', {
-          donationId: current.donation_public_id,
-          error: listError.message,
-        })
-        // 继续执行，只是没有图片
-      } else {
-        // 过滤掉文件夹（.thumbnails）和隐藏文件，只保留实际的图片/视频文件
-        const actualFiles = files?.filter(f =>
-          f.name &&
-          !f.name.startsWith('.') &&
-          f.id // 文件有 id，文件夹没有
-        ) || []
-
-        if (actualFiles.length > 0) {
-          // 只选择图片文件（邮件中无法嵌入视频）
-          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-          const imageFile = actualFiles.find(f =>
-            imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext))
-          )
-
-          if (imageFile) {
-            const { data: { publicUrl } } = supabase.storage
-              .from('donation-results')
-              .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
-            resultImageUrl = publicUrl
-            logger.debug('ADMIN', 'Result image found', {
-              donationId: current.donation_public_id,
-              fileName: imageFile.name,
-            })
-          } else {
-            logger.warn('ADMIN', 'Only video files found - email will not show media', {
-              donationId: current.donation_public_id,
-            })
-          }
-        } else {
-          logger.warn('ADMIN', 'No result files found', {
-            donationId: current.donation_public_id,
-          })
-        }
+        throw new Error(`Failed to list result files: ${listError.message}`)
       }
+
+      // 过滤掉文件夹（.thumbnails）和隐藏文件，只保留实际的图片/视频文件
+      const actualFiles = files?.filter(f =>
+        f.name &&
+        !f.name.startsWith('.') &&
+        f.id // 文件有 id，文件夹没有
+      ) || []
+
+      // 必须至少有一张图片（邮件需要图片）
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+      const imageFile = actualFiles.find(f =>
+        imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext))
+      )
+
+      if (!imageFile) {
+        throw new Error('At least one image file is required to complete a donation. Please upload a photo before marking as completed.')
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('donation-results')
+        .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
+      resultImageUrl = publicUrl
+      logger.debug('ADMIN', 'Result image found', {
+        donationId: current.donation_public_id,
+        fileName: imageFile.name,
+      })
     } catch (error) {
       logger.error('ADMIN', 'Error getting result image', {
         donationId: current.donation_public_id,
         error: error instanceof Error ? error.message : String(error),
       })
+      throw error
     }
   }
 

@@ -222,6 +222,14 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
           return
         }
 
+        // 必须包含至少一张图片（邮件需要图片）
+        const hasImage = filesToUpload.some(f => f.type.startsWith('image/'))
+        if (!hasImage) {
+          setError('At least one image file (JPEG, PNG, GIF) is required. Videos alone are not sufficient.')
+          setLoading(false)
+          return
+        }
+
         setUploading(true)
         setUploadProgress(0)
         try {

@@ -375,7 +375,6 @@ needsFileUpload(from, to)                // 转换是否需要上传文件
 | Action | 说明 |
 |--------|------|
 | `createWayForPayDonation()` | 创建捐赠 |
-| `getDonationResultUrl()` | 获取结果图片 |
 | `trackDonations()` | 追踪捐赠 |
 | `requestRefund()` | 申请退款 |
 | `adminLogin/Logout()` | 管理员认证 |
