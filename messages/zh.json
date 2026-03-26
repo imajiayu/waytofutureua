@@ -443,6 +443,7 @@
       "invalidAmount": "请输入有效金额（最少 $0.10，最多 $10,000）",
       "quantityExceeded": "所需数量超过可用单位。最大可用：{remaining} {unitName}",
       "amountLimitExceeded": "超出单次支付限额。最多可购买 {max} {unitName}（限额 $10,000）",
+      "totalLimitExceeded": "单次捐赠总金额不能超过 $10,000",
       "projectNotFound": "项目未找到",
       "projectNotActive": "项目未激活",
       "amountTooSmall": "加密货币支付的捐赠金额过小。由于网络手续费，最低金额为 ${min} 美元。"

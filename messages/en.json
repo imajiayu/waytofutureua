@@ -445,7 +445,8 @@
       "projectNotFound": "Project not found",
       "projectNotActive": "Project is not active",
       "amountTooSmall": "The donation amount is too small for cryptocurrency payment. Minimum amount is ${min} USD (due to network fees).",
-      "amountLimitExceeded": "Exceeded the single payment limit. Maximum {max} {unitName} allowed ($10,000 limit)"
+      "amountLimitExceeded": "Exceeded the single payment limit. Maximum {max} {unitName} allowed ($10,000 limit)",
+      "totalLimitExceeded": "Total donation amount cannot exceed $10,000 per transaction"
     },
     "networkNotice": "If you are in mainland China or similar regions, international internet access is required to complete the payment process",
     "paymentMethod": {

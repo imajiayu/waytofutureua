@@ -213,7 +213,9 @@ export default function DonationFormCard({
   // Project-specific fields (reset when project changes)
   const [quantity, setQuantity] = useState(1)
   const [donationAmount, setDonationAmount] = useState(10) // For aggregate_donations projects
+  const [donationAmountInput, setDonationAmountInput] = useState('10') // Display string for free typing
   const [tipAmount, setTipAmount] = useState(0)
+  const [tipAmountInput, setTipAmountInput] = useState('') // Display string for free typing
 
   // UI state
   const [paymentParams, setPaymentParams] = useState<any | null>(null)
@@ -227,6 +229,9 @@ export default function DonationFormCard({
   const formContainerRef = useRef<HTMLDivElement>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
   const emailInputRef = useRef<HTMLInputElement>(null)
+  const donationAmountRef = useRef<HTMLInputElement>(null)
+  const quantityRef = useRef<HTMLInputElement>(null)
+  const tipAmountRef = useRef<HTMLInputElement>(null)
   const activeProjectIdRef = useRef(project?.id)
 
   // Check if this is an aggregated donation project
@@ -237,7 +242,9 @@ export default function DonationFormCard({
     activeProjectIdRef.current = project?.id
     setQuantity(1)
     setDonationAmount(10)
+    setDonationAmountInput('10')
     setTipAmount(0)
+    setTipAmountInput('')
     setError(null)
     setShowWidget(false)
     setPaymentParams(null)
@@ -304,53 +311,96 @@ export default function DonationFormCard({
     }
   }, [paymentParams, scrollToFormArea])
 
-  // Set custom validation messages based on locale
-  useEffect(() => {
-    const nameEl = nameInputRef.current
-    const emailEl = emailInputRef.current
+  // Clamp a raw input string to [min, max], round to 1 decimal, fallback if out of range
+  const clampAmount = (raw: string, min: number, max: number, fallback: number): { value: number; wasInvalid: boolean } => {
+    const num = parseFloat(raw)
+    const outOfRange = isNaN(num) || num < min || num > max
+    const value = isNaN(num) || num < min ? fallback : num > max ? max : Math.round(num * 10) / 10
+    return { value, wasInvalid: outOfRange }
+  }
 
-    const handleNameInvalid = () => {
-      if (nameEl!.validity.valueMissing) {
-        nameEl!.setCustomValidity(t('validation.nameRequired'))
-      } else if (nameEl!.validity.tooShort) {
-        nameEl!.setCustomValidity(t('validation.nameMin'))
-      } else {
-        nameEl!.setCustomValidity('')
+  // Show error at form top, scroll to make it visible, and focus the invalid field
+  const showFieldError = (message: string, fieldRef?: React.RefObject<HTMLElement | null>) => {
+    setError(message)
+    requestAnimationFrame(() => {
+      formContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      if (fieldRef?.current && 'focus' in fieldRef.current) {
+        (fieldRef.current as HTMLElement).focus({ preventScroll: true })
+      }
+    })
+  }
+
+  // Validate all form fields before submit; scroll to first invalid field
+  const validateForm = (): boolean => {
+    let validatedDonationAmount = donationAmount
+    let validatedTipAmount = tipAmount
+
+    // 1. Donation amount (aggregated projects only)
+    if (isAggregatedProject) {
+      const { value, wasInvalid } = clampAmount(donationAmountInput, 0.1, MAX_AMOUNT, 10)
+      validatedDonationAmount = value
+      setDonationAmount(value)
+      setDonationAmountInput(String(value))
+      if (wasInvalid) {
+        showFieldError(t('errors.invalidAmount'), donationAmountRef)
+        return false
       }
     }
-    const handleNameInput = () => { nameEl!.setCustomValidity('') }
 
-    const handleEmailInvalid = () => {
-      if (emailEl!.validity.valueMissing) {
-        emailEl!.setCustomValidity(t('validation.emailRequired'))
-      } else if (emailEl!.validity.typeMismatch || emailEl!.validity.patternMismatch) {
-        emailEl!.setCustomValidity(t('validation.emailInvalid'))
-      } else {
-        emailEl!.setCustomValidity('')
+    // 2. Quantity (non-aggregated projects only)
+    if (!isAggregatedProject) {
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
+        const clamped = Math.max(1, Math.min(MAX_QUANTITY, Math.round(quantity) || 1))
+        setQuantity(clamped)
+        showFieldError(t('errors.invalidQuantity'), quantityRef)
+        return false
       }
     }
-    const handleEmailInput = () => { emailEl!.setCustomValidity('') }
 
-    if (nameEl) {
-      nameEl.addEventListener('invalid', handleNameInvalid)
-      nameEl.addEventListener('input', handleNameInput)
-    }
-    if (emailEl) {
-      emailEl.addEventListener('invalid', handleEmailInvalid)
-      emailEl.addEventListener('input', handleEmailInput)
-    }
-
-    return () => {
-      if (nameEl) {
-        nameEl.removeEventListener('invalid', handleNameInvalid)
-        nameEl.removeEventListener('input', handleNameInput)
-      }
-      if (emailEl) {
-        emailEl.removeEventListener('invalid', handleEmailInvalid)
-        emailEl.removeEventListener('input', handleEmailInput)
+    // 3. Tip amount
+    if (tipAmountInput !== '') {
+      const { value, wasInvalid } = clampAmount(tipAmountInput, 0, 9999.9, 0)
+      validatedTipAmount = value
+      setTipAmount(value)
+      setTipAmountInput(value === 0 ? '' : String(value))
+      if (wasInvalid) {
+        showFieldError(t('errors.invalidAmount'), tipAmountRef)
+        return false
       }
     }
-  }, [t])
+
+    // 4. Total amount limit ($10,000 per transaction)
+    const validatedProjectAmount = isAggregatedProject ? validatedDonationAmount : (project?.unit_price || 0) * quantity
+    if (validatedProjectAmount + validatedTipAmount > MAX_AMOUNT) {
+      showFieldError(t('errors.totalLimitExceeded'))
+      return false
+    }
+
+    // 5. Donor name
+    const trimmedName = donorName.trim()
+    if (!trimmedName) {
+      showFieldError(t('validation.nameRequired'), nameInputRef)
+      return false
+    }
+    if (trimmedName.length < 2) {
+      showFieldError(t('validation.nameMin'), nameInputRef)
+      return false
+    }
+
+    // 6. Donor email
+    const trimmedEmail = donorEmail.trim()
+    if (!trimmedEmail) {
+      showFieldError(t('validation.emailRequired'), emailInputRef)
+      return false
+    }
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (!emailPattern.test(trimmedEmail)) {
+      showFieldError(t('validation.emailInvalid'), emailInputRef)
+      return false
+    }
+
+    return true
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -360,6 +410,9 @@ export default function DonationFormCard({
     if (processingState === 'creating' || processingState === 'selecting_method') return
 
     setError(null)
+
+    // Validate all fields — scroll to first invalid field if needed
+    if (!validateForm()) return
 
     // Show payment method selection first
     setShowWidget(true)
@@ -430,14 +483,11 @@ export default function DonationFormCard({
           // For aggregated projects: maxQuantity represents remaining amount in USD
           // For non-aggregated projects: maxQuantity represents max units
           if (isAggregatedProject) {
-            // Set donation amount to remaining amount
             setDonationAmount(maxQuantity)
-            // Show error message with amount (use project's translated unitName)
+            setDonationAmountInput(String(maxQuantity))
             setError(t('errors.amountLimitExceeded', { max: maxQuantity, unitName }))
           } else {
-            // Set quantity to maximum allowed quantity
             setQuantity(maxQuantity)
-            // Show localized error message (use project's translated unitName)
             setError(t('errors.amountLimitExceeded', { max: maxQuantity, unitName }))
           }
         } else if (result.error === 'project_not_found') {
@@ -526,6 +576,7 @@ export default function DonationFormCard({
           const maxQuantity = result.maxQuantity || 1
           if (isAggregatedProject) {
             setDonationAmount(maxQuantity)
+            setDonationAmountInput(String(maxQuantity))
             setError(t('errors.amountLimitExceeded', { max: maxQuantity, unitName }))
           } else {
             setQuantity(maxQuantity)
@@ -687,9 +738,12 @@ export default function DonationFormCard({
         </div>
 
         {/* Donation Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
           {error && (
-            <div className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-warm-700 text-sm">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-medium flex items-center gap-2">
+              <svg className="w-5 h-5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
               {error}
             </div>
           )}
@@ -706,9 +760,9 @@ export default function DonationFormCard({
                   <button
                     key={amount}
                     type="button"
-                    onClick={() => setDonationAmount(amount)}
+                    onClick={() => { setDonationAmount(amount); setDonationAmountInput(String(amount)) }}
                     className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
-                      donationAmount === amount
+                      donationAmount === amount && donationAmountInput === String(amount)
                         ? 'bg-ukraine-blue-500 text-white border-ukraine-blue-500 shadow-md'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
@@ -718,57 +772,29 @@ export default function DonationFormCard({
                 ))}
               </div>
               <input
+                ref={donationAmountRef}
                 id="donation-amount"
                 type="number"
                 min="0.1"
                 max="10000"
                 step="0.1"
-                value={donationAmount || ''}
+                value={donationAmountInput}
                 onKeyDown={(e) => {
-                  // Prevent: e, E, +, -
-                  if (
-                    e.key === 'e' ||
-                    e.key === 'E' ||
-                    e.key === '+' ||
-                    e.key === '-'
-                  ) {
+                  if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
                     e.preventDefault()
                   }
                 }}
                 onChange={(e) => {
                   const val = e.target.value
-                  if (val === '') {
-                    setDonationAmount(10)
-                    return
-                  }
-
-                  const num = Number(val)
-                  // Prevent negative values during input
-                  if (num < 0) {
-                    setDonationAmount(10)
-                    return
-                  }
-
-                  // Limit to max amount
-                  if (num > MAX_AMOUNT) {
-                    setDonationAmount(MAX_AMOUNT)
-                    return
-                  }
-
-                  // Round to 1 decimal place
-                  setDonationAmount(Math.round(num * 10) / 10)
+                  setDonationAmountInput(val)
+                  // Live-update numeric state for total preview
+                  const num = parseFloat(val)
+                  setDonationAmount(!isNaN(num) && num >= 0 ? num : 0)
                 }}
-                onBlur={(e) => {
-                  // Clean up on blur: ensure valid range and round to 1 decimal
-                  const num = Number(e.target.value)
-
-                  if (isNaN(num) || num < 0.1) {
-                    setDonationAmount(10)
-                  } else if (num > MAX_AMOUNT) {
-                    setDonationAmount(MAX_AMOUNT)
-                  } else {
-                    setDonationAmount(Math.round(num * 10) / 10)
-                  }
+                onBlur={() => {
+                  const { value } = clampAmount(donationAmountInput, 0.1, MAX_AMOUNT, 10)
+                  setDonationAmount(value)
+                  setDonationAmountInput(String(value))
                 }}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('amount.placeholder')}
@@ -807,6 +833,7 @@ export default function DonationFormCard({
                 ))}
               </div>
               <input
+                ref={quantityRef}
                 id="donation-quantity"
                 type="number"
                 min="1"
@@ -922,9 +949,9 @@ export default function DonationFormCard({
                   <button
                     key={amount}
                     type="button"
-                    onClick={() => setTipAmount(amount)}
+                    onClick={() => { setTipAmount(amount); setTipAmountInput(String(amount)) }}
                     className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
-                      tipAmount === amount
+                      tipAmount === amount && tipAmountInput === String(amount)
                         ? 'bg-ukraine-gold-600 text-white border-ukraine-gold-600 shadow-md'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
@@ -934,55 +961,27 @@ export default function DonationFormCard({
                 ))}
               </div>
               <input
+                ref={tipAmountRef}
                 type="number"
                 min="0"
-                max="9999"
+                max="9999.9"
                 step="0.1"
-                value={tipAmount || ''}
+                value={tipAmountInput}
                 onKeyDown={(e) => {
-                  // Prevent: e, E, +, -, and other non-numeric keys except decimal point
-                  if (
-                    e.key === 'e' ||
-                    e.key === 'E' ||
-                    e.key === '+' ||
-                    e.key === '-'
-                  ) {
+                  if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
                     e.preventDefault()
                   }
                 }}
                 onChange={(e) => {
                   const val = e.target.value
-                  if (val === '') {
-                    setTipAmount(0)
-                    return
-                  }
-
-                  const num = Number(val)
-                  // Prevent negative values during input
-                  if (num < 0) {
-                    setTipAmount(0)
-                    return
-                  }
-
-                  // Limit to max value
-                  if (num > 9999) {
-                    setTipAmount(9999)
-                    return
-                  }
-
-                  // Round to 1 decimal place
-                  setTipAmount(Math.round(num * 10) / 10)
+                  setTipAmountInput(val)
+                  const num = parseFloat(val)
+                  setTipAmount(!isNaN(num) && num >= 0 ? num : 0)
                 }}
-                onBlur={(e) => {
-                  // Clean up on blur: ensure valid range and round to 1 decimal
-                  const num = Number(e.target.value)
-                  if (isNaN(num) || num < 0) {
-                    setTipAmount(0)
-                  } else if (num > 9999) {
-                    setTipAmount(9999)
-                  } else {
-                    setTipAmount(Math.round(num * 10) / 10)
-                  }
+                onBlur={() => {
+                  const { value } = clampAmount(tipAmountInput, 0, 9999.9, 0)
+                  setTipAmount(value)
+                  setTipAmountInput(value === 0 ? '' : String(value))
                 }}
                 className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-gold-500 focus:border-transparent"
                 placeholder={t('tip.placeholder')}
