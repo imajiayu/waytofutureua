@@ -1,5 +1,4 @@
 import { ImageResponse } from 'next/og'
-import { ogBgBase64 } from './og-bg-base64'
 import en from '@/messages/en.json'
 import zh from '@/messages/zh.json'
 import ua from '@/messages/ua.json'
@@ -12,6 +11,10 @@ export const contentType = 'image/png'
 const allMessages: Record<string, typeof en> = { en, zh, ua }
 
 export default async function Image({ params: { locale } }: { params: { locale: string } }) {
+  const bgUrl = new URL('/og-bg.jpg', process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua')
+  const bgData = await fetch(bgUrl).then(res => res.arrayBuffer())
+  const bgBase64 = `data:image/jpeg;base64,${Buffer.from(bgData).toString('base64')}`
+
   const msgs = allMessages[locale] || allMessages.en
   const t = {
     badge: msgs.metadata.ogBadge.toUpperCase(),
@@ -32,9 +35,9 @@ export default async function Image({ params: { locale } }: { params: { locale: 
           fontFamily: 'sans-serif',
         }}
       >
-        {/* Background photo — base64 encoded, bundled with the function */}
+        {/* Background photo — fetched at runtime, not bundled */}
         <img
-          src={ogBgBase64}
+          src={bgBase64}
           style={{
             position: 'absolute',
             top: 0,
