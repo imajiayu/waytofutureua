@@ -262,7 +262,9 @@
       "badge": "社区援助",
       "heroImageAlt": "第聂伯罗居民食物分发点",
       "expenses": "支出明细",
-      "total": "合计"
+      "receipts": "采购收据",
+      "total": "合计",
+      "donationResultAlt": "捐赠成果验证照片 {index}"
     },
     "project4": {
       "defaultTitle": "米科拉伊夫卡家庭援助",

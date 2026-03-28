@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { Project5Content, Project5DetailContentProps } from './types'
-import { HeroSection, BackgroundSection, EventsSection } from './sections'
+import { HeroSection, BackgroundSection, EventsSection, DonationResultsSection } from './sections'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
@@ -23,7 +23,7 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
   const lightbox = useLightbox()
   const [selectedEventIndex, setSelectedEventIndex] = useState(0)
 
-  // Prepare per-event lightbox image arrays
+  // Prepare per-event lightbox image arrays (photos and receipts separately)
   const eventLightboxImagesMap = useMemo(() => {
     if (!content?.events?.list) return []
     return content.events.list.map((event) =>
@@ -31,11 +31,28 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
     )
   }, [content?.events?.list])
 
-  const lightboxImages = eventLightboxImagesMap[selectedEventIndex] ?? []
+  const receiptLightboxImagesMap = useMemo(() => {
+    if (!content?.events?.list) return []
+    return content.events.list.map((event) =>
+      (event.receipts ?? []).map((url) => ({ url }))
+    )
+  }, [content?.events?.list])
+
+  const [lightboxSource, setLightboxSource] = useState<'photos' | 'receipts'>('photos')
+  const lightboxImages = lightboxSource === 'receipts'
+    ? (receiptLightboxImagesMap[selectedEventIndex] ?? [])
+    : (eventLightboxImagesMap[selectedEventIndex] ?? [])
 
   const handleEventImageClick = (eventIndex: number, imageIndex: number) => {
     setSelectedEventIndex(eventIndex)
+    setLightboxSource('photos')
     lightbox.open(imageIndex)
+  }
+
+  const handleReceiptClick = (eventIndex: number, receiptIndex: number) => {
+    setSelectedEventIndex(eventIndex)
+    setLightboxSource('receipts')
+    lightbox.open(receiptIndex)
   }
 
   // Section navigation
@@ -45,6 +62,7 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
       { id: 'p5-background', label: t('sectionNav.background') },
       ...(content.events?.list?.length ? [{ id: 'p5-events', label: t('sectionNav.events') }] : []),
       { id: 'p5-project-progress', label: t('sectionNav.projectProgress') },
+      ...(content.donationResults?.items?.length ? [{ id: 'p5-donation-results', label: t('sectionNav.donationResults') }] : []),
     ]
   }, [content, t])
 
@@ -92,6 +110,7 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
             events={content.events}
             locale={locale}
             onImageClick={handleEventImageClick}
+            onReceiptClick={handleReceiptClick}
           />
         </FadeInSection>
       )}
@@ -100,6 +119,13 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
       <FadeInSection id="p5-project-progress" delay={200}>
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
+
+      {/* Donation Results */}
+      {content.donationResults && content.donationResults.items.length > 0 && (
+        <FadeInSection id="p5-donation-results" delay={300}>
+          <DonationResultsSection donationResults={content.donationResults} />
+        </FadeInSection>
+      )}
 
       {/* Lightbox */}
       {lightbox.isOpen && (

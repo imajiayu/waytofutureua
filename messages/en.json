@@ -262,7 +262,9 @@
       "badge": "Community Aid",
       "heroImageAlt": "Food distribution point for Dnipro residents",
       "expenses": "Expenses",
-      "total": "Total"
+      "receipts": "Receipts",
+      "total": "Total",
+      "donationResultAlt": "Verified donation result photo {index}"
     },
     "project4": {
       "defaultTitle": "Mykolaivka Family Support",

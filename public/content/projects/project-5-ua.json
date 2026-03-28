@@ -21,6 +21,20 @@
           "/images/projects/project-5/details/event-1/volunteers-cooking.webp",
           "/images/projects/project-5/details/event-1/elderly-woman-eating.webp",
           "/images/projects/project-5/details/event-1/men-eating-meal.webp"
+        ],
+        "receipts": [
+          "/images/projects/project-5/details/event-1-receipts/IMG_5011.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5012.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5013.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5014.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5015.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5016.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5017.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5018.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5019.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5020.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5021.webp",
+          "/images/projects/project-5/details/event-1-receipts/IMG_5022.webp"
         ]
       },
       {
@@ -40,7 +54,33 @@
           "/images/projects/project-5/details/event-2/serving-elderly-woman.webp",
           "/images/projects/project-5/details/event-2/elderly-residents-eating.webp"
         ]
+      },
+      {
+        "date": "2026-03-28",
+        "location": "Калинова вулиця",
+        "images": [
+          "/images/projects/project-5/details/event-3/IMG_0591.webp",
+          "/images/projects/project-5/details/event-3/IMG_0592.webp",
+          "/images/projects/project-5/details/event-3/IMG_0594.webp",
+          "/images/projects/project-5/details/event-3/IMG_0597.webp",
+          "/images/projects/project-5/details/event-3/IMG_0642.webp",
+          "/images/projects/project-5/details/event-3/IMG_0651.webp"
+        ]
       }
     ]
+  },
+  "donationResults": {
+    "title": "Підтверджені результати пожертв",
+    "description": "Кожна пожертва задокументована та підтверджена фотографічними доказами. Нижче наведені результати наших заходів з роздачі їжі, кожен із яких пов'язаний із конкретними ідентифікаторами пожертв.",
+    "items": [
+      {
+        "image": "/images/projects/project-5/details/results/result1.webp",
+        "donationIds": ["5-9ECB1F"],
+        "donorName": "薪薪向融",
+        "date": "2026-03-28",
+        "orientation": "portrait"
+      }
+    ],
+    "footer": "Кожна пожертва відстежується від оплати до реального впливу. Донори отримують фотографічне підтвердження свого внеску, що забезпечує повну прозорість та підзвітність."
   }
 }
