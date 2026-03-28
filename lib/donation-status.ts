@@ -113,22 +113,31 @@ export const REFUND_DECLINED_CHECK_STATUSES: readonly DonationStatus[] = [
 // 4. UI 显示相关
 // ============================================
 
-/** 状态颜色映射 - 使用乌克兰主题色 */
+/** 状态颜色映射 - 14 个状态各有独立视觉标识 */
 export const STATUS_COLORS: Record<DonationStatus, { bg: string; text: string }> = {
-  pending: { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },
-  widget_load_failed: { bg: 'bg-warm-50', text: 'text-warm-700' },
-  processing: { bg: 'bg-ukraine-blue-100', text: 'text-ukraine-blue-700' },
-  fraud_check: { bg: 'bg-ukraine-blue-100', text: 'text-ukraine-blue-700' },
-  paid: { bg: 'bg-life-100', text: 'text-life-800' },
-  confirmed: { bg: 'bg-life-100', text: 'text-life-800' },
-  delivering: { bg: 'bg-ukraine-blue-100', text: 'text-ukraine-blue-700' },
-  completed: { bg: 'bg-life-100', text: 'text-life-800' },
-  expired: { bg: 'bg-warm-100', text: 'text-warm-800' },
-  declined: { bg: 'bg-warm-100', text: 'text-warm-800' },
-  failed: { bg: 'bg-warm-100', text: 'text-warm-800' },
-  refunding: { bg: 'bg-warm-100', text: 'text-warm-700' },
-  refund_processing: { bg: 'bg-warm-100', text: 'text-warm-700' },
-  refunded: { bg: 'bg-ukraine-blue-50', text: 'text-ukraine-blue-700' },
+  // ── 支付前 ──
+  pending:             { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },  // 金色 = 等待支付
+  widget_load_failed:  { bg: 'bg-stone-100',        text: 'text-stone-500' },          // 石灰 = 技术问题
+
+  // ── 处理中 ──
+  processing:          { bg: 'bg-ukraine-blue-100',  text: 'text-ukraine-blue-700' },  // 蓝色 = 系统处理
+  fraud_check:         { bg: 'bg-indigo-100',        text: 'text-indigo-700' },         // 靛蓝 = 安全审查
+
+  // ── 成功进度 ── 每个阶段独立色相
+  paid:                { bg: 'bg-teal-50',           text: 'text-teal-700' },           // 青绿 = 已收款
+  confirmed:           { bg: 'bg-emerald-100',       text: 'text-emerald-700' },        // 翠绿 = 已确认
+  delivering:          { bg: 'bg-sky-100',           text: 'text-sky-700' },            // 天蓝 = 配送中
+  completed:           { bg: 'bg-life-200',          text: 'text-life-800' },           // 深绿 = 已完成
+
+  // ── 失败 ── 严重程度递增
+  expired:             { bg: 'bg-zinc-100',          text: 'text-zinc-500' },           // 冷灰 = 已过期
+  declined:            { bg: 'bg-warm-100',          text: 'text-warm-700' },           // 暖橙 = 被拒绝
+  failed:              { bg: 'bg-rose-100',          text: 'text-rose-700' },           // 玫红 = 失败
+
+  // ── 退款 ── 独立色系，不与失败混淆
+  refunding:           { bg: 'bg-amber-100',         text: 'text-amber-700' },          // 琥珀 = 申请退款
+  refund_processing:   { bg: 'bg-violet-100',        text: 'text-violet-700' },         // 紫罗兰 = 退款处理中
+  refunded:            { bg: 'bg-slate-100',         text: 'text-slate-600' },          // 板岩 = 已退款
 }
 
 /** 主流程状态（用于进度显示） */

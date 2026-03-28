@@ -12,13 +12,12 @@ interface Props {
  *
  * Displays a color-coded badge for donation status with user-friendly translations
  *
- * Color Scheme:
- * - Pre-payment: Yellow/Gray (pending, widget_load_failed)
- * - Processing: Blue/Purple (processing, fraud_check)
- * - Success: Green (paid, confirmed, completed)
- * - In Progress: Blue (delivering)
- * - Failed: Red/Gray (expired, declined, failed)
- * - Refund: Orange/Gray (refunding, refund_processing, refunded)
+ * Color Scheme (14 distinct colors):
+ * - Pre-payment: Gold (pending), Stone (widget_load_failed)
+ * - Processing: Blue (processing), Indigo (fraud_check)
+ * - Success: Teal (paid), Emerald (confirmed), Sky (delivering), Deep Green (completed)
+ * - Failed: Zinc (expired), Warm Orange (declined), Rose (failed)
+ * - Refund: Amber (refunding), Violet (refund_processing), Slate (refunded)
  */
 export default function DonationStatusBadge({ status }: Props) {
   const t = useTranslations('common')
