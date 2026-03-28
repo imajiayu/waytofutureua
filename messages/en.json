@@ -253,7 +253,7 @@
       "supplyList": "Supply List",
       "expenseReceipts": "Expense Receipts",
       "momentsOfJoy": "Moments of Joy",
-      "momentsOfJoyDesc": "Children receiving gifts",
+      "resultAlt": "Gift distribution photo {index}",
       "heroImageAlt": "Christmas Gift Program",
       "receiptImageAlt": "Receipt {number}"
     },

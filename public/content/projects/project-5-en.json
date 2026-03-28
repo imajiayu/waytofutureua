@@ -71,16 +71,11 @@
   },
   "donationResults": {
     "title": "Verified Donation Results",
-    "description": "Every donation is documented and verified with photographic proof. Below are the results from our food distribution events, each linked to specific donation IDs.",
     "items": [
       {
         "image": "/images/projects/project-5/details/results/result1.webp",
-        "donationIds": ["5-9ECB1F"],
-        "donorName": "薪薪向融",
-        "date": "2026-03-28",
         "orientation": "portrait"
       }
-    ],
-    "footer": "Every donation is tracked from payment to real-world impact. Donors receive photographic proof of their contribution, ensuring full transparency and accountability."
+    ]
   }
 }

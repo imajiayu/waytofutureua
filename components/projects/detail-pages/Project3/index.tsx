@@ -3,7 +3,10 @@
 import { useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import { FadeInSection, SectionNav, UnifiedResultsSection } from '@/components/projects/shared'
+import type { ResultImage } from '@/components/projects/shared'
+import { SparklesIcon } from '@/components/icons'
+import { Snowfall } from './components'
 import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useTranslations } from 'next-intl'
@@ -19,7 +22,6 @@ import {
   SheltersSection,
   GiftsListSection,
   SuppliesSection,
-  ResultsSection,
 } from './sections'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
@@ -226,7 +228,22 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
       {/* Results */}
       {content?.results && content.results.length > 0 && (
         <FadeInSection id="p3-results">
-          <ResultsSection results={content.results} />
+          <UnifiedResultsSection
+            title={t('project3.momentsOfJoy')}
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <SparklesIcon className="w-5 h-5 text-white" />
+              </div>
+            }
+            gradient="from-christmas-berry via-rose-600 to-christmas-gold"
+            images={content.results.map((r): ResultImage => ({
+              imageUrl: r.imageUrl,
+              caption: r.caption,
+              priority: r.priority,
+            }))}
+            getAltText={(i) => t('project3.resultAlt', { index: i + 1 })}
+            headerDecoration={<Snowfall />}
+          />
         </FadeInSection>
       )}
 

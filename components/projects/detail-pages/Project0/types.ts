@@ -87,18 +87,13 @@ export interface CallToAction {
 
 export interface DonationResultItem {
   image: string
-  donationIds: string[]
-  donorName?: string
-  date: string
   orientation?: 'landscape' | 'portrait'
   aspectRatio?: number
 }
 
 export interface DonationResultsData {
   title: string
-  description: string
   items: DonationResultItem[]
-  footer: string
 }
 
 export interface Project0Content {

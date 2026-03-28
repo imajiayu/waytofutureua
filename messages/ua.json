@@ -253,7 +253,7 @@
       "supplyList": "Список матеріалів",
       "expenseReceipts": "Квитанції",
       "momentsOfJoy": "Моменти радості",
-      "momentsOfJoyDesc": "Діти отримують подарунки",
+      "resultAlt": "Фото роздачі подарунків {index}",
       "heroImageAlt": "Різдвяна програма подарунків",
       "receiptImageAlt": "Квитанція {number}"
     },

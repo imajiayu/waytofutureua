@@ -26,18 +26,13 @@ export interface EventsContent {
 
 export interface DonationResultItem {
   image: string
-  donationIds: string[]
-  donorName?: string
-  date: string
   orientation?: 'landscape' | 'portrait'
   aspectRatio?: number
 }
 
 export interface DonationResultsData {
   title: string
-  description: string
   items: DonationResultItem[]
-  footer: string
 }
 
 export interface Project5Content {

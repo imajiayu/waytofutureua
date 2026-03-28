@@ -253,7 +253,7 @@
       "supplyList": "物资清单",
       "expenseReceipts": "支出凭证",
       "momentsOfJoy": "喜悦时刻",
-      "momentsOfJoyDesc": "孩子们收到礼物",
+      "resultAlt": "礼物分发照片 {index}",
       "heroImageAlt": "圣诞礼物项目",
       "receiptImageAlt": "收据 {number}"
     },

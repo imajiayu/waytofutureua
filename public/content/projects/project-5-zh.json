@@ -71,16 +71,11 @@
   },
   "donationResults": {
     "title": "捐赠成果验证",
-    "description": "每笔捐赠均有照片记录和验证。以下是我们食物分发活动的成果，每张照片均关联了具体的捐赠编号。",
     "items": [
       {
         "image": "/images/projects/project-5/details/results/result1.webp",
-        "donationIds": ["5-9ECB1F"],
-        "donorName": "薪薪向融",
-        "date": "2026-03-28",
         "orientation": "portrait"
       }
-    ],
-    "footer": "每笔捐赠都可追溯——从支付到实际效果。捐赠者将收到捐赠成果的照片证明，确保完全透明和问责。"
+    ]
   }
 }

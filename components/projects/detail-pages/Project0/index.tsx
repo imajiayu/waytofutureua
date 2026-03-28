@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import CollapsibleGallery from './CollapsibleGallery'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
-import { FadeInSection, SectionHeader, SectionNav } from '@/components/projects/shared'
+import { FadeInSection, SectionHeader, SectionNav, UnifiedResultsSection } from '@/components/projects/shared'
+import type { ResultImage } from '@/components/projects/shared'
+import { CheckCircle2Icon } from '@/components/icons'
 import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
@@ -24,7 +26,6 @@ import {
   ChallengesSection,
   FinancialSection,
   CallToActionSection,
-  DonationResultsSection,
 } from './sections'
 
 // Dynamic import for Lightbox
@@ -255,7 +256,17 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
       {/* Donation Results — standalone module */}
       {content.donationResults && content.donationResults.items.length > 0 && (
         <FadeInSection id="p0-donation-results">
-          <DonationResultsSection donationResults={content.donationResults} />
+          <UnifiedResultsSection
+            title={content.donationResults.title}
+            icon={<CheckCircle2Icon className="w-5 h-5 text-white/90" />}
+            gradient="from-life-600 to-emerald-600"
+            images={content.donationResults.items.map((item): ResultImage => ({
+              imageUrl: item.image,
+              orientation: item.orientation,
+              aspectRatio: item.aspectRatio,
+            }))}
+            getAltText={(i) => t('project0.donationResultAlt', { index: i + 1 })}
+          />
         </FadeInSection>
       )}
     </div>

@@ -9,7 +9,10 @@ import { useTranslations } from 'next-intl'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
 import { useLightbox } from '@/lib/hooks/useLightbox'
 import type { Project5Content, Project5DetailContentProps } from './types'
-import { HeroSection, BackgroundSection, EventsSection, DonationResultsSection } from './sections'
+import { HeroSection, BackgroundSection, EventsSection } from './sections'
+import { UnifiedResultsSection } from '@/components/projects/shared'
+import type { ResultImage } from '@/components/projects/shared'
+import { CheckCircle2Icon } from '@/components/icons'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
@@ -123,7 +126,17 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
       {/* Donation Results */}
       {content.donationResults && content.donationResults.items.length > 0 && (
         <FadeInSection id="p5-donation-results" delay={300}>
-          <DonationResultsSection donationResults={content.donationResults} />
+          <UnifiedResultsSection
+            title={content.donationResults.title}
+            icon={<CheckCircle2Icon className="w-5 h-5 text-white/90" />}
+            gradient="from-cyan-600 to-teal-600"
+            images={content.donationResults.items.map((item): ResultImage => ({
+              imageUrl: item.image,
+              orientation: item.orientation,
+              aspectRatio: item.aspectRatio,
+            }))}
+            getAltText={(i) => t('project5.donationResultAlt', { index: i + 1 })}
+          />
         </FadeInSection>
       )}
 
