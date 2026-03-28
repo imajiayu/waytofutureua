@@ -4,8 +4,8 @@ import { z } from 'zod'
 // Base Validation Rules
 // ============================================
 
-export const emailSchema = z.string().email('Invalid email address')
-export const localeSchema = z.enum(['en', 'zh', 'ua'])
+const emailSchema = z.string().email('Invalid email address')
+const localeSchema = z.enum(['en', 'zh', 'ua'])
 
 // ============================================
 // Project Schemas

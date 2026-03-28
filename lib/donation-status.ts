@@ -46,17 +46,6 @@ export const REFUND_STATUSES: readonly DonationStatus[] = [
   'refunding', 'refund_processing', 'refunded'
 ] as const
 
-/** 被计数状态（用于项目单位统计） */
-export const COUNTED_STATUSES = SUCCESS_STATUSES
-
-/** 未被计数状态 */
-export const NON_COUNTED_STATUSES: readonly DonationStatus[] = [
-  ...PRE_PAYMENT_STATUSES,
-  ...PROCESSING_STATUSES,
-  ...FAILED_STATUSES,
-  ...REFUND_STATUSES,
-] as const
-
 // ============================================
 // 3. 状态转换规则
 // ============================================
@@ -253,35 +242,4 @@ export function getWebhookSourceStatuses(isRefund: boolean): readonly DonationSt
   return isRefund ? REFUND_WEBHOOK_SOURCE_STATUSES : PAYMENT_WEBHOOK_SOURCE_STATUSES
 }
 
-/** 检查状态是否可被 Webhook 更新 */
-export function canWebhookUpdate(status: DonationStatus, isRefund: boolean): boolean {
-  const sourceStatuses = getWebhookSourceStatuses(isRefund)
-  return sourceStatuses.includes(status)
-}
-
-// ============================================
-// 8. 状态排序（用于管理后台）
-// ============================================
-
-/** 状态优先级排序（用于管理后台列表） */
-export const STATUS_SORT_ORDER: Record<DonationStatus, number> = {
-  // 需要处理的优先
-  paid: 1,
-  confirmed: 2,
-  delivering: 3,
-  refunding: 4,
-  refund_processing: 5,
-  // 已完成
-  completed: 6,
-  refunded: 7,
-  // 待处理/处理中
-  pending: 8,
-  processing: 9,
-  fraud_check: 10,
-  // 失败
-  failed: 11,
-  expired: 12,
-  declined: 13,
-  widget_load_failed: 14,
-}
 

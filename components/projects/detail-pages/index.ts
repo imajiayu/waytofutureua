@@ -9,7 +9,6 @@
  * ├── index.ts           # This file - exports all project components
  * ├── Project0/          # Way to Health (Rehabilitation Center)
  * │   ├── index.tsx      # Main component
- * │   ├── EmployeeCarousel.tsx
  * │   └── CollapsibleGallery.tsx
  * ├── Project3/          # Christmas Gift Program
  * │   └── index.tsx      # Main component
