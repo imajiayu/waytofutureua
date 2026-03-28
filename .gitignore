@@ -39,6 +39,10 @@ next-env.d.ts
 *.swp
 *.swo
 
+# Supabase
+supabase/.branches
+supabase/.temp
+
 # Sentry
 .sentryclirc
 sentry.properties
