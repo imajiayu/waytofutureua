@@ -478,8 +478,9 @@ supabase gen types typescript --linked > types/database.ts
 
 ## 安全机制
 
-- RLS 策略保护所有表 (10个策略)
-- Service Role 用于 Webhook 和管理员操作
+- RLS 策略保护所有表
+- 状态转换通过 RLS 策略约束（如 `pending → widget_load_failed` 仅允许本人/匿名操作），不得绕过 RLS 用 Service Role 替代
+- Service Role 仅用于 Webhook 回调和管理员操作
 - 触发器保护不可变字段
 - 状态转换数据库级验证
 - 邮箱混淆保护隐私

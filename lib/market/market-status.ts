@@ -50,19 +50,20 @@ export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: 
 }
 
 // ============================================
+// 3b. Webhook 可更新的源状态（对齐捐赠系统 PAYMENT_WEBHOOK_SOURCE_STATUSES 模式）
+// ============================================
+
+/** 支付 Webhook 可更新的源状态 — widget_load_failed 也可被 webhook 恢复为 paid */
+export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
+  'pending', 'widget_load_failed'
+] as const
+
+// ============================================
 // 4. 判断函数
 // ============================================
 
 export function canPurchase(status: MarketItemStatus): boolean {
   return status === 'on_sale'
-}
-
-export function isOrderPaid(status: MarketOrderStatus): boolean {
-  return ['paid', 'shipped', 'completed'].includes(status)
-}
-
-export function isOrderTerminal(status: MarketOrderStatus): boolean {
-  return ['completed', 'expired', 'declined'].includes(status)
 }
 
 export function getNextOrderStatuses(status: MarketOrderStatus): MarketOrderStatus[] {
@@ -77,7 +78,34 @@ export function getNextItemStatuses(status: MarketItemStatus): MarketItemStatus[
   return ITEM_ADMIN_TRANSITIONS[status] || []
 }
 
+export function isValidItemTransition(from: MarketItemStatus, to: MarketItemStatus): boolean {
+  return ITEM_ADMIN_TRANSITIONS[from]?.includes(to) ?? false
+}
+
 /** 订单状态转换是否需要快递单号（paid → shipped） */
 export function needsTrackingNumber(from: MarketOrderStatus, to: MarketOrderStatus): boolean {
   return from === 'paid' && to === 'shipped'
+}
+
+// ============================================
+// 5. 文件上传相关
+// ============================================
+
+export type MarketOrderFileCategory = 'shipping' | 'completion'
+
+/** 状态转换是否需要文件上传 */
+export function needsFileUpload(from: MarketOrderStatus, to: MarketOrderStatus): boolean {
+  return (from === 'paid' && to === 'shipped') || (from === 'shipped' && to === 'completed')
+}
+
+/** 获取当前转换对应的文件分类 */
+export function getFileCategory(from: MarketOrderStatus, to: MarketOrderStatus): MarketOrderFileCategory | null {
+  if (from === 'paid' && to === 'shipped') return 'shipping'
+  if (from === 'shipped' && to === 'completed') return 'completion'
+  return null
+}
+
+/** 是否可以管理已上传的文件（shipped/completed 状态） */
+export function canManageOrderFiles(status: MarketOrderStatus): boolean {
+  return status === 'shipped' || status === 'completed'
 }

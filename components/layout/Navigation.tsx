@@ -114,9 +114,10 @@ export default function Navigation() {
             <div className="hidden md:flex items-center space-x-3">
               <button
                 onClick={handleMarketClick}
-                className="px-5 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-ukraine-gold-300 hover:text-ukraine-gold-700 hover:bg-ukraine-gold-50 transition-all duration-200"
+                className="group relative px-5 py-2 text-sm font-semibold tracking-wide text-white bg-ukraine-blue-500 hover:bg-ukraine-blue-600 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg overflow-hidden"
               >
-                {t('market')}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative z-10">{t('market')}</span>
               </button>
               <button
                 onClick={handleTrackDonation}
@@ -222,22 +223,23 @@ export default function Navigation() {
         </div>
 
         {/* Mobile: Action Buttons Row */}
-        <div className="md:hidden pb-3 pt-1 flex items-center justify-center space-x-3 px-4">
+        <div className="md:hidden pb-3 pt-1 flex items-center justify-center space-x-2 px-3">
           <button
             onClick={handleMarketClick}
-            className="flex-1 px-4 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg active:border-ukraine-gold-300 active:text-ukraine-gold-700 active:bg-ukraine-gold-50 transition-all duration-200"
+            className="group relative flex-1 px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-white bg-ukraine-blue-500 active:bg-ukraine-blue-600 rounded-lg transition-all duration-200 shadow-md overflow-hidden"
           >
-            {t('market')}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            <span className="relative z-10">{t('market')}</span>
           </button>
           <button
             onClick={handleTrackDonation}
-            className="flex-1 px-4 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg active:border-ukraine-blue-300 active:text-ukraine-blue-700 active:bg-ukraine-blue-50 transition-all duration-200"
+            className="flex-1 px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-gray-700 bg-white border-2 border-gray-300 rounded-lg active:border-ukraine-blue-300 active:text-ukraine-blue-700 active:bg-ukraine-blue-50 transition-all duration-200"
           >
             {t('trackDonation')}
           </button>
           <button
             onClick={handleDonateClick}
-            className="group relative flex-1 px-4 py-2 text-sm font-semibold tracking-wide text-ukraine-blue-900 bg-ukraine-gold-500 active:bg-ukraine-gold-600 rounded-lg transition-all duration-200 shadow-md overflow-hidden"
+            className="group relative flex-1 px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap text-ukraine-blue-900 bg-ukraine-gold-500 active:bg-ukraine-gold-600 rounded-lg transition-all duration-200 shadow-md overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
             <span className="relative z-10">{t('donate')}</span>

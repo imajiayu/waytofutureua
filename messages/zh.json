@@ -926,6 +926,24 @@
     "title": "慈善市集",
     "subtitle": "通过购买或竞拍独特物品支持我们的公益事业",
     "description": "浏览义卖商品和拍卖活动",
+    "hero": {
+      "tagline": "透明公益",
+      "subtitle": "每一笔资金都标明详细用途，并提供后续照片与视频反馈",
+      "trust": {
+        "usage": {
+          "title": "资金用途明细",
+          "desc": "每一分钱都有明确的用途和清晰的收据"
+        },
+        "proof": {
+          "title": "照片/视频反馈",
+          "desc": "真实记录您的每一份贡献如何被使用"
+        },
+        "tracking": {
+          "title": "全程追踪",
+          "desc": "从下单到配送到完成，全程跟踪您的爱心之旅"
+        }
+      }
+    },
     "emptyState": "暂无可用商品",
     "common": {
       "back": "返回"
@@ -934,9 +952,11 @@
       "label": "义卖",
       "price": "价格",
       "buyNow": "立即购买",
-      "inStock": "库存 {count} 件",
-      "outOfStock": "已售罄",
-      "quantity": "数量"
+      "inStock": "{count} 件可售",
+      "sold": "已售",
+      "quantity": "数量",
+      "listedOn": "上架于",
+      "viewDetails": "查看详情"
     },
     "order": {
       "trackOrder": "查询订单",
@@ -948,7 +968,8 @@
       "shippingTo": "寄送至",
       "trackingNumber": "快递单号",
       "item": "商品",
-      "total": "总计"
+      "total": "总计",
+      "signOut": "退出登录"
     },
     "auth": {
       "title": "验证邮箱",
@@ -1002,6 +1023,23 @@
       "state": "州/省",
       "postalCode": "邮政编码",
       "country": "国家（2位代码）"
+    },
+    "proof": {
+      "shippingProof": "物流凭证",
+      "completionProof": "资金使用凭证",
+      "viewProof": "查看凭证",
+      "noFiles": "暂无凭证",
+      "loading": "加载中..."
+    },
+    "purchases": {
+      "title": "购买记录",
+      "empty": "暂无购买记录",
+      "buyer": "买家",
+      "amount": "金额",
+      "quantity": "数量",
+      "status": "状态",
+      "date": "日期",
+      "total": "共 {count} 笔购买"
     },
     "errors": {
       "insufficientStock": "抱歉，商品库存不足。",

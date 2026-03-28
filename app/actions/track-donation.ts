@@ -151,26 +151,37 @@ export async function requestRefund(data: {
     }
 
     // 4. Get order reference and all donations in this order
-    const serviceSupabase = getInternalClient()
-
-    // First, get the order_reference and payment_method for this donation
-    const { data: donationData, error: fetchError } = await serviceSupabase
-      .from('donations')
-      .select('order_reference, currency, payment_method')
-      .eq('donation_public_id', validated.donationPublicId)
-      .single()
-
-    if (fetchError || !donationData || !donationData.order_reference) {
-      logger.error('REFUND', 'Failed to fetch donation data', { donationPublicId: validated.donationPublicId, error: fetchError?.message })
+    // 使用已验证的 donation 数据（order_reference, currency 来自 RPC 返回）
+    // payment_method 需要额外查询（RPC 未返回），用 public client（donations 公开可读）
+    const orderReference = donation.order_reference as string
+    if (!orderReference) {
+      logger.error('REFUND', 'Missing order_reference', { donationPublicId: validated.donationPublicId })
       return { error: 'serverError' }
     }
 
+    const { data: paymentInfo, error: paymentError } = await anonSupabase
+      .from('donations')
+      .select('payment_method')
+      .eq('donation_public_id', validated.donationPublicId)
+      .single()
+
+    if (paymentError || !paymentInfo) {
+      logger.error('REFUND', 'Failed to fetch payment method', { donationPublicId: validated.donationPublicId, error: paymentError?.message })
+      return { error: 'serverError' }
+    }
+
+    const donationData = {
+      order_reference: orderReference,
+      currency: donation.currency as string,
+      payment_method: paymentInfo.payment_method as string,
+    }
+
     // Get ALL donations in this order (an order may contain multiple units/donations)
-    // Include fields needed for refund email
-    const { data: orderDonations, error: orderError } = await serviceSupabase
+    // Include fields needed for refund email — donations 公开可读，使用 public client
+    const { data: orderDonations, error: orderError } = await anonSupabase
       .from('donations')
       .select('id, donation_public_id, amount, donation_status, donor_name, donor_email, locale, project_id')
-      .eq('order_reference', donationData.order_reference)
+      .eq('order_reference', orderReference)
 
     if (orderError || !orderDonations || orderDonations.length === 0) {
       logger.error('REFUND', 'Failed to fetch order donations', { orderReference: donationData.order_reference, error: orderError?.message })
@@ -200,6 +211,8 @@ export async function requestRefund(data: {
     const totalOrderAmount = refundableDonations.reduce((sum, d) => sum + Number(d.amount), 0)
 
     // 5. Handle refund based on payment method
+    // Service client 仅用于 UPDATE 操作（退款状态变更无对应 RLS 策略，需 service_role）
+    const serviceSupabase = getInternalClient()
     const paymentMethod = donationData.payment_method
 
     // For NOWPayments (crypto): Mark as refunding for manual processing
@@ -316,7 +329,7 @@ export async function requestRefund(data: {
       if (newStatus === 'refunded') {
         try {
           const firstDonation = refundableDonations[0]
-          const { data: project } = await serviceSupabase
+          const { data: project } = await anonSupabase
             .from('projects')
             .select('project_name_i18n')
             .eq('id', firstDonation.project_id)

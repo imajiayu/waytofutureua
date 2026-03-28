@@ -926,6 +926,24 @@
     "title": "Charity Market",
     "subtitle": "Support our mission through purchasing or bidding on unique items",
     "description": "Browse charity sale items and auctions",
+    "hero": {
+      "tagline": "TRANSPARENT CHARITY",
+      "subtitle": "Every fund has a clear purpose, with photo and video proof delivered to you",
+      "trust": {
+        "usage": {
+          "title": "Detailed Fund Usage",
+          "desc": "Every penny allocated to a specific purpose with clear receipts"
+        },
+        "proof": {
+          "title": "Photo & Video Proof",
+          "desc": "Real documentation showing exactly how your contribution helped"
+        },
+        "tracking": {
+          "title": "End-to-End Tracking",
+          "desc": "Follow your impact from purchase to delivery to completion"
+        }
+      }
+    },
     "emptyState": "No items available at the moment",
     "common": {
       "back": "Back"
@@ -934,9 +952,11 @@
       "label": "Sale",
       "price": "Price",
       "buyNow": "Buy Now",
-      "inStock": "{count} in stock",
-      "outOfStock": "Out of Stock",
-      "quantity": "Quantity"
+      "inStock": "{count} available",
+      "sold": "Sold",
+      "quantity": "Quantity",
+      "listedOn": "Listed",
+      "viewDetails": "View Details"
     },
     "order": {
       "trackOrder": "Track Order",
@@ -948,7 +968,8 @@
       "shippingTo": "Ship to",
       "trackingNumber": "Tracking #",
       "item": "Item",
-      "total": "Total"
+      "total": "Total",
+      "signOut": "Sign out"
     },
     "auth": {
       "title": "Verify Your Email",
@@ -1002,6 +1023,23 @@
       "state": "State / Province",
       "postalCode": "Postal Code",
       "country": "Country (2-letter code)"
+    },
+    "proof": {
+      "shippingProof": "Shipping Proof",
+      "completionProof": "Fund Usage Proof",
+      "viewProof": "View Proof",
+      "noFiles": "No proof files yet",
+      "loading": "Loading..."
+    },
+    "purchases": {
+      "title": "Purchase Records",
+      "empty": "No purchases yet",
+      "buyer": "Buyer",
+      "amount": "Amount",
+      "quantity": "Qty",
+      "status": "Status",
+      "date": "Date",
+      "total": "{count} purchase(s) total"
     },
     "errors": {
       "insufficientStock": "Sorry, this item is no longer available in the requested quantity.",

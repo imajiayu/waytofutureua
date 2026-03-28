@@ -42,6 +42,7 @@ export type LogCategory =
   | 'MARKET:ITEMS'
   | 'MARKET:ORDER'
   | 'MARKET:SALE'
+  | 'MARKET:FILES'
   | 'WEBHOOK:WAYFORPAY-MARKET'
 
 export interface LogContext {

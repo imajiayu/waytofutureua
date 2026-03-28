@@ -172,11 +172,13 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
         </span>
       </div>
 
-      {/* 库存 */}
+      {/* 可售 / 状态 */}
       <div className="text-sm text-gray-600">
-        {inStock
+        {purchasable
           ? t('sale.inStock', { count: item.stock_quantity })
-          : <span className="text-warm-600 font-medium">{t('sale.outOfStock')}</span>
+          : item.status !== 'on_sale'
+            ? <span className="text-gray-500 font-medium">{t(`status.${item.status}`)}</span>
+            : <span className="text-warm-600 font-medium">{t('sale.sold')}</span>
         }
       </div>
 
@@ -216,7 +218,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
                  hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
                  transition-colors"
       >
-        {purchasable ? t('sale.buyNow') : t('sale.outOfStock')}
+        {purchasable ? t('sale.buyNow') : item.status !== 'on_sale' ? t(`status.${item.status}`) : t('sale.sold')}
       </button>
     </div>
   )

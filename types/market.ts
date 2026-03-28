@@ -92,6 +92,11 @@ export interface MarketOrderStatusHistory {
   changed_at: string
 }
 
+/** 管理员订单（含商品标题 join） */
+export interface AdminMarketOrder extends MarketOrder {
+  market_items: { title_i18n: I18nText } | null
+}
+
 // ============================================
 // 4. 公开视图类型
 // ============================================
@@ -100,7 +105,20 @@ export interface MarketOrderStatusHistory {
 export type PublicMarketItem = MarketItem
 
 // ============================================
-// 5. 筛选 & 表单类型
+// 5. 静态内容类型（JSON 文件）
+// ============================================
+
+/** 商品静态内容（来自 public/content/market/item-{id}-{locale}.json） */
+export interface MarketItemContent {
+  images: {
+    card: string
+    detail: string
+  }
+  description: string[]
+}
+
+// ============================================
+// 6. 筛选 & 表单类型
 // ============================================
 
 export interface MarketItemFilters {
@@ -112,4 +130,37 @@ export interface MarketOrderFilters {
   status?: MarketOrderStatus
   buyer_email?: string
   item_id?: number
+}
+
+// ============================================
+// 7. 文件相关类型
+// ============================================
+
+/** 订单文件分类 */
+export type MarketOrderFileCategory = 'shipping' | 'completion'
+
+/** 订单文件对象 */
+export interface MarketOrderFile {
+  name: string
+  path: string
+  publicUrl: string
+  size: number
+  contentType: string
+  createdAt: string
+  updatedAt: string
+  category: MarketOrderFileCategory
+}
+
+// ============================================
+// 8. 视图 & 公开记录类型
+// ============================================
+
+/** 公开购买记录（邮箱脱敏） */
+export interface PublicMarketOrderRecord {
+  order_reference: string
+  buyer_email_masked: string
+  quantity: number
+  total_amount: number
+  status: string
+  created_at: string
 }

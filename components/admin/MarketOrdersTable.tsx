@@ -1,89 +1,57 @@
 'use client'
 
-import { useState } from 'react'
-import { ORDER_STATUS_COLORS, getNextOrderStatuses, needsTrackingNumber } from '@/lib/market/market-status'
+import { useState, useMemo } from 'react'
+import { getTranslatedText } from '@/lib/i18n-utils'
+import { ORDER_STATUS_COLORS, getNextOrderStatuses, canManageOrderFiles } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
-import { getAdminMarketOrders, updateMarketOrderStatus } from '@/app/actions/market-admin'
-import type { MarketOrder, MarketOrderStatus } from '@/types/market'
+import { getAdminMarketOrders } from '@/app/actions/market-admin'
+import { MARKET_ORDER_STATUSES } from '@/types/market'
+import type { AdminMarketOrder, MarketOrderStatus } from '@/types/market'
+import MarketOrderEditModal from './MarketOrderEditModal'
 
 interface MarketOrdersTableProps {
-  initialOrders: MarketOrder[]
+  initialOrders: AdminMarketOrder[]
 }
 
 export default function MarketOrdersTable({ initialOrders }: MarketOrdersTableProps) {
   const [orders, setOrders] = useState(initialOrders)
-  const [actionLoading, setActionLoading] = useState<number | null>(null)
-  const [trackingInput, setTrackingInput] = useState<{ orderId: number; number: string; carrier: string } | null>(null)
+  const [statusFilter, setStatusFilter] = useState<MarketOrderStatus | ''>('')
+  const [editingOrder, setEditingOrder] = useState<AdminMarketOrder | null>(null)
+
+  const filteredOrders = useMemo(
+    () => statusFilter ? orders.filter(o => o.status === statusFilter) : orders,
+    [orders, statusFilter]
+  )
 
   const refresh = async () => {
     const { orders: fresh } = await getAdminMarketOrders()
     setOrders(fresh)
   }
 
-  const handleStatusUpdate = async (orderId: number, currentStatus: MarketOrderStatus, newStatus: MarketOrderStatus) => {
-    // 发货需要快递单号
-    if (needsTrackingNumber(currentStatus, newStatus)) {
-      setTrackingInput({ orderId, number: '', carrier: '' })
-      return
-    }
-
-    setActionLoading(orderId)
-    await updateMarketOrderStatus(orderId, newStatus)
+  const handleSaved = async () => {
+    setEditingOrder(null)
     await refresh()
-    setActionLoading(null)
-  }
-
-  const handleShipWithTracking = async () => {
-    if (!trackingInput || !trackingInput.number) return
-    setActionLoading(trackingInput.orderId)
-    await updateMarketOrderStatus(trackingInput.orderId, 'shipped', {
-      tracking_number: trackingInput.number,
-      tracking_carrier: trackingInput.carrier || undefined,
-    })
-    setTrackingInput(null)
-    await refresh()
-    setActionLoading(null)
   }
 
   return (
     <div className="space-y-4">
-      {/* Tracking number input modal */}
-      {trackingInput && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-          <p className="text-sm font-medium text-blue-900">
-            Enter tracking number for order #{trackingInput.orderId}
-          </p>
-          <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="Tracking number"
-              value={trackingInput.number}
-              onChange={e => setTrackingInput({ ...trackingInput, number: e.target.value })}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-            />
-            <input
-              type="text"
-              placeholder="Carrier (optional)"
-              value={trackingInput.carrier}
-              onChange={e => setTrackingInput({ ...trackingInput, carrier: e.target.value })}
-              className="w-40 px-3 py-2 border border-gray-300 rounded text-sm"
-            />
-            <button
-              onClick={handleShipWithTracking}
-              disabled={!trackingInput.number}
-              className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-            >
-              Ship
-            </button>
-            <button
-              onClick={() => setTrackingInput(null)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Status filter */}
+      <div className="flex items-center gap-3">
+        <label className="text-sm font-medium text-gray-700">Status:</label>
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value as MarketOrderStatus | '')}
+          className="px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+        >
+          <option value="">All</option>
+          {MARKET_ORDER_STATUSES.map(s => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <span className="text-sm text-gray-400">
+          {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
+        </span>
+      </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
@@ -92,7 +60,7 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Buyer</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item ID</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -100,17 +68,23 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {orders.map(order => {
+            {filteredOrders.map(order => {
               const colors = ORDER_STATUS_COLORS[order.status]
               const nextStatuses = getNextOrderStatuses(order.status)
+              const hasFiles = canManageOrderFiles(order.status)
+              const itemTitle = order.market_items
+                ? getTranslatedText(order.market_items.title_i18n, null, 'en')
+                : null
               return (
                 <tr key={order.id}>
                   <td className="px-4 py-3 text-sm font-mono text-gray-500">{order.order_reference}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{order.buyer_email}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500 font-mono">#{order.item_id}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900 max-w-[180px] truncate">
+                    {itemTitle || <span className="text-gray-400 font-mono">#{order.item_id}</span>}
+                  </td>
                   <td className="px-4 py-3 text-sm font-data">
                     {formatMarketPrice(order.total_amount, 'USD')}
-                    {order.quantity > 1 && <span className="text-gray-400 ml-1">×{order.quantity}</span>}
+                    {order.quantity > 1 && <span className="text-gray-400 ml-1">&times;{order.quantity}</span>}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
@@ -126,16 +100,23 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm space-x-2">
-                    {nextStatuses.map(status => (
+                    {nextStatuses.length > 0 && (
                       <button
-                        key={status}
-                        onClick={() => handleStatusUpdate(order.id, order.status, status)}
-                        disabled={actionLoading === order.id}
-                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50 capitalize"
+                        onClick={() => setEditingOrder(order)}
+                        className="text-blue-600 hover:text-blue-800"
                       >
-                        → {status}
+                        → {nextStatuses[0]}
                       </button>
-                    ))}
+                    )}
+                    {hasFiles && (
+                      <button
+                        onClick={() => setEditingOrder(order)}
+                        className="text-gray-500 hover:text-gray-700"
+                        title="Manage proof files"
+                      >
+                        📁
+                      </button>
+                    )}
                   </td>
                 </tr>
               )
@@ -144,8 +125,17 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
         </table>
       </div>
 
-      {orders.length === 0 && (
+      {filteredOrders.length === 0 && (
         <div className="text-center py-8 text-gray-400">No orders found</div>
+      )}
+
+      {/* Edit Modal */}
+      {editingOrder && (
+        <MarketOrderEditModal
+          order={editingOrder}
+          onClose={() => setEditingOrder(null)}
+          onSaved={handleSaved}
+        />
       )}
     </div>
   )

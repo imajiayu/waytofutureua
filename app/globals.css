@@ -32,6 +32,11 @@ body {
   }
 }
 
+/* 页面通过 data-compact-page 声明不需要 min-h-screen */
+main.min-h-screen:has(> [data-compact-page]) {
+  min-height: auto !important;
+}
+
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
   .scrollbar-hide::-webkit-scrollbar {

@@ -31,17 +31,11 @@ export default function AdminNav() {
     { href: '/admin/projects', label: 'Projects' },
     { href: '/admin/donations', label: 'Donations' },
     { href: '/admin/subscriptions', label: 'Subscriptions' },
-    { href: '/admin/market', label: 'Market Items', children: [
-      { href: '/admin/market/orders', label: 'Orders' },
-    ]},
+    { href: '/admin/market', label: 'Market Items' },
+    { href: '/admin/market/orders', label: 'Market Orders' },
   ]
 
-  // 有子项的导航用前缀匹配（如 /admin/market 匹配 /admin/market/orders），
-  // 无子项的保持精确匹配，避免改变已有导航项的高亮行为
-  const isActive = (href: string, hasChildren: boolean) =>
-    hasChildren
-      ? pathname === href || pathname.startsWith(href + '/')
-      : pathname === href
+  const isActive = (href: string) => pathname === href
 
   return (
     <>
@@ -55,31 +49,17 @@ export default function AdminNav() {
               </div>
               <div className="ml-3 sm:ml-6 flex space-x-3 sm:space-x-8 overflow-x-auto">
                 {navItems.map((item) => (
-                  <div key={item.href} className="relative flex items-center">
-                    <button
-                      onClick={() => handleNavClick(item.href)}
-                      className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                        isActive(item.href, !!item.children?.length)
-                          ? 'border-blue-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                    {item.children?.map((child) => (
-                      <button
-                        key={child.href}
-                        onClick={() => handleNavClick(child.href)}
-                        className={`inline-flex items-center px-1 pt-1 ml-3 border-b-2 text-xs font-medium ${
-                          pathname === child.href
-                            ? 'border-blue-400 text-gray-800'
-                            : 'border-transparent text-gray-400 hover:border-gray-200 hover:text-gray-600'
-                        }`}
-                      >
-                        {child.label}
-                      </button>
-                    ))}
-                  </div>
+                  <button
+                    key={item.href}
+                    onClick={() => handleNavClick(item.href)}
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive(item.href)
+                        ? 'border-blue-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
                 ))}
               </div>
             </div>

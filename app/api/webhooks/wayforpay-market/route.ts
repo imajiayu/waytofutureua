@@ -99,30 +99,99 @@ export async function POST(req: Request) {
         return respondWithAccept(orderReference)
     }
 
-    // 仅更新 pending 状态的订单（幂等保护）
-    if (newStatus && order.status === 'pending') {
-      const { error: updateError } = await service
+    // ── 原子更新 ─────────────────────────────────────
+    // 分别尝试从 pending 和 widget_load_failed 转换，
+    // 每次 UPDATE 用 .eq('status', X) 做原子条件匹配，
+    // 避免 SELECT-UPDATE 之间的 TOCTOU 竞态，确保库存操作基于真实前置状态
+    if (newStatus) {
+      let actualPreviousStatus: MarketOrderStatus | null = null
+
+      // 尝试 1: 从 pending 转换
+      const { data: fromPending, error: pendingError } = await service
         .from('market_orders')
         .update({ status: newStatus })
         .eq('order_reference', orderReference)
         .eq('status', 'pending')
+        .select('id')
 
-      if (updateError) {
-        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update failed', {
+      if (pendingError) {
+        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from pending failed', {
           orderReference,
-          error: updateError.message,
+          error: pendingError.message,
         })
         return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
       }
 
+      if (fromPending && fromPending.length > 0) {
+        actualPreviousStatus = 'pending'
+      } else {
+        // 尝试 2: 从 widget_load_failed 转换
+        const { data: fromWidgetFailed, error: wlfError } = await service
+          .from('market_orders')
+          .update({ status: newStatus })
+          .eq('order_reference', orderReference)
+          .eq('status', 'widget_load_failed')
+          .select('id')
+
+        if (wlfError) {
+          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from widget_load_failed failed', {
+            orderReference,
+            error: wlfError.message,
+          })
+          return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
+        }
+
+        if (fromWidgetFailed && fromWidgetFailed.length > 0) {
+          actualPreviousStatus = 'widget_load_failed'
+        }
+      }
+
+      if (!actualPreviousStatus) {
+        logger.debug('WEBHOOK:WAYFORPAY-MARKET', 'No order in transitionable state (already processed)', {
+          orderReference,
+        })
+        return respondWithAccept(orderReference)
+      }
+
       logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Order updated', {
         orderReference,
-        from: 'pending',
+        from: actualPreviousStatus,
         to: newStatus,
       })
 
-      // 回滚库存（过期/失败）
-      if (shouldRollbackStock) {
+      // ── 库存处理 ─────────────────────────────────────
+      // actualPreviousStatus 由原子 UPDATE 的 .eq('status', X) 确认，非 stale read
+      //
+      // | actualPreviousStatus  | newStatus         | 库存操作           |
+      // |-----------------------|-------------------|--------------------|
+      // | pending               | paid              | 无（库存已扣）      |
+      // | pending               | expired/declined  | 回滚库存           |
+      // | widget_load_failed    | paid              | 重新扣减库存        |
+      // | widget_load_failed    | expired/declined  | 无（已回滚过）      |
+
+      const wasWidgetFailed = actualPreviousStatus === 'widget_load_failed'
+
+      if (wasWidgetFailed && newStatus === 'paid') {
+        // 从 widget_load_failed 恢复为 paid — 库存已回滚，需重新扣减
+        const { data: decremented, error: decrementError } = await service
+          .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+
+        if (decrementError || !decremented) {
+          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock FAILED after widget_load_failed recovery — manual intervention needed', {
+            orderReference,
+            itemId: order.item_id,
+            quantity: order.quantity,
+            error: decrementError?.message,
+          })
+        } else {
+          logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented after widget_load_failed recovery', {
+            orderReference,
+            itemId: order.item_id,
+            quantity: order.quantity,
+          })
+        }
+      } else if (!wasWidgetFailed && shouldRollbackStock) {
+        // 从 pending 变为 expired/declined — 正常回滚库存
         const { error: rollbackError } = await service.rpc('restore_stock', {
           p_item_id: order.item_id,
           p_quantity: order.quantity,
@@ -142,6 +211,7 @@ export async function POST(req: Request) {
           })
         }
       }
+      // wasWidgetFailed && shouldRollbackStock → 无操作（库存已在 markMarketOrderWidgetFailed 中回滚）
 
       // TODO: Phase 5 — 支付成功时发送确认邮件
     }

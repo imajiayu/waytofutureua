@@ -18,6 +18,7 @@ export type ClientLogCategory =
   | 'WIDGET'
   | 'WIDGET:WAYFORPAY'
   | 'WIDGET:NOWPAYMENTS'
+  | 'WIDGET:MARKET'
   | 'FORM'
   | 'FORM:DONATION'
   | 'UI'

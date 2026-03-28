@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { markMarketOrderWidgetFailed } from '@/app/actions/market-sale'
+import { clientLogger } from '@/lib/logger-client'
 import { SpinnerIcon } from '@/components/icons'
 
 interface PaymentParams {
@@ -44,9 +46,56 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
   const [error, setError] = useState<string | null>(null)
   const [isRedirecting, setIsRedirecting] = useState(false)
   const scriptLoadedRef = useRef(false)
+  const scriptLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const widgetOpenCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const earlyDetectionIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const hasRedirectedRef = useRef(false)
+  const widgetOpenedRef = useRef(false)
+  const widgetEverDetectedRef = useRef(false)
+  const widgetCheckCompletedRef = useRef(false)
+  const markedAsFailedRef = useRef(false)
 
   useEffect(() => {
+    // Mark order as widget_load_failed + rollback stock (with duplicate prevention)
+    const markAsFailed = async (reason: string) => {
+      if (markedAsFailedRef.current) return
+      markedAsFailedRef.current = true
+      clientLogger.warn('WIDGET:MARKET', 'Marking as widget_load_failed', { reason })
+
+      try {
+        await markMarketOrderWidgetFailed(paymentParams.orderReference)
+      } catch (err) {
+        clientLogger.error('WIDGET:MARKET', 'Failed to mark as widget_load_failed', {
+          error: err instanceof Error ? err.message : String(err),
+        })
+      }
+    }
+
+    // Listen for iframe load errors (403, network errors, etc.)
+    const handleWindowError = (event: ErrorEvent) => {
+      if (event.message && event.message.includes('wayforpay')) {
+        clientLogger.error('WIDGET:MARKET', 'Window error detected', { message: event.message })
+        if (!widgetOpenedRef.current && !hasRedirectedRef.current && !widgetEverDetectedRef.current) {
+          setError(t('errors.paymentLoadFailed'))
+          setIsLoading(false)
+          setIsRedirecting(false)
+          markAsFailed(`WayForPay iframe/script error: ${event.message}`)
+        }
+      }
+    }
+
+    // Check if WayForPay widget is open via DOM
+    const checkWidgetOpened = () => {
+      const wfpFrame = document.querySelector('iframe[src*="wayforpay"]')
+      const wfpOverlay = document.querySelector('.wfp-overlay, .wayforpay-overlay, [class*="wfp-"], [id*="wayforpay"]')
+      const wfpPopup = document.querySelector('[class*="wayforpay"], [class*="wfp"]')
+      const isOpen = !!(wfpFrame || wfpOverlay || wfpPopup)
+      if (isOpen) widgetEverDetectedRef.current = true
+      return isOpen
+    }
+
+    window.addEventListener('error', handleWindowError, true)
+
     const loadWayForPayScript = () => {
       if (scriptLoadedRef.current) {
         initializeWidget()
@@ -56,6 +105,7 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
       if (!navigator.onLine) {
         setError(tWidget('networkError'))
         setIsLoading(false)
+        markAsFailed('User is offline')
         return
       }
 
@@ -64,23 +114,25 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
       script.id = 'widget-wfp-script-market'
       script.async = true
 
-      const timeout = setTimeout(() => {
+      scriptLoadTimeoutRef.current = setTimeout(() => {
         if (!scriptLoadedRef.current) {
           setError(t('errors.paymentLoadFailed'))
           setIsLoading(false)
+          markAsFailed('Script load timeout (15s)')
         }
       }, 15000)
 
       script.onload = () => {
-        clearTimeout(timeout)
+        if (scriptLoadTimeoutRef.current) clearTimeout(scriptLoadTimeoutRef.current)
         scriptLoadedRef.current = true
         initializeWidget()
       }
 
       script.onerror = () => {
-        clearTimeout(timeout)
+        if (scriptLoadTimeoutRef.current) clearTimeout(scriptLoadTimeoutRef.current)
         setError(t('errors.paymentLoadFailed'))
         setIsLoading(false)
+        markAsFailed('Script load error')
       }
 
       document.body.appendChild(script)
@@ -90,20 +142,25 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
       if (!window.Wayforpay) {
         setError(t('errors.paymentLoadFailed'))
         setIsLoading(false)
+        markAsFailed('Wayforpay object not found after script load')
         return
       }
 
       try {
         const wayforpay = new window.Wayforpay()
+        widgetOpenedRef.current = false
 
         wayforpay.run(
           paymentParams,
           // Success
           function () {
-            hasRedirectedRef.current = true
+            widgetOpenedRef.current = true
+            if (widgetOpenCheckTimeoutRef.current) clearTimeout(widgetOpenCheckTimeoutRef.current)
           },
           // Failed
           function (response: any) {
+            widgetOpenedRef.current = true
+            if (widgetOpenCheckTimeoutRef.current) clearTimeout(widgetOpenCheckTimeoutRef.current)
             hasRedirectedRef.current = true
             setError(response.reason || t('errors.paymentFailed'))
             setIsLoading(false)
@@ -111,6 +168,8 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
           },
           // Pending
           function (response: any) {
+            widgetOpenedRef.current = true
+            if (widgetOpenCheckTimeoutRef.current) clearTimeout(widgetOpenCheckTimeoutRef.current)
             if (response && response.orderReference) {
               hasRedirectedRef.current = true
               if (paymentParams.returnUrl) {
@@ -120,6 +179,56 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
           }
         )
 
+        // Early detection: check DOM for widget elements
+        const doEarlyCheck = () => {
+          if (checkWidgetOpened()) {
+            if (earlyDetectionIntervalRef.current) {
+              clearInterval(earlyDetectionIntervalRef.current)
+              earlyDetectionIntervalRef.current = null
+            }
+            return true
+          }
+          return false
+        }
+
+        setTimeout(() => doEarlyCheck(), 50)
+        setTimeout(() => doEarlyCheck(), 150)
+        earlyDetectionIntervalRef.current = setInterval(() => { if (doEarlyCheck()) return }, 100)
+        setTimeout(() => {
+          if (earlyDetectionIntervalRef.current) {
+            clearInterval(earlyDetectionIntervalRef.current)
+            earlyDetectionIntervalRef.current = null
+          }
+        }, 2000)
+
+        // Desktop: 10s timeout to detect widget never appearing
+        if (!isMobile()) {
+          widgetOpenCheckTimeoutRef.current = setTimeout(() => {
+            if (earlyDetectionIntervalRef.current) {
+              clearInterval(earlyDetectionIntervalRef.current)
+              earlyDetectionIntervalRef.current = null
+            }
+            if (widgetCheckCompletedRef.current) return
+            widgetCheckCompletedRef.current = true
+
+            if (!widgetOpenedRef.current && !hasRedirectedRef.current) {
+              if (widgetEverDetectedRef.current) {
+                widgetOpenedRef.current = true
+              } else if (checkWidgetOpened()) {
+                widgetOpenedRef.current = true
+              } else {
+                clientLogger.error('WIDGET:MARKET', 'Widget failed to open', {
+                  message: 'No WayForPay elements detected after timeout',
+                })
+                setError(t('errors.paymentLoadFailed'))
+                setIsLoading(false)
+                setIsRedirecting(false)
+                markAsFailed('Desktop: Widget not detected in DOM after 10s timeout')
+              }
+            }
+          }, 10000)
+        }
+
         if (isMobile()) {
           setIsRedirecting(true)
           setIsLoading(false)
@@ -128,19 +237,35 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
             if (!hasRedirectedRef.current && !error) {
               setIsRedirecting(false)
               setError(tWidget('popupBlocked'))
+              if (!widgetOpenedRef.current && !widgetEverDetectedRef.current) {
+                const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
+                markAsFailed(`Mobile: Redirect timeout after 10s - popup likely blocked (UA: ${userAgent.substring(0, 50)})`)
+              }
             }
           }, 10000)
         } else {
           setIsLoading(false)
         }
       } catch (err) {
+        clientLogger.error('WIDGET:MARKET', 'Widget initialization error', {
+          error: err instanceof Error ? err.message : String(err),
+        })
         setError(t('errors.paymentLoadFailed'))
         setIsLoading(false)
+        setIsRedirecting(false)
+        markAsFailed(`Widget initialization error: ${err instanceof Error ? err.message : 'Unknown error'}`)
       }
     }
 
     loadWayForPayScript()
-  }, [paymentParams, t, tWidget, error])
+
+    return () => {
+      window.removeEventListener('error', handleWindowError, true)
+      if (scriptLoadTimeoutRef.current) clearTimeout(scriptLoadTimeoutRef.current)
+      if (widgetOpenCheckTimeoutRef.current) clearTimeout(widgetOpenCheckTimeoutRef.current)
+      if (earlyDetectionIntervalRef.current) clearInterval(earlyDetectionIntervalRef.current)
+    }
+  }, [paymentParams, t, tWidget])
 
   return (
     <div className="p-6 space-y-6">
@@ -205,7 +330,11 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
       {!isLoading && onBack && (
         <button
           type="button"
-          onClick={onBack}
+          onClick={async () => {
+            // 取消当前 pending 订单并回滚库存，防止 Back+Retry 重复扣减
+            await markMarketOrderWidgetFailed(paymentParams.orderReference)
+            onBack()
+          }}
           className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold
                    hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2 shadow-sm"
         >

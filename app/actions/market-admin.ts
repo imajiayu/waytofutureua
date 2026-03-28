@@ -3,11 +3,12 @@
 import { getAdminClient } from '@/lib/supabase/action-clients'
 import { createMarketItemSchema, updateOrderStatusSchema } from '@/lib/market/market-validations'
 import type { CreateMarketItemInput } from '@/lib/market/market-validations'
-import { isValidOrderTransition, needsTrackingNumber } from '@/lib/market/market-status'
+import { isValidOrderTransition, isValidItemTransition, needsTrackingNumber, needsFileUpload, getFileCategory } from '@/lib/market/market-status'
+import { getMarketOrderFiles } from '@/app/actions/market-order-files'
 import { logger } from '@/lib/logger'
 import type {
-  MarketItem, MarketOrder, MarketItemFilters,
-  MarketOrderFilters, MarketOrderStatus,
+  MarketItem, MarketItemStatus, MarketItemFilters,
+  AdminMarketOrder, MarketOrderFilters, MarketOrderStatus,
 } from '@/types/market'
 
 // ============================================
@@ -82,6 +83,24 @@ export async function updateMarketItem(
       return { success: false, error: 'No valid fields to update' }
     }
 
+    // 状态转换验证（对齐 updateMarketOrderStatus 模式）
+    if ('status' in safeUpdates) {
+      const { data: item } = await client
+        .from('market_items')
+        .select('status')
+        .eq('id', id)
+        .single()
+
+      if (!item) return { success: false, error: 'Item not found' }
+
+      const currentStatus = item.status as MarketItemStatus
+      const newStatus = safeUpdates.status as MarketItemStatus
+
+      if (!isValidItemTransition(currentStatus, newStatus)) {
+        return { success: false, error: `Invalid transition: ${currentStatus} → ${newStatus}` }
+      }
+    }
+
     const { error } = await client
       .from('market_items')
       .update(safeUpdates)
@@ -96,51 +115,26 @@ export async function updateMarketItem(
   }
 }
 
-export async function publishMarketItem(
+export async function deleteMarketItem(
   id: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const client = await getAdminClient()
 
-    const { data: item } = await client
+    // 原子操作：仅删除 draft 状态的商品，避免 TOCTOU 竞态
+    const { data, error } = await client
       .from('market_items')
-      .select('status')
+      .delete()
       .eq('id', id)
-      .single()
+      .eq('status', 'draft')
+      .select('id')
 
-    if (!item || item.status !== 'draft') {
-      return { success: false, error: 'Item not in draft status' }
+    if (error) return { success: false, error: error.message }
+    if (!data || data.length === 0) {
+      return { success: false, error: 'Item not found or not in draft status' }
     }
 
-    const { error } = await client
-      .from('market_items')
-      .update({ status: 'on_sale' })
-      .eq('id', id)
-
-    if (error) return { success: false, error: error.message }
-
-    logger.info('MARKET:ADMIN', 'Item published', { id })
-    return { success: true }
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed' }
-  }
-}
-
-export async function cancelMarketItem(
-  id: number
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const client = await getAdminClient()
-
-    const { error } = await client
-      .from('market_items')
-      .update({ status: 'off_shelf' })
-      .eq('id', id)
-      .in('status', ['on_sale'])
-
-    if (error) return { success: false, error: error.message }
-
-    logger.info('MARKET:ADMIN', 'Item shelved', { id })
+    logger.info('MARKET:ADMIN', 'Item deleted', { id })
     return { success: true }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed' }
@@ -153,12 +147,12 @@ export async function cancelMarketItem(
 
 export async function getAdminMarketOrders(
   filters?: MarketOrderFilters
-): Promise<{ orders: MarketOrder[]; error?: string }> {
+): Promise<{ orders: AdminMarketOrder[]; error?: string }> {
   try {
     const client = await getAdminClient()
     let query = client
       .from('market_orders')
-      .select('*')
+      .select('*, market_items(title_i18n)')
       .order('created_at', { ascending: false })
 
     if (filters?.status) query = query.eq('status', filters.status)
@@ -167,7 +161,7 @@ export async function getAdminMarketOrders(
 
     const { data, error } = await query
     if (error) return { orders: [], error: error.message }
-    return { orders: (data || []) as MarketOrder[] }
+    return { orders: (data || []) as AdminMarketOrder[] }
   } catch (err) {
     return { orders: [], error: err instanceof Error ? err.message : 'Unauthorized' }
   }
@@ -199,16 +193,36 @@ export async function updateMarketOrderStatus(
       return { success: false, error: 'Tracking number required for shipping' }
     }
 
+    // 检查文件上传要求（先上传文件，后转换状态）
+    if (needsFileUpload(currentStatus, newStatus)) {
+      const category = getFileCategory(currentStatus, newStatus)
+      if (category) {
+        const files = await getMarketOrderFiles(orderId, category)
+        const imageFiles = files.filter(f => f.contentType.startsWith('image/'))
+        if (imageFiles.length === 0) {
+          const label = category === 'shipping' ? 'shipping proof' : 'fund usage proof'
+          return { success: false, error: `At least one image is required as ${label} before this transition` }
+        }
+      }
+    }
+
     const updateData: Record<string, any> = { status: newStatus }
     if (meta?.tracking_number) updateData.tracking_number = meta.tracking_number
     if (meta?.tracking_carrier) updateData.tracking_carrier = meta.tracking_carrier
 
-    const { error } = await client
+    // 乐观锁：.eq('status', currentStatus) 确保 webhook 或其他 admin 未在期间改变状态
+    // 对齐同文件 deleteMarketItem 的原子化模式
+    const { data, error } = await client
       .from('market_orders')
       .update(updateData)
       .eq('id', orderId)
+      .eq('status', currentStatus)
+      .select('id')
 
     if (error) return { success: false, error: error.message }
+    if (!data || data.length === 0) {
+      return { success: false, error: 'Order status has changed (concurrent modification). Please refresh and retry.' }
+    }
 
     logger.info('MARKET:ADMIN', 'Order status updated', {
       orderId,

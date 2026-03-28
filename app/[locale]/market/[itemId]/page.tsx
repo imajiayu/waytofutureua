@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props) {
   const { item } = await getMarketItemById(Number(itemId))
   if (!item) return {}
 
-  const title = getTranslatedText(item.title_i18n, locale as SupportedLocale) || 'Item'
+  const title = getTranslatedText(item.title_i18n, null, locale as SupportedLocale) || 'Item'
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   return {

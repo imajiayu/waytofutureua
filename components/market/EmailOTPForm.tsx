@@ -12,19 +12,46 @@ interface EmailOTPFormProps {
   defaultEmail?: string
   /** 是否显示为紧凑模式（内嵌在其他表单中） */
   compact?: boolean
+  /** 深色主题（用于深色背景上，无需卡片包裹） */
+  dark?: boolean
 }
 
 type Step = 'email' | 'code'
 
 const COOLDOWN_SECONDS = 60
 
+// ── 主题样式 ──────────────────────────────────────
+const LIGHT = {
+  label: 'block text-sm font-medium text-gray-700 mb-1',
+  input: 'w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400',
+  codeInput: 'w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-[0.5em] font-mono text-gray-900 focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400',
+  button: 'w-full py-3 bg-ukraine-blue-500 text-white rounded-lg font-semibold hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2',
+  link: 'text-ukraine-blue-500 hover:text-ukraine-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors',
+  muted: 'text-gray-500 hover:text-gray-700 transition-colors',
+  hint: 'text-sm text-gray-600',
+  cancel: 'w-full py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors',
+}
+
+const DARK = {
+  label: 'block text-sm font-medium text-white/80 mb-1',
+  input: 'w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:ring-2 focus:ring-ukraine-gold-400/50 focus:border-transparent disabled:opacity-50',
+  codeInput: 'w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-center text-2xl tracking-[0.5em] font-mono text-white placeholder:text-white/40 focus:ring-2 focus:ring-ukraine-gold-400/50 focus:border-transparent disabled:opacity-50',
+  button: 'w-full py-3 bg-ukraine-gold-500 text-ukraine-blue-900 rounded-lg font-bold hover:bg-ukraine-gold-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-ukraine-gold-500/20 flex items-center justify-center gap-2',
+  link: 'text-ukraine-gold-300/80 hover:text-ukraine-gold-200 disabled:text-white/30 disabled:cursor-not-allowed transition-colors',
+  muted: 'text-white/50 hover:text-white/70 transition-colors',
+  hint: 'text-sm text-white/60',
+  cancel: 'w-full py-2 text-sm text-white/40 hover:text-white/70 transition-colors',
+}
+
 export default function EmailOTPForm({
   onSuccess,
   onCancel,
   defaultEmail = '',
   compact = false,
+  dark = false,
 }: EmailOTPFormProps) {
   const t = useTranslations('market.auth')
+  const s = dark ? DARK : LIGHT
 
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState(defaultEmail)
@@ -145,7 +172,7 @@ export default function EmailOTPForm({
         /* 邮箱输入阶段 */
         <div className="space-y-3">
           <div>
-            <label htmlFor="otp-email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="otp-email" className={s.label}>
               {t('enterEmail')}
             </label>
             <input
@@ -156,9 +183,7 @@ export default function EmailOTPForm({
               onKeyDown={e => e.key === 'Enter' && handleSendCode()}
               placeholder="email@example.com"
               disabled={isLoading}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900
-                       focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent
-                       disabled:bg-gray-50 disabled:text-gray-400"
+              className={s.input}
               autoComplete="email"
             />
           </div>
@@ -166,9 +191,7 @@ export default function EmailOTPForm({
           <button
             onClick={handleSendCode}
             disabled={isLoading || !email.trim()}
-            className="w-full py-3 bg-ukraine-blue-500 text-white rounded-lg font-semibold
-                     hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-colors flex items-center justify-center gap-2"
+            className={s.button}
           >
             {isLoading && <SpinnerIcon className="animate-spin h-4 w-4" />}
             {t('sendCode')}
@@ -177,12 +200,12 @@ export default function EmailOTPForm({
       ) : (
         /* 验证码输入阶段 */
         <div className="space-y-3">
-          <p className="text-sm text-gray-600">
+          <p className={s.hint}>
             {t('codeSent', { email: email.trim() })}
           </p>
 
           <div>
-            <label htmlFor="otp-code" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="otp-code" className={s.label}>
               {t('enterCode')}
             </label>
             <input
@@ -196,10 +219,7 @@ export default function EmailOTPForm({
               onKeyDown={e => e.key === 'Enter' && handleVerifyCode()}
               placeholder="000000"
               disabled={isLoading}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl
-                       tracking-[0.5em] font-mono text-gray-900
-                       focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent
-                       disabled:bg-gray-50 disabled:text-gray-400"
+              className={s.codeInput}
               autoComplete="one-time-code"
             />
           </div>
@@ -207,9 +227,7 @@ export default function EmailOTPForm({
           <button
             onClick={handleVerifyCode}
             disabled={isLoading || code.trim().length !== 6}
-            className="w-full py-3 bg-ukraine-blue-500 text-white rounded-lg font-semibold
-                     hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-colors flex items-center justify-center gap-2"
+            className={s.button}
           >
             {isLoading && <SpinnerIcon className="animate-spin h-4 w-4" />}
             {t('verify')}
@@ -220,8 +238,7 @@ export default function EmailOTPForm({
             <button
               onClick={handleResend}
               disabled={cooldown > 0 || isLoading}
-              className="text-ukraine-blue-500 hover:text-ukraine-blue-700 disabled:text-gray-400
-                       disabled:cursor-not-allowed transition-colors"
+              className={s.link}
             >
               {cooldown > 0 ? t('resendIn', { seconds: cooldown }) : t('resend')}
             </button>
@@ -229,7 +246,7 @@ export default function EmailOTPForm({
             <button
               onClick={() => { setStep('email'); setCode(''); setError(null) }}
               disabled={isLoading}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className={s.muted}
             >
               {t('changeEmail')}
             </button>
@@ -241,7 +258,7 @@ export default function EmailOTPForm({
       {onCancel && (
         <button
           onClick={onCancel}
-          className="w-full py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          className={s.cancel}
         >
           {t('cancel')}
         </button>

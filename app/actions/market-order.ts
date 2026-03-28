@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerClient, createServiceClient } from '@/lib/supabase/server'
+import { createServerClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import type { MarketOrder } from '@/types/market'
 
@@ -16,8 +16,7 @@ export async function getMyOrders(): Promise<{
     return { orders: [], error: 'not_authenticated' }
   }
 
-  const service = createServiceClient()
-  const { data, error } = await service
+  const { data, error } = await supabase
     .from('market_orders')
     .select('*')
     .eq('buyer_id', user.id)
@@ -42,8 +41,7 @@ export async function getOrderDetail(
     return { order: null, error: 'not_authenticated' }
   }
 
-  const service = createServiceClient()
-  const { data, error } = await service
+  const { data, error } = await supabase
     .from('market_orders')
     .select('*')
     .eq('order_reference', orderReference)

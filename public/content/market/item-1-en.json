@@ -1,0 +1,10 @@
+{
+  "images": {
+    "card": "/images/market/item-1/card.webp",
+    "detail": "/images/market/item-1/detail.webp"
+  },
+  "description": [
+    "A heartfelt artwork created by a Ukrainian child, expressing hope and resilience in the face of war.",
+    "All proceeds from this sale go directly to supporting rehabilitation programs for war-affected individuals in Ukraine."
+  ]
+}

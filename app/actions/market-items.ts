@@ -2,7 +2,7 @@
 
 import { createServerClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import type { MarketItem, PublicMarketItem, MarketItemFilters } from '@/types/market'
+import type { MarketItem, PublicMarketItem, PublicMarketOrderRecord, MarketItemFilters } from '@/types/market'
 
 // ============================================
 // 公开数据获取（无需认证）
@@ -32,7 +32,17 @@ export async function getPublicMarketItems(
       return { items: [], error: error.message }
     }
 
-    return { items: (data || []) as PublicMarketItem[] }
+    // 排序：on_sale 有货 → on_sale 售罄 → off_shelf，同组按创建时间倒序
+    const sorted = ((data || []) as PublicMarketItem[]).sort((a, b) => {
+      const priority = (item: PublicMarketItem) => {
+        if (item.status === 'on_sale' && item.stock_quantity !== null && item.stock_quantity > 0) return 0
+        if (item.status === 'on_sale') return 1
+        return 2 // off_shelf
+      }
+      return priority(a) - priority(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+
+    return { items: sorted }
   } catch (err) {
     logger.error('MARKET:ITEMS', 'Unexpected error', { error: err instanceof Error ? err.message : String(err) })
     return { items: [], error: 'Failed to load items' }
@@ -65,5 +75,41 @@ export async function getMarketItemById(
   } catch (err) {
     logger.error('MARKET:ITEMS', 'Unexpected error', { error: err instanceof Error ? err.message : String(err) })
     return { item: null, error: 'Failed to load item' }
+  }
+}
+
+/** 获取商品的公开购买记录（通过 market_orders_public 视图，邮箱已在 SQL 层脱敏） */
+export async function getPublicMarketOrders(
+  itemId: number
+): Promise<{ orders: PublicMarketOrderRecord[]; error?: string }> {
+  try {
+    const supabase = await createServerClient()
+
+    // 视图尚未在 database.ts 类型中注册（需 supabase gen types 后更新），使用类型断言
+    const { data, error } = await (supabase as any)
+      .from('market_orders_public')
+      .select('*')
+      .eq('item_id', itemId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      logger.error('MARKET:ITEMS', 'Failed to fetch public orders', { itemId, error: error.message })
+      return { orders: [], error: error.message }
+    }
+
+    // 映射视图字段到前端类型
+    const orders: PublicMarketOrderRecord[] = (data || []).map((d: any) => ({
+      order_reference: d.order_reference,
+      buyer_email_masked: d.buyer_email_obfuscated,
+      quantity: d.quantity,
+      total_amount: d.total_amount,
+      status: d.status,
+      created_at: d.created_at,
+    }))
+
+    return { orders }
+  } catch (err) {
+    logger.error('MARKET:ITEMS', 'Unexpected error fetching orders', { error: err instanceof Error ? err.message : String(err) })
+    return { orders: [], error: 'Failed to load purchase records' }
   }
 }

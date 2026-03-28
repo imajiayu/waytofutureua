@@ -2,10 +2,16 @@
 
 import { useState } from 'react'
 import { getTranslatedText } from '@/lib/i18n-utils'
-import { ITEM_STATUS_COLORS } from '@/lib/market/market-status'
+import { ITEM_STATUS_COLORS, getNextItemStatuses } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
-import { getAdminMarketItems, publishMarketItem, cancelMarketItem } from '@/app/actions/market-admin'
+import {
+  getAdminMarketItems,
+  updateMarketItem,
+  deleteMarketItem,
+} from '@/app/actions/market-admin'
 import type { MarketItem } from '@/types/market'
+import MarketItemCreateModal from './MarketItemCreateModal'
+import MarketItemEditModal from './MarketItemEditModal'
 
 interface MarketItemsTableProps {
   initialItems: MarketItem[]
@@ -14,29 +20,54 @@ interface MarketItemsTableProps {
 export default function MarketItemsTable({ initialItems }: MarketItemsTableProps) {
   const [items, setItems] = useState(initialItems)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
+  const [editingItem, setEditingItem] = useState<MarketItem | null>(null)
 
   const refresh = async () => {
     const { items: fresh } = await getAdminMarketItems()
     setItems(fresh)
   }
 
-  const handlePublish = async (id: number) => {
+  const handleStatusChange = async (id: number, newStatus: string) => {
     setActionLoading(id)
-    await publishMarketItem(id)
+    await updateMarketItem(id, { status: newStatus } as Partial<MarketItem>)
     await refresh()
     setActionLoading(null)
   }
 
-  const handleCancel = async (id: number) => {
-    if (!confirm('Cancel this item?')) return
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this draft item? This cannot be undone.')) return
     setActionLoading(id)
-    await cancelMarketItem(id)
-    await refresh()
+    const { error } = await deleteMarketItem(id)
+    if (error) {
+      alert(error)
+    } else {
+      setItems(items.filter(i => i.id !== id))
+    }
     setActionLoading(null)
+  }
+
+  const handleCreated = (item: MarketItem) => {
+    setItems([item, ...items])
+    setIsCreating(false)
+  }
+
+  const handleSaved = (updated: MarketItem) => {
+    setItems(items.map(i => i.id === updated.id ? updated : i))
+    setEditingItem(null)
   }
 
   return (
     <div className="space-y-4">
+      <div className="mb-4">
+        <button
+          onClick={() => setIsCreating(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Create New Item
+        </button>
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -44,7 +75,6 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -53,16 +83,12 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
           <tbody className="bg-white divide-y divide-gray-200">
             {items.map(item => {
               const colors = ITEM_STATUS_COLORS[item.status]
+              const nextStatuses = getNextItemStatuses(item.status)
               return (
                 <tr key={item.id}>
                   <td className="px-4 py-3 text-sm text-gray-500 font-mono">{item.id}</td>
                   <td className="px-4 py-3 text-sm text-gray-900 font-medium max-w-[200px] truncate">
-                    {getTranslatedText(item.title_i18n, 'en') || '—'}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                      Sale
-                    </span>
+                    {getTranslatedText(item.title_i18n, null, 'en') || '—'}
                   </td>
                   <td className="px-4 py-3 text-sm font-data">
                     {formatMarketPrice(item.fixed_price || 0, item.currency)}
@@ -80,24 +106,29 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm space-x-2">
-                    {item.status === 'draft' && (
+                    <button
+                      onClick={() => setEditingItem(item)}
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      Edit
+                    </button>
+                    {nextStatuses.map(status => (
                       <button
-                        onClick={() => handlePublish(item.id)}
+                        key={status}
+                        onClick={() => handleStatusChange(item.id, status)}
                         disabled={actionLoading === item.id}
                         className="text-blue-600 hover:text-blue-800 disabled:opacity-50"
                       >
-                        Publish
+                        &rarr; {status}
                       </button>
-                    )}
-                    {item.status === 'on_sale' && (
-                      <button
-                        onClick={() => handleCancel(item.id)}
-                        disabled={actionLoading === item.id}
-                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                    )}
+                    ))}
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      disabled={actionLoading === item.id}
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               )
@@ -108,6 +139,21 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
 
       {items.length === 0 && (
         <div className="text-center py-8 text-gray-400">No items found</div>
+      )}
+
+      {isCreating && (
+        <MarketItemCreateModal
+          onClose={() => setIsCreating(false)}
+          onCreated={handleCreated}
+        />
+      )}
+
+      {editingItem && (
+        <MarketItemEditModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSaved={handleSaved}
+        />
       )}
     </div>
   )
