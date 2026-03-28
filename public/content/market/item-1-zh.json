@@ -3,8 +3,5 @@
     "card": "/images/market/item-1/card.webp",
     "detail": "/images/market/item-1/detail.webp"
   },
-  "description": [
-    "一件由乌克兰儿童创作的作品，表达了在战争中对希望与坚韧的追求。",
-    "本次义卖所得将全部用于支持乌克兰战争受害者的康复项目。"
-  ]
+  "description": []
 }

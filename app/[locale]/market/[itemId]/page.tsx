@@ -37,7 +37,7 @@ export default async function MarketItemPage({ params }: Props) {
   if (!item || error === 'not_found') notFound()
 
   return (
-    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <MarketItemDetail item={item} locale={locale} />
     </main>
   )

@@ -1,13 +1,18 @@
-# NGO 平台 - 数据库架构文档
+# 捐赠模块 - 数据库架构文档
 
 ## 概述
 
-本文档记录 NGO 平台数据库的完整架构，基于 `supabase/migrations/20260109000000_baseline.sql` 生成。
+本文档记录 NGO 平台**捐赠模块**数据库的完整架构，基于 baseline 迁移及后续增量迁移文件。
 
-**最后更新**: 2026-01-09
-**Baseline 文件**: `supabase/migrations/20260109000000_baseline.sql`
+**最后更新**: 2026-03-28
+**迁移文件**:
+- `supabase/migrations/20260109000000_baseline.sql`（基线）
+- `supabase/migrations/20260121000000_drop_description_i18n.sql`
+- `supabase/migrations/20260121100000_fix_aggregate_progress_calculation.sql`
+- `supabase/migrations/20260328100000_drop_progress_percentage.sql`
+- `supabase/migrations/20260329100000_fix_is_admin_check.sql`
 
-> **注意**: 如需了解完整的 SQL 定义，请直接查看 baseline 文件。
+> **注意**: 如需了解完整的 SQL 定义，请直接查看迁移文件。
 
 ---
 
@@ -150,7 +155,10 @@
 提供项目聚合统计，包含所有 projects 字段加上：
 - `total_raised`: 筹款总额（仅计算 paid/confirmed/delivering/completed）
 - `donation_count`: 交易数（按 order_reference 去重）
-- `progress_percentage`: 进度百分比
+
+> **注意**: 进度百分比由前端 `lib/project-utils.ts` 计算，不在视图中提供。
+> - 聚合项目: `total_raised / target_units`（金额/目标金额）
+> - 非聚合项目: `current_units / target_units`（单位数/目标单位数）
 
 ### 2. `public_project_donations` - 公开捐赠视图
 
@@ -175,15 +183,28 @@
 |------|------|------|------|
 | `generate_donation_public_id` | project_id BIGINT | TEXT | 生成唯一捐赠ID `{项目ID}-{6位码}` |
 | `get_donations_by_email_verified` | email TEXT, donation_id TEXT | TABLE | 验证后返回该邮箱所有捐赠（含 aggregate_donations） |
-| `is_admin` | - | BOOLEAN | 检查是否已登录（auth.uid() IS NOT NULL） |
+| `is_admin` | - | BOOLEAN | 检查当前用户邮箱是否在管理员白名单中 |
 | `upsert_email_subscription` | email TEXT, locale TEXT | BIGINT | 订阅或更新邮件订阅（幂等操作） |
 | `unsubscribe_email` | email TEXT | BOOLEAN | 取消订阅 |
+
+#### `is_admin()` 实现细节
+
+```sql
+-- 通过 auth.jwt() ->> 'email' 检查邮箱白名单
+-- 初期使用硬编码邮箱列表，后续可改为配置表
+RETURN coalesce(
+  auth.jwt() ->> 'email' IN ('admin@example.com'),
+  false
+);
+```
+
+> **安全说明**: 义卖市场引入 Email OTP 认证后，`is_admin()` 从简单的 `auth.uid() IS NOT NULL` 改为邮箱白名单检查，防止普通买家被当作管理员。
 
 ### 触发器函数（7个）
 
 | 函数 | 说明 |
 |------|------|
-| `update_updated_at_column` | 自动更新 updated_at 为 NOW() |
+| `update_updated_at_column` | 自动更新 updated_at 为 NOW()（被多个表复用） |
 | `update_project_units` | 根据捐赠状态变化自动更新项目 current_units |
 | `prevent_project_immutable_fields` | 保护项目不可变字段 (id, created_at, aggregate_donations, is_long_term) |
 | `prevent_donation_immutable_fields` | 保护捐赠不可变字段 + 验证管理员状态转换 |
@@ -315,5 +336,5 @@ Supabase 客户端
 
 ---
 
-**文档版本**: 3.0.0
-**基于**: `20260109000000_baseline.sql`
+**文档版本**: 4.0.0
+**基于**: baseline + 4 个增量迁移

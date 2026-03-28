@@ -122,13 +122,15 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
                         &rarr; {status}
                       </button>
                     ))}
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      disabled={actionLoading === item.id}
-                      className="text-red-600 hover:text-red-800 disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
+                    {item.status === 'draft' && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        disabled={actionLoading === item.id}
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               )
