@@ -45,6 +45,7 @@
     "home": "Home",
     "projects": "Projects",
     "donate": "Donate",
+    "market": "Market",
     "trackDonation": "Track Donation",
     "about": "About",
     "contact": "Contact",
@@ -919,6 +920,95 @@
     "error": {
       "title": "Unsubscribe Failed",
       "message": "We couldn't process your unsubscribe request. Please try again later or contact us for assistance."
+    }
+  },
+  "market": {
+    "title": "Charity Market",
+    "subtitle": "Support our mission through purchasing or bidding on unique items",
+    "description": "Browse charity sale items and auctions",
+    "emptyState": "No items available at the moment",
+    "common": {
+      "back": "Back"
+    },
+    "sale": {
+      "label": "Sale",
+      "price": "Price",
+      "buyNow": "Buy Now",
+      "inStock": "{count} in stock",
+      "outOfStock": "Out of Stock",
+      "quantity": "Quantity"
+    },
+    "order": {
+      "trackOrder": "Track Order",
+      "myOrders": "My Orders",
+      "noOrders": "No orders found",
+      "orderReference": "Order #",
+      "orderStatus": "Order Status",
+      "shippingAddress": "Shipping Address",
+      "shippingTo": "Ship to",
+      "trackingNumber": "Tracking #",
+      "item": "Item",
+      "total": "Total"
+    },
+    "auth": {
+      "title": "Verify Your Email",
+      "subtitle": "Enter your email to continue",
+      "enterEmail": "Email address",
+      "sendCode": "Send Verification Code",
+      "enterCode": "Verification code",
+      "verify": "Verify",
+      "codeSent": "Code sent to {email}",
+      "resendIn": "Resend in {seconds}s",
+      "resend": "Resend code",
+      "changeEmail": "Change email",
+      "cancel": "Cancel",
+      "rateLimited": "Too many requests. Please wait.",
+      "codeExpired": "Code expired. Please request a new one.",
+      "invalidCode": "Invalid code. Please try again.",
+      "sendFailed": "Failed to send code",
+      "invalidEmail": "Please enter a valid email address",
+      "verifyFailed": "Verification failed"
+    },
+    "checkout": {
+      "pay": "Pay",
+      "redirecting": "Redirecting to payment...",
+      "paymentTitle": "Complete Payment",
+      "total": "Total",
+      "loading": "Loading payment..."
+    },
+    "success": {
+      "title": "Order Confirmed!",
+      "description": "Thank you for your purchase. You will receive a confirmation email shortly.",
+      "continueBrowsing": "Continue Browsing"
+    },
+    "status": {
+      "draft": "Draft",
+      "on_sale": "On Sale",
+      "off_shelf": "Off Shelf",
+      "pending": "Pending",
+      "widget_load_failed": "Load Failed",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "completed": "Completed",
+      "expired": "Expired",
+      "declined": "Declined"
+    },
+    "shipping": {
+      "title": "Shipping Address",
+      "name": "Full Name",
+      "addressLine1": "Address Line 1",
+      "addressLine2": "Address Line 2 (Optional)",
+      "city": "City",
+      "state": "State / Province",
+      "postalCode": "Postal Code",
+      "country": "Country (2-letter code)"
+    },
+    "errors": {
+      "insufficientStock": "Sorry, this item is no longer available in the requested quantity.",
+      "notAuthenticated": "Please verify your email first.",
+      "checkoutFailed": "Unable to create checkout. Please try again.",
+      "paymentLoadFailed": "Payment system failed to load. Please try again.",
+      "paymentFailed": "Payment failed. Please try again."
     }
   }
 }

@@ -67,6 +67,12 @@ export default function Navigation() {
     router.push('/track-donation')
   }
 
+  const handleMarketClick = () => {
+    if (pathname === '/market') return
+    setIsNavigating(true)
+    router.push('/market')
+  }
+
   const handleLogoClick = () => {
     // 如果当前已经在首页，不执行任何操作
     if (pathname === '/') {
@@ -106,6 +112,12 @@ export default function Navigation() {
           <div className="flex items-center space-x-3">
             {/* Action Buttons (Desktop) */}
             <div className="hidden md:flex items-center space-x-3">
+              <button
+                onClick={handleMarketClick}
+                className="px-5 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-ukraine-gold-300 hover:text-ukraine-gold-700 hover:bg-ukraine-gold-50 transition-all duration-200"
+              >
+                {t('market')}
+              </button>
               <button
                 onClick={handleTrackDonation}
                 className="px-5 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-ukraine-blue-300 hover:text-ukraine-blue-700 hover:bg-ukraine-blue-50 transition-all duration-200"
@@ -211,6 +223,12 @@ export default function Navigation() {
 
         {/* Mobile: Action Buttons Row */}
         <div className="md:hidden pb-3 pt-1 flex items-center justify-center space-x-3 px-4">
+          <button
+            onClick={handleMarketClick}
+            className="flex-1 px-4 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg active:border-ukraine-gold-300 active:text-ukraine-gold-700 active:bg-ukraine-gold-50 transition-all duration-200"
+          >
+            {t('market')}
+          </button>
           <button
             onClick={handleTrackDonation}
             className="flex-1 px-4 py-2 text-sm font-semibold tracking-wide text-gray-700 bg-white border-2 border-gray-300 rounded-lg active:border-ukraine-blue-300 active:text-ukraine-blue-700 active:bg-ukraine-blue-50 transition-all duration-200"

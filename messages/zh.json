@@ -45,6 +45,7 @@
     "home": "首页",
     "projects": "项目",
     "donate": "捐赠",
+    "market": "义卖市集",
     "trackDonation": "查询捐赠",
     "about": "关于",
     "contact": "联系",
@@ -919,6 +920,95 @@
     "error": {
       "title": "取消订阅失败",
       "message": "我们无法处理您的取消订阅请求。请稍后重试或联系我们寻求帮助。"
+    }
+  },
+  "market": {
+    "title": "慈善市集",
+    "subtitle": "通过购买或竞拍独特物品支持我们的公益事业",
+    "description": "浏览义卖商品和拍卖活动",
+    "emptyState": "暂无可用商品",
+    "common": {
+      "back": "返回"
+    },
+    "sale": {
+      "label": "义卖",
+      "price": "价格",
+      "buyNow": "立即购买",
+      "inStock": "库存 {count} 件",
+      "outOfStock": "已售罄",
+      "quantity": "数量"
+    },
+    "order": {
+      "trackOrder": "查询订单",
+      "myOrders": "我的订单",
+      "noOrders": "暂无订单",
+      "orderReference": "订单号",
+      "orderStatus": "订单状态",
+      "shippingAddress": "收货地址",
+      "shippingTo": "寄送至",
+      "trackingNumber": "快递单号",
+      "item": "商品",
+      "total": "总计"
+    },
+    "auth": {
+      "title": "验证邮箱",
+      "subtitle": "输入邮箱以继续",
+      "enterEmail": "邮箱地址",
+      "sendCode": "发送验证码",
+      "enterCode": "验证码",
+      "verify": "验证",
+      "codeSent": "验证码已发送至 {email}",
+      "resendIn": "{seconds}秒后可重发",
+      "resend": "重新发送",
+      "changeEmail": "更换邮箱",
+      "cancel": "取消",
+      "rateLimited": "请求过于频繁，请稍候。",
+      "codeExpired": "验证码已过期，请重新获取。",
+      "invalidCode": "验证码无效，请重试。",
+      "sendFailed": "发送验证码失败",
+      "invalidEmail": "请输入有效的邮箱地址",
+      "verifyFailed": "验证失败"
+    },
+    "checkout": {
+      "pay": "支付",
+      "redirecting": "正在跳转支付页面...",
+      "paymentTitle": "完成支付",
+      "total": "合计",
+      "loading": "正在加载支付..."
+    },
+    "success": {
+      "title": "订单已确认！",
+      "description": "感谢您的购买，确认邮件将稍后发送。",
+      "continueBrowsing": "继续浏览"
+    },
+    "status": {
+      "draft": "草稿",
+      "on_sale": "在售",
+      "off_shelf": "已下架",
+      "pending": "待支付",
+      "widget_load_failed": "加载失败",
+      "paid": "已支付",
+      "shipped": "已发货",
+      "completed": "已完成",
+      "expired": "已过期",
+      "declined": "已拒绝"
+    },
+    "shipping": {
+      "title": "收货地址",
+      "name": "收件人姓名",
+      "addressLine1": "地址行 1",
+      "addressLine2": "地址行 2（选填）",
+      "city": "城市",
+      "state": "州/省",
+      "postalCode": "邮政编码",
+      "country": "国家（2位代码）"
+    },
+    "errors": {
+      "insufficientStock": "抱歉，商品库存不足。",
+      "notAuthenticated": "请先验证邮箱。",
+      "checkoutFailed": "创建订单失败，请重试。",
+      "paymentLoadFailed": "支付系统加载失败，请重试。",
+      "paymentFailed": "支付失败，请重试。"
     }
   }
 }

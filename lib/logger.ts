@@ -35,6 +35,14 @@ export type LogCategory =
   | 'REDIRECT'
   | 'REFUND'
   | 'API'
+  // Market module
+  | 'MARKET:ADMIN'
+  | 'MARKET:AUTH'
+  | 'MARKET:EMAIL'
+  | 'MARKET:ITEMS'
+  | 'MARKET:ORDER'
+  | 'MARKET:SALE'
+  | 'WEBHOOK:WAYFORPAY-MARKET'
 
 export interface LogContext {
   [key: string]: unknown

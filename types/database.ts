@@ -191,6 +191,154 @@ export type Database = {
         }
         Relationships: []
       }
+      market_items: {
+        Row: {
+          created_at: string | null
+          currency: string
+          fixed_price: number
+          id: number
+          status: string
+          stock_quantity: number
+          title_i18n: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string
+          fixed_price: number
+          id?: number
+          status?: string
+          stock_quantity: number
+          title_i18n: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string
+          fixed_price?: number
+          id?: number
+          status?: string
+          stock_quantity?: number
+          title_i18n?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      market_order_status_history: {
+        Row: {
+          changed_at: string | null
+          from_status: string | null
+          id: number
+          order_id: number
+          to_status: string
+        }
+        Insert: {
+          changed_at?: string | null
+          from_status?: string | null
+          id?: number
+          order_id: number
+          to_status: string
+        }
+        Update: {
+          changed_at?: string | null
+          from_status?: string | null
+          id?: number
+          order_id?: number
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "market_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_orders: {
+        Row: {
+          buyer_email: string
+          buyer_id: string
+          created_at: string | null
+          id: number
+          item_id: number
+          locale: string
+          order_reference: string
+          payment_method: string
+          quantity: number
+          shipping_address_line1: string
+          shipping_address_line2: string | null
+          shipping_city: string
+          shipping_country: string
+          shipping_name: string
+          shipping_postal_code: string
+          shipping_state: string | null
+          status: string
+          total_amount: number
+          tracking_carrier: string | null
+          tracking_number: string | null
+          unit_price: number
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_email: string
+          buyer_id: string
+          created_at?: string | null
+          id?: number
+          item_id: number
+          locale?: string
+          order_reference: string
+          payment_method?: string
+          quantity?: number
+          shipping_address_line1: string
+          shipping_address_line2?: string | null
+          shipping_city: string
+          shipping_country: string
+          shipping_name: string
+          shipping_postal_code: string
+          shipping_state?: string | null
+          status?: string
+          total_amount: number
+          tracking_carrier?: string | null
+          tracking_number?: string | null
+          unit_price: number
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_email?: string
+          buyer_id?: string
+          created_at?: string | null
+          id?: number
+          item_id?: number
+          locale?: string
+          order_reference?: string
+          payment_method?: string
+          quantity?: number
+          shipping_address_line1?: string
+          shipping_address_line2?: string | null
+          shipping_city?: string
+          shipping_country?: string
+          shipping_name?: string
+          shipping_postal_code?: string
+          shipping_state?: string | null
+          status?: string
+          total_amount?: number
+          tracking_carrier?: string | null
+          tracking_number?: string | null
+          unit_price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_orders_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           aggregate_donations: boolean
@@ -282,7 +430,6 @@ export type Database = {
           is_long_term: boolean | null
           location: string | null
           location_i18n: Json | null
-          progress_percentage: number | null
           project_name: string | null
           project_name_i18n: Json | null
           start_date: string | null
@@ -358,6 +505,10 @@ export type Database = {
       }
     }
     Functions: {
+      decrement_stock: {
+        Args: { p_item_id: number; p_quantity: number }
+        Returns: boolean
+      }
       generate_donation_public_id: {
         Args: { project_id_input: number }
         Returns: string
@@ -385,6 +536,10 @@ export type Database = {
         }[]
       }
       is_admin: { Args: never; Returns: boolean }
+      restore_stock: {
+        Args: { p_item_id: number; p_quantity: number }
+        Returns: undefined
+      }
       unsubscribe_email: { Args: { p_email: string }; Returns: boolean }
       upsert_email_subscription: {
         Args: { p_email: string; p_locale: string }
