@@ -53,6 +53,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://secure.wayforpay.com blob:",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
+              "media-src 'self' https://*.supabase.co blob:",
               "connect-src 'self' https://secure.wayforpay.com https://*.supabase.co wss://*.supabase.co",
               "frame-src 'self' https://secure.wayforpay.com",
               "form-action 'self' https://secure.wayforpay.com",
