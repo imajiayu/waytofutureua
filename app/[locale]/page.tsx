@@ -1,6 +1,4 @@
 import { Suspense } from 'react'
-import { readFile } from 'fs/promises'
-import path from 'path'
 import { getTranslations } from 'next-intl/server'
 import { BASE_URL, getAlternates } from '@/lib/constants'
 import { locales } from '@/i18n/config'
@@ -11,8 +9,6 @@ import ImpactSection from '@/components/home/ImpactSection'
 import DonationJourneySection from '@/components/home/DonationJourneySection'
 import ComplianceSection from '@/components/home/ComplianceSection'
 import ProjectResultsSection from '@/components/home/ProjectResultsSection'
-import type { ProjectResult } from '@/types'
-import { logger } from '@/lib/logger'
 
 type Props = {
   params: { locale: string }
@@ -47,20 +43,6 @@ export async function generateMetadata({
 
 export default async function Home({ params }: Props) {
   const t = await getTranslations('home.hero.projects')
-  const { locale } = params
-
-  // Load home marquee results from dedicated JSON file
-  const projectResults: ProjectResult[] = []
-  try {
-    const filePath = path.join(process.cwd(), 'public', 'content', 'home', `marquee-${locale}.json`)
-    const fileContent = await readFile(filePath, 'utf-8')
-    const data = JSON.parse(fileContent)
-    if (data.results && data.results.length > 0) {
-      projectResults.push(...data.results)
-    }
-  } catch (error) {
-    logger.errorWithStack('DB', 'Error loading home marquee', error)
-  }
 
   return (
     <div className="w-full">
@@ -106,7 +88,7 @@ export default async function Home({ params }: Props) {
         </section>
 
         {/* Section 5: Project Results */}
-        <ProjectResultsSection results={projectResults} locale={locale} />
+        <ProjectResultsSection />
 
         {/* Section 6: Donation Journey */}
         <DonationJourneySection />

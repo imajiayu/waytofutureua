@@ -21,8 +21,6 @@ module.exports = {
       animation: {
         snowfall: 'snowfall linear infinite',
         twinkle: 'twinkle 2s ease-in-out infinite',
-        marquee: 'marquee linear infinite',
-        'marquee-reverse': 'marquee-reverse linear infinite',
         'steam-rise': 'steam-rise ease-out infinite',
       },
       keyframes: {
@@ -35,14 +33,6 @@ module.exports = {
         twinkle: {
           '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
           '50%': { opacity: '1', transform: 'scale(1.2)' },
-        },
-        marquee: {
-          '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-50%)' },
-        },
-        'marquee-reverse': {
-          '0%': { transform: 'translateX(-50%)' },
-          '100%': { transform: 'translateX(0)' },
         },
         'steam-rise': {
           '0%': { opacity: '0', transform: 'translateY(0) scale(1)' },

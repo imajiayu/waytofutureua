@@ -43,133 +43,509 @@
     {
       "shelter": "Shelter",
       "children": [
-        {"name": "Vanya", "gift": "LEGO"},
-        {"name": "Bohdana", "gift": "Large doll"},
-        {"name": "Max", "gift": "FNAF toy"},
-        {"name": "Kolya (elder)", "gift": "FNAF toy/game"},
-        {"name": "Kolya (younger)", "gift": "Remote control car"},
-        {"name": "Dasha", "gift": "Slime, makeup bag"},
-        {"name": "Dima", "gift": "Nerf pistol"},
-        {"name": "Dima S.", "gift": "Nerf pistol"},
-        {"name": "Roma", "gift": "Nerf pistol"},
-        {"name": "Afelia", "gift": "Doll"},
-        {"name": "Denys", "gift": "LEGO car"},
-        {"name": "Pasha", "gift": "LEGO City"},
-        {"name": "Vitalina", "gift": "Large Kinder"},
-        {"name": "Andriy", "gift": "Nerf pistol"},
-        {"name": "Nikita", "gift": "Large Kinder"},
-        {"name": "Yasia", "gift": "Pillow toy"},
-        {"name": "Nastya", "gift": "Plush teddy bear"},
-        {"name": "Sashko", "gift": "Large Kinder"}
+        {
+          "name": "Vanya",
+          "gift": "LEGO"
+        },
+        {
+          "name": "Bohdana",
+          "gift": "Large doll"
+        },
+        {
+          "name": "Max",
+          "gift": "FNAF toy"
+        },
+        {
+          "name": "Kolya (elder)",
+          "gift": "FNAF toy/game"
+        },
+        {
+          "name": "Kolya (younger)",
+          "gift": "Remote control car"
+        },
+        {
+          "name": "Dasha",
+          "gift": "Slime, makeup bag"
+        },
+        {
+          "name": "Dima",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Dima S.",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Roma",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Afelia",
+          "gift": "Doll"
+        },
+        {
+          "name": "Denys",
+          "gift": "LEGO car"
+        },
+        {
+          "name": "Pasha",
+          "gift": "LEGO City"
+        },
+        {
+          "name": "Vitalina",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Andriy",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Nikita",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Yasia",
+          "gift": "Pillow toy"
+        },
+        {
+          "name": "Nastya",
+          "gift": "Plush teddy bear"
+        },
+        {
+          "name": "Sashko",
+          "gift": "Large Kinder"
+        }
       ]
     },
     {
       "shelter": "Sunflower Shelter",
       "children": [
-        {"name": "Artem", "gift": "LEGO constructor"},
-        {"name": "Sofia", "gift": "Large doll"},
-        {"name": "Maksym", "gift": "FNAF toy"},
-        {"name": "Illia", "gift": "FNAF toy/game"},
-        {"name": "Tymur", "gift": "Remote control car"},
-        {"name": "Anastasiia", "gift": "Slime, makeup bag"},
-        {"name": "Denys", "gift": "Nerf pistol"},
-        {"name": "Marko", "gift": "Nerf pistol"},
-        {"name": "Oleksandr", "gift": "Nerf pistol"},
-        {"name": "Yeva", "gift": "Doll"},
-        {"name": "Vladyslav", "gift": "LEGO car"},
-        {"name": "Kateryna", "gift": "LEGO City"},
-        {"name": "Viktoriia", "gift": "Large Kinder"},
-        {"name": "Andriy", "gift": "Nerf pistol"},
-        {"name": "Nikita", "gift": "Large Kinder"},
-        {"name": "Yana", "gift": "Pillow toy"},
-        {"name": "Nastya", "gift": "Plush teddy bear"},
-        {"name": "Sava", "gift": "Large Kinder"},
-        {"name": "Bohdan", "gift": "LEGO constructor"},
-        {"name": "Liza", "gift": "Large doll"},
-        {"name": "Pavlo", "gift": "FNAF toy"},
-        {"name": "Oleh", "gift": "FNAF toy/game"},
-        {"name": "Mariia", "gift": "Remote control car"},
-        {"name": "Iryna", "gift": "Slime, makeup bag"},
-        {"name": "Arsen", "gift": "Nerf pistol"},
-        {"name": "Taras", "gift": "Nerf pistol"},
-        {"name": "Liliia", "gift": "Doll"},
-        {"name": "Mykyta", "gift": "LEGO car"},
-        {"name": "Sofia", "gift": "LEGO City"},
-        {"name": "Dmytro", "gift": "Large Kinder"},
-        {"name": "Valeriia", "gift": "Pillow toy"},
-        {"name": "Yehor", "gift": "Large Kinder"},
-        {"name": "Vlada", "gift": "Plush teddy bear"},{"name": "Marko", "gift": "Nerf pistol"}
+        {
+          "name": "Artem",
+          "gift": "LEGO constructor"
+        },
+        {
+          "name": "Sofia",
+          "gift": "Large doll"
+        },
+        {
+          "name": "Maksym",
+          "gift": "FNAF toy"
+        },
+        {
+          "name": "Illia",
+          "gift": "FNAF toy/game"
+        },
+        {
+          "name": "Tymur",
+          "gift": "Remote control car"
+        },
+        {
+          "name": "Anastasiia",
+          "gift": "Slime, makeup bag"
+        },
+        {
+          "name": "Denys",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Marko",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Oleksandr",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Yeva",
+          "gift": "Doll"
+        },
+        {
+          "name": "Vladyslav",
+          "gift": "LEGO car"
+        },
+        {
+          "name": "Kateryna",
+          "gift": "LEGO City"
+        },
+        {
+          "name": "Viktoriia",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Andriy",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Nikita",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Yana",
+          "gift": "Pillow toy"
+        },
+        {
+          "name": "Nastya",
+          "gift": "Plush teddy bear"
+        },
+        {
+          "name": "Sava",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Bohdan",
+          "gift": "LEGO constructor"
+        },
+        {
+          "name": "Liza",
+          "gift": "Large doll"
+        },
+        {
+          "name": "Pavlo",
+          "gift": "FNAF toy"
+        },
+        {
+          "name": "Oleh",
+          "gift": "FNAF toy/game"
+        },
+        {
+          "name": "Mariia",
+          "gift": "Remote control car"
+        },
+        {
+          "name": "Iryna",
+          "gift": "Slime, makeup bag"
+        },
+        {
+          "name": "Arsen",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Taras",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Liliia",
+          "gift": "Doll"
+        },
+        {
+          "name": "Mykyta",
+          "gift": "LEGO car"
+        },
+        {
+          "name": "Sofia",
+          "gift": "LEGO City"
+        },
+        {
+          "name": "Dmytro",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Valeriia",
+          "gift": "Pillow toy"
+        },
+        {
+          "name": "Yehor",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Vlada",
+          "gift": "Plush teddy bear"
+        },
+        {
+          "name": "Marko",
+          "gift": "Nerf pistol"
+        }
       ]
     },
     {
       "shelter": "Rainbow Mother and Child Home",
       "children": [
-        {"name": "Anton", "gift": "LEGO constructor"},
-        {"name": "Maryna", "gift": "Large doll"},
-        {"name": "Ivan", "gift": "FNAF toy"},
-        {"name": "Oleh", "gift": "FNAF toy/game"},
-        {"name": "Artem", "gift": "Remote control car"},
-        {"name": "Kateryna", "gift": "Slime, makeup bag"},
-        {"name": "Denys", "gift": "Nerf pistol"},
-        {"name": "Sofia", "gift": "Nerf pistol"},
-        {"name": "Roman", "gift": "Nerf pistol"},
-        {"name": "Alina", "gift": "Doll"},
-        {"name": "Vladyslav", "gift": "LEGO car"},
-        {"name": "Polina", "gift": "LEGO City"},
-        {"name": "Vitaliia", "gift": "Large Kinder"},
-        {"name": "Andriy", "gift": "Nerf pistol"},
-        {"name": "Nikita", "gift": "Large Kinder"},
-        {"name": "Yana", "gift": "Pillow toy"},
-        {"name": "Nastya", "gift": "Plush teddy bear"},
-        {"name": "Sashko", "gift": "Large Kinder"}
+        {
+          "name": "Anton",
+          "gift": "LEGO constructor"
+        },
+        {
+          "name": "Maryna",
+          "gift": "Large doll"
+        },
+        {
+          "name": "Ivan",
+          "gift": "FNAF toy"
+        },
+        {
+          "name": "Oleh",
+          "gift": "FNAF toy/game"
+        },
+        {
+          "name": "Artem",
+          "gift": "Remote control car"
+        },
+        {
+          "name": "Kateryna",
+          "gift": "Slime, makeup bag"
+        },
+        {
+          "name": "Denys",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Sofia",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Roman",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Alina",
+          "gift": "Doll"
+        },
+        {
+          "name": "Vladyslav",
+          "gift": "LEGO car"
+        },
+        {
+          "name": "Polina",
+          "gift": "LEGO City"
+        },
+        {
+          "name": "Vitaliia",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Andriy",
+          "gift": "Nerf pistol"
+        },
+        {
+          "name": "Nikita",
+          "gift": "Large Kinder"
+        },
+        {
+          "name": "Yana",
+          "gift": "Pillow toy"
+        },
+        {
+          "name": "Nastya",
+          "gift": "Plush teddy bear"
+        },
+        {
+          "name": "Sashko",
+          "gift": "Large Kinder"
+        }
       ]
     }
   ],
   "results": [
-    {"imageUrl": "/images/projects/project-3/results/group-photo-0.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 10},
-    {"imageUrl": "/images/projects/project-3/results/group-photo-1.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 9},
-    {"imageUrl": "/images/projects/project-3/results/group-photo-2.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 8},
-    {"imageUrl": "/images/projects/project-3/results/group-photo-3.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 9},
-    {"imageUrl": "/images/projects/project-3/results/delivery-1.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-18", "priority": 7},
-    {"imageUrl": "/images/projects/project-3/results/activity-2.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 6},
-    {"imageUrl": "/images/projects/project-3/results/activity-3.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-4.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 6},
-    {"imageUrl": "/images/projects/project-3/results/activity-5.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 7},
-    {"imageUrl": "/images/projects/project-3/results/activity-6.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-7.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-8.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-9.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 6},
-    {"imageUrl": "/images/projects/project-3/results/activity-10.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-11.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-12.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-13.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-14.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-15.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-16.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-17.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-18.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-19.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-20.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-21.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-22.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-23.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-24.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-25.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-26.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-27.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 5},
-    {"imageUrl": "/images/projects/project-3/results/activity-28.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-29.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-30.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-31.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-32.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 4},
-    {"imageUrl": "/images/projects/project-3/results/activity-33.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-34.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 2},
-    {"imageUrl": "/images/projects/project-3/results/activity-35.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-36.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 2},
-    {"imageUrl": "/images/projects/project-3/results/activity-37.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-38.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 2},
-    {"imageUrl": "/images/projects/project-3/results/activity-39.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 3},
-    {"imageUrl": "/images/projects/project-3/results/activity-40.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 2},
-    {"imageUrl": "/images/projects/project-3/results/activity-41.webp", "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro", "date": "2024-12-25", "priority": 1}
+    {
+      "imageUrl": "/images/projects/project-3/results/group-photo-1.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 10
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/group-photo-3.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 9
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-2.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 6
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-3.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-4.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 6
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-5.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 7
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-6.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-7.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-8.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-9.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 6
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-10.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-11.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-12.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-13.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-14.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-15.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-16.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-17.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-18.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-19.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-20.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-21.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-22.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-23.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-24.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-25.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-26.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-27.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 5
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-28.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-29.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-30.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-31.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-32.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 4
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-33.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-34.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 2
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-35.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-36.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 2
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-37.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-38.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 2
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-39.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 3
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-40.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 2
+    },
+    {
+      "imageUrl": "/images/projects/project-3/results/activity-41.webp",
+      "caption": "2025 Christmas Gift Package Project for Orphans in Dnipro",
+      "priority": 1
+    }
   ]
 }

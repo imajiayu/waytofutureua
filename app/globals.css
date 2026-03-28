@@ -44,9 +44,5 @@ body {
     scrollbar-width: none;  /* Firefox */
   }
 
-  /* Pause animation on hover (for marquee etc.) */
-  .hover\:pause-animation:hover {
-    animation-play-state: paused;
-  }
 }
 

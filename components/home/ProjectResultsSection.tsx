@@ -1,16 +1,10 @@
+'use client'
+
 import { useTranslations } from 'next-intl'
-import ProjectResultsMarquee from '@/components/projects/ProjectResultsMarquee'
-import type { ProjectResult } from '@/types'
+import ProjectResultsMosaic from './ProjectResultsMosaic'
 
-type Props = {
-  results: ProjectResult[]
-  locale: string
-}
-
-export default function ProjectResultsSection({ results, locale }: Props) {
+export default function ProjectResultsSection() {
   const t = useTranslations('home.hero')
-
-  if (results.length === 0) return null
 
   return (
     <section className="relative pt-12 md:pt-16">
@@ -27,7 +21,7 @@ export default function ProjectResultsSection({ results, locale }: Props) {
           </p>
         </div>
       </div>
-      <ProjectResultsMarquee results={results} rowCount={3} pixelsPerSecond={50} />
+      <ProjectResultsMosaic />
     </section>
   )
 }
