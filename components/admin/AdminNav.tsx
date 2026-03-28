@@ -38,12 +38,12 @@ export default function AdminNav() {
       <GlobalLoadingSpinner isLoading={isNavigating} loadingText="Loading..." />
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
+          <div className="flex justify-between h-14 sm:h-16">
+            <div className="flex min-w-0">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold font-body">Admin Panel</h1>
+                <h1 className="text-base sm:text-xl font-bold font-body whitespace-nowrap">Admin</h1>
               </div>
-              <div className="ml-6 flex space-x-8">
+              <div className="ml-3 sm:ml-6 flex space-x-3 sm:space-x-8 overflow-x-auto">
                 {navItems.map((item) => (
                   <button
                     key={item.href}

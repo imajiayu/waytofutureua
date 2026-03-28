@@ -69,8 +69,8 @@ export default function DonationStatusProgress({
   }
 
   return (
-    <div className="py-6">
-      <div className="flex items-center justify-between">
+    <div className="py-4 sm:py-6">
+      <div className="flex items-center justify-between overflow-x-auto pb-2">
         {NORMAL_FLOW_STATUSES.map((status, index) => {
           const state = getStatusState(status.key, index)
           const isClickable = state === 'next' && onStatusSelect
@@ -87,8 +87,8 @@ export default function DonationStatusProgress({
                   onClick={() => isClickable && onStatusSelect(status.key)}
                   disabled={!isClickable}
                   className={`
-                    w-10 h-10 rounded-full border-2 flex items-center justify-center
-                    transition-all duration-200 z-10
+                    w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center
+                    transition-all duration-200 z-10 flex-shrink-0
                     ${styles.circle}
                   `}
                   title={
@@ -115,14 +115,14 @@ export default function DonationStatusProgress({
                 </button>
 
                 {/* Label */}
-                <span className={`mt-2 text-xs text-center whitespace-nowrap ${styles.label}`}>
+                <span className={`mt-1 sm:mt-2 text-[10px] sm:text-xs text-center whitespace-nowrap ${styles.label}`}>
                   {status.label}
                 </span>
               </div>
 
               {/* Connecting Line */}
               {!isLast && (
-                <div className="flex-1 h-0.5 mx-2 relative -top-5">
+                <div className="flex-1 h-0.5 mx-1 sm:mx-2 relative -top-4 sm:-top-5 min-w-4">
                   <div className={`h-full ${styles.line}`} />
                 </div>
               )}

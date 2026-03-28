@@ -102,7 +102,7 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
             {/* Pricing & Units */}
             <div className="border-b pb-4">
               <h3 className="text-lg font-semibold mb-3 font-body">Pricing & Units</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Unit Price *
@@ -148,7 +148,7 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
             {/* Timeline & Project Type */}
             <div className="border-b pb-4">
               <h3 className="text-lg font-semibold mb-3 font-body">Timeline & Project Type</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Start Date *
@@ -174,7 +174,7 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 space-y-3 bg-blue-50 p-4 rounded-lg">
+                <div className="sm:col-span-2 space-y-3 bg-blue-50 p-4 rounded-lg">
                   <p className="text-sm font-medium text-blue-900 mb-2">
                     Project Configuration (Can only be set during creation)
                   </p>

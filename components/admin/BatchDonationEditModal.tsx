@@ -123,7 +123,7 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
           <div className="mb-6">
             <div className="bg-white rounded-lg p-4 border border-gray-200">
               <h3 className="text-sm font-semibold text-gray-700 mb-3 font-body">Selected Donations</h3>
-              <div className="max-h-64 overflow-y-auto">
+              <div className="max-h-64 overflow-y-auto overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>

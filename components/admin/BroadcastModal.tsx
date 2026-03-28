@@ -235,11 +235,11 @@ export default function BroadcastModal({
 
         {/* Modal */}
         <div
-          className={`relative bg-white rounded-lg shadow-xl ${showPreview ? 'max-w-4xl' : 'max-w-lg'} w-full p-6 space-y-4 transition-all duration-300 max-h-[90vh] overflow-y-auto`}
+          className={`relative bg-white rounded-lg shadow-xl ${showPreview ? 'max-w-4xl' : 'max-w-lg'} w-full p-4 sm:p-6 space-y-4 transition-all duration-300 max-h-[90vh] overflow-y-auto`}
         >
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900 font-body">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 font-body">
               {showPreview ? 'Email Preview' : 'Send Newsletter Broadcast'}
             </h2>
             <button
@@ -282,7 +282,7 @@ export default function BroadcastModal({
                 </div>
                 <iframe
                   srcDoc={previewHtml || ''}
-                  className="w-full h-[500px] bg-white"
+                  className="w-full h-[300px] sm:h-[500px] bg-white"
                   title="Email Preview"
                 />
               </div>

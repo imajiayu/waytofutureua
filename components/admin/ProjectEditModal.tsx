@@ -45,7 +45,7 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
     <AdminBaseModal title={`Edit Project #${project.id}`} onClose={onClose} error={error}>
       {/* Read-only fields */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-2 text-sm">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <span className="font-medium text-gray-700">ID:</span>
                 <span className="ml-2 text-gray-900">{project.id}</span>
@@ -130,7 +130,7 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
             {/* Pricing & Units */}
             <div className="border-b pb-4">
               <h3 className="text-lg font-semibold mb-3 font-body">Pricing & Units</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Unit Price *
@@ -176,7 +176,7 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
             {/* Dates */}
             <div className="border-b pb-4">
               <h3 className="text-lg font-semibold mb-3 font-body">Timeline</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Start Date *
