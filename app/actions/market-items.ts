@@ -103,6 +103,7 @@ export async function getPublicMarketOrders(
       buyer_email_masked: d.buyer_email_obfuscated,
       quantity: d.quantity,
       total_amount: d.total_amount,
+      currency: d.currency || 'USD',
       status: d.status,
       created_at: d.created_at,
     }))

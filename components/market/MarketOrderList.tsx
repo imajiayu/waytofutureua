@@ -72,7 +72,7 @@ export default function MarketOrderList({ itemId }: Props) {
                 <tr key={order.order_reference} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-4 px-4 text-sm text-gray-600">{order.buyer_email_masked}</td>
                   <td className="py-4 px-4 text-sm font-medium text-gray-900 font-data">
-                    {formatMarketPrice(order.total_amount, 'USD')}
+                    {formatMarketPrice(order.total_amount, order.currency)}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-600">{order.quantity}</td>
                   <td className="py-4 px-4">
@@ -103,7 +103,7 @@ export default function MarketOrderList({ itemId }: Props) {
             <div key={order.order_reference} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-bold text-gray-900 font-data">
-                  {formatMarketPrice(order.total_amount, 'USD')}
+                  {formatMarketPrice(order.total_amount, order.currency)}
                   {order.quantity > 1 && <span className="text-gray-500 font-normal ml-1">× {order.quantity}</span>}
                 </span>
                 {colors && (

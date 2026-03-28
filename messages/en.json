@@ -998,9 +998,21 @@
       "loading": "Loading payment..."
     },
     "success": {
-      "title": "Order Confirmed!",
-      "description": "Thank you for your purchase. You will receive a confirmation email shortly.",
-      "continueBrowsing": "Continue Browsing"
+      "continueBrowsing": "Continue Browsing",
+      "processing": {
+        "title": "Order Submitted",
+        "description": "Your payment is being processed. We'll update your order once payment is confirmed.",
+        "emailReminder": "We'll send you a confirmation email to {email} once payment is verified."
+      },
+      "confirmed": {
+        "title": "Payment Confirmed!",
+        "description": "Thank you for your purchase! Your payment has been successfully processed.",
+        "emailSent": "A confirmation email has been sent to {email}."
+      },
+      "failed": {
+        "title": "Payment Unsuccessful",
+        "description": "Unfortunately, your payment was not completed. Please try again or contact us for help."
+      }
     },
     "status": {
       "draft": "Draft",

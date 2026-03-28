@@ -58,8 +58,9 @@ export async function createSaleOrder(
     return { success: false, error: 'item_has_no_price' }
   }
 
-  // 4. 原子扣减库存（RPC SECURITY DEFINER, 已 GRANT 给 authenticated）
-  const { data: decremented, error: stockError } = await supabase
+  // 4. 原子扣减库存（RPC SECURITY DEFINER, 仅 service_role 可调用）
+  const service = createServiceClient()
+  const { data: decremented, error: stockError } = await service
     .rpc('decrement_stock', { p_item_id: itemId, p_quantity: quantity })
 
   if (stockError || !decremented) {
@@ -70,6 +71,7 @@ export async function createSaleOrder(
   // 5. 生成订单编号
   const orderReference = `MKT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
   const totalAmount = typedItem.fixed_price * quantity
+  const currency = typedItem.currency || 'USD'
   const itemTitle = getTranslatedText(typedItem.title_i18n, null, locale as SupportedLocale) || 'Item'
 
   // 6. 创建订单（RLS: buyer_id = auth.uid() AND status = 'pending'）
@@ -83,6 +85,7 @@ export async function createSaleOrder(
       quantity,
       unit_price: typedItem.fixed_price,
       total_amount: totalAmount,
+      currency,
       payment_method: 'wayforpay',
       shipping_name: shipping.name,
       shipping_address_line1: shipping.address_line1,

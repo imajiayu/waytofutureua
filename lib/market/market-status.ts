@@ -59,7 +59,23 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 ] as const
 
 // ============================================
-// 4. 判断函数
+// 4. 订单状态分组（成功页展示）
+// ============================================
+
+export type OrderStatusGroup = 'processing' | 'success' | 'failed'
+
+const FAILED_ORDER_STATUSES: MarketOrderStatus[] = ['expired', 'declined']
+const SUCCESS_ORDER_STATUSES: MarketOrderStatus[] = ['paid', 'shipped', 'completed']
+
+/** 获取订单状态所属的分组（用于成功页显示） */
+export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup {
+  if (FAILED_ORDER_STATUSES.includes(status)) return 'failed'
+  if (SUCCESS_ORDER_STATUSES.includes(status)) return 'success'
+  return 'processing'
+}
+
+// ============================================
+// 5. 判断函数
 // ============================================
 
 export function canPurchase(status: MarketItemStatus): boolean {

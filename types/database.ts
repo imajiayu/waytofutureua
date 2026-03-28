@@ -261,6 +261,7 @@ export type Database = {
           buyer_email: string
           buyer_id: string
           created_at: string | null
+          currency: string
           id: number
           item_id: number
           locale: string
@@ -285,6 +286,7 @@ export type Database = {
           buyer_email: string
           buyer_id: string
           created_at?: string | null
+          currency?: string
           id?: number
           item_id: number
           locale?: string
@@ -309,6 +311,7 @@ export type Database = {
           buyer_email?: string
           buyer_id?: string
           created_at?: string | null
+          currency?: string
           id?: number
           item_id?: number
           locale?: string

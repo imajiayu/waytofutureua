@@ -998,9 +998,21 @@
       "loading": "正在加载支付..."
     },
     "success": {
-      "title": "订单已确认！",
-      "description": "感谢您的购买，确认邮件将稍后发送。",
-      "continueBrowsing": "继续浏览"
+      "continueBrowsing": "继续浏览",
+      "processing": {
+        "title": "订单已提交",
+        "description": "您的付款正在处理中，确认到账后我们会更新订单状态。",
+        "emailReminder": "付款确认后，我们会发送邮件通知到 {email}。"
+      },
+      "confirmed": {
+        "title": "付款成功！",
+        "description": "感谢您的购买！付款已成功处理。",
+        "emailSent": "确认邮件已发送至 {email}。"
+      },
+      "failed": {
+        "title": "付款未成功",
+        "description": "很抱歉，您的付款未完成。请重试或联系我们获取帮助。"
+      }
     },
     "status": {
       "draft": "草稿",

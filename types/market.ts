@@ -61,6 +61,7 @@ export interface MarketOrder {
   total_amount: number
 
   // 支付
+  currency: string
   payment_method: string
 
   // 收货地址
@@ -161,6 +162,7 @@ export interface PublicMarketOrderRecord {
   buyer_email_masked: string
   quantity: number
   total_amount: number
+  currency: string
   status: string
   created_at: string
 }

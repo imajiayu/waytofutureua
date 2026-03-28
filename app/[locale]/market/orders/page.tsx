@@ -226,7 +226,7 @@ export default function MarketOrdersPage() {
                     )}
                   </span>
                   <span className="text-lg font-bold text-ukraine-blue-600 font-data">
-                    {formatMarketPrice(order.total_amount, 'USD')}
+                    {formatMarketPrice(order.total_amount, order.currency)}
                   </span>
                 </div>
 

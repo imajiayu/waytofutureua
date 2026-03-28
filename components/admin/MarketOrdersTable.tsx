@@ -83,7 +83,7 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
                     {itemTitle || <span className="text-gray-400 font-mono">#{order.item_id}</span>}
                   </td>
                   <td className="px-4 py-3 text-sm font-data">
-                    {formatMarketPrice(order.total_amount, 'USD')}
+                    {formatMarketPrice(order.total_amount, order.currency)}
                     {order.quantity > 1 && <span className="text-gray-400 ml-1">&times;{order.quantity}</span>}
                   </td>
                   <td className="px-4 py-3 text-sm">

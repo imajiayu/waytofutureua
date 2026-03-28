@@ -198,7 +198,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
               {quantity}
             </span>
             <button
-              onClick={() => setQuantity(q => Math.min(item.stock_quantity || 99, q + 1))}
+              onClick={() => setQuantity(q => Math.min(item.stock_quantity ?? 99, q + 1))}
               className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
             >
               +

@@ -20,7 +20,7 @@ interface Props {
   onSaved: () => void
 }
 
-const VALID_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime']
+const VALID_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime']
 const MAX_SIZE = 50 * 1024 * 1024
 
 const CATEGORY_LABELS: Record<MarketOrderFileCategory, string> = {
@@ -370,7 +370,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
               </h3>
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
+                accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
                 onChange={handleTransitionFileChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 required
@@ -464,7 +464,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                   <input
                     id="mgmt-file-input"
                     type="file"
-                    accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
+                    accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
                     onChange={handleMgmtFileChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     disabled={uploading}

@@ -83,7 +83,8 @@ export async function updateMarketItem(
       return { success: false, error: 'No valid fields to update' }
     }
 
-    // 状态转换验证（对齐 updateMarketOrderStatus 模式）
+    // 状态转换验证 + 乐观锁（对齐 updateMarketOrderStatus 模式）
+    let currentStatus: MarketItemStatus | null = null
     if ('status' in safeUpdates) {
       const { data: item } = await client
         .from('market_items')
@@ -93,7 +94,7 @@ export async function updateMarketItem(
 
       if (!item) return { success: false, error: 'Item not found' }
 
-      const currentStatus = item.status as MarketItemStatus
+      currentStatus = item.status as MarketItemStatus
       const newStatus = safeUpdates.status as MarketItemStatus
 
       if (!isValidItemTransition(currentStatus, newStatus)) {
@@ -101,12 +102,16 @@ export async function updateMarketItem(
       }
     }
 
-    const { error } = await client
-      .from('market_items')
-      .update(safeUpdates)
-      .eq('id', id)
+    let query = client.from('market_items').update(safeUpdates).eq('id', id)
+    if (currentStatus) {
+      query = query.eq('status', currentStatus)
+    }
+    const { data, error } = await query.select('id')
 
     if (error) return { success: false, error: error.message }
+    if (currentStatus && (!data || data.length === 0)) {
+      return { success: false, error: 'Item status has changed (concurrent modification). Please refresh and retry.' }
+    }
 
     logger.info('MARKET:ADMIN', 'Item updated', { id })
     return { success: true }
