@@ -999,7 +999,8 @@
       "redirecting": "正在跳转支付页面...",
       "paymentTitle": "完成支付",
       "total": "合计",
-      "loading": "正在加载支付..."
+      "loading": "正在加载支付...",
+      "modifyAndRetry": "修改信息并重试"
     },
     "success": {
       "continueBrowsing": "继续浏览",
@@ -1040,7 +1041,15 @@
       "state": "州/省",
       "postalCode": "邮政编码",
       "country": "国家",
-      "selectCountry": "选择国家"
+      "selectCountry": "选择国家",
+      "errors": {
+        "nameMin": "至少 2 个字符",
+        "phoneMin": "请输入有效的手机号码",
+        "addressMin": "至少 5 个字符",
+        "cityMin": "至少 2 个字符",
+        "postalCodeMin": "至少 3 个字符",
+        "countryRequired": "请选择国家"
+      }
     },
     "proof": {
       "shippingProof": "物流凭证",

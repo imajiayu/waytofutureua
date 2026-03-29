@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { markMarketOrderWidgetFailed } from '@/app/actions/market-sale'
+import { markMarketOrderWidgetFailed, cancelMarketOrder } from '@/app/actions/market-sale'
 import { clientLogger } from '@/lib/logger-client'
 import { SpinnerIcon } from '@/components/icons'
 
@@ -336,12 +336,12 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
           </div>
         )}
 
-        {/* ── Back button ── */}
+        {/* ── Modify & Retry button ── */}
         {!isLoading && onBack && (
           <button
             type="button"
             onClick={async () => {
-              await markMarketOrderWidgetFailed(paymentParams.orderReference)
+              await cancelMarketOrder(paymentParams.orderReference)
               onBack()
             }}
             className="w-full py-3 border border-gray-200 text-gray-600 rounded-xl font-medium text-sm
@@ -349,9 +349,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
                      flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
             </svg>
-            {t('common.back')}
+            {t('checkout.modifyAndRetry')}
           </button>
         )}
 

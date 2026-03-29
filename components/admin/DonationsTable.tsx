@@ -165,13 +165,19 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
               >
                 <option value="all">All</option>
                 <option value="pending">Pending</option>
+                <option value="widget_load_failed">Widget Load Failed</option>
+                <option value="processing">Processing</option>
+                <option value="fraud_check">Fraud Check</option>
                 <option value="paid">Paid</option>
                 <option value="confirmed">Confirmed</option>
                 <option value="delivering">Delivering</option>
                 <option value="completed">Completed</option>
-                <option value="refunding">Refunding</option>
-                <option value="refunded">Refunded</option>
+                <option value="expired">Expired</option>
+                <option value="declined">Declined</option>
                 <option value="failed">Failed</option>
+                <option value="refunding">Refunding</option>
+                <option value="refund_processing">Refund Processing</option>
+                <option value="refunded">Refunded</option>
               </select>
             </div>
 

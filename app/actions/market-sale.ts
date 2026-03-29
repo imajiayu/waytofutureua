@@ -203,6 +203,58 @@ export async function markMarketOrderWidgetFailed(
   }
 }
 
+/**
+ * 买家主动取消 pending 订单（标记为 expired）并回滚库存
+ *
+ * 场景：支付页面用户点击"修改信息并重试"按钮。
+ * 通过 RLS 策略保护：仅允许 buyer_id = auth.uid() 且 status = 'pending' → 'expired'
+ */
+export async function cancelMarketOrder(
+  orderReference: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createServerClient()
+
+    const { data, error } = await supabase
+      .from('market_orders')
+      .update({ status: 'expired' })
+      .eq('order_reference', orderReference)
+      .eq('status', 'pending')
+      .select('item_id, quantity')
+
+    if (error) {
+      logger.error('MARKET:SALE', 'Failed to cancel order (expired)', {
+        orderReference, error: error.message,
+      })
+      return { success: false, error: error.message }
+    }
+
+    if (!data || data.length === 0) {
+      logger.debug('MARKET:SALE', 'No pending order to cancel', { orderReference })
+      return { success: true }
+    }
+
+    const service = createServiceClient()
+    const order = data[0]
+    const restored = await restoreStock(service, order.item_id, order.quantity)
+    if (!restored) {
+      logger.error('MARKET:SALE', 'cancel order: stock restore FAILED', {
+        orderReference, itemId: order.item_id, quantity: order.quantity,
+      })
+    }
+
+    logger.info('MARKET:SALE', 'Order cancelled (expired) + stock rolled back', {
+      orderReference, itemId: order.item_id, quantity: order.quantity,
+    })
+    return { success: true }
+  } catch (error) {
+    logger.error('MARKET:SALE', 'cancelMarketOrder failed', {
+      orderReference, error: error instanceof Error ? error.message : String(error),
+    })
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
 /** 原子恢复库存，返回是否成功 */
 async function restoreStock(
   service: ReturnType<typeof createServiceClient>,

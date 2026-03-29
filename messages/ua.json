@@ -999,7 +999,8 @@
       "redirecting": "Перенаправлення на оплату...",
       "paymentTitle": "Завершити оплату",
       "total": "Разом",
-      "loading": "Завантаження оплати..."
+      "loading": "Завантаження оплати...",
+      "modifyAndRetry": "Змінити дані та повторити"
     },
     "success": {
       "continueBrowsing": "Продовжити перегляд",
@@ -1040,7 +1041,15 @@
       "state": "Область",
       "postalCode": "Поштовий індекс",
       "country": "Країна",
-      "selectCountry": "Оберіть країну"
+      "selectCountry": "Оберіть країну",
+      "errors": {
+        "nameMin": "Мінімум 2 символи",
+        "phoneMin": "Введіть дійсний номер телефону",
+        "addressMin": "Мінімум 5 символів",
+        "cityMin": "Мінімум 2 символи",
+        "postalCodeMin": "Мінімум 3 символи",
+        "countryRequired": "Оберіть країну"
+      }
     },
     "proof": {
       "shippingProof": "Підтвердження доставки",

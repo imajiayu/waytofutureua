@@ -143,6 +143,29 @@ export async function POST(req: Request) {
 
         if (fromWidgetFailed && fromWidgetFailed.length > 0) {
           actualPreviousStatus = 'widget_load_failed'
+        } else if (newStatus === 'paid') {
+          // 尝试 3: 从 expired 恢复（cron 已将 pending 清理为 expired，但用户实际完成了支付）
+          const { data: fromExpired, error: expiredError } = await service
+            .from('market_orders')
+            .update({ status: newStatus })
+            .eq('order_reference', orderReference)
+            .eq('status', 'expired')
+            .select('id')
+
+          if (expiredError) {
+            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from expired failed', {
+              orderReference,
+              error: expiredError.message,
+            })
+            return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
+          }
+
+          if (fromExpired && fromExpired.length > 0) {
+            actualPreviousStatus = 'expired'
+            logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Recovering expired order — payment arrived after cron cleanup', {
+              orderReference,
+            })
+          }
         }
       }
 
@@ -168,29 +191,30 @@ export async function POST(req: Request) {
       // | pending               | expired/declined  | 回滚库存           |
       // | widget_load_failed    | paid              | 重新扣减库存        |
       // | widget_load_failed    | expired/declined  | 无（已回滚过）      |
+      // | expired               | paid              | 重新扣减库存        |
 
-      const wasWidgetFailed = actualPreviousStatus === 'widget_load_failed'
+      const needsReDecrement = (actualPreviousStatus === 'widget_load_failed' || actualPreviousStatus === 'expired') && newStatus === 'paid'
 
-      if (wasWidgetFailed && newStatus === 'paid') {
-        // 从 widget_load_failed 恢复为 paid — 库存已回滚，需重新扣减
+      if (needsReDecrement) {
+        // 从 widget_load_failed 或 expired 恢复为 paid — 库存已回滚，需重新扣减
         const { data: decremented, error: decrementError } = await service
           .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
 
         if (decrementError || !decremented) {
-          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock FAILED after widget_load_failed recovery — manual intervention needed', {
+          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock FAILED after recovery — manual intervention needed', {
             orderReference,
             itemId: order.item_id,
             quantity: order.quantity,
             error: decrementError?.message,
           })
         } else {
-          logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented after widget_load_failed recovery', {
+          logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented after recovery', {
             orderReference,
             itemId: order.item_id,
             quantity: order.quantity,
           })
         }
-      } else if (!wasWidgetFailed && shouldRollbackStock) {
+      } else if (actualPreviousStatus === 'pending' && shouldRollbackStock) {
         // 从 pending 变为 expired/declined — 正常回滚库存
         const { error: rollbackError } = await service.rpc('restore_stock', {
           p_item_id: order.item_id,
@@ -211,7 +235,7 @@ export async function POST(req: Request) {
           })
         }
       }
-      // wasWidgetFailed && shouldRollbackStock → 无操作（库存已在 markMarketOrderWidgetFailed 中回滚）
+      // widget_load_failed/expired + shouldRollbackStock → 无操作（库存已回滚过）
 
       // TODO: Phase 5 — 支付成功时发送确认邮件
     }

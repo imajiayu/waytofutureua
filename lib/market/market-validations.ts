@@ -14,13 +14,16 @@ const i18nTextSchema = z.object({
 })
 
 export const shippingAddressSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  phone: z.string().min(1, 'Phone is required').max(30),
-  address_line1: z.string().min(1, 'Address is required').max(200),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  phone: z.string().max(30).refine(
+    val => val.replace(/\D/g, '').length >= 7,
+    'Valid phone number is required',
+  ),
+  address_line1: z.string().min(5, 'Address must be at least 5 characters').max(200),
   address_line2: z.string().max(200).optional(),
-  city: z.string().min(1, 'City is required').max(100),
+  city: z.string().min(2, 'City must be at least 2 characters').max(100),
   state: z.string().max(100).optional(),
-  postal_code: z.string().min(1, 'Postal code is required').max(20),
+  postal_code: z.string().min(3, 'Postal code must be at least 3 characters').max(20),
   country: z.string().min(2, 'Country is required').max(2),
 })
 

@@ -999,7 +999,8 @@
       "redirecting": "Redirecting to payment...",
       "paymentTitle": "Complete Payment",
       "total": "Total",
-      "loading": "Loading payment..."
+      "loading": "Loading payment...",
+      "modifyAndRetry": "Modify Info & Retry"
     },
     "success": {
       "continueBrowsing": "Continue Browsing",
@@ -1040,7 +1041,15 @@
       "state": "State / Province",
       "postalCode": "Postal Code",
       "country": "Country",
-      "selectCountry": "Select country"
+      "selectCountry": "Select country",
+      "errors": {
+        "nameMin": "At least 2 characters",
+        "phoneMin": "Please enter a valid phone number",
+        "addressMin": "At least 5 characters",
+        "cityMin": "At least 2 characters",
+        "postalCodeMin": "At least 3 characters",
+        "countryRequired": "Please select a country"
+      }
     },
     "proof": {
       "shippingProof": "Shipping Proof",

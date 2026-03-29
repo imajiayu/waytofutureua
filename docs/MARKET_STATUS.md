@@ -183,7 +183,11 @@ export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup
 │       ▼                      │         +发货凭证                  │
 │  ┌────────────────┐          │                                    │
 │  │widget_load_    │── Webhook┘                                    │
-│  │   failed       │                                               │
+│  │   failed       │          │                                    │
+│  └────────────────┘          │                                    │
+│                              │                                    │
+│  ┌────────────────┐          │                                    │
+│  │   expired      │── Webhook┘  (Cron 清理后 Webhook 恢复)        │
 │  └────────────────┘                                               │
 │                                                                   │
 └─────────────────────────────────────────────────────────────────┘
@@ -193,6 +197,7 @@ export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                   │
 │  pending ─── Webhook ──▶ expired     (库存恢复)                   │
+│          └── pg_cron 10m ▶ expired   (库存恢复)                   │
 │                     └──▶ declined    (库存恢复)                   │
 │                                                                   │
 │  widget_load_failed ──▶ expired      (无需恢复，已恢复)            │
@@ -230,6 +235,9 @@ export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup
 |----------|--------|-----------|------------|
 | pending | ✅ | ✅ (恢复库存) | ✅ (恢复库存) |
 | widget_load_failed | ✅ (重新扣减库存) | ✅ (无需恢复) | ✅ (无需恢复) |
+| expired | ✅ (重新扣减库存) | - | - |
+
+> **expired → paid 恢复路径**: 当 Cron 将超时订单标记为 expired 后，若 WayForPay 延迟发来 `Approved` 回调，Webhook 会将订单从 expired 恢复为 paid 并重新扣减库存。
 
 ### 5.4 买家可执行的转换
 
@@ -285,6 +293,8 @@ Webhook 收到支付回调时，验证实际支付金额与订单金额一致（
 | Webhook: 支付被拒 | pending | declined | `restore_stock` |
 | Webhook: 支付超时 | widget_load_failed | expired | 无（widget_load_failed 时已恢复） |
 | Webhook: 支付被拒 | widget_load_failed | declined | 无（widget_load_failed 时已恢复） |
+| pg_cron: 超时清理 | pending | expired | `restore_stock` |
+| Webhook: 支付成功 | expired (pg_cron清理) | paid | `decrement_stock`（重新扣减） |
 
 ### 7.2 RPC 函数
 
@@ -621,6 +631,14 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
    - 风险: Webhook 延迟到达时需重新扣减（`widget_load_failed → paid` 路径）
    - 缓解: Webhook 处理中判断前状态，仅 widget_load_failed → paid 时重新扣减
 
+4. **pg_cron 定时清理 pending 订单**
+   - 设计: Supabase pg_cron 每 5 分钟运行 `expire_stale_market_orders()`，将超过 10 分钟的 pending 订单标记为 expired 并恢复库存
+   - 目的: 防止用户关闭支付窗口后库存长时间被占用（WayForPay 无关闭回调）
+   - 风险: Cron 清理后 Webhook 延迟到达（用户实际完成了支付）
+   - 缓解: Webhook 增加 `expired → paid` 恢复路径，重新扣减库存
+   - 并发安全: `FOR UPDATE SKIP LOCKED` 跳过被 Webhook 锁定的行
+   - 迁移文件: `supabase/migrations/20260330500000_market_expire_pending_cron.sql`
+
 ---
 
 ## 15. 相关文件索引
@@ -640,6 +658,7 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 | `app/actions/market-items.ts` | 公开数据查询 |
 | `app/actions/market-order.ts` | 买家订单查询 |
 | `app/actions/market-order-files.ts` | 凭证文件管理 |
+| `supabase/migrations/20260330500000_market_expire_pending_cron.sql` | pg_cron: 清理超时 pending 订单 |
 
 ### 15.2 UI 组件
 
@@ -662,6 +681,6 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ---
 
-**文档版本**: 1.0.0
-**维护者**: NGO Platform Team
-**最后更新**: 2026-03-28
+**文档版本**: 1.1.0
+**维护��**: NGO Platform Team
+**最后更新**: 2026-03-29

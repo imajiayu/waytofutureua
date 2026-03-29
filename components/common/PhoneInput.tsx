@@ -252,7 +252,6 @@ export default function PhoneInput({
           {currentCountry && (
             <span className="text-base leading-none">{currentCountry.flag}</span>
           )}
-          <span className="font-data text-[13px]">+{currentCountry?.dialCode || '?'}</span>
           <svg
             className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${selectorOpen ? 'rotate-180' : ''}`}
             fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"

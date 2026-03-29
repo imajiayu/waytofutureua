@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { canPurchase, getItemDisplayInfo } from '@/lib/market/market-status'
@@ -63,7 +63,24 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
     setIsChangingEmail(false)
   }
 
+  // ── Shipping field validation ──
+  const [shippingErrors, setShippingErrors] = useState<Partial<Record<keyof ShippingAddress, string>>>({})
+
+  const validateShipping = useCallback((): boolean => {
+    const errs: Partial<Record<keyof ShippingAddress, string>> = {}
+    if (!shipping.country) errs.country = t('shipping.errors.countryRequired')
+    if (shipping.name.trim().length < 2) errs.name = t('shipping.errors.nameMin')
+    if (shipping.phone.replace(/\D/g, '').length < 7) errs.phone = t('shipping.errors.phoneMin')
+    if (shipping.address_line1.trim().length < 5) errs.address_line1 = t('shipping.errors.addressMin')
+    if (shipping.city.trim().length < 2) errs.city = t('shipping.errors.cityMin')
+    if (shipping.postal_code.trim().length < 3) errs.postal_code = t('shipping.errors.postalCodeMin')
+    setShippingErrors(errs)
+    return Object.keys(errs).length === 0
+  }, [shipping, t])
+
   const handleCheckout = async () => {
+    if (!validateShipping()) return
+
     setError(null)
     setIsSubmitting(true)
     setStep('processing')
@@ -87,8 +104,6 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
     setIsSubmitting(false)
     setStep('payment')
   }
-
-  const shippingFormValid = shipping.name && shipping.phone && shipping.address_line1 && shipping.city && shipping.postal_code && shipping.country
 
   const showOTPForm = !isAuthenticated || isChangingEmail
 
@@ -157,7 +172,20 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
                 <div className="mkt-step-in">
                   <ShippingAddressForm
                     value={shipping}
-                    onChange={setShipping}
+                    onChange={addr => {
+                      setShipping(addr)
+                      // Clear errors for fields the user is editing
+                      if (Object.keys(shippingErrors).length > 0) {
+                        setShippingErrors(prev => {
+                          const next = { ...prev }
+                          for (const key of Object.keys(next) as (keyof ShippingAddress)[]) {
+                            if (addr[key] !== shipping[key]) delete next[key]
+                          }
+                          return next
+                        })
+                      }
+                    }}
+                    errors={shippingErrors}
                     disabled={isSubmitting}
                   />
                 </div>
@@ -178,7 +206,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
               </button>
               <button
                 onClick={handleCheckout}
-                disabled={isSubmitting || !shippingFormValid}
+                disabled={isSubmitting}
                 className="flex-1 py-3 bg-ukraine-blue-500 text-white rounded-xl font-semibold
                          hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all flex items-center justify-center gap-2
