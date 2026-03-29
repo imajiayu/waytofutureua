@@ -1066,6 +1066,8 @@
       "quantity": "数量",
       "status": "状态",
       "date": "日期",
+      "country": "国家",
+      "updated": "更新",
       "total": "共 {count} 笔购买"
     },
     "errors": {

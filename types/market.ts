@@ -166,5 +166,7 @@ export interface PublicMarketOrderRecord {
   total_amount: number
   currency: string
   status: string
+  shipping_country: string
   created_at: string
+  updated_at: string
 }

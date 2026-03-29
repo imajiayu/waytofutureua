@@ -122,7 +122,7 @@
 
 ### 数据库函数
 
-**业务函数 (5个)**
+**业务函数 (6个)**
 
 | 函数 | 说明 |
 |------|------|
@@ -131,6 +131,7 @@
 | `is_admin()` | 检查管理员权限（邮箱白名单） |
 | `decrement_stock()` | 原子扣减义卖商品库存（SECURITY DEFINER, 仅 service_role） |
 | `restore_stock()` | 原子恢复义卖商品库存（SECURITY DEFINER, 仅 service_role） |
+| `expire_stale_market_orders()` | 清理超时义卖订单并恢复库存（SECURITY DEFINER, cron 调用） |
 | `upsert_email_subscription()` | 订阅或更新邮件 |
 | `unsubscribe_email()` | 取消订阅 |
 

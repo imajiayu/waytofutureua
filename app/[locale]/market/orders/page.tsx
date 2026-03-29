@@ -4,11 +4,12 @@ import { useState, useEffect, Fragment } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useMarketAuth } from '@/lib/hooks/useMarketAuth'
-import { getMyOrders } from '@/app/actions/market-order'
+import { getMyOrders, type BuyerMarketOrder } from '@/app/actions/market-order'
 import { createClient } from '@/lib/supabase/client'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { ORDER_STATUS_COLORS } from '@/lib/market/market-status'
-import type { MarketOrder, MarketOrderStatus } from '@/types/market'
+import { getTranslatedText } from '@/lib/i18n-utils'
+import type { MarketOrderStatus } from '@/types/market'
 import EmailOTPForm from '@/components/market/EmailOTPForm'
 import OrderProofSection from '@/components/market/OrderProofSection'
 import { SpinnerIcon } from '@/components/icons'
@@ -37,7 +38,7 @@ export default function MarketOrdersPage() {
   const locale = useLocale()
   const { user, isAuthenticated, isLoading: authLoading } = useMarketAuth()
 
-  const [orders, setOrders] = useState<MarketOrder[]>([])
+  const [orders, setOrders] = useState<BuyerMarketOrder[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -215,7 +216,9 @@ export default function MarketOrdersPage() {
                   {/* 行 2：商品 + 金额 */}
                   <div className="flex items-center justify-between">
                     <span className="text-gray-900 font-medium">
-                      {t('order.item')} #{order.item_id}
+                      {order.market_items
+                        ? getTranslatedText(order.market_items.title_i18n, null, locale as 'en' | 'zh' | 'ua')
+                        : `${t('order.item')} #${order.item_id}`}
                       {order.quantity > 1 && (
                         <span className="text-gray-500 ml-1">× {order.quantity}</span>
                       )}

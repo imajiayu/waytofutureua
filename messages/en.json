@@ -1066,6 +1066,8 @@
       "quantity": "Qty",
       "status": "Status",
       "date": "Date",
+      "country": "Country",
+      "updated": "Updated",
       "total": "{count} purchase(s) total"
     },
     "errors": {

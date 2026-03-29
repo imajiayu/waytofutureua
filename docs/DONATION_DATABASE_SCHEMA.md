@@ -25,7 +25,8 @@
 | 函数 (Functions) | 12 | 5个业务函数 + 7个触发器函数 |
 | 触发器 (Triggers) | 8 | 详见触发器章节 |
 | RLS 策略 | 10 | 4个公开 + 6个管理员 |
-| 存储桶 | 1 | donation-results |
+| 存储桶 | 1 | donation-results（含 5 条 storage 策略） |
+| 定时任务 (Cron) | 1 | expire-pending-donations |
 | 索引 | 18 | 详见索引章节 |
 
 ---
@@ -264,6 +265,31 @@ RETURN coalesce(
 | 允许的 MIME 类型 | `image/*`, `video/*` |
 | 用途 | 配送完成照片/视频 |
 
+#### Storage 策略（5条）
+
+| 策略 | 操作 | 角色 | 条件 |
+|------|------|------|------|
+| Admins can upload to donation-results | INSERT | authenticated | bucket_id = 'donation-results' AND is_admin() |
+| Admins can delete from donation-results | DELETE | authenticated | bucket_id = 'donation-results' AND is_admin() |
+| Admins can view donation-results | SELECT | authenticated | bucket_id = 'donation-results' AND is_admin() |
+| Admins can update donation-results metadata | UPDATE | authenticated | bucket_id = 'donation-results' AND is_admin() |
+| Public Access - View result images | SELECT | public | bucket_id = 'donation-results' |
+
+---
+
+## 定时任务 (Cron Jobs)
+
+### `expire-pending-donations`
+
+| 属性 | 值 |
+|------|-----|
+| 调度 | `0 0 * * *`（每天午夜） |
+| 目的 | 清理超过 12 小时仍为 pending 的捐赠 |
+| 操作 | 将 `donation_status` 设为 `'failed'` |
+| 条件 | `donation_status = 'pending' AND donated_at < NOW() - INTERVAL '12 hours'` |
+
+> **说明**: 用户发起捐赠后超过 12 小时未完成支付，系统自动标记为 failed。与义卖模块的 `expire-pending-market-orders`（10 分钟超时）不同，捐赠模块使用更宽松的超时时间，因为 WayForPay 的支付窗口可能需要更长时间。
+
 ---
 
 ## 索引（18个）
@@ -336,5 +362,5 @@ Supabase 客户端
 
 ---
 
-**文档版本**: 4.0.0
+**文档版本**: 4.1.0
 **基于**: baseline + 4 个增量迁移

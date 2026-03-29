@@ -70,7 +70,7 @@ export default function OrderProofSection({ orderId, status }: Props) {
       </button>
 
       {expanded && (
-        <div className="mt-2 space-y-3">
+        <div className="mt-2 space-y-3 mkt-fade-in">
           {grouped.map(group => (
             <div key={group.category}>
               <p className="text-xs font-medium text-gray-500 mb-1.5">{group.label}</p>
@@ -90,6 +90,7 @@ export default function OrderProofSection({ orderId, status }: Props) {
                           src={file.publicUrl}
                           alt={file.name}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       )}
                       {isVideo && (

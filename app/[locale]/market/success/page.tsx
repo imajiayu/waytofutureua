@@ -2,8 +2,9 @@ import { getTranslations } from 'next-intl/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { getOrderStatusGroup, type OrderStatusGroup } from '@/lib/market/market-status'
+import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
 import type { MarketOrder } from '@/types/market'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -36,11 +37,11 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
       // 验证订单归属：只查询当前用户的订单
       const { data } = await supabase
         .from('market_orders')
-        .select('*')
+        .select('*, market_items(title_i18n)')
         .eq('order_reference', orderRef)
         .eq('buyer_id', user.id)
         .single()
-      order = data as MarketOrder | null
+      order = data as (MarketOrder & { market_items?: { title_i18n: Record<string, string> } }) | null
     }
   }
 
@@ -103,7 +104,9 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t('order.item')}</span>
               <span className="text-gray-900">
-                {t('order.item')} #{order.item_id}
+                {(order as any).market_items?.title_i18n
+                  ? getTranslatedText((order as any).market_items.title_i18n, null, locale as SupportedLocale)
+                  : `${t('order.item')} #${order.item_id}`}
               </span>
             </div>
             <div className="flex justify-between text-sm">
@@ -129,15 +132,15 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
         {/* 导航链接 */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
           <Link
-            href={`/${locale}/market/orders`}
-            className="px-6 py-3 bg-ukraine-blue-500 text-white rounded-lg font-semibold
+            href="/market/orders"
+            className="px-6 py-3 bg-ukraine-blue-500 text-white rounded-xl font-semibold
                      hover:bg-ukraine-blue-600 transition-colors text-center"
           >
             {t('order.trackOrder')}
           </Link>
           <Link
-            href={`/${locale}/market`}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium
+            href="/market"
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium
                      hover:bg-gray-50 transition-colors text-center"
           >
             {t('success.continueBrowsing')}

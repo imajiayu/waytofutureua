@@ -192,7 +192,7 @@ export default function EmailOTPForm({
 
       {/* 错误提示 */}
       {error && (
-        <div className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700">
+        <div role="alert" className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700">
           {error}
         </div>
       )}

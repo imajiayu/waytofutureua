@@ -1520,33 +1520,61 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
+-- =============================================
+-- STORAGE POLICIES (donation-results)
+-- =============================================
 
+-- 管理员上传文件
+CREATE POLICY "Admins can upload to donation-results"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (
+    bucket_id = 'donation-results'
+    AND is_admin()
+);
 
+-- 管理员删除文件
+CREATE POLICY "Admins can delete from donation-results"
+ON storage.objects FOR DELETE TO authenticated
+USING (
+    bucket_id = 'donation-results'
+    AND is_admin()
+);
 
+-- 管理员查看文件列表
+CREATE POLICY "Admins can view donation-results"
+ON storage.objects FOR SELECT TO authenticated
+USING (
+    bucket_id = 'donation-results'
+    AND is_admin()
+);
 
+-- 管理员更新文件元数据
+CREATE POLICY "Admins can update donation-results metadata"
+ON storage.objects FOR UPDATE TO authenticated
+USING (
+    bucket_id = 'donation-results'
+    AND is_admin()
+);
 
+-- 公开访问捐赠结果图片
+CREATE POLICY "Public Access - View result images"
+ON storage.objects FOR SELECT TO public
+USING (
+    bucket_id = 'donation-results'
+);
 
+-- =============================================
+-- CRON JOBS (捐赠过期清理)
+-- =============================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- 每天午夜清理超过 12 小时仍为 pending 的捐赠，标记为 failed
+SELECT cron.schedule(
+  'expire-pending-donations',
+  '0 0 * * *',
+  $$
+    UPDATE donations
+    SET donation_status = 'failed'
+    WHERE donation_status = 'pending'
+      AND donated_at < NOW() - INTERVAL '12 hours';
+  $$
+);

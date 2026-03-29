@@ -42,7 +42,7 @@ export default function MarketItemCard({ item, content }: MarketItemCardProps) {
       onClick={handleClick}
       role="link"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
       className="w-full text-left bg-white rounded-2xl border border-gray-200/80
                hover:shadow-lg hover:shadow-ukraine-blue-500/8 hover:border-ukraine-blue-300/50
                transition-all duration-300 overflow-hidden group cursor-pointer

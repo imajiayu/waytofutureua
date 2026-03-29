@@ -292,3 +292,69 @@ export async function getOrderProofFiles(
 
   return { files: allFiles }
 }
+
+/** 公开查询订单凭证文件（无需认证，用于公开购买记录） */
+export async function getPublicOrderProofFiles(
+  orderReference: string
+): Promise<{ files: MarketOrderFile[] }> {
+  // 路径遍历防护
+  if (orderReference.includes('..') || orderReference.includes('/')) {
+    return { files: [] }
+  }
+
+  const supabase = await createServerClient()
+
+  // 从数据库获取真实状态，不信任客户端
+  const { data: order } = await supabase
+    .from('market_orders_public')
+    .select('status')
+    .eq('order_reference', orderReference)
+    .single()
+
+  if (!order?.status) return { files: [] }
+
+  let categoriesToShow: MarketOrderFileCategory[] = []
+  if (order.status === 'shipped') {
+    categoriesToShow = ['shipping']
+  } else if (order.status === 'completed') {
+    categoriesToShow = ['shipping', 'completion']
+  } else {
+    return { files: [] }
+  }
+
+  const allFiles: MarketOrderFile[] = []
+
+  for (const cat of categoriesToShow) {
+    const folderPath = `${orderReference}/${cat}`
+
+    const { data: files } = await supabase.storage
+      .from(BUCKET)
+      .list(folderPath, {
+        sortBy: { column: 'created_at', order: 'desc' },
+      })
+
+    const actualFiles = (files || []).filter(
+      (f) => f.name && !f.name.startsWith('.') && f.id
+    )
+
+    for (const file of actualFiles) {
+      const path = `${folderPath}/${file.name}`
+      const { data: { publicUrl } } = supabase.storage
+        .from(BUCKET)
+        .getPublicUrl(path)
+
+      allFiles.push({
+        name: file.name,
+        path,
+        publicUrl,
+        size: file.metadata?.size || 0,
+        contentType: file.metadata?.mimetype || '',
+        createdAt: file.created_at,
+        updatedAt: file.updated_at,
+        category: cat,
+      })
+    }
+  }
+
+  return { files: allFiles }
+}

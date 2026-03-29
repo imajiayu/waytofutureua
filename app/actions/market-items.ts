@@ -85,8 +85,7 @@ export async function getPublicMarketOrders(
   try {
     const supabase = await createServerClient()
 
-    // 视图尚未在 database.ts 类型中注册（需 supabase gen types 后更新），使用类型断言
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('market_orders_public')
       .select('*')
       .eq('item_id', itemId)
@@ -97,15 +96,17 @@ export async function getPublicMarketOrders(
       return { orders: [], error: error.message }
     }
 
-    // 映射视图字段到前端类型
-    const orders: PublicMarketOrderRecord[] = (data || []).map((d: any) => ({
-      order_reference: d.order_reference,
-      buyer_email_masked: d.buyer_email_obfuscated,
-      quantity: d.quantity,
-      total_amount: d.total_amount,
+    // 映射视图字段到前端类型（视图字段均为 nullable，业务逻辑保证 WHERE 过滤后非空）
+    const orders: PublicMarketOrderRecord[] = (data || []).map((d) => ({
+      order_reference: d.order_reference!,
+      buyer_email_masked: d.buyer_email_obfuscated ?? '***',
+      quantity: d.quantity!,
+      total_amount: d.total_amount!,
       currency: d.currency || 'USD',
-      status: d.status,
-      created_at: d.created_at,
+      status: d.status!,
+      shipping_country: d.shipping_country!,
+      created_at: d.created_at!,
+      updated_at: d.updated_at!,
     }))
 
     return { orders }

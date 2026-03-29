@@ -1066,6 +1066,8 @@
       "quantity": "Кількість",
       "status": "Статус",
       "date": "Дата",
+      "country": "Країна",
+      "updated": "Оновлено",
       "total": "Всього {count} покупок"
     },
     "errors": {

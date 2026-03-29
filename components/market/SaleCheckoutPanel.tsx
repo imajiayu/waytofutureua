@@ -126,7 +126,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
 
           <div className="px-5 py-5 space-y-5">
             {error && (
-              <div className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700 flex items-start gap-2">
+              <div role="alert" className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700 flex items-start gap-2">
                 <svg className="w-4 h-4 mt-0.5 shrink-0 text-warm-500" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                 </svg>

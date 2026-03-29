@@ -3,10 +3,16 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import type { MarketOrder } from '@/types/market'
+import type { I18nText } from '@/types'
+
+/** 买家订单（含商品标题 join） */
+export type BuyerMarketOrder = MarketOrder & {
+  market_items: { title_i18n: I18nText } | null
+}
 
 /** 获取当前认证用户的所有订单 */
 export async function getMyOrders(): Promise<{
-  orders: MarketOrder[]
+  orders: BuyerMarketOrder[]
   error?: string
 }> {
   const supabase = await createServerClient()
@@ -18,7 +24,7 @@ export async function getMyOrders(): Promise<{
 
   const { data, error } = await supabase
     .from('market_orders')
-    .select('*')
+    .select('*, market_items(title_i18n)')
     .eq('buyer_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -27,7 +33,7 @@ export async function getMyOrders(): Promise<{
     return { orders: [], error: error.message }
   }
 
-  return { orders: (data || []) as MarketOrder[] }
+  return { orders: (data || []) as BuyerMarketOrder[] }
 }
 
 /** 获取单个订单详情 */

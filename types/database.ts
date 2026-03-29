@@ -273,6 +273,7 @@ export type Database = {
           shipping_city: string
           shipping_country: string
           shipping_name: string
+          shipping_phone: string | null
           shipping_postal_code: string
           shipping_state: string | null
           status: string
@@ -298,6 +299,7 @@ export type Database = {
           shipping_city: string
           shipping_country: string
           shipping_name: string
+          shipping_phone?: string | null
           shipping_postal_code: string
           shipping_state?: string | null
           status?: string
@@ -323,6 +325,7 @@ export type Database = {
           shipping_city?: string
           shipping_country?: string
           shipping_name?: string
+          shipping_phone?: string | null
           shipping_postal_code?: string
           shipping_state?: string | null
           status?: string
@@ -404,6 +407,53 @@ export type Database = {
       }
     }
     Views: {
+      market_orders_public: {
+        Row: {
+          buyer_email_obfuscated: string | null
+          created_at: string | null
+          currency: string | null
+          item_id: number | null
+          order_reference: string | null
+          quantity: number | null
+          shipping_country: string | null
+          status: string | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_email_obfuscated?: never
+          created_at?: string | null
+          currency?: string | null
+          item_id?: number | null
+          order_reference?: string | null
+          quantity?: number | null
+          shipping_country?: string | null
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_email_obfuscated?: never
+          created_at?: string | null
+          currency?: string | null
+          item_id?: number | null
+          order_reference?: string | null
+          quantity?: number | null
+          shipping_country?: string | null
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_orders_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_donations_secure: {
         Row: {
           aggregate_donations: boolean | null
@@ -512,6 +562,7 @@ export type Database = {
         Args: { p_item_id: number; p_quantity: number }
         Returns: boolean
       }
+      expire_stale_market_orders: { Args: never; Returns: number }
       generate_donation_public_id: {
         Args: { project_id_input: number }
         Returns: string

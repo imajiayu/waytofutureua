@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { markMarketOrderWidgetFailed, cancelMarketOrder } from '@/app/actions/market-sale'
+import { formatMarketPrice } from '@/lib/market/market-utils'
 import { clientLogger } from '@/lib/logger-client'
 import { SpinnerIcon } from '@/components/icons'
 
@@ -42,6 +43,7 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
   const scriptLoadedRef = useRef(false)
   const scriptLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const widgetOpenCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -262,10 +264,7 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
         </p>
         <div className="inline-flex items-baseline gap-1.5">
           <span className="text-3xl font-bold text-ukraine-blue-600 font-data">
-            ${amount.toFixed(2)}
-          </span>
-          <span className="text-sm font-medium text-ukraine-blue-400 font-data">
-            {paymentParams.currency}
+            {formatMarketPrice(amount, paymentParams.currency)}
           </span>
         </div>
       </div>
@@ -340,17 +339,27 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
         {!isLoading && onBack && (
           <button
             type="button"
+            disabled={isCancelling}
             onClick={async () => {
-              await cancelMarketOrder(paymentParams.orderReference)
-              onBack()
+              setIsCancelling(true)
+              try {
+                await cancelMarketOrder(paymentParams.orderReference)
+                onBack()
+              } finally {
+                setIsCancelling(false)
+              }
             }}
             className="w-full py-3 border border-gray-200 text-gray-600 rounded-xl font-medium text-sm
-                     hover:bg-gray-50 hover:border-gray-300 transition-all
-                     flex items-center justify-center gap-2"
+                     hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed
+                     transition-all flex items-center justify-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
-            </svg>
+            {isCancelling ? (
+              <SpinnerIcon className="animate-spin h-4 w-4" />
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+              </svg>
+            )}
             {t('checkout.modifyAndRetry')}
           </button>
         )}
