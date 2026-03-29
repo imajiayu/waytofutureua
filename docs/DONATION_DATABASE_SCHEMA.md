@@ -230,16 +230,18 @@ RETURN coalesce(
 
 ---
 
-## RLS 策略（10个）
+## RLS 策略（9个）
 
-### 公开策略（4个）
+### 公开策略（3个）
 
 | 策略 | 表 | 操作 | 条件 |
 |------|-----|------|------|
 | Allow anonymous read projects | projects | SELECT | true（所有人可读） |
-| Allow anonymous read donations | donations | SELECT | true（所有人可读） |
 | Allow anonymous insert pending donations | donations | INSERT | 仅限 pending 状态，金额≤10000，验证邮箱格式等 |
 | Allow anonymous update pending to widget_load_failed | donations | UPDATE | pending → widget_load_failed |
+
+> **注意**: donations 表的 anon SELECT 策略已删除（修复 PII 泄露漏洞）。
+> 公开数据访问通过 `security_invoker=false` 的脱敏视图（order_donations_secure、project_stats、public_project_donations）提供。
 
 ### 管理员策略（6个）
 

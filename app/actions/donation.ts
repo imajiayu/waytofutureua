@@ -317,21 +317,16 @@ export async function createWayForPayDonation(data: {
     }
 
     // Batch insert all pending donation records
-    const { data: insertedData, error: dbError } = await supabase
+    const { error: dbError } = await supabase
       .from('donations')
       .insert(donationRecords)
-      .select()
 
     if (dbError) {
       logger.error('DONATION', 'Failed to create pending donations', { error: dbError.message })
       throw new Error(`Failed to create pending donations: ${dbError.message}`)
     }
 
-    if (!insertedData || insertedData.length === 0) {
-      throw new Error('Failed to create pending donations: No data returned')
-    }
-
-    logger.info('DONATION', 'Pending records created', { count: insertedData.length, orderReference })
+    logger.info('DONATION', 'Pending records created', { count: donationRecords.length, orderReference })
 
     // Return payment parameters to client
     return {
@@ -384,12 +379,11 @@ export async function markDonationWidgetFailed(
   try {
     const supabase = getPublicClient()
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('donations')
       .update({ donation_status: 'widget_load_failed' })
       .eq('order_reference', orderReference)
       .eq('donation_status', 'pending')
-      .select()
 
     if (error) {
       logger.error('DONATION', 'Failed to mark as widget_load_failed', {
@@ -400,15 +394,7 @@ export async function markDonationWidgetFailed(
       return { success: false, error: error.message }
     }
 
-    if (!data || data.length === 0) {
-      logger.debug('DONATION', 'No pending donations to mark as widget_load_failed', { orderReference })
-      return { success: true }
-    }
-
-    logger.info('DONATION', 'Marked donations as widget_load_failed', {
-      orderReference,
-      count: data.length,
-    })
+    logger.info('DONATION', 'Marked donations as widget_load_failed', { orderReference })
     return { success: true }
 
   } catch (error) {
@@ -672,21 +658,16 @@ export async function createNowPaymentsDonation(data: {
     }
 
     // Insert pending donation records
-    const { data: insertedData, error: dbError } = await supabase
+    const { error: dbError } = await supabase
       .from('donations')
       .insert(donationRecords)
-      .select()
 
     if (dbError) {
       logger.error('DONATION', 'Failed to create pending donations', { error: dbError.message })
       throw new Error(`Failed to create pending donations: ${dbError.message}`)
     }
 
-    if (!insertedData || insertedData.length === 0) {
-      throw new Error('Failed to create pending donations: No data returned')
-    }
-
-    logger.info('DONATION', 'Pending records created (NOWPayments)', { count: insertedData.length, orderReference })
+    logger.info('DONATION', 'Pending records created (NOWPayments)', { count: donationRecords.length, orderReference })
 
     return {
       success: true,

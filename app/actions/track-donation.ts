@@ -152,14 +152,15 @@ export async function requestRefund(data: {
 
     // 4. Get order reference and all donations in this order
     // 使用已验证的 donation 数据（order_reference, currency 来自 RPC 返回）
-    // payment_method 需要额外查询（RPC 未返回），用 public client（donations 公开可读）
+    // payment_method 需要额外查询（RPC 未返回），用 service client（donations 表 anon SELECT 已关闭）
+    const serviceSupabase = getInternalClient()
     const orderReference = donation.order_reference as string
     if (!orderReference) {
       logger.error('REFUND', 'Missing order_reference', { donationPublicId: validated.donationPublicId })
       return { error: 'serverError' }
     }
 
-    const { data: paymentInfo, error: paymentError } = await anonSupabase
+    const { data: paymentInfo, error: paymentError } = await serviceSupabase
       .from('donations')
       .select('payment_method')
       .eq('donation_public_id', validated.donationPublicId)
@@ -177,8 +178,8 @@ export async function requestRefund(data: {
     }
 
     // Get ALL donations in this order (an order may contain multiple units/donations)
-    // Include fields needed for refund email — donations 公开可读，使用 public client
-    const { data: orderDonations, error: orderError } = await anonSupabase
+    // Include fields needed for refund email — 使用 service client 查询 PII 字段
+    const { data: orderDonations, error: orderError } = await serviceSupabase
       .from('donations')
       .select('id, donation_public_id, amount, donation_status, donor_name, donor_email, locale, project_id')
       .eq('order_reference', orderReference)
@@ -211,8 +212,6 @@ export async function requestRefund(data: {
     const totalOrderAmount = refundableDonations.reduce((sum, d) => sum + Number(d.amount), 0)
 
     // 5. Handle refund based on payment method
-    // Service client 仅用于 UPDATE 操作（退款状态变更无对应 RLS 策略，需 service_role）
-    const serviceSupabase = getInternalClient()
     const paymentMethod = donationData.payment_method
 
     // For NOWPayments (crypto): Mark as refunding for manual processing
