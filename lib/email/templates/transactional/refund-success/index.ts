@@ -76,8 +76,6 @@ export function generateRefundSuccessEmail(params: RefundSuccessEmailParams): Em
       ${createDonationIdsList(donationIds)}
     `)}
 
-    ${createInfoBox(t.processingTime)}
-
     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 28px 0;">
       <tr>
         <td>
@@ -117,8 +115,6 @@ ${t.refundAmountLabel} ${formatCurrency(refundAmount, currency)}
 
 ${t.donationIdsLabel}
 ${donationIds.map(id => `- ${id}`).join('\n')}
-
-${t.processingTime}
 
 ${t.gratitude}
 

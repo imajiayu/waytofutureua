@@ -235,6 +235,73 @@ export async function updateMarketOrderStatus(
       to: newStatus,
     })
 
+    // ── 发送状态变更邮件（shipped / completed） ──────────
+    if (newStatus === 'shipped' || newStatus === 'completed') {
+      try {
+        const { data: fullOrder } = await client
+          .from('market_orders')
+          .select('order_reference, buyer_email, shipping_name, shipping_city, shipping_country, quantity, total_amount, currency, locale, tracking_number, tracking_carrier, market_items(title_i18n)')
+          .eq('id', orderId)
+          .single()
+
+        if (fullOrder && fullOrder.buyer_email) {
+          const locale = (fullOrder.locale || 'en') as import('@/lib/email/types').Locale
+          const itemTitleI18n = (fullOrder.market_items as any)?.title_i18n || { en: '', zh: '', ua: '' }
+
+          if (newStatus === 'shipped') {
+            const shippingFiles = await getMarketOrderFiles(orderId, 'shipping')
+            const proofImageUrls = shippingFiles
+              .filter(f => f.contentType.startsWith('image/'))
+              .map(f => f.publicUrl)
+
+            const { sendMarketOrderShippedEmail } = await import('@/lib/email')
+            await sendMarketOrderShippedEmail({
+              to: fullOrder.buyer_email,
+              locale,
+              shippingName: fullOrder.shipping_name,
+              orderReference: fullOrder.order_reference,
+              itemTitleI18n,
+              quantity: fullOrder.quantity,
+              totalAmount: Number(fullOrder.total_amount),
+              currency: fullOrder.currency,
+              shippingCity: fullOrder.shipping_city,
+              shippingCountry: fullOrder.shipping_country,
+              trackingNumber: fullOrder.tracking_number || meta?.tracking_number || '',
+              trackingCarrier: fullOrder.tracking_carrier || meta?.tracking_carrier,
+              proofImageUrls,
+            })
+          } else {
+            const completionFiles = await getMarketOrderFiles(orderId, 'completion')
+            const proofImageUrls = completionFiles
+              .filter(f => f.contentType.startsWith('image/'))
+              .map(f => f.publicUrl)
+
+            const { sendMarketOrderCompletedEmail } = await import('@/lib/email')
+            await sendMarketOrderCompletedEmail({
+              to: fullOrder.buyer_email,
+              locale,
+              shippingName: fullOrder.shipping_name,
+              orderReference: fullOrder.order_reference,
+              itemTitleI18n,
+              quantity: fullOrder.quantity,
+              totalAmount: Number(fullOrder.total_amount),
+              currency: fullOrder.currency,
+              shippingCity: fullOrder.shipping_city,
+              shippingCountry: fullOrder.shipping_country,
+              proofImageUrls,
+            })
+          }
+
+          logger.info('MARKET:ADMIN', `Order ${newStatus} email sent`, { orderId })
+        }
+      } catch (emailError) {
+        logger.error('MARKET:ADMIN', `Failed to send ${newStatus} email (non-blocking)`, {
+          orderId,
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+        })
+      }
+    }
+
     return { success: true }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed' }

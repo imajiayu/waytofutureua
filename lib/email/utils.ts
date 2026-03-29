@@ -41,3 +41,11 @@ export function getTrackingUrl(locale: Locale): string {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
   return `${baseUrl}/${locale}/track-donation`
 }
+
+/**
+ * Get market orders URL for buyer
+ */
+export function getMarketOrdersUrl(locale: Locale): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+  return `${baseUrl}/${locale}/market/orders`
+}

@@ -45,6 +45,45 @@ export interface DonationCompletedEmailParams extends BaseEmailParams {
   resultImageUrl?: string
 }
 
+// Market order shared shipping info
+export interface MarketShippingInfo {
+  shippingName: string
+  shippingCity: string
+  shippingCountry: string
+}
+
+// Market order paid (payment confirmed)
+export interface MarketOrderPaidEmailParams extends BaseEmailParams, MarketShippingInfo {
+  orderReference: string
+  itemTitleI18n: I18nText
+  quantity: number
+  unitPrice: number
+  totalAmount: number
+  currency: string
+}
+
+// Market order shipped
+export interface MarketOrderShippedEmailParams extends BaseEmailParams, MarketShippingInfo {
+  orderReference: string
+  itemTitleI18n: I18nText
+  quantity: number
+  totalAmount: number
+  currency: string
+  trackingNumber: string
+  trackingCarrier?: string
+  proofImageUrls: string[]
+}
+
+// Market order completed
+export interface MarketOrderCompletedEmailParams extends BaseEmailParams, MarketShippingInfo {
+  orderReference: string
+  itemTitleI18n: I18nText
+  quantity: number
+  totalAmount: number
+  currency: string
+  proofImageUrls: string[]
+}
+
 // Refund success email parameters
 export interface RefundSuccessEmailParams extends BaseEmailParams {
   donorName: string

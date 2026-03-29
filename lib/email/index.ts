@@ -17,6 +17,9 @@ export type {
   PaymentSuccessEmailParams,
   DonationCompletedEmailParams,
   RefundSuccessEmailParams,
+  MarketOrderPaidEmailParams,
+  MarketOrderShippedEmailParams,
+  MarketOrderCompletedEmailParams,
   EmailContent,
   NGOBranding
 } from './types'
@@ -39,8 +42,12 @@ export {
 export { sendPaymentSuccessEmail } from './senders/payment-success'
 export { sendDonationCompletedEmail } from './senders/donation-completed'
 export { sendRefundSuccessEmail } from './senders/refund-success'
+export { sendMarketOrderPaidEmail, sendMarketOrderShippedEmail, sendMarketOrderCompletedEmail } from './senders/market'
 
 // Export template generators (for advanced usage)
 export { generatePaymentSuccessEmail } from './templates/transactional/payment-success'
 export { generateDonationCompletedEmail } from './templates/transactional/donation-completed'
 export { generateRefundSuccessEmail } from './templates/transactional/refund-success'
+export { generateMarketOrderPaidEmail } from './templates/transactional/market-order-paid'
+export { generateMarketOrderShippedEmail } from './templates/transactional/market-order-shipped'
+export { generateMarketOrderCompletedEmail } from './templates/transactional/market-order-completed'
