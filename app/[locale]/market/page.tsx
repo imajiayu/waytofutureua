@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation'
 import { BASE_URL, getAlternates } from '@/lib/constants'
 import { locales } from '@/i18n/config'
 import { getPublicMarketItems } from '@/app/actions/market-items'
+import { loadMarketItemContents } from '@/lib/market/market-content'
 import MarketItemGrid from '@/components/market/MarketItemGrid'
 
 type Props = {
@@ -38,6 +39,7 @@ export default async function MarketPage({ params }: Props) {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'market' })
   const { items } = await getPublicMarketItems()
+  const contentMap = await loadMarketItemContents(items.map(i => i.id), locale)
 
   return (
     <main>
@@ -118,7 +120,7 @@ export default async function MarketPage({ params }: Props) {
 
       {/* 商品网格 */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <MarketItemGrid items={items} />
+        <MarketItemGrid items={items} contentMap={contentMap} />
       </div>
     </main>
   )

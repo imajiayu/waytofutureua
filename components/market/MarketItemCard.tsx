@@ -1,23 +1,30 @@
 'use client'
 
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useTranslations, useLocale } from 'next-intl'
-import { useRouter } from '@/i18n/navigation'
+import { useRouter, usePathname } from '@/i18n/navigation'
 import { getTranslatedText, formatDate, type SupportedLocale } from '@/lib/i18n-utils'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { ITEM_STATUS_COLORS } from '@/lib/market/market-status'
-import { useMarketItemContent } from '@/lib/hooks/useMarketItemContent'
-import type { PublicMarketItem } from '@/types/market'
+import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
+import type { PublicMarketItem, MarketItemContent } from '@/types/market'
 
 interface MarketItemCardProps {
   item: PublicMarketItem
+  content: MarketItemContent | null
 }
 
-export default function MarketItemCard({ item }: MarketItemCardProps) {
+export default function MarketItemCard({ item, content }: MarketItemCardProps) {
   const t = useTranslations('market')
   const locale = useLocale() as SupportedLocale
   const router = useRouter()
-  const { data: content } = useMarketItemContent(item.id, locale)
+  const pathname = usePathname()
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  useEffect(() => {
+    setIsNavigating(false)
+  }, [pathname])
 
   const title = getTranslatedText(item.title_i18n, null, locale) || 'Untitled'
   const colors = ITEM_STATUS_COLORS[item.status]
@@ -25,11 +32,14 @@ export default function MarketItemCard({ item }: MarketItemCardProps) {
   const hasStock = isOnSale && item.stock_quantity !== null && item.stock_quantity > 0
   const isSold = isOnSale && (!item.stock_quantity || item.stock_quantity <= 0)
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
+    setIsNavigating(true)
     router.push(`/market/${item.id}`)
-  }
+  }, [router, item.id])
 
   return (
+    <>
+    <GlobalLoadingSpinner isLoading={isNavigating} />
     <div
       onClick={handleClick}
       role="link"
@@ -153,5 +163,6 @@ export default function MarketItemCard({ item }: MarketItemCardProps) {
         )}
       </div>
     </div>
+    </>
   )
 }

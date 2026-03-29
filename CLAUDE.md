@@ -286,7 +286,22 @@ NGO_web/
 |------|------|
 | Navigation | 导航栏 |
 | Footer | 页脚 |
-| GlobalLoadingSpinner | 全局加载 |
+| GlobalLoadingSpinner | 全局页面导航加载蒙版（全站唯一 loading 指示器） |
+
+**页面导航加载规范**：全站统一使用 `GlobalLoadingSpinner`，**不使用** Next.js `loading.tsx` 约定文件。新增页面导航时，在触发 `router.push` 的组件中使用以下模式：
+
+```typescript
+const pathname = usePathname()
+const [isNavigating, setIsNavigating] = useState(false)
+useEffect(() => { setIsNavigating(false) }, [pathname])
+
+// 点击时
+setIsNavigating(true)
+router.push('/target')
+
+// 渲染
+<GlobalLoadingSpinner isLoading={isNavigating} />
+```
 
 ### 通用 UI 组件 (`components/common/`)
 

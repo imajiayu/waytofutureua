@@ -660,6 +660,9 @@
       "cancel": "取消"
     },
     "errors": {
+      "emailRequired": "请输入邮箱地址。",
+      "emailInvalid": "请输入有效的邮箱地址。",
+      "donationIdRequired": "请输入捐赠ID。",
       "donationNotFound": "未找到该捐赠ID，请检查后重试。",
       "emailMismatch": "邮箱与该捐赠ID不匹配。",
       "validationError": "请检查您的输入。",
@@ -945,6 +948,7 @@
       }
     },
     "emptyState": "暂无可用商品",
+    "charityNotice": "所有慈善商品均不支持自动退款/退货，如遇到物流或货物质量问题，请及时联系我们处理",
     "common": {
       "back": "返回"
     },
@@ -1029,12 +1033,14 @@
     "shipping": {
       "title": "收货地址",
       "name": "收件人姓名",
+      "phone": "手机号码",
       "addressLine1": "地址行 1",
       "addressLine2": "地址行 2（选填）",
       "city": "城市",
       "state": "州/省",
       "postalCode": "邮政编码",
-      "country": "国家（2位代码）"
+      "country": "国家",
+      "selectCountry": "选择国家"
     },
     "proof": {
       "shippingProof": "物流凭证",

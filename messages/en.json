@@ -660,6 +660,9 @@
       "cancel": "Cancel"
     },
     "errors": {
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "donationIdRequired": "Please enter a donation ID.",
       "donationNotFound": "Donation ID not found. Please check and try again.",
       "emailMismatch": "The email does not match this donation ID.",
       "validationError": "Please check your input.",
@@ -945,6 +948,7 @@
       }
     },
     "emptyState": "No items available at the moment",
+    "charityNotice": "All charity items are non-refundable and non-returnable. If you encounter any shipping or quality issues, please contact us promptly for assistance",
     "common": {
       "back": "Back"
     },
@@ -1029,12 +1033,14 @@
     "shipping": {
       "title": "Shipping Address",
       "name": "Full Name",
+      "phone": "Phone Number",
       "addressLine1": "Address Line 1",
       "addressLine2": "Address Line 2 (Optional)",
       "city": "City",
       "state": "State / Province",
       "postalCode": "Postal Code",
-      "country": "Country (2-letter code)"
+      "country": "Country",
+      "selectCountry": "Select country"
     },
     "proof": {
       "shippingProof": "Shipping Proof",

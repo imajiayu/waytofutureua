@@ -15,6 +15,7 @@ const i18nTextSchema = z.object({
 
 export const shippingAddressSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
+  phone: z.string().min(1, 'Phone is required').max(30),
   address_line1: z.string().min(1, 'Address is required').max(200),
   address_line2: z.string().max(200).optional(),
   city: z.string().min(1, 'City is required').max(100),

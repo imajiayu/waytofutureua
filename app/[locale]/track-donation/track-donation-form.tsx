@@ -108,22 +108,39 @@ export default function TrackDonationForm({ locale }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+
+    const trimmedEmail = email.trim()
+    const trimmedId = donationId.trim()
+
+    if (!trimmedEmail) {
+      setError(t('errors.emailRequired'))
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError(t('errors.emailInvalid'))
+      return
+    }
+    if (!trimmedId) {
+      setError(t('errors.donationIdRequired'))
+      return
+    }
+
     setDonations(null)
     setLoading(true)
 
     try {
-      const result = await trackDonations({ email, donationId })
+      const result = await trackDonations({ email: trimmedEmail, donationId: trimmedId })
       if (result.error) {
         setError(t(`errors.${result.error}`))
       } else if (result.donations) {
         setDonations(result.donations as Donation[])
         // 查询成功后更新 URL，这样切换语言时能保留查询参数
         const url = new URL(window.location.href)
-        url.searchParams.set('email', email)
-        url.searchParams.set('id', donationId)
+        url.searchParams.set('email', trimmedEmail)
+        url.searchParams.set('id', trimmedId)
         window.history.replaceState({}, '', url.toString())
         // 同时更新 lastAutoQueryParams，防止 useEffect 重复查询
-        lastAutoQueryParams.current = { email, id: donationId }
+        lastAutoQueryParams.current = { email: trimmedEmail, id: trimmedId }
       }
     } catch (err) {
       setError(t('errors.serverError'))
@@ -215,8 +232,7 @@ export default function TrackDonationForm({ locale }: Props) {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                onChange={(e) => { setEmail(e.target.value); if (error) setError('') }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent transition-all outline-none hover:border-gray-400 text-gray-900 placeholder:text-gray-400"
                 placeholder={t('form.emailPlaceholder')}
               />
@@ -234,8 +250,7 @@ export default function TrackDonationForm({ locale }: Props) {
                 id="donationId"
                 type="text"
                 value={donationId}
-                onChange={(e) => setDonationId(e.target.value)}
-                required
+                onChange={(e) => { setDonationId(e.target.value); if (error) setError('') }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent transition-all outline-none hover:border-gray-400 text-gray-900 placeholder:text-gray-400"
                 placeholder={t('form.donationIdPlaceholder')}
               />

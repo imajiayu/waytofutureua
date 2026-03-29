@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { canPurchase } from '@/lib/market/market-status'
@@ -17,15 +17,15 @@ interface SaleCheckoutPanelProps {
   locale: string
 }
 
-type Step = 'browse' | 'auth' | 'shipping' | 'processing' | 'payment'
+type Step = 'browse' | 'checkout' | 'processing' | 'payment'
 
 const EMPTY_ADDRESS: ShippingAddress = {
-  name: '', address_line1: '', city: '', postal_code: '', country: '',
+  name: '', phone: '', address_line1: '', city: '', postal_code: '', country: '',
 }
 
 export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelProps) {
   const t = useTranslations('market')
-  const { isAuthenticated, isLoading: authLoading } = useMarketAuth()
+  const { user, isAuthenticated, isLoading: authLoading } = useMarketAuth()
 
   const [quantity, setQuantity] = useState(1)
   const [step, setStep] = useState<Step>('browse')
@@ -35,20 +35,32 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
   const [paymentParams, setPaymentParams] = useState<Record<string, unknown> | null>(null)
   const [paymentAmount, setPaymentAmount] = useState(0)
 
+  // Controls whether the OTP form is shown (for re-authentication / email change)
+  const [isChangingEmail, setIsChangingEmail] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to panel top when entering payment step (panel gets shorter)
+  useEffect(() => {
+    if (step === 'payment') {
+      // Double rAF to wait for React render + browser paint
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        })
+      })
+    }
+  }, [step])
+
   const price = item.fixed_price || 0
   const inStock = item.stock_quantity !== null && item.stock_quantity > 0
   const purchasable = canPurchase(item.status) && inStock
 
   const handleBuyClick = () => {
-    if (!isAuthenticated) {
-      setStep('auth')
-    } else {
-      setStep('shipping')
-    }
+    setStep('checkout')
   }
 
   const handleAuthSuccess = () => {
-    setStep('shipping')
+    setIsChangingEmail(false)
   }
 
   const handleCheckout = async () => {
@@ -60,7 +72,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
 
     if (!result.success) {
       setIsSubmitting(false)
-      setStep('shipping')
+      setStep('checkout')
       setError(result.error === 'insufficient_stock'
         ? t('errors.insufficientStock')
         : result.error === 'not_authenticated'
@@ -70,156 +82,236 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
       return
     }
 
-    // 设置支付参数，进入支付步骤
     setPaymentParams(result.paymentParams!)
     setPaymentAmount(result.amount!)
     setIsSubmitting(false)
     setStep('payment')
   }
 
-  // 认证步骤
-  if (step === 'auth') {
+  const shippingFormValid = shipping.name && shipping.phone && shipping.address_line1 && shipping.city && shipping.postal_code && shipping.country
+
+  const showOTPForm = !isAuthenticated || isChangingEmail
+
+  // ── Checkout step: email auth + shipping address ──
+  if (step === 'checkout') {
     return (
-      <div className="space-y-4">
-        <EmailOTPForm
-          onSuccess={handleAuthSuccess}
-          onCancel={() => setStep('browse')}
+      <div className="mkt-step-in">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+          {/* Order summary header */}
+          <div className="px-5 py-4 bg-gradient-to-r from-ukraine-blue-50/80 to-transparent border-b border-gray-100 rounded-t-xl">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-gray-500">
+                {quantity} × {formatMarketPrice(price, item.currency)}
+              </span>
+              <span className="text-xl font-bold text-ukraine-blue-600 font-data">
+                {formatMarketPrice(price * quantity, item.currency)}
+              </span>
+            </div>
+          </div>
+
+          <div className="px-5 py-5 space-y-5">
+            {error && (
+              <div className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700 flex items-start gap-2">
+                <svg className="w-4 h-4 mt-0.5 shrink-0 text-warm-500" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* ── Email section ── */}
+            {showOTPForm ? (
+              <div className="mkt-step-in">
+                <EmailOTPForm
+                  compact
+                  onSuccess={handleAuthSuccess}
+                  onCancel={isChangingEmail
+                    ? () => setIsChangingEmail(false)
+                    : () => { setStep('browse'); setError(null) }
+                  }
+                  defaultEmail={isChangingEmail ? (user?.email || '') : ''}
+                />
+              </div>
+            ) : (
+              <>
+                {/* Authenticated email badge */}
+                <div className="flex items-center justify-between gap-2 px-4 py-3 bg-ukraine-blue-50/60 border border-ukraine-blue-100 rounded-xl">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <svg className="w-4 h-4 text-ukraine-blue-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    <span className="text-sm font-medium text-ukraine-blue-700 truncate">
+                      {user?.email}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setIsChangingEmail(true)}
+                    disabled={isSubmitting}
+                    className="text-[13px] text-ukraine-blue-400 hover:text-ukraine-blue-600 transition-colors shrink-0"
+                  >
+                    {t('auth.changeEmail')}
+                  </button>
+                </div>
+
+                {/* ── Shipping address form ── */}
+                <div className="mkt-step-in">
+                  <ShippingAddressForm
+                    value={shipping}
+                    onChange={setShipping}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Action buttons — only show when authenticated and not changing email */}
+          {!showOTPForm && (
+            <div className="px-5 pb-5 flex gap-3">
+              <button
+                onClick={() => { setStep('browse'); setError(null) }}
+                disabled={isSubmitting}
+                className="px-5 py-3 border border-gray-200 text-gray-600 rounded-xl font-medium
+                         hover:bg-gray-50 hover:border-gray-300 transition-all text-sm"
+              >
+                {t('common.back')}
+              </button>
+              <button
+                onClick={handleCheckout}
+                disabled={isSubmitting || !shippingFormValid}
+                className="flex-1 py-3 bg-ukraine-blue-500 text-white rounded-xl font-semibold
+                         hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
+                         transition-all flex items-center justify-center gap-2
+                         shadow-lg shadow-ukraine-blue-500/20 hover:shadow-ukraine-blue-500/30"
+              >
+                {isSubmitting && <SpinnerIcon className="animate-spin h-4 w-4" />}
+                {t('checkout.pay')} — {formatMarketPrice(price * quantity, item.currency)}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ── Processing step ──
+  if (step === 'processing') {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center py-16 space-y-4
+                     mkt-fade-in">
+        <div className="relative">
+          <div className="w-14 h-14 border-[3px] border-gray-200 border-t-ukraine-blue-500 rounded-full animate-spin" />
+        </div>
+        <p className="text-gray-500 text-sm">{t('checkout.loading')}</p>
+      </div>
+    )
+  }
+
+  // ── Payment step ──
+  if (step === 'payment' && paymentParams) {
+    return (
+      <div ref={panelRef} className="mkt-step-in">
+        <MarketPaymentWidget
+          paymentParams={paymentParams as Record<string, unknown> & { orderReference: string; returnUrl: string; currency: string }}
+          amount={paymentAmount}
+          locale={locale}
+          onBack={() => { setStep('checkout'); setPaymentParams(null) }}
         />
       </div>
     )
   }
 
-  // 填写地址步骤
-  if (step === 'shipping') {
-    return (
-      <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 space-y-5">
-        {/* 订单摘要 */}
-        <div className="flex items-baseline justify-between pb-4 border-b border-gray-200">
-          <span className="text-sm text-gray-500">
-            {quantity} × {formatMarketPrice(price, item.currency)}
-          </span>
-          <span className="text-xl font-bold text-ukraine-blue-600 font-data">
-            {formatMarketPrice(price * quantity, item.currency)}
+  // ── Default browse step ──
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden
+                   mkt-fade-in">
+      {/* Price header */}
+      <div className="px-5 py-4 border-b border-gray-100">
+        <div className="flex items-baseline justify-between">
+          <span className="text-sm text-gray-500">{t('sale.price')}</span>
+          <span className="text-2xl font-bold text-ukraine-blue-600 font-data">
+            {formatMarketPrice(price, item.currency)}
           </span>
         </div>
+      </div>
 
-        {error && (
-          <div className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700">
-            {error}
+      <div className="px-5 py-4 space-y-4">
+        {/* Stock status */}
+        <div className="flex items-center gap-2 text-sm">
+          {purchasable ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-life-500 animate-pulse" />
+              <span className="text-gray-600">{t('sale.inStock', { count: item.stock_quantity })}</span>
+            </>
+          ) : item.status !== 'on_sale' ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-gray-400" />
+              <span className="text-gray-500 font-medium">{t(`status.${item.status}`)}</span>
+            </>
+          ) : (
+            <>
+              <span className="w-2 h-2 rounded-full bg-warm-500" />
+              <span className="text-warm-600 font-medium">{t('sale.sold')}</span>
+            </>
+          )}
+        </div>
+
+        {/* Quantity selector */}
+        {purchasable && (
+          <div className="flex items-center justify-between">
+            <label className="text-sm text-gray-600">{t('sale.quantity')}</label>
+            <div className="flex items-center">
+              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-10 h-10 flex items-center justify-center text-gray-500
+                           hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                  disabled={quantity <= 1}
+                >
+                  −
+                </button>
+                <span className="w-12 h-10 flex items-center justify-center font-semibold font-data border-x border-gray-200 bg-gray-50/50">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(q => Math.min(item.stock_quantity ?? 99, q + 1))}
+                  className="w-10 h-10 flex items-center justify-center text-gray-500
+                           hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                >
+                  +
+                </button>
+              </div>
+              {quantity > 1 && (
+                <span className="ml-3 text-sm text-gray-400 font-data">
+                  {formatMarketPrice(price * quantity, item.currency)}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
-        <ShippingAddressForm
-          value={shipping}
-          onChange={setShipping}
-          disabled={isSubmitting}
-        />
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => { setStep('browse'); setError(null) }}
-            disabled={isSubmitting}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium
-                     hover:bg-gray-50 transition-colors"
-          >
-            {t('common.back')}
-          </button>
-          <button
-            onClick={handleCheckout}
-            disabled={isSubmitting || !shipping.name || !shipping.address_line1 || !shipping.city || !shipping.postal_code || !shipping.country}
-            className="flex-1 py-3 bg-ukraine-blue-500 text-white rounded-lg font-semibold
-                     hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-colors flex items-center justify-center gap-2"
-          >
-            {isSubmitting && <SpinnerIcon className="animate-spin h-4 w-4" />}
-            {t('checkout.pay')} — {formatMarketPrice(price * quantity, item.currency)}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // 处理中
-  if (step === 'processing') {
-    return (
-      <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 flex flex-col items-center justify-center py-12 space-y-4">
-        <SpinnerIcon className="animate-spin h-12 w-12 text-ukraine-blue-500" />
-        <p className="text-gray-600">{t('checkout.processing')}</p>
-      </div>
-    )
-  }
-
-  // WayForPay 支付步骤
-  if (step === 'payment' && paymentParams) {
-    return (
-      <MarketPaymentWidget
-        paymentParams={paymentParams as Record<string, unknown> & { orderReference: string; returnUrl: string; currency: string }}
-        amount={paymentAmount}
-        locale={locale}
-        onBack={() => { setStep('shipping'); setPaymentParams(null) }}
-      />
-    )
-  }
-
-  // 默认浏览步骤
-  return (
-    <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
-      {/* 价格 */}
-      <div className="flex items-baseline justify-between">
-        <span className="text-sm text-gray-500">{t('sale.price')}</span>
-        <span className="text-2xl font-bold text-ukraine-blue-600 font-data">
-          {formatMarketPrice(price, item.currency)}
-        </span>
-      </div>
-
-      {/* 可售 / 状态 */}
-      <div className="text-sm text-gray-600">
-        {purchasable
-          ? t('sale.inStock', { count: item.stock_quantity })
-          : item.status !== 'on_sale'
-            ? <span className="text-gray-500 font-medium">{t(`status.${item.status}`)}</span>
-            : <span className="text-warm-600 font-medium">{t('sale.sold')}</span>
-        }
-      </div>
-
-      {/* 数量选择 */}
-      {purchasable && (
-        <div className="flex items-center gap-3">
-          <label className="text-sm text-gray-600">{t('sale.quantity')}</label>
-          <div className="flex items-center border border-gray-300 rounded-lg">
-            <button
-              onClick={() => setQuantity(q => Math.max(1, q - 1))}
-              className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
-              disabled={quantity <= 1}
-            >
-              −
-            </button>
-            <span className="px-4 py-2 text-center font-medium min-w-[3rem] font-data">
-              {quantity}
-            </span>
-            <button
-              onClick={() => setQuantity(q => Math.min(item.stock_quantity ?? 99, q + 1))}
-              className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
-            >
-              +
-            </button>
-          </div>
-          <span className="text-sm text-gray-500 ml-auto font-data">
-            {formatMarketPrice(price * quantity, item.currency)}
+        {/* Buy button */}
+        <button
+          onClick={handleBuyClick}
+          disabled={!purchasable || authLoading}
+          className="relative w-full py-3.5 rounded-xl font-bold text-[15px] overflow-hidden
+                   transition-all duration-300 group
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   bg-ukraine-gold-400 text-ukraine-blue-900
+                   hover:bg-ukraine-gold-300 hover:shadow-lg hover:shadow-ukraine-gold-400/20
+                   active:scale-[0.98]"
+        >
+          {/* Shimmer effect */}
+          {purchasable && (
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent
+                           -skew-x-12 -translate-x-full group-hover:translate-x-full
+                           transition-transform duration-700 ease-in-out" />
+          )}
+          <span className="relative">
+            {purchasable ? t('sale.buyNow') : item.status !== 'on_sale' ? t(`status.${item.status}`) : t('sale.sold')}
           </span>
-        </div>
-      )}
-
-      {/* 购买按钮 */}
-      <button
-        onClick={handleBuyClick}
-        disabled={!purchasable || authLoading}
-        className="w-full py-3 bg-ukraine-blue-500 text-white rounded-lg font-semibold
-                 hover:bg-ukraine-blue-600 disabled:opacity-50 disabled:cursor-not-allowed
-                 transition-colors"
-      >
-        {purchasable ? t('sale.buyNow') : item.status !== 'on_sale' ? t(`status.${item.status}`) : t('sale.sold')}
-      </button>
+        </button>
+      </div>
     </div>
   )
 }

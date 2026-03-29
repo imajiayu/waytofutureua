@@ -88,6 +88,7 @@ export async function createSaleOrder(
       currency,
       payment_method: 'wayforpay',
       shipping_name: shipping.name,
+      shipping_phone: shipping.phone || null,
       shipping_address_line1: shipping.address_line1,
       shipping_address_line2: shipping.address_line2 || null,
       shipping_city: shipping.city,

@@ -21,6 +21,7 @@ export type MarketOrderStatus = typeof MARKET_ORDER_STATUSES[number]
 
 export interface ShippingAddress {
   name: string
+  phone: string
   address_line1: string
   address_line2?: string
   city: string
@@ -66,6 +67,7 @@ export interface MarketOrder {
 
   // 收货地址
   shipping_name: string
+  shipping_phone: string | null
   shipping_address_line1: string
   shipping_address_line2: string | null
   shipping_city: string
