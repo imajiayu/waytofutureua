@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { getTranslatedText, formatDate, type SupportedLocale } from '@/lib/i18n-utils'
 import { formatMarketPrice } from '@/lib/market/market-utils'
-import { ITEM_STATUS_COLORS } from '@/lib/market/market-status'
+import { getItemDisplayInfo } from '@/lib/market/market-status'
 import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
 import type { PublicMarketItem, MarketItemContent } from '@/types/market'
 
@@ -27,10 +27,8 @@ export default function MarketItemCard({ item, content }: MarketItemCardProps) {
   }, [pathname])
 
   const title = getTranslatedText(item.title_i18n, null, locale) || 'Untitled'
-  const colors = ITEM_STATUS_COLORS[item.status]
+  const { labelKey, colors, hasStock, isSold } = getItemDisplayInfo(item.status, item.stock_quantity)
   const isOnSale = item.status === 'on_sale'
-  const hasStock = isOnSale && item.stock_quantity !== null && item.stock_quantity > 0
-  const isSold = isOnSale && (!item.stock_quantity || item.stock_quantity <= 0)
 
   const handleClick = useCallback(() => {
     setIsNavigating(true)
@@ -71,21 +69,9 @@ export default function MarketItemCard({ item, content }: MarketItemCardProps) {
 
         {/* 左上角状态标签 */}
         <div className="absolute top-3 left-3">
-          {isOnSale ? (
-            isSold ? (
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-warm-100 text-warm-700 shadow-sm">
-                {t('sale.sold')}
-              </span>
-            ) : (
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-life-100 text-life-800 shadow-sm">
-                {t('status.on_sale')}
-              </span>
-            )
-          ) : colors ? (
-            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text} shadow-sm`}>
-              {t(`status.${item.status}`)}
-            </span>
-          ) : null}
+          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text} shadow-sm`}>
+            {t(labelKey)}
+          </span>
         </div>
 
         {/* 底部渐变 — 衔接图片和内容 */}
@@ -116,11 +102,11 @@ export default function MarketItemCard({ item, content }: MarketItemCardProps) {
             ) : isSold ? (
               <>
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-warm-400" />
-                <span className="text-warm-600 font-medium">{t('sale.sold')}</span>
+                <span className="text-warm-600 font-medium">{t(labelKey)}</span>
               </>
-            ) : !isOnSale ? (
-              <span className="text-gray-400 font-medium">{t(`status.${item.status}`)}</span>
-            ) : null}
+            ) : (
+              <span className="text-gray-400 font-medium">{t(labelKey)}</span>
+            )}
           </span>
         </div>
 

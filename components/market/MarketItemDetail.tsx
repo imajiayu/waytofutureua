@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
-import { ITEM_STATUS_COLORS } from '@/lib/market/market-status'
+import { getItemDisplayInfo } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { useMarketItemContent } from '@/lib/hooks/useMarketItemContent'
 import type { PublicMarketItem } from '@/types/market'
@@ -32,7 +32,7 @@ interface MarketItemDetailProps {
 export default function MarketItemDetail({ item, locale }: MarketItemDetailProps) {
   const t = useTranslations('market')
   const title = getTranslatedText(item.title_i18n, null, locale as SupportedLocale) || 'Untitled'
-  const colors = ITEM_STATUS_COLORS[item.status]
+  const { labelKey, colors } = getItemDisplayInfo(item.status, item.stock_quantity)
   const { data: content, loading } = useMarketItemContent(item.id, locale)
   const price = item.fixed_price || 0
 
@@ -194,16 +194,14 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
                    font-bold text-gray-900 font-display leading-[1.18] tracking-tight"
       >
         {title}
-        {colors && (
-          <span
-            className={`inline-flex items-center align-[0.12em] ml-2
-                       px-3 py-1 text-sm font-semibold
-                       rounded-full shadow-sm
-                       ${colors.bg} ${colors.text}`}
-          >
-            {t(`status.${item.status}`)}
-          </span>
-        )}
+        <span
+          className={`inline-flex items-center align-[0.12em] ml-2
+                     px-3 py-1 text-sm font-semibold
+                     rounded-full shadow-sm
+                     ${colors.bg} ${colors.text}`}
+        >
+          {t(labelKey)}
+        </span>
       </h1>
 
       {/* Gold accent rule */}

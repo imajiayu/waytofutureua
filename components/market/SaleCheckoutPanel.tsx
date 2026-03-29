@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatMarketPrice } from '@/lib/market/market-utils'
-import { canPurchase } from '@/lib/market/market-status'
+import { canPurchase, getItemDisplayInfo } from '@/lib/market/market-status'
 import { useMarketAuth } from '@/lib/hooks/useMarketAuth'
 import { createSaleOrder } from '@/app/actions/market-sale'
 import type { PublicMarketItem, ShippingAddress } from '@/types/market'
@@ -52,8 +52,8 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
   }, [step])
 
   const price = item.fixed_price || 0
-  const inStock = item.stock_quantity !== null && item.stock_quantity > 0
-  const purchasable = canPurchase(item.status) && inStock
+  const { labelKey, hasStock, isSold } = getItemDisplayInfo(item.status, item.stock_quantity)
+  const purchasable = canPurchase(item.status) && hasStock
 
   const handleBuyClick = () => {
     setStep('checkout')
@@ -243,15 +243,15 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
               <span className="w-2 h-2 rounded-full bg-life-500 animate-pulse" />
               <span className="text-gray-600">{t('sale.inStock', { count: item.stock_quantity })}</span>
             </>
-          ) : item.status !== 'on_sale' ? (
+          ) : isSold ? (
             <>
-              <span className="w-2 h-2 rounded-full bg-gray-400" />
-              <span className="text-gray-500 font-medium">{t(`status.${item.status}`)}</span>
+              <span className="w-2 h-2 rounded-full bg-warm-500" />
+              <span className="text-warm-600 font-medium">{t(labelKey)}</span>
             </>
           ) : (
             <>
-              <span className="w-2 h-2 rounded-full bg-warm-500" />
-              <span className="text-warm-600 font-medium">{t('sale.sold')}</span>
+              <span className="w-2 h-2 rounded-full bg-gray-400" />
+              <span className="text-gray-500 font-medium">{t(labelKey)}</span>
             </>
           )}
         </div>
@@ -308,7 +308,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
                            transition-transform duration-700 ease-in-out" />
           )}
           <span className="relative">
-            {purchasable ? t('sale.buyNow') : item.status !== 'on_sale' ? t(`status.${item.status}`) : t('sale.sold')}
+            {purchasable ? t('sale.buyNow') : t(labelKey)}
           </span>
         </button>
       </div>

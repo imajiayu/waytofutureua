@@ -39,6 +39,36 @@ export const ITEM_STATUS_COLORS: Record<MarketItemStatus, { bg: string; text: st
   off_shelf: { bg: 'bg-gray-100',   text: 'text-gray-600' },
 }
 
+/** 已售（在售但库存为 0）的展示颜色 */
+const SOLD_COLORS = { bg: 'bg-warm-100', text: 'text-warm-700' } as const
+
+/**
+ * 商品 UI 展示信息（单一数据源）
+ *
+ * 数据库 status 只有 draft/on_sale/off_shelf，
+ * 但 UI 需要派生出第四种展示状态 "sold"（在售 + 库存为 0）。
+ *
+ * @returns labelKey  — 翻译键，直接传给 t()
+ * @returns colors    — { bg, text } Tailwind class
+ * @returns hasStock  — 是否有库存
+ * @returns isSold    — 是否已售罄
+ */
+export function getItemDisplayInfo(
+  status: MarketItemStatus,
+  stockQuantity: number | null,
+) {
+  const isOnSale = status === 'on_sale'
+  const hasStock = isOnSale && stockQuantity !== null && stockQuantity > 0
+  const isSold = isOnSale && (!stockQuantity || stockQuantity <= 0)
+
+  return {
+    labelKey: isSold ? 'sale.sold' : `status.${status}` as const,
+    colors: isSold ? SOLD_COLORS : ITEM_STATUS_COLORS[status],
+    hasStock,
+    isSold,
+  }
+}
+
 export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: string }> = {
   pending:            { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },
   widget_load_failed: { bg: 'bg-warm-100',         text: 'text-warm-800' },
