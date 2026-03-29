@@ -45,7 +45,7 @@
     "home": "首页",
     "projects": "项目",
     "donate": "捐赠",
-    "market": "义卖市集",
+    "market": "慈善市集",
     "trackDonation": "查询捐赠",
     "about": "关于",
     "contact": "联系",
@@ -925,7 +925,7 @@
   "market": {
     "title": "慈善市集",
     "subtitle": "通过购买或竞拍独特物品支持我们的公益事业",
-    "description": "浏览义卖商品和拍卖活动",
+    "description": "浏览慈善商品和拍卖活动",
     "hero": {
       "tagline": "透明公益",
       "subtitle": "每一笔资金都标明详细用途，并提供后续照片与视频反馈",
@@ -949,7 +949,7 @@
       "back": "返回"
     },
     "sale": {
-      "label": "义卖",
+      "label": "慈善",
       "price": "价格",
       "buyNow": "立即购买",
       "inStock": "{count} 件可售",

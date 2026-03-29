@@ -26,8 +26,8 @@ export async function sendOTP(email: string): Promise<{ success: boolean; error?
     if (error) {
       logger.warn('MARKET:AUTH', 'OTP send failed', { email: trimmed, error: error.message })
 
-      // Supabase 内建 60s 冷却期
-      if (error.message.includes('rate') || error.message.includes('60')) {
+      // Supabase 内建 60s 冷却期（错误信息格式不固定）
+      if (error.message.includes('rate') || error.message.includes('security purposes') || error.message.includes('seconds')) {
         return { success: false, error: 'rate_limited' }
       }
       return { success: false, error: 'send_failed' }
