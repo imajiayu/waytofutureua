@@ -948,7 +948,9 @@
       }
     },
     "emptyState": "暂无可用商品",
-    "charityNotice": "所有慈善商品均不支持自动退款/退货，如遇到物流或货物质量问题，请及时联系我们处理",
+    "charityNotice": "所有慈善商品均不支持自动退款/退货，如遇到物流或货物质量问题，请及时<contact>联系我们</contact>处理",
+    "fundProofNotice": "每件商品我们都会提供资金去向证明，您可在下方购买记录中查看资金用途凭证。",
+    "viewPurchaseRecords": "查看购买记录",
     "common": {
       "back": "返回"
     },

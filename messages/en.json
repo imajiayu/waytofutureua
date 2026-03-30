@@ -948,7 +948,9 @@
       }
     },
     "emptyState": "No items available at the moment",
-    "charityNotice": "All charity items are non-refundable and non-returnable. If you encounter any shipping or quality issues, please contact us promptly for assistance",
+    "charityNotice": "All charity items are non-refundable and non-returnable. If you encounter any shipping or quality issues, please <contact>contact us</contact> promptly for assistance",
+    "fundProofNotice": "We provide proof of fund usage for every item. Check the purchase records below to see how funds are used.",
+    "viewPurchaseRecords": "View Purchase Records",
     "common": {
       "back": "Back"
     },

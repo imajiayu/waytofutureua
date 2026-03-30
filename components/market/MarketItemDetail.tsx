@@ -13,6 +13,8 @@ import type { PublicMarketItem } from '@/types/market'
 import SaleCheckoutPanel from './SaleCheckoutPanel'
 import MarketOrderList from './MarketOrderList'
 
+const PURCHASE_RECORDS_ID = 'purchase-records'
+
 const BottomSheet = dynamic(() => import('@/components/common/BottomSheet'), {
   ssr: false,
   loading: () => null,
@@ -36,6 +38,10 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
   const { labelKey, colors } = getItemDisplayInfo(item.status, item.stock_quantity)
   const { data: content, loading } = useMarketItemContent(item.id, locale)
   const price = item.fixed_price || 0
+
+  const scrollToPurchaseRecords = useCallback(() => {
+    document.getElementById(PURCHASE_RECORDS_ID)?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
 
   // ── BottomSheet state (mobile) ──
   const [isSheetOpen, setIsSheetOpen] = useState(true)
@@ -220,8 +226,46 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
           <path strokeLinecap="round" strokeLinejoin="round"
             d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
         </svg>
-        <span>{t('charityNotice')}</span>
+        <span>{t.rich('charityNotice', {
+          contact: (chunks) => (
+            <a
+              href="mailto:contact@waytofutureua.org.ua"
+              className="font-medium underline decoration-amber-600/30 underline-offset-2
+                         hover:text-amber-800 hover:decoration-amber-600/50 transition-colors duration-150"
+            >
+              {chunks}
+            </a>
+          ),
+        })}</span>
       </p>
+
+      {/* Fund usage transparency notice */}
+      <div className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-emerald-700/70">
+        <svg
+          className="w-3.5 h-3.5 mt-[3px] shrink-0 text-emerald-600/50"
+          fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round"
+            d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+        </svg>
+        <span>
+          {t('fundProofNotice')}
+          {' '}
+          <button
+            type="button"
+            onClick={scrollToPurchaseRecords}
+            className="inline-flex items-center gap-0.5 font-medium text-emerald-700/90
+                       underline decoration-emerald-600/30 underline-offset-2
+                       hover:text-emerald-800 hover:decoration-emerald-600/50
+                       transition-colors duration-150"
+          >
+            {t('viewPurchaseRecords')}
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+            </svg>
+          </button>
+        </span>
+      </div>
     </div>
   )
 
@@ -309,7 +353,7 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
       </div>
 
       {/* ─── Purchase History (full width) ─── */}
-      <div className="mt-14 lg:mt-20 mkt-rise" style={{ animationDelay: '0.38s' }}>
+      <div id={PURCHASE_RECORDS_ID} className="mt-14 lg:mt-20 scroll-mt-28 mkt-rise" style={{ animationDelay: '0.38s' }}>
         <MarketOrderList itemId={item.id} />
       </div>
 
