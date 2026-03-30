@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import dynamic from 'next/dynamic'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
@@ -289,6 +290,22 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ─── My Orders shortcut ─── */}
+      <div className="mt-14 lg:mt-20 flex justify-center mkt-rise" style={{ animationDelay: '0.34s' }}>
+        <Link
+          href="/market/orders"
+          className="group inline-flex items-center gap-2.5 px-7 py-3 text-sm font-bold tracking-wide text-ukraine-blue-900 bg-ukraine-gold-400 rounded-xl shadow-lg shadow-ukraine-gold-400/25 hover:bg-ukraine-gold-300 hover:shadow-xl hover:shadow-ukraine-gold-300/30 transition-all duration-200"
+        >
+          <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+          </svg>
+          {t('order.myOrders')}
+          <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </Link>
       </div>
 
       {/* ─── Purchase History (full width) ─── */}
