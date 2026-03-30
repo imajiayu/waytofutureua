@@ -25,6 +25,7 @@ export default function MarketOrderList({ itemId }: Props) {
   const locale = useLocale()
   const [orders, setOrders] = useState<PublicMarketOrderRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [viewProofOrder, setViewProofOrder] = useState<PublicMarketOrderRecord | null>(null)
 
   const intlLocale = locale === 'ua' ? 'uk' : locale
@@ -34,10 +35,14 @@ export default function MarketOrderList({ itemId }: Props) {
   )
 
   useEffect(() => {
-    getPublicMarketOrders(itemId).then(({ orders: data }) => {
-      setOrders(data)
-      setLoading(false)
-    })
+    setLoadError(false)
+    getPublicMarketOrders(itemId)
+      .then(({ orders: data, error }) => {
+        if (error) { setLoadError(true); return }
+        setOrders(data)
+      })
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false))
   }, [itemId])
 
   if (loading) {
@@ -51,6 +56,15 @@ export default function MarketOrderList({ itemId }: Props) {
             <div className="h-4 bg-gray-200 rounded" />
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
+        <h2 className="text-xl font-bold mb-4 font-display">{t('title')}</h2>
+        <p className="text-gray-500 py-4">{t('loadError')}</p>
       </div>
     )
   }

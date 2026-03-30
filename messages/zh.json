@@ -973,7 +973,9 @@
       "trackingNumber": "快递单号",
       "item": "商品",
       "total": "总计",
-      "signOut": "退出登录"
+      "signOut": "退出登录",
+      "loadError": "订单加载失败，请重试。",
+      "retry": "重试"
     },
     "auth": {
       "title": "验证邮箱",
@@ -1068,7 +1070,8 @@
       "date": "日期",
       "country": "国家",
       "updated": "更新",
-      "total": "共 {count} 笔购买"
+      "total": "共 {count} 笔购买",
+      "loadError": "购买记录加载失败。"
     },
     "errors": {
       "insufficientStock": "抱歉，商品库存不足。",

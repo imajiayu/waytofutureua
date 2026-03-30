@@ -25,6 +25,21 @@ export async function POST(req: Request) {
       orderReference,
     })
 
+    // 验证 orderReference 命名空间（防止捐赠回调误入义卖端点）
+    if (!orderReference || !String(orderReference).startsWith('MKT-')) {
+      logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'Non-market orderReference rejected', { orderReference })
+      return NextResponse.json({ error: 'Invalid order reference' }, { status: 400 })
+    }
+
+    // 验证 merchantAccount（缺失或不匹配均拒绝）
+    if (!body.merchantAccount || body.merchantAccount !== process.env.WAYFORPAY_MERCHANT_ACCOUNT) {
+      logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Merchant account mismatch', {
+        orderReference,
+        received: body.merchantAccount,
+      })
+      return NextResponse.json({ error: 'Invalid merchant' }, { status: 400 })
+    }
+
     // 验证签名
     if (!body.merchantSignature || !verifyWayForPaySignature(body, body.merchantSignature)) {
       logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Invalid signature', { orderReference })
@@ -43,20 +58,6 @@ export async function POST(req: Request) {
     if (fetchError || !order) {
       logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'Order not found', { orderReference })
       return respondWithAccept(orderReference)
-    }
-
-    // 金额校验：防止客户端篡改支付金额
-    if (body.amount !== undefined && order.total_amount !== undefined) {
-      const callbackAmount = Number(body.amount)
-      const expectedAmount = Number(order.total_amount)
-      if (Math.abs(callbackAmount - expectedAmount) > expectedAmount * 0.01) {
-        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Amount mismatch', {
-          orderReference,
-          expected: expectedAmount,
-          received: callbackAmount,
-        })
-        return respondWithAccept(orderReference)
-      }
     }
 
     // 映射 WayForPay 状态 → 订单状态
@@ -99,72 +100,113 @@ export async function POST(req: Request) {
         return respondWithAccept(orderReference)
     }
 
+    // ── 金额校验（仅对 paid，expired/declined 回调可能不携带 amount）──
+    if (newStatus === 'paid') {
+      const callbackAmount = parseFloat(String(body.amount ?? ''))
+      if (isNaN(callbackAmount)) {
+        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Missing or invalid amount for paid callback', { orderReference })
+        return respondWithAccept(orderReference)
+      }
+      const expectedAmount = Number(order.total_amount)
+      if (Math.abs(callbackAmount - expectedAmount) > 0.01) {
+        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Amount mismatch', {
+          orderReference, expected: expectedAmount, received: callbackAmount,
+        })
+        return respondWithAccept(orderReference)
+      }
+    }
+
     // ── 原子更新 ─────────────────────────────────────
-    // 分别尝试从 pending 和 widget_load_failed 转换，
-    // 每次 UPDATE 用 .eq('status', X) 做原子条件匹配，
-    // 避免 SELECT-UPDATE 之间的 TOCTOU 竞态，确保库存操作基于真实前置状态
+    // 每次 UPDATE 用 .eq('status', X) 做原子条件匹配（CAS），
+    // 避免 SELECT-UPDATE 之间的 TOCTOU 竞态。
+    //
+    // 恢复路径（widget_load_failed/expired → paid）：
+    // 先扣库存再改状态，防止超卖（扣库存失败则不改状态）。
+    //
+    // | 前置状态              | 目标状态          | 顺序                     |
+    // |-----------------------|-------------------|--------------------------|
+    // | pending               | paid              | 直接改状态（库存已扣）    |
+    // | pending               | expired/declined  | 改状态 → 回滚库存        |
+    // | widget_load_failed    | paid              | 先扣库存 → 再改状态      |
+    // | widget_load_failed    | expired/declined  | 直接改状态（库存已回滚）  |
+    // | expired               | paid              | 先扣库存 → 再改状态      |
     if (newStatus) {
       let actualPreviousStatus: MarketOrderStatus | null = null
 
-      // 尝试 1: 从 pending 转换
-      const { data: fromPending, error: pendingError } = await service
-        .from('market_orders')
-        .update({ status: newStatus })
-        .eq('order_reference', orderReference)
-        .eq('status', 'pending')
-        .select('id')
-
-      if (pendingError) {
-        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from pending failed', {
-          orderReference,
-          error: pendingError.message,
-        })
-        return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
+      // 辅助：CAS 更新状态
+      async function casUpdate(fromStatus: MarketOrderStatus): Promise<{ matched: boolean; error?: string }> {
+        const { data, error } = await service
+          .from('market_orders')
+          .update({ status: newStatus! })
+          .eq('order_reference', orderReference)
+          .eq('status', fromStatus)
+          .select('id')
+        if (error) return { matched: false, error: error.message }
+        return { matched: !!(data && data.length > 0) }
       }
 
-      if (fromPending && fromPending.length > 0) {
+      // 尝试 1: 从 pending 转换（库存在下单时已扣减，无需额外操作）
+      const r1 = await casUpdate('pending')
+      if (r1.error) {
+        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from pending failed', { orderReference, error: r1.error })
+        return respondWithAccept(orderReference)
+      }
+
+      if (r1.matched) {
         actualPreviousStatus = 'pending'
       } else {
         // 尝试 2: 从 widget_load_failed 转换
-        const { data: fromWidgetFailed, error: wlfError } = await service
-          .from('market_orders')
-          .update({ status: newStatus })
-          .eq('order_reference', orderReference)
-          .eq('status', 'widget_load_failed')
-          .select('id')
-
-        if (wlfError) {
-          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from widget_load_failed failed', {
-            orderReference,
-            error: wlfError.message,
-          })
-          return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
+        if (newStatus === 'paid') {
+          // 恢复路径：先扣库存再改状态
+          const { data: decremented, error: dErr } = await service
+            .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+          if (dErr || !decremented) {
+            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock failed for widget_load_failed recovery — order stays widget_load_failed', {
+              orderReference, itemId: order.item_id, error: dErr?.message,
+            })
+            // 扣库存失败 → 不改状态，由管理员人工处理
+          } else {
+            const r2 = await casUpdate('widget_load_failed')
+            if (r2.error || !r2.matched) {
+              // CAS 失败（已被其他 Webhook 处理） → 回滚刚扣的库存
+              await service.rpc('restore_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+              logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'widget_load_failed CAS failed after stock decrement — stock restored', { orderReference })
+            } else {
+              actualPreviousStatus = 'widget_load_failed'
+              logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented + status recovered from widget_load_failed', {
+                orderReference, itemId: order.item_id, quantity: order.quantity,
+              })
+            }
+          }
+        } else {
+          // 非 paid（expired/declined）→ 无需库存操作，直接改状态
+          const r2 = await casUpdate('widget_load_failed')
+          if (r2.error) {
+            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from widget_load_failed failed', { orderReference, error: r2.error })
+            return respondWithAccept(orderReference)
+          }
+          if (r2.matched) actualPreviousStatus = 'widget_load_failed'
         }
 
-        if (fromWidgetFailed && fromWidgetFailed.length > 0) {
-          actualPreviousStatus = 'widget_load_failed'
-        } else if (newStatus === 'paid') {
-          // 尝试 3: 从 expired 恢复（cron 已将 pending 清理为 expired，但用户实际完成了支付）
-          const { data: fromExpired, error: expiredError } = await service
-            .from('market_orders')
-            .update({ status: newStatus })
-            .eq('order_reference', orderReference)
-            .eq('status', 'expired')
-            .select('id')
-
-          if (expiredError) {
-            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from expired failed', {
-              orderReference,
-              error: expiredError.message,
+        // 尝试 3: 从 expired 恢复（仅 paid）
+        if (!actualPreviousStatus && newStatus === 'paid') {
+          const { data: decremented, error: dErr } = await service
+            .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+          if (dErr || !decremented) {
+            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock failed for expired recovery — order stays expired', {
+              orderReference, itemId: order.item_id, error: dErr?.message,
             })
-            return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
-          }
-
-          if (fromExpired && fromExpired.length > 0) {
-            actualPreviousStatus = 'expired'
-            logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Recovering expired order — payment arrived after cron cleanup', {
-              orderReference,
-            })
+          } else {
+            const r3 = await casUpdate('expired')
+            if (r3.error || !r3.matched) {
+              await service.rpc('restore_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+              logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'expired CAS failed after stock decrement — stock restored', { orderReference })
+            } else {
+              actualPreviousStatus = 'expired'
+              logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented + status recovered from expired', {
+                orderReference, itemId: order.item_id, quantity: order.quantity,
+              })
+            }
           }
         }
       }
@@ -182,60 +224,22 @@ export async function POST(req: Request) {
         to: newStatus,
       })
 
-      // ── 库存处理 ─────────────────────────────────────
-      // actualPreviousStatus 由原子 UPDATE 的 .eq('status', X) 确认，非 stale read
-      //
-      // | actualPreviousStatus  | newStatus         | 库存操作           |
-      // |-----------------------|-------------------|--------------------|
-      // | pending               | paid              | 无（库存已扣）      |
-      // | pending               | expired/declined  | 回滚库存           |
-      // | widget_load_failed    | paid              | 重新扣减库存        |
-      // | widget_load_failed    | expired/declined  | 无（已回滚过）      |
-      // | expired               | paid              | 重新扣减库存        |
-
-      const needsReDecrement = (actualPreviousStatus === 'widget_load_failed' || actualPreviousStatus === 'expired') && newStatus === 'paid'
-
-      if (needsReDecrement) {
-        // 从 widget_load_failed 或 expired 恢复为 paid — 库存已回滚，需重新扣减
-        const { data: decremented, error: decrementError } = await service
-          .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
-
-        if (decrementError || !decremented) {
-          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock FAILED after recovery — manual intervention needed', {
-            orderReference,
-            itemId: order.item_id,
-            quantity: order.quantity,
-            error: decrementError?.message,
-          })
-        } else {
-          logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented after recovery', {
-            orderReference,
-            itemId: order.item_id,
-            quantity: order.quantity,
-          })
-        }
-      } else if (actualPreviousStatus === 'pending' && shouldRollbackStock) {
-        // 从 pending 变为 expired/declined — 正常回滚库存
+      // ── 库存回滚（pending → expired/declined） ─────────
+      if (actualPreviousStatus === 'pending' && shouldRollbackStock) {
         const { error: rollbackError } = await service.rpc('restore_stock', {
           p_item_id: order.item_id,
           p_quantity: order.quantity,
         })
         if (rollbackError) {
           logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Stock rollback FAILED — manual intervention needed', {
-            orderReference,
-            itemId: order.item_id,
-            quantity: order.quantity,
-            error: rollbackError.message,
+            orderReference, itemId: order.item_id, quantity: order.quantity, error: rollbackError.message,
           })
         } else {
           logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock rolled back', {
-            orderReference,
-            itemId: order.item_id,
-            quantity: order.quantity,
+            orderReference, itemId: order.item_id, quantity: order.quantity,
           })
         }
       }
-      // widget_load_failed/expired + shouldRollbackStock → 无操作（库存已回滚过）
 
       // ── 支付成功邮件 ─────────────────────────────────
       if (newStatus === 'paid') {

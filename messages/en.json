@@ -973,7 +973,9 @@
       "trackingNumber": "Tracking #",
       "item": "Item",
       "total": "Total",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "loadError": "Failed to load orders. Please try again.",
+      "retry": "Retry"
     },
     "auth": {
       "title": "Verify Your Email",
@@ -1068,7 +1070,8 @@
       "date": "Date",
       "country": "Country",
       "updated": "Updated",
-      "total": "{count} purchase(s) total"
+      "total": "{count} purchase(s) total",
+      "loadError": "Failed to load purchase records."
     },
     "errors": {
       "insufficientStock": "Sorry, this item is no longer available in the requested quantity.",

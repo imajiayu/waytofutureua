@@ -10,10 +10,10 @@
 
 | 优先级 | 总数 | 已完成 | 状态 |
 |--------|------|--------|------|
-| P0 - 立即修复 | 3 | 0 | :black_square_button: |
-| P1 - 尽快修复 | 5 | 0 | :black_square_button: |
-| P2 - 近期修复 | 13 | 0 | :black_square_button: |
-| P3 - 酌情处理 | 11 | 0 | :black_square_button: |
+| P0 - 立即修复 | 3 | 3 | :white_check_mark: |
+| P1 - 尽快修复 | 5 | 5 | :white_check_mark: |
+| P2 - 近期修复 | 13 | 5 | :construction: |
+| P3 - 酌情处理 | 11 | 1 | :construction: |
 
 ---
 
@@ -21,7 +21,7 @@
 
 ### P0-1. Webhook 金额校验可被绕过
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 安全漏洞
 - **文件**: `app/api/webhooks/wayforpay-market/route.ts:49`
 
@@ -59,7 +59,7 @@ if (Math.abs(callbackAmount - order.total_amount) > 0.01) {
 
 ### P0-2. `expire_stale_market_orders` 可被匿名用户直接调用
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 安全漏洞
 - **文件**: `supabase/migrations/20260330500000_market_expire_pending_cron.sql`
 
@@ -85,7 +85,7 @@ GRANT EXECUTE ON FUNCTION expire_stale_market_orders() TO service_role;
 
 ### P0-3. 前端错误处理大面积缺失 — 网络错误导致 UI 永久卡死
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: Bug / UX
 - **文件**:
   - `app/[locale]/market/orders/page.tsx:44-52`
@@ -128,7 +128,7 @@ useEffect(() => {
 
 ### P1-1. 库存扣减与订单创建不在同一事务中
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 数据一致性
 - **文件**: `app/actions/market-sale.ts:62-109`
 
@@ -190,7 +190,7 @@ GRANT EXECUTE ON FUNCTION create_market_order_atomic TO service_role;
 
 ### P1-2. 义卖订单缺少数据库级状态转换验证
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 安全 / 纵深防御
 - **文件**: `supabase/migrations/20260329400000_market_order_immutable_fields.sql`
 
@@ -221,7 +221,7 @@ END IF;
 
 ### P1-3. Webhook 恢复路径中库存操作顺序错误
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 数据一致性
 - **文件**: `app/api/webhooks/wayforpay-market/route.ts:196-210`
 
@@ -253,7 +253,7 @@ await updateOrderStatus(orderReference, 'paid')
 
 ### P1-4. OTP 缺少应用层速率限制
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 安全
 - **文件**: `app/actions/market-auth.ts:11-89`
 
@@ -293,7 +293,7 @@ export function checkRateLimit(key: string, maxAttempts: number, windowMs: numbe
 
 ### P1-5. 金额校验使用 1% 百分比容差
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P0-1 一并修复）
 - **分类**: 安全
 - **文件**: `app/api/webhooks/wayforpay-market/route.ts:52`
 
@@ -321,7 +321,7 @@ if (Math.abs(callbackAmount - expectedAmount) > 0.01) {
 
 ### P2-1. `orderReference` 使用非密码学安全随机数
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P1-1 一并修复，使用 crypto.randomBytes）
 - **分类**: 安全加固
 - **文件**: `app/actions/market-sale.ts:72`
 
@@ -350,7 +350,7 @@ const orderReference = `MKT-${Date.now()}-${randomBytes(8).toString('hex').toUpp
 
 ### P2-3. 错误信息直接返回客户端
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P1-1 一并修复，统一返回 'operation_failed'）
 - **分类**: 信息泄露
 - **文件**: `market-sale.ts:175,202` | `market-order.ts:58`
 
@@ -433,7 +433,7 @@ const handleCheckout = async () => {
 
 ### P2-8. Webhook 未验证 `merchantAccount` 和 `currency`
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P0-1 一并修复）
 - **分类**: 安全加固
 - **文件**: `app/api/webhooks/wayforpay-market/route.ts`
 
@@ -454,7 +454,7 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P2-9. 两个 Webhook 端点未隔离 `orderReference` 命名空间
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P0-1 一并修复，添加 MKT- 前缀验证）
 - **分类**: 安全加固
 - **文件**: 捐赠 Webhook + 义卖 Webhook
 
@@ -478,7 +478,7 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P2-11. `market_order_status_history` 缺少索引
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P1-2 迁移一并添加）
 - **分类**: 性能
 - **文件**: 迁移文件
 
@@ -570,7 +570,7 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P3-11. Webhook 处理失败返回 500 可能导致无限重试
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（随 P0-1 一并修复，改为 respondWithAccept）
 - **文件**: `app/api/webhooks/wayforpay-market/route.ts:123,160`
 - **建议**: 对永久性错误返回 `respondWithAccept` 防止重试风暴
 

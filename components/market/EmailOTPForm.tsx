@@ -139,6 +139,7 @@ export default function EmailOTPForm({
       const errorMap: Record<string, string> = {
         code_expired: t('codeExpired'),
         invalid_code: t('invalidCode'),
+        rate_limited: t('rateLimited'),
         verify_failed: t('verifyFailed'),
       }
       setError(errorMap[result.error || ''] || t('verifyFailed'))

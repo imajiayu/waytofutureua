@@ -25,10 +25,10 @@ export default function OrderProofSection({ orderId, status }: Props) {
       setLoading(false)
       return
     }
-    getOrderProofFiles(orderId).then(({ files: data }) => {
-      setFiles(data)
-      setLoading(false)
-    })
+    getOrderProofFiles(orderId)
+      .then(({ files: data }) => setFiles(data))
+      .catch(() => {}) // 静默失败 — 凭证为辅助信息，不阻塞订单展示
+      .finally(() => setLoading(false))
   }, [orderId, status])
 
   if (loading) return null

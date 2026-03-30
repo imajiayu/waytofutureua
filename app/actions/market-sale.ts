@@ -1,5 +1,6 @@
 'use server'
 
+import { randomBytes } from 'crypto'
 import { createServerClient, createServiceClient } from '@/lib/supabase/server'
 import { createMarketPayment } from '@/lib/market/wayforpay'
 import { salePurchaseSchema } from '@/lib/market/market-validations'
@@ -58,56 +59,47 @@ export async function createSaleOrder(
     return { success: false, error: 'item_has_no_price' }
   }
 
-  // 4. 原子扣减库存（RPC SECURITY DEFINER, 仅 service_role 可调用）
-  const service = createServiceClient()
-  const { data: decremented, error: stockError } = await service
-    .rpc('decrement_stock', { p_item_id: itemId, p_quantity: quantity })
-
-  if (stockError || !decremented) {
-    logger.warn('MARKET:SALE', 'Stock insufficient or decrement failed', { itemId, quantity, error: stockError?.message })
-    return { success: false, error: 'insufficient_stock' }
-  }
-
-  // 5. 生成订单编号
-  const orderReference = `MKT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
-  const totalAmount = typedItem.fixed_price * quantity
+  // 4. 生成订单编号（密码学安全随机数）
+  const orderReference = `MKT-${Date.now()}-${randomBytes(8).toString('hex').toUpperCase()}`
+  const totalAmount = Math.round(typedItem.fixed_price * quantity * 100) / 100
   const currency = typedItem.currency || 'USD'
   const itemTitle = getTranslatedText(typedItem.title_i18n, null, locale as SupportedLocale) || 'Item'
 
-  // 6. 创建订单（RLS: buyer_id = auth.uid() AND status = 'pending'）
-  const { data: order, error: orderError } = await supabase
-    .from('market_orders')
-    .insert({
-      order_reference: orderReference,
-      buyer_id: userId,
-      buyer_email: userEmail,
-      item_id: itemId,
-      quantity,
-      unit_price: typedItem.fixed_price,
-      total_amount: totalAmount,
-      currency,
-      payment_method: 'wayforpay',
-      shipping_name: shipping.name,
-      shipping_phone: shipping.phone || null,
-      shipping_address_line1: shipping.address_line1,
-      shipping_address_line2: shipping.address_line2 || null,
-      shipping_city: shipping.city,
-      shipping_state: shipping.state || null,
-      shipping_postal_code: shipping.postal_code,
-      shipping_country: shipping.country,
-      status: 'pending',
-      locale,
-    })
-    .select('id')
-    .single()
+  // 5. 原子化：扣库存 + 创建订单（单个 PL/pgSQL 事务，失败自动回滚）
+  const service = createServiceClient()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- 新函数尚未加入 database.ts 类型定义，部署迁移后重新生成类型即可移除
+  const { data: orderId, error: atomicError } = await (service.rpc as any)('create_market_order_atomic', {
+    p_order_reference: orderReference,
+    p_buyer_id: userId,
+    p_buyer_email: userEmail,
+    p_item_id: itemId,
+    p_quantity: quantity,
+    p_unit_price: typedItem.fixed_price,
+    p_total_amount: totalAmount,
+    p_currency: currency,
+    p_payment_method: 'wayforpay',
+    p_shipping_name: shipping.name,
+    p_shipping_phone: shipping.phone || null,
+    p_shipping_address_line1: shipping.address_line1,
+    p_shipping_address_line2: shipping.address_line2 || null,
+    p_shipping_city: shipping.city,
+    p_shipping_state: shipping.state || null,
+    p_shipping_postal_code: shipping.postal_code,
+    p_shipping_country: shipping.country,
+    p_locale: locale,
+  })
 
-  if (orderError || !order) {
-    // 错误恢复：restore_stock 仅限 service_role
-    const service = createServiceClient()
-    await restoreStock(service, itemId, quantity)
-    logger.error('MARKET:SALE', 'Order creation failed', { error: orderError?.message })
+  if (atomicError || !orderId) {
+    const isStockError = atomicError?.message?.includes('INSUFFICIENT_STOCK')
+    if (isStockError) {
+      logger.warn('MARKET:SALE', 'Stock insufficient', { itemId, quantity })
+      return { success: false, error: 'insufficient_stock' }
+    }
+    logger.error('MARKET:SALE', 'Atomic order creation failed', { error: atomicError?.message })
     return { success: false, error: 'order_creation_failed' }
   }
+
+  const order = { id: String(orderId) }
 
   // 7. 生成 WayForPay 支付参数
   try {
@@ -137,12 +129,20 @@ export async function createSaleOrder(
       amount: totalAmount,
     }
   } catch (err) {
-    // 错误恢复：删除订单 + 恢复库存（service_role）
-    const service = createServiceClient()
-    await service.from('market_orders').delete().eq('id', order.id)
-    await restoreStock(service, itemId, quantity)
+    // 错误恢复：先标记 expired 再恢复库存，防止 cron 二次恢复导致库存虚增
+    const { data: expiredRows } = await service
+      .from('market_orders')
+      .update({ status: 'expired' })
+      .eq('order_reference', orderReference)
+      .eq('status', 'pending')
+      .select('id')
+    if (expiredRows && expiredRows.length > 0) {
+      await restoreStock(service, itemId, quantity)
+    }
+    // 若 update 未匹配（DB 异常），由 cron 统一处理过期和库存恢复
 
     logger.error('MARKET:SALE', 'Payment params generation failed', {
+      orderReference,
       error: err instanceof Error ? err.message : String(err),
     })
     return { success: false, error: 'payment_params_failed' }
@@ -173,7 +173,7 @@ export async function markMarketOrderWidgetFailed(
       logger.error('MARKET:SALE', 'Failed to mark as widget_load_failed', {
         orderReference, error: error.message,
       })
-      return { success: false, error: error.message }
+      return { success: false, error: 'operation_failed' }
     }
 
     if (!data || data.length === 0) {
@@ -199,7 +199,7 @@ export async function markMarketOrderWidgetFailed(
     logger.error('MARKET:SALE', 'markMarketOrderWidgetFailed failed', {
       orderReference, error: error instanceof Error ? error.message : String(error),
     })
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    return { success: false, error: 'operation_failed' }
   }
 }
 
@@ -226,7 +226,7 @@ export async function cancelMarketOrder(
       logger.error('MARKET:SALE', 'Failed to cancel order (expired)', {
         orderReference, error: error.message,
       })
-      return { success: false, error: error.message }
+      return { success: false, error: 'operation_failed' }
     }
 
     if (!data || data.length === 0) {
@@ -251,7 +251,7 @@ export async function cancelMarketOrder(
     logger.error('MARKET:SALE', 'cancelMarketOrder failed', {
       orderReference, error: error instanceof Error ? error.message : String(error),
     })
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    return { success: false, error: 'operation_failed' }
   }
 }
 

@@ -40,14 +40,19 @@ export default function MarketOrdersPage() {
 
   const [orders, setOrders] = useState<BuyerMarketOrder[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) {
       setIsLoading(true)
-      getMyOrders().then(({ orders: data }) => {
-        setOrders(data)
-        setIsLoading(false)
-      })
+      setLoadError(false)
+      getMyOrders()
+        .then(({ orders: data, error }) => {
+          if (error) { setLoadError(true); return }
+          setOrders(data)
+        })
+        .catch(() => setLoadError(true))
+        .finally(() => setIsLoading(false))
     }
   }, [isAuthenticated])
 
@@ -131,6 +136,28 @@ export default function MarketOrdersPage() {
           /* 加载订单中 */
           <div className="flex items-center justify-center py-24">
             <SpinnerIcon className="animate-spin h-8 w-8 text-ukraine-blue-500" />
+          </div>
+
+        ) : loadError ? (
+          /* 加载失败 */
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-20 text-center">
+            <p className="text-gray-500 mb-4">{t('order.loadError')}</p>
+            <button
+              onClick={() => {
+                setIsLoading(true)
+                setLoadError(false)
+                getMyOrders()
+                  .then(({ orders: data, error }) => {
+                    if (error) { setLoadError(true); return }
+                    setOrders(data)
+                  })
+                  .catch(() => setLoadError(true))
+                  .finally(() => setIsLoading(false))
+              }}
+              className="text-ukraine-blue-600 hover:text-ukraine-blue-800 font-medium transition-colors"
+            >
+              {t('order.retry')}
+            </button>
           </div>
 
         ) : orders.length === 0 ? (

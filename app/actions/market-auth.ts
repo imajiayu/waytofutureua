@@ -1,6 +1,8 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { createServerClient } from '@/lib/supabase/server'
+import { checkRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 // ============================================
@@ -8,10 +10,31 @@ import { logger } from '@/lib/logger'
 // 使用 Supabase Auth 内建的 Email OTP
 // ============================================
 
+// 速率限制配置
+const SEND_LIMIT_PER_EMAIL  = { max: 10, window: 60 * 60 * 1000 } // 每 email 每小时 10 次
+const SEND_LIMIT_PER_IP     = { max: 30, window: 60 * 60 * 1000 } // 每 IP 每小时 30 次
+const VERIFY_LIMIT          = { max: 5,  window: 15 * 60 * 1000 } // 每 (email+IP) 15 分钟 5 次
+
+async function getClientIP(): Promise<string> {
+  const h = await headers()
+  return h.get('x-forwarded-for')?.split(',')[0]?.trim() || h.get('x-real-ip') || 'unknown'
+}
+
 export async function sendOTP(email: string): Promise<{ success: boolean; error?: string }> {
   const trimmed = email.trim().toLowerCase()
   if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
     return { success: false, error: 'invalid_email' }
+  }
+
+  // 速率限制检查
+  const ip = await getClientIP()
+  if (!checkRateLimit(`otp-send:email:${trimmed}`, SEND_LIMIT_PER_EMAIL.max, SEND_LIMIT_PER_EMAIL.window)) {
+    logger.warn('MARKET:AUTH', 'OTP send rate limited (email)', { email: trimmed })
+    return { success: false, error: 'rate_limited' }
+  }
+  if (!checkRateLimit(`otp-send:ip:${ip}`, SEND_LIMIT_PER_IP.max, SEND_LIMIT_PER_IP.window)) {
+    logger.warn('MARKET:AUTH', 'OTP send rate limited (IP)', { ip })
+    return { success: false, error: 'rate_limited' }
   }
 
   try {
@@ -50,6 +73,13 @@ export async function verifyOTP(
 
   if (!trimmedToken || trimmedToken.length !== 6) {
     return { success: false, error: 'invalid_code' }
+  }
+
+  // 暴力破解保护：每 (email+IP) 15 分钟内最多 5 次验证尝试
+  const ip = await getClientIP()
+  if (!checkRateLimit(`otp-verify:${trimmedEmail}:${ip}`, VERIFY_LIMIT.max, VERIFY_LIMIT.window)) {
+    logger.warn('MARKET:AUTH', 'OTP verify rate limited', { email: trimmedEmail, ip })
+    return { success: false, error: 'rate_limited' }
   }
 
   try {
