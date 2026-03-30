@@ -48,6 +48,23 @@ const MOSAIC_ITEMS: MosaicItem[] = [
   { imageUrl: '/images/projects/project-3/results/activity-41.webp', projectId: 3, colStart: 11, colEnd: 13, rowStart: 7, rowEnd: 9 },
 ]
 
+// Phone mosaic: 6 cols × 8 rows, 9 curated images with varied tile sizes
+// Layout: large(3×3) + banner(3×1) + landscape(3×2) | 3×square(2×2) | banner + landscape + large (mirrored)
+const MOBILE_MOSAIC = [
+  // Top: large square + wide banner + landscape
+  { imageUrl: '/images/projects/project-3/results/activity-2.webp', projectId: 3, gridColumn: '1 / 4', gridRow: '1 / 4' },
+  { imageUrl: '/images/projects/project-0/result/result15.webp', projectId: 0, gridColumn: '4 / 7', gridRow: '1 / 2' },
+  { imageUrl: '/images/projects/project-3/results/activity-7.webp', projectId: 3, gridColumn: '4 / 7', gridRow: '2 / 4' },
+  // Middle: three equal squares
+  { imageUrl: '/images/projects/project-3/results/activity-5.webp', projectId: 3, gridColumn: '1 / 3', gridRow: '4 / 6' },
+  { imageUrl: '/images/projects/project-5/details/results/result1.webp', projectId: 5, gridColumn: '3 / 5', gridRow: '4 / 6' },
+  { imageUrl: '/images/projects/project-3/results/activity-8.webp', projectId: 3, gridColumn: '5 / 7', gridRow: '4 / 6' },
+  // Bottom: banner + landscape + large square (mirror of top)
+  { imageUrl: '/images/projects/project-3/results/activity-16.webp', projectId: 3, gridColumn: '1 / 4', gridRow: '6 / 7' },
+  { imageUrl: '/images/projects/project-3/results/activity-25.webp', projectId: 3, gridColumn: '1 / 4', gridRow: '7 / 9' },
+  { imageUrl: '/images/projects/project-3/results/activity-35.webp', projectId: 3, gridColumn: '4 / 7', gridRow: '6 / 9' },
+]
+
 export default function ProjectResultsMosaic() {
   const router = useRouter()
   const pathname = usePathname()
@@ -105,8 +122,47 @@ export default function ProjectResultsMosaic() {
         ))}
       </div>
 
-      {/* Mobile & Tablet: even grid, auto-flow */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full lg:hidden">
+      {/* Phone: art-directed 6-col mosaic, 9 images */}
+      <div
+        className="grid w-full md:hidden"
+        style={{
+          gridTemplateColumns: 'repeat(6, 1fr)',
+          gridTemplateRows: 'repeat(8, calc(100vw / 6))',
+        }}
+      >
+        {MOBILE_MOSAIC.map((item) => (
+          <div
+            key={item.imageUrl}
+            className="relative group cursor-pointer overflow-hidden"
+            style={{
+              gridColumn: item.gridColumn,
+              gridRow: item.gridRow,
+            }}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleClick(item.projectId)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleClick(item.projectId)
+              }
+            }}
+          >
+            <Image
+              src={item.imageUrl}
+              alt=""
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="50vw"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
+          </div>
+        ))}
+      </div>
+
+      {/* Tablet: 4-col uniform grid */}
+      <div className="hidden md:grid lg:hidden grid-cols-4 gap-0 w-full">
         {MOSAIC_ITEMS.map((item) => (
           <div
             key={item.imageUrl}
@@ -126,7 +182,7 @@ export default function ProjectResultsMosaic() {
               alt=""
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(min-width: 768px) 25vw, 50vw"
+              sizes="25vw"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
