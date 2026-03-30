@@ -77,8 +77,3 @@ BEGIN
 END;
 $$;
 
--- 仅 service_role 可调用
-REVOKE EXECUTE ON FUNCTION create_market_order_atomic FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION create_market_order_atomic FROM anon;
-REVOKE EXECUTE ON FUNCTION create_market_order_atomic FROM authenticated;
-GRANT EXECUTE ON FUNCTION create_market_order_atomic TO service_role;
