@@ -332,7 +332,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs text-gray-500" onClick={() => handleEdit(donation)}>
                       <span className="font-medium text-gray-900 text-sm">{donation.amount} {donation.currency || 'UAH'}</span>
-                      <span>#{donation.id} · {formatDate(donation.donated_at)}</span>
+                      <span suppressHydrationWarning>#{donation.id} · {formatDate(donation.donated_at)}</span>
                     </div>
                     <div className="mt-1 text-xs text-gray-400 truncate" onClick={() => handleEdit(donation)}>
                       {donation.projects.project_name}
@@ -433,8 +433,8 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                           className="px-3 py-3 text-sm text-gray-500 cursor-pointer"
                           onClick={() => handleEdit(donation)}
                         >
-                          <div>{formatDate(donation.donated_at)}</div>
-                          <div className="text-xs text-gray-400">
+                          <div suppressHydrationWarning>{formatDate(donation.donated_at)}</div>
+                          <div className="text-xs text-gray-400" suppressHydrationWarning>
                             {formatDateTime(donation.donated_at, 'en', { hour: '2-digit', minute: '2-digit' })}
                           </div>
                         </td>

@@ -177,7 +177,7 @@ export default function SubscriptionsTable({
                 <span className="px-2 py-0.5 font-medium rounded-full bg-gray-100 text-gray-800">
                   {subscription.locale.toUpperCase()}
                 </span>
-                <span>{formatDateTime(subscription.updated_at)}</span>
+                <span suppressHydrationWarning>{formatDateTime(subscription.updated_at)}</span>
               </div>
             </div>
           ))
@@ -234,7 +234,7 @@ export default function SubscriptionsTable({
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDateTime(subscription.updated_at)}
+                      <span suppressHydrationWarning>{formatDateTime(subscription.updated_at)}</span>
                     </td>
                   </tr>
                 ))
