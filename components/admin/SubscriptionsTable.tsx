@@ -76,10 +76,10 @@ export default function SubscriptionsTable({
       </div>
 
       {/* Broadcast Button */}
-      <div className="bg-ukraine-blue-50 p-6 rounded-lg border border-ukraine-blue-200">
-        <div className="flex items-center justify-between">
+      <div className="bg-ukraine-blue-50 p-4 sm:p-6 rounded-lg border border-ukraine-blue-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1 font-body">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 font-body">
               Send Newsletter Broadcast
             </h3>
             <p className="text-sm text-gray-600">
@@ -90,7 +90,7 @@ export default function SubscriptionsTable({
           <button
             onClick={onSendBroadcast}
             disabled={activeSubscriptions === 0}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+            className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base flex-shrink-0"
           >
             Send Broadcast
           </button>
@@ -150,8 +150,42 @@ export default function SubscriptionsTable({
         Showing {filteredSubscriptions.length} of {totalSubscriptions} subscriptions
       </div>
 
-      {/* Subscriptions Table */}
-      <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+      {/* Mobile card view */}
+      <div className="sm:hidden space-y-2">
+        {filteredSubscriptions.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 bg-white rounded-lg border border-gray-200">
+            No subscriptions found
+          </div>
+        ) : (
+          filteredSubscriptions.map((subscription) => (
+            <div key={subscription.id} className="bg-white border border-gray-200 rounded-lg p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm text-gray-900 truncate min-w-0 flex-1">
+                  {subscription.email}
+                </div>
+                {subscription.is_subscribed ? (
+                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800 flex-shrink-0">
+                    Active
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 flex-shrink-0">
+                    Unsubscribed
+                  </span>
+                )}
+              </div>
+              <div className="mt-1.5 flex items-center justify-between text-xs text-gray-500">
+                <span className="px-2 py-0.5 font-medium rounded-full bg-gray-100 text-gray-800">
+                  {subscription.locale.toUpperCase()}
+                </span>
+                <span>{formatDateTime(subscription.updated_at)}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden sm:block bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

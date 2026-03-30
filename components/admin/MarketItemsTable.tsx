@@ -68,8 +68,71 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Mobile card view */}
+      <div className="sm:hidden space-y-3">
+        {items.map(item => {
+          const colors = ITEM_STATUS_COLORS[item.status]
+          const nextStatuses = getNextItemStatuses(item.status)
+          return (
+            <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-sm text-gray-900 truncate">
+                    {getTranslatedText(item.title_i18n, null, 'en') || '—'}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5 font-mono">#{item.id}</div>
+                </div>
+                {colors && (
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${colors.bg} ${colors.text}`}>
+                    {item.status}
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-sm font-data font-medium">
+                  {formatMarketPrice(item.fixed_price || 0, item.currency)}
+                </span>
+                {item.stock_quantity !== null && (
+                  <span className="text-xs text-gray-400">{item.stock_quantity} in stock</span>
+                )}
+              </div>
+              <div className="mt-2 pt-2 border-t border-gray-100 flex flex-wrap gap-3 text-sm">
+                <button
+                  onClick={() => setEditingItem(item)}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  Edit
+                </button>
+                {nextStatuses.map(status => (
+                  <button
+                    key={status}
+                    onClick={() => handleStatusChange(item.id, status)}
+                    disabled={actionLoading === item.id}
+                    className="text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                  >
+                    &rarr; {status}
+                  </button>
+                ))}
+                {item.status === 'draft' && (
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    disabled={actionLoading === item.id}
+                    className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+        {items.length === 0 && (
+          <div className="text-center py-8 text-gray-400">No items found</div>
+        )}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -140,7 +203,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
       </div>
 
       {items.length === 0 && (
-        <div className="text-center py-8 text-gray-400">No items found</div>
+        <div className="hidden sm:block text-center py-8 text-gray-400">No items found</div>
       )}
 
       {isCreating && (

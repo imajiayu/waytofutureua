@@ -47,7 +47,43 @@ export default function ProjectsTable({ initialProjects }: Props) {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile card view */}
+        <div className="sm:hidden space-y-3">
+          {projects.map((project) => (
+            <div
+              key={project.id}
+              className="bg-white border border-gray-200 rounded-lg p-3 active:bg-gray-50"
+              onClick={() => handleEdit(project)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-sm text-gray-900">{project.project_name}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{project.location}</div>
+                </div>
+                <ProjectStatusBadge status={project.status || 'active'} />
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {project.aggregate_donations ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      Aggregated
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Unit-based
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-500">
+                  {project.current_units} / {project.target_units || 0}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table view */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>

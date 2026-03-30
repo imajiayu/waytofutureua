@@ -152,58 +152,70 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:p-6">
-        <div className="mb-4 flex flex-wrap gap-3 sm:gap-4 items-center justify-between">
-          <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mr-2">
-                Status:
+        {/* Filters */}
+        <div className="mb-4 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3 sm:gap-4 items-start lg:items-center">
+            <div className="min-w-0">
+              <label className="block text-sm font-medium text-gray-700 mb-1 lg:hidden">
+                Status
               </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="all">All</option>
-                <option value="pending">Pending</option>
-                <option value="widget_load_failed">Widget Load Failed</option>
-                <option value="processing">Processing</option>
-                <option value="fraud_check">Fraud Check</option>
-                <option value="paid">Paid</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="delivering">Delivering</option>
-                <option value="completed">Completed</option>
-                <option value="expired">Expired</option>
-                <option value="declined">Declined</option>
-                <option value="failed">Failed</option>
-                <option value="refunding">Refunding</option>
-                <option value="refund_processing">Refund Processing</option>
-                <option value="refunded">Refunded</option>
-              </select>
+              <div className="flex items-center gap-2">
+                <label className="hidden lg:block text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Status:
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full lg:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="all">All</option>
+                  <option value="pending">Pending</option>
+                  <option value="widget_load_failed">Widget Load Failed</option>
+                  <option value="processing">Processing</option>
+                  <option value="fraud_check">Fraud Check</option>
+                  <option value="paid">Paid</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="delivering">Delivering</option>
+                  <option value="completed">Completed</option>
+                  <option value="expired">Expired</option>
+                  <option value="declined">Declined</option>
+                  <option value="failed">Failed</option>
+                  <option value="refunding">Refunding</option>
+                  <option value="refund_processing">Refund Processing</option>
+                  <option value="refunded">Refunded</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 mr-2">
-                Project:
+            <div className="min-w-0">
+              <label className="block text-sm font-medium text-gray-700 mb-1 lg:hidden">
+                Project
               </label>
-              <select
-                value={projectFilter}
-                onChange={(e) => setProjectFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="all">All Projects</option>
-                {uniqueProjects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                <label className="hidden lg:block text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Project:
+                </label>
+                <select
+                  value={projectFilter}
+                  onChange={(e) => setProjectFilter(e.target.value)}
+                  className="w-full lg:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="all">All Projects</option>
+                  {uniqueProjects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+          </div>
 
+          <div className="flex flex-wrap gap-3 items-center">
             <span className="text-sm text-gray-500">
               Total: {filteredDonations.length}
             </span>
 
-            {/* 全局全选按钮 */}
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -239,31 +251,31 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
               )}
               <button
                 onClick={() => setShowPrintLabels(true)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm"
               >
                 Print Labels ({selectedIds.size})
               </button>
               <button
                 onClick={() => setShowBatchEdit(true)}
                 disabled={!canBatchEditSelected}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
               >
                 Batch Edit ({selectedIds.size})
               </button>
               <button
                 onClick={() => setSelectedIds(new Set())}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
               >
-                Clear Selection
+                Clear
               </button>
             </div>
           )}
         </div>
 
-        <div className="overflow-x-auto space-y-6">
+        <div className="space-y-6">
           {donationGroups.map((group) => (
             <div key={group.orderReference || 'no-order'} className="border-2 border-gray-300 rounded-lg p-2 sm:p-4 bg-gray-50">
-              {/* 订单头部信息 */}
+              {/* Order header */}
               {group.orderReference && (
                 <div className="mb-3 pb-3 border-b border-gray-300">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
@@ -277,8 +289,60 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                 </div>
               )}
 
-              {/* 捐赠记录表格 */}
-              <div className="overflow-x-auto">
+              {/* Group select */}
+              <div className="flex items-center gap-2 mb-2 sm:hidden">
+                <input
+                  type="checkbox"
+                  checked={group.donations.every(d => selectedIds.has(d.id))}
+                  ref={(input) => {
+                    if (input) {
+                      const allSelected = group.donations.every(d => selectedIds.has(d.id))
+                      const someSelected = group.donations.some(d => selectedIds.has(d.id)) && !allSelected
+                      input.indeterminate = someSelected
+                    }
+                  }}
+                  onChange={(e) => handleSelectGroup(group.donations, e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-xs text-gray-500">Select group</span>
+              </div>
+
+              {/* Mobile card view */}
+              <div className="sm:hidden space-y-2">
+                {group.donations.map((donation) => (
+                  <div
+                    key={donation.id}
+                    className={`bg-white rounded-md border p-3 ${selectedIds.has(donation.id) ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2 min-w-0 flex-1" onClick={() => handleEdit(donation)}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(donation.id)}
+                          onChange={(e) => { e.stopPropagation(); handleSelectOne(donation.id, e.target.checked) }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm text-gray-900">{donation.donor_name}</div>
+                          <div className="text-xs text-gray-500 truncate">{donation.donor_email}</div>
+                        </div>
+                      </div>
+                      <DonationStatusBadge status={donation.donation_status as DonationStatus} />
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500" onClick={() => handleEdit(donation)}>
+                      <span className="font-medium text-gray-900 text-sm">{donation.amount} {donation.currency || 'UAH'}</span>
+                      <span>#{donation.id} · {formatDate(donation.donated_at)}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-400 truncate" onClick={() => handleEdit(donation)}>
+                      {donation.projects.project_name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table view */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 bg-white rounded-md overflow-hidden">
                   <thead className="bg-gray-50">
                     <tr>

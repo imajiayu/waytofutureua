@@ -226,7 +226,7 @@ export default function BroadcastModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-end sm:items-center justify-center sm:p-4">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
@@ -235,7 +235,7 @@ export default function BroadcastModal({
 
         {/* Modal */}
         <div
-          className={`relative bg-white rounded-lg shadow-xl ${showPreview ? 'max-w-4xl' : 'max-w-lg'} w-full p-4 sm:p-6 space-y-4 transition-all duration-300 max-h-[90vh] overflow-y-auto`}
+          className={`relative bg-white rounded-t-xl sm:rounded-lg shadow-xl ${showPreview ? 'max-w-4xl' : 'max-w-lg'} w-full p-4 sm:p-6 space-y-4 transition-all duration-300 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto`}
         >
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -245,7 +245,7 @@ export default function BroadcastModal({
             <button
               onClick={handleClose}
               disabled={isSending}
-              className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+              className="text-gray-400 hover:text-gray-600 disabled:opacity-50 p-1 -m-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

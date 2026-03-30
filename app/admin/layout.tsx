@@ -54,9 +54,9 @@ export default async function AdminLayout({
     <html lang="en">
       <body className={`${sourceSans.variable} ${jetbrainsMono.variable} font-body antialiased`}>
         <NextIntlClientProvider messages={messages} locale="en">
-          <div className="min-h-screen bg-gray-50">
+          <div className="min-h-screen bg-gray-50 overflow-x-hidden">
             <AdminNav />
-            <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <main className="max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
               {children}
             </main>
           </div>
