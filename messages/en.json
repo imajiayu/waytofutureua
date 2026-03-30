@@ -118,7 +118,10 @@
       "projects": {
         "label": "CURRENT PROJECTS",
         "title": "Make a Difference Today",
-        "scrollHint": "Scroll to view all projects"
+        "scrollHint": "Scroll to view all projects and items"
+      },
+      "market": {
+        "label": "CHARITY MARKET"
       },
       "donationJourney": {
         "label": "HOW IT WORKS",

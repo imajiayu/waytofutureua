@@ -118,7 +118,10 @@
       "projects": {
         "label": "当前项目",
         "title": "今天就做出改变",
-        "scrollHint": "滚动查看所有项目"
+        "scrollHint": "滚动查看所有项目和商品"
+      },
+      "market": {
+        "label": "爱心义卖"
       },
       "donationJourney": {
         "label": "工作流程",
