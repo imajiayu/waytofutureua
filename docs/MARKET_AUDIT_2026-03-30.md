@@ -12,8 +12,8 @@
 |--------|------|--------|------|
 | P0 - 立即修复 | 3 | 3 | :white_check_mark: |
 | P1 - 尽快修复 | 5 | 5 | :white_check_mark: |
-| P2 - 近期修复 | 13 | 5 | :construction: |
-| P3 - 酌情处理 | 11 | 1 | :construction: |
+| P2 - 近期修复 | 13 | 13 | :white_check_mark: |
+| P3 - 酌情处理 | 11 | 10 | :construction: |
 
 ---
 
@@ -338,7 +338,7 @@ const orderReference = `MKT-${Date.now()}-${randomBytes(8).toString('hex').toUpp
 
 ### P2-2. `updateMarketOrderStatus` 未使用 Zod schema 验证
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 输入验证
 - **文件**: `app/actions/market-admin.ts:175-178`
 
@@ -368,7 +368,7 @@ logger.error('Operation failed', { error: error.message, context })
 
 ### P2-4. 支付 Widget 超时回调闭包捕获陈旧 `error` 值
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: Bug
 - **文件**: `components/market/MarketPaymentWidget.tsx:221`
 
@@ -386,7 +386,7 @@ useEffect(() => { errorRef.current = error }, [error])
 
 ### P2-5. Checkout 提交缺少 ref 级互斥锁
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 竞态条件
 - **文件**: `components/market/SaleCheckoutPanel.tsx:81`
 
@@ -409,7 +409,7 @@ const handleCheckout = async () => {
 
 ### P2-6. "修改信息并重试" — cancel 静默失败可能导致重复支付
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: UX / 数据一致性
 - **文件**: `components/market/MarketPaymentWidget.tsx:339-365`
 
@@ -421,7 +421,7 @@ const handleCheckout = async () => {
 
 ### P2-7. 支付成功页无法区分 session 过期和订单处理中
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: UX
 - **文件**: `app/[locale]/market/success/page.tsx:33-46`
 
@@ -468,7 +468,7 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P2-10. `total_amount` 无数据库级一致性约束
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 数据完整性
 - **文件**: `market_orders` 表定义
 
@@ -488,7 +488,7 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P2-12. `restore_stock` 返回 VOID，失败不可感知
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 可靠性
 - **文件**: 函数定义
 
@@ -498,7 +498,7 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P2-13. `buyer_id` 外键缺少 `ON DELETE` 行为
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **分类**: 运维
 - **文件**: `market_orders` 表定义
 
@@ -510,37 +510,37 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P3-1. MIME 类型验证基于客户端声明而非 magic bytes
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `app/actions/market-order-files.ts:67-68`
 - **建议**: 读取文件前几个字节校验 magic bytes
 
 ### P3-2. `locale` 参数未在应用层验证
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `app/actions/market-sale.ts:23`
 - **建议**: 添加 `z.enum(['en', 'zh', 'ua'])` 验证
 
 ### P3-3. 每个 MarketItemCard 独立渲染 GlobalLoadingSpinner
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `components/market/MarketItemCard.tsx:40`
 - **建议**: 提升到 MarketItemGrid 层级
 
 ### P3-4. BottomSheet 关闭后移动端无法重新打开
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `components/market/MarketItemDetail.tsx:40`
 - **建议**: 添加浮动按钮重新打开
 
 ### P3-5. 数量选择器按钮缺少 disabled 视觉反馈
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `components/market/SaleCheckoutPanel.tsx:293-300`
 - **建议**: 添加 `disabled:opacity-50 disabled:cursor-not-allowed`
 
 ### P3-6. `address_line2` 的 undefined vs '' 不一致
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `components/market/ShippingAddressForm.tsx:113`
 - **建议**: 统一为空字符串而非 undefined
 
@@ -552,19 +552,19 @@ if (body.currency && body.currency !== order.currency) {
 
 ### P3-8. 触发器函数 search_path 不一致
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: 多个迁移文件中的触发器函数
 - **建议**: 统一添加 `SET search_path = public`
 
 ### P3-9. 凭证照片可能含收件人 PII（公开视图 + public bucket）
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-31，CLAUDE.md 补充管理员操作规范）
 - **文件**: 存储桶策略 + `market_orders_public` 视图
 - **建议**: 管理员上传前需模糊处理快递单上的收件人信息
 
 ### P3-10. a11y 缺失：数量按钮无 aria-label、div 模拟链接
 
-- **状态**: :black_square_button: 待修复
+- **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `SaleCheckoutPanel.tsx` / `MarketItemCard.tsx`
 - **建议**: 添加 `aria-label`，改用 `<Link>` 替代 `div[role="link"]`
 

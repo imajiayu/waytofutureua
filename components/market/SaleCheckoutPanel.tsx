@@ -32,6 +32,7 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
   const [shipping, setShipping] = useState<ShippingAddress>(EMPTY_ADDRESS)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const submittingRef = useRef(false) // P2-5: ref-level mutex against double submit
   const [paymentParams, setPaymentParams] = useState<Record<string, unknown> | null>(null)
   const [paymentAmount, setPaymentAmount] = useState(0)
 
@@ -79,30 +80,35 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
   }, [shipping, t])
 
   const handleCheckout = async () => {
+    if (submittingRef.current) return // P2-5: ref-level guard
     if (!validateShipping()) return
 
+    submittingRef.current = true
     setError(null)
     setIsSubmitting(true)
     setStep('processing')
 
-    const result = await createSaleOrder(item.id, quantity, shipping, locale)
+    try {
+      const result = await createSaleOrder(item.id, quantity, shipping, locale)
 
-    if (!result.success) {
+      if (!result.success) {
+        setStep('checkout')
+        setError(result.error === 'insufficient_stock'
+          ? t('errors.insufficientStock')
+          : result.error === 'not_authenticated'
+          ? t('errors.notAuthenticated')
+          : t('errors.checkoutFailed')
+        )
+        return
+      }
+
+      setPaymentParams(result.paymentParams!)
+      setPaymentAmount(result.amount!)
+      setStep('payment')
+    } finally {
+      submittingRef.current = false
       setIsSubmitting(false)
-      setStep('checkout')
-      setError(result.error === 'insufficient_stock'
-        ? t('errors.insufficientStock')
-        : result.error === 'not_authenticated'
-        ? t('errors.notAuthenticated')
-        : t('errors.checkoutFailed')
-      )
-      return
     }
-
-    setPaymentParams(result.paymentParams!)
-    setPaymentAmount(result.amount!)
-    setIsSubmitting(false)
-    setStep('payment')
   }
 
   const showOTPForm = !isAuthenticated || isChangingEmail
@@ -292,8 +298,10 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
               <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  aria-label={t('sale.decreaseQuantity')}
                   className="w-10 h-10 flex items-center justify-center text-gray-500
-                           hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                           hover:bg-gray-50 active:bg-gray-100 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   disabled={quantity <= 1}
                 >
                   −
@@ -303,8 +311,11 @@ export default function SaleCheckoutPanel({ item, locale }: SaleCheckoutPanelPro
                 </span>
                 <button
                   onClick={() => setQuantity(q => Math.min(item.stock_quantity ?? 99, q + 1))}
+                  aria-label={t('sale.increaseQuantity')}
                   className="w-10 h-10 flex items-center justify-center text-gray-500
-                           hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                           hover:bg-gray-50 active:bg-gray-100 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                  disabled={quantity >= (item.stock_quantity ?? 99)}
                 >
                   +
                 </button>

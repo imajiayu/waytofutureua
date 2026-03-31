@@ -19,6 +19,38 @@ const MIME_TO_EXT: Record<string, string> = {
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
+// P3-1: Magic bytes 验证 — 防止 MIME 类型伪造
+const MAGIC_BYTES: Record<string, number[][]> = {
+  'image/jpeg': [[0xFF, 0xD8, 0xFF]],
+  'image/png':  [[0x89, 0x50, 0x4E, 0x47]],
+  'image/gif':  [[0x47, 0x49, 0x46, 0x38]],                   // GIF8
+  'image/webp': [[0x52, 0x49, 0x46, 0x46]],                   // RIFF (+ WEBP at offset 8)
+  'video/mp4':  [[0x00, 0x00, 0x00], [0x66, 0x74, 0x79, 0x70]], // ftyp at offset 4
+  'video/quicktime': [[0x00, 0x00, 0x00]],                     // same box header
+}
+
+function verifyMagicBytes(buffer: ArrayBuffer, mimeType: string): boolean {
+  const signatures = MAGIC_BYTES[mimeType]
+  if (!signatures) return false
+
+  const bytes = new Uint8Array(buffer.slice(0, 12))
+
+  // For video/mp4, check 'ftyp' at offset 4
+  if (mimeType === 'video/mp4') {
+    return bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70
+  }
+
+  // For quicktime, same ftyp check
+  if (mimeType === 'video/quicktime') {
+    return bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70
+  }
+
+  // For images, check starting bytes
+  return signatures.some(sig =>
+    sig.every((byte, i) => bytes[i] === byte)
+  )
+}
+
 // ============================================
 // 辅助：获取订单的 order_reference
 // ============================================
@@ -70,6 +102,14 @@ export async function uploadMarketOrderFile(formData: FormData): Promise<{
   // 验证文件大小
   if (file.size > MAX_FILE_SIZE) throw new Error('File too large (max 50MB)')
 
+  // 读取文件内容
+  const arrayBuffer = await file.arrayBuffer()
+
+  // P3-1: Magic bytes 验证 — 确保文件内容与声明的 MIME 类型一致
+  if (!verifyMagicBytes(arrayBuffer, file.type)) {
+    throw new Error('File content does not match declared type')
+  }
+
   const orderReference = await getOrderReference(client, orderId)
 
   // 生成文件路径：{order_reference}/{category}/{timestamp}.{ext}
@@ -77,8 +117,6 @@ export async function uploadMarketOrderFile(formData: FormData): Promise<{
   const fileName = `${timestamp}.${fileExt}`
   const filePath = `${orderReference}/${category}/${fileName}`
 
-  // 读取文件内容并上传
-  const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
 
   const { error: uploadError } = await client.storage

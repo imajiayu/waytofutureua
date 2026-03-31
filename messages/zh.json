@@ -964,6 +964,8 @@
       "inStock": "{count} 件可售",
       "sold": "已售",
       "quantity": "数量",
+      "decreaseQuantity": "减少数量",
+      "increaseQuantity": "增加数量",
       "listedOn": "上架于",
       "viewDetails": "查看详情"
     },
@@ -1007,7 +1009,9 @@
       "paymentTitle": "完成支付",
       "total": "合计",
       "loading": "正在加载支付...",
-      "modifyAndRetry": "修改信息并重试"
+      "modifyAndRetry": "修改信息并重试",
+      "orderAlreadyProcessed": "订单已处理",
+      "orderAlreadyProcessedHint": "您在此页面期间付款已完成处理。请查看您的订单状态。"
     },
     "success": {
       "continueBrowsing": "继续浏览",
@@ -1024,6 +1028,10 @@
       "failed": {
         "title": "付款未成功",
         "description": "很抱歉，您的付款未完成。请重试或联系我们获取帮助。"
+      },
+      "sessionExpired": {
+        "title": "登录已过期",
+        "description": "您的登录会话已过期，请重新登录以查看订单详情。"
       }
     },
     "status": {

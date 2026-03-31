@@ -964,6 +964,8 @@
       "inStock": "{count} available",
       "sold": "Sold",
       "quantity": "Quantity",
+      "decreaseQuantity": "Decrease quantity",
+      "increaseQuantity": "Increase quantity",
       "listedOn": "Listed",
       "viewDetails": "View Details"
     },
@@ -1007,7 +1009,9 @@
       "paymentTitle": "Complete Payment",
       "total": "Total",
       "loading": "Loading payment...",
-      "modifyAndRetry": "Modify Info & Retry"
+      "modifyAndRetry": "Modify Info & Retry",
+      "orderAlreadyProcessed": "Order Already Processed",
+      "orderAlreadyProcessedHint": "Your payment has been processed while you were on this page. Please check your order status."
     },
     "success": {
       "continueBrowsing": "Continue Browsing",
@@ -1024,6 +1028,10 @@
       "failed": {
         "title": "Payment Unsuccessful",
         "description": "Unfortunately, your payment was not completed. Please try again or contact us for help."
+      },
+      "sessionExpired": {
+        "title": "Session Expired",
+        "description": "Your login session has expired. Please log in again to view your order details."
       }
     },
     "status": {

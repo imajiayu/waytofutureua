@@ -370,6 +370,26 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
             <SaleCheckoutPanel item={item} locale={locale} />
           </div>
         </BottomSheet>
+
+        {/* P3-4: FAB 重新打开 BottomSheet */}
+        {!isSheetOpen && !hideSheetAtBottom && (
+          <button
+            onClick={() => setIsSheetOpen(true)}
+            className="fixed bottom-6 right-6 z-40 flex items-center gap-2
+                     px-5 py-3.5 bg-ukraine-gold-400 text-ukraine-blue-900
+                     rounded-full shadow-lg shadow-ukraine-gold-400/30
+                     font-bold text-sm
+                     hover:bg-ukraine-gold-300 active:scale-95
+                     transition-all duration-200
+                     animate-in fade-in slide-in-from-bottom-4"
+            aria-label={t('sale.buyNow')}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+            </svg>
+            {t('sale.buyNow')} — {formatMarketPrice(price, item.currency)}
+          </button>
+        )}
       </div>
     </div>
   )

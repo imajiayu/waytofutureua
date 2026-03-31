@@ -178,6 +178,18 @@ export async function updateMarketOrderStatus(
   meta?: { tracking_number?: string; tracking_carrier?: string; note?: string }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // P2-2: 输入验证
+    const parsed = updateOrderStatusSchema.safeParse({
+      order_id: orderId,
+      status: newStatus,
+      tracking_number: meta?.tracking_number,
+      tracking_carrier: meta?.tracking_carrier,
+      note: meta?.note,
+    })
+    if (!parsed.success) {
+      return { success: false, error: 'Invalid input' }
+    }
+
     const client = await getAdminClient()
 
     const { data: order } = await client

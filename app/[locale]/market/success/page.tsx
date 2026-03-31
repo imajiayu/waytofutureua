@@ -11,15 +11,17 @@ type Props = {
   searchParams: Promise<{ order?: string }>
 }
 
-// 状态分组对应的图标和颜色
-const STATUS_GROUP_STYLES: Record<OrderStatusGroup, {
+// 状态分组对应的图标和颜色（含 sessionExpired）
+type StatusGroupKey = OrderStatusGroup | 'sessionExpired'
+const STATUS_GROUP_STYLES: Record<StatusGroupKey, {
   iconBg: string
   iconColor: string
   icon: 'check' | 'clock' | 'x'
 }> = {
-  processing: { iconBg: 'bg-ukraine-gold-100', iconColor: 'text-ukraine-gold-600', icon: 'clock' },
-  success:    { iconBg: 'bg-life-100',         iconColor: 'text-life-600',          icon: 'check' },
-  failed:     { iconBg: 'bg-warm-100',         iconColor: 'text-warm-600',          icon: 'x' },
+  processing:     { iconBg: 'bg-ukraine-gold-100', iconColor: 'text-ukraine-gold-600', icon: 'clock' },
+  success:        { iconBg: 'bg-life-100',         iconColor: 'text-life-600',          icon: 'check' },
+  failed:         { iconBg: 'bg-warm-100',         iconColor: 'text-warm-600',          icon: 'x' },
+  sessionExpired: { iconBg: 'bg-gray-100',         iconColor: 'text-gray-500',          icon: 'clock' },
 }
 
 export default async function MarketSuccessPage({ params, searchParams }: Props) {
@@ -28,6 +30,7 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
   const t = await getTranslations({ locale, namespace: 'market' })
 
   let order: MarketOrder | null = null
+  let sessionExpired = false
 
   if (orderRef) {
     const supabase = await createServerClient()
@@ -42,15 +45,20 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
         .eq('buyer_id', user.id)
         .single()
       order = data as (MarketOrder & { market_items?: { title_i18n: Record<string, string> } }) | null
+    } else {
+      // P2-7: 区分 session 过期 — 用户未登录但有 orderRef
+      sessionExpired = true
     }
   }
 
-  // 根据订单状态确定分组，无订单时默认 processing（webhook 可能还没到）
-  const statusGroup = order ? getOrderStatusGroup(order.status) : 'processing'
+  // 根据订单状态确定分组
+  const statusGroup = sessionExpired
+    ? 'sessionExpired' as const
+    : order ? getOrderStatusGroup(order.status) : 'processing'
   const style = STATUS_GROUP_STYLES[statusGroup]
 
   // 状态分组对应的翻译键前缀
-  const groupKey = statusGroup === 'success' ? 'confirmed' : statusGroup
+  const groupKey = statusGroup === 'success' ? 'confirmed' : statusGroup as string
 
   return (
     <main className="max-w-2xl mx-auto px-4 sm:px-6 py-16">

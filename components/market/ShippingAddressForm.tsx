@@ -111,7 +111,7 @@ export default function ShippingAddressForm({
             <input
               type="text"
               value={value.address_line2 || ''}
-              onChange={e => update('address_line2', e.target.value || undefined)}
+              onChange={e => update('address_line2', e.target.value)}
               disabled={disabled}
               className={inputClass('address_line2')}
               autoComplete="address-line2"
@@ -137,7 +137,7 @@ export default function ShippingAddressForm({
               <input
                 type="text"
                 value={value.state || ''}
-                onChange={e => update('state', e.target.value || undefined)}
+                onChange={e => update('state', e.target.value)}
                 disabled={disabled}
                 className={inputClass('state')}
                 autoComplete="address-level1"

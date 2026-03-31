@@ -24,6 +24,10 @@ export async function createSaleOrder(
   locale: string
 ): Promise<CreateSaleOrderResult> {
   // 1. 验证输入
+  const VALID_LOCALES = ['en', 'zh', 'ua'] as const
+  if (!VALID_LOCALES.includes(locale as any)) {
+    return { success: false, error: 'validation_failed' }
+  }
   const parsed = salePurchaseSchema.safeParse({ item_id: itemId, quantity, shipping })
   if (!parsed.success) {
     return { success: false, error: 'validation_failed' }
@@ -230,8 +234,9 @@ export async function cancelMarketOrder(
     }
 
     if (!data || data.length === 0) {
-      logger.debug('MARKET:SALE', 'No pending order to cancel', { orderReference })
-      return { success: true }
+      // P2-6: 订单可能已被 Webhook 处理为 paid — 告知前端不要回到 checkout
+      logger.warn('MARKET:SALE', 'No pending order to cancel — may already be processed', { orderReference })
+      return { success: false, error: 'order_already_processed' }
     }
 
     const service = createServiceClient()

@@ -44,6 +44,8 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
   const [error, setError] = useState<string | null>(null)
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState<string | null>(null)
+  const errorRef = useRef<string | null>(null) // P2-4: track latest error for setTimeout closures
   const scriptLoadedRef = useRef(false)
   const scriptLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const widgetOpenCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -53,6 +55,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
   const widgetEverDetectedRef = useRef(false)
   const widgetCheckCompletedRef = useRef(false)
   const markedAsFailedRef = useRef(false)
+
+  // P2-4: keep errorRef in sync for setTimeout closures
+  useEffect(() => { errorRef.current = error }, [error])
 
   useEffect(() => {
     const markAsFailed = async (reason: string) => {
@@ -218,7 +223,7 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
           setIsRedirecting(true)
           setIsLoading(false)
           setTimeout(() => {
-            if (!hasRedirectedRef.current && !error) {
+            if (!hasRedirectedRef.current && !errorRef.current) {
               setIsRedirecting(false)
               setError(tWidget('popupBlocked'))
               if (!widgetOpenedRef.current && !widgetEverDetectedRef.current) {
@@ -335,15 +340,41 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
           </div>
         )}
 
+        {/* ── Cancel error — order already processed ── */}
+        {cancelError && (
+          <div className="p-4 bg-ukraine-blue-50 border border-ukraine-blue-200 rounded-xl">
+            <div className="flex gap-3 items-start">
+              <svg className="w-5 h-5 text-ukraine-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-ukraine-blue-800 mb-1">
+                  {t('checkout.orderAlreadyProcessed')}
+                </p>
+                <p className="text-[13px] text-ukraine-blue-600 leading-relaxed">
+                  {t('checkout.orderAlreadyProcessedHint')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Modify & Retry button ── */}
-        {!isLoading && onBack && (
+        {!isLoading && onBack && !cancelError && (
           <button
             type="button"
             disabled={isCancelling}
             onClick={async () => {
               setIsCancelling(true)
+              setCancelError(null)
               try {
-                await cancelMarketOrder(paymentParams.orderReference)
+                const result = await cancelMarketOrder(paymentParams.orderReference)
+                if (!result.success && result.error === 'order_already_processed') {
+                  setCancelError(result.error)
+                } else {
+                  onBack()
+                }
+              } catch {
                 onBack()
               } finally {
                 setIsCancelling(false)

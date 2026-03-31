@@ -1,46 +1,39 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
 import Image from 'next/image'
 import { useTranslations, useLocale } from 'next-intl'
-import { useRouter, usePathname } from '@/i18n/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { getTranslatedText, formatDate, type SupportedLocale } from '@/lib/i18n-utils'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { getItemDisplayInfo } from '@/lib/market/market-status'
-import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
 import type { PublicMarketItem, MarketItemContent } from '@/types/market'
 
 interface MarketItemCardProps {
   item: PublicMarketItem
   content: MarketItemContent | null
+  onNavigate?: () => void // P3-3: 由 Grid 层统一管理加载态
 }
 
-export default function MarketItemCard({ item, content }: MarketItemCardProps) {
+export default function MarketItemCard({ item, content, onNavigate }: MarketItemCardProps) {
   const t = useTranslations('market')
   const locale = useLocale() as SupportedLocale
   const router = useRouter()
-  const pathname = usePathname()
-  const [isNavigating, setIsNavigating] = useState(false)
-
-  useEffect(() => {
-    setIsNavigating(false)
-  }, [pathname])
 
   const title = getTranslatedText(item.title_i18n, null, locale) || 'Untitled'
   const { labelKey, colors, hasStock, isSold } = getItemDisplayInfo(item.status, item.stock_quantity)
   const isOnSale = item.status === 'on_sale'
 
   const handleClick = useCallback(() => {
-    setIsNavigating(true)
+    onNavigate?.()
     router.push(`/market/${item.id}`)
-  }, [router, item.id])
+  }, [router, item.id, onNavigate])
 
   return (
-    <>
-    <GlobalLoadingSpinner isLoading={isNavigating} />
     <div
       onClick={handleClick}
       role="link"
+      aria-label={title}
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
       className="w-full text-left bg-white rounded-2xl border border-gray-200/80
@@ -149,6 +142,5 @@ export default function MarketItemCard({ item, content }: MarketItemCardProps) {
         )}
       </div>
     </div>
-    </>
   )
 }
