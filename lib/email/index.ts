@@ -21,14 +21,14 @@ export type {
   MarketOrderShippedEmailParams,
   MarketOrderCompletedEmailParams,
   EmailContent,
-  NGOBranding
+  OrgBranding
 } from './types'
 
 // Export client
 export { resend, FROM_EMAIL } from './client'
 
 // Export configuration
-export { NGO_BRANDING, EMAIL_COLORS } from './config'
+export { ORG_BRANDING, EMAIL_COLORS } from './config'
 
 // Export utilities
 export {

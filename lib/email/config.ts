@@ -2,10 +2,10 @@
  * Email System Configuration
  */
 
-import { NGOBranding } from './types'
+import { OrgBranding } from './types'
 
-// NGO Branding Configuration
-export const NGO_BRANDING: NGOBranding = {
+// Organization Branding Configuration
+export const ORG_BRANDING: OrgBranding = {
   name: {
     en: 'Way to Future UA',
     zh: '乌克兰未来之路',

@@ -101,8 +101,8 @@ export interface EmailContent {
   text: string
 }
 
-// NGO branding
-export interface NGOBranding {
+// Organization branding
+export interface OrgBranding {
   name: I18nText
   logoUrl: string
   websiteUrl: string

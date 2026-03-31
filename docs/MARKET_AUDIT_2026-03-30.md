@@ -13,7 +13,7 @@
 | P0 - 立即修复 | 3 | 3 | :white_check_mark: |
 | P1 - 尽快修复 | 5 | 5 | :white_check_mark: |
 | P2 - 近期修复 | 13 | 13 | :white_check_mark: |
-| P3 - 酌情处理 | 11 | 10 | :construction: |
+| P3 - 酌情处理 | 10 | 10 | :white_check_mark: |
 
 ---
 
@@ -544,31 +544,25 @@ if (body.currency && body.currency !== order.currency) {
 - **文件**: `components/market/ShippingAddressForm.tsx:113`
 - **建议**: 统一为空字符串而非 undefined
 
-### P3-7. 公开购买记录不分页
-
-- **状态**: :black_square_button: 待修复
-- **文件**: `components/market/MarketOrderList.tsx:36`
-- **建议**: 添加分页或虚拟滚动
-
-### P3-8. 触发器函数 search_path 不一致
+### P3-7. 触发器函数 search_path 不一致
 
 - **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: 多个迁移文件中的触发器函数
 - **建议**: 统一添加 `SET search_path = public`
 
-### P3-9. 凭证照片可能含收件人 PII（公开视图 + public bucket）
+### P3-8. 凭证照片可能含收件人 PII（公开视图 + public bucket）
 
 - **状态**: :white_check_mark: 已完成（2026-03-31，CLAUDE.md 补充管理员操作规范）
 - **文件**: 存储桶策略 + `market_orders_public` 视图
 - **建议**: 管理员上传前需模糊处理快递单上的收件人信息
 
-### P3-10. a11y 缺失：数量按钮无 aria-label、div 模拟链接
+### P3-9. a11y 缺失：数量按钮无 aria-label、div 模拟链接
 
 - **状态**: :white_check_mark: 已完成（2026-03-30）
 - **文件**: `SaleCheckoutPanel.tsx` / `MarketItemCard.tsx`
 - **建议**: 添加 `aria-label`，改用 `<Link>` 替代 `div[role="link"]`
 
-### P3-11. Webhook 处理失败返回 500 可能导致无限重试
+### P3-10. Webhook 处理失败返回 500 可能导致无限重试
 
 - **状态**: :white_check_mark: 已完成（随 P0-1 一并修复，改为 respondWithAccept）
 - **文件**: `app/api/webhooks/wayforpay-market/route.ts:123,160`

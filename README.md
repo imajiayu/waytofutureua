@@ -1,6 +1,6 @@
-# NGO Platform
+# Way to Future UA
 
-A modern, multilingual NGO donation platform with integrated payment processing and real-time project tracking.
+A modern, multilingual donation platform with integrated payment processing and real-time project tracking.
 
 ## ✨ Key Features
 

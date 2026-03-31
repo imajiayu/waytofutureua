@@ -51,7 +51,7 @@ const PROJECT_STATUSES = ['planned', 'active', 'completed', 'paused'] as const
  *
  * Payment Complete:
  * - paid: Payment successful, funds received
- * - confirmed: NGO confirmed the donation
+ * - confirmed: Platform confirmed the donation
  * - delivering: Items being delivered
  * - completed: Delivery completed
  *

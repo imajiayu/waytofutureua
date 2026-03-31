@@ -682,5 +682,5 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 ---
 
 **文档版本**: 1.1.0
-**维护��**: NGO Platform Team
+**维护者**: Way to Future UA Team
 **最后更新**: 2026-03-29

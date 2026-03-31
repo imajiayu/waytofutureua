@@ -15,7 +15,7 @@
  * All components use inline styles for maximum email client compatibility
  */
 
-import { NGO_BRANDING, EMAIL_COLORS } from '../../config'
+import { ORG_BRANDING, EMAIL_COLORS } from '../../config'
 import { Locale } from '../../types'
 import { getLocalizedText } from '../../utils'
 
@@ -52,29 +52,29 @@ export function createHeader(title: string, locale: Locale, badge?: string, subt
 }
 
 /**
- * Email footer with NGO information and links - Ukraine themed
+ * Email footer with organization information and links - Ukraine themed
  */
 export function createFooter(locale: Locale): string {
-  const ngoName = getLocalizedText(NGO_BRANDING.name, locale)
+  const orgName = getLocalizedText(ORG_BRANDING.name, locale)
 
   const footerText = {
     en: {
       automated: 'This is an automated email. Please do not reply to this message.',
       contact: 'If you have any questions, please contact us at',
       website: 'Visit our website',
-      copyright: `© ${new Date().getFullYear()} ${ngoName}. All rights reserved.`
+      copyright: `© ${new Date().getFullYear()} ${orgName}. All rights reserved.`
     },
     zh: {
       automated: '这是一封自动发送的邮件，请勿回复。',
       contact: '如有任何疑问，请联系我们：',
       website: '访问我们的网站',
-      copyright: `© ${new Date().getFullYear()} ${ngoName}。保留所有权利。`
+      copyright: `© ${new Date().getFullYear()} ${orgName}。保留所有权利。`
     },
     ua: {
       automated: 'Це автоматичний лист. Будь ласка, не відповідайте на це повідомлення.',
       contact: 'Якщо у вас виникнуть запитання, зв\'яжіться з нами за адресою',
       website: 'Відвідайте наш сайт',
-      copyright: `© ${new Date().getFullYear()} ${ngoName}. Всі права захищені.`
+      copyright: `© ${new Date().getFullYear()} ${orgName}. Всі права захищені.`
     }
   }
 
@@ -88,10 +88,10 @@ export function createFooter(locale: Locale): string {
           ${t.automated}
         </p>
         <p style="color: rgba(255,255,255,0.5); font-size: 13px; text-align: center; margin: 0 0 12px;">
-          ${t.contact} <a href="mailto:${NGO_BRANDING.contactEmail}" style="color: #F5B800; text-decoration: none;">${NGO_BRANDING.contactEmail}</a>
+          ${t.contact} <a href="mailto:${ORG_BRANDING.contactEmail}" style="color: #F5B800; text-decoration: none;">${ORG_BRANDING.contactEmail}</a>
         </p>
         <p style="text-align: center; margin: 0 0 12px;">
-          <a href="${NGO_BRANDING.websiteUrl}" style="color: #F5B800; font-size: 13px; text-decoration: none;">${t.website}</a>
+          <a href="${ORG_BRANDING.websiteUrl}" style="color: #F5B800; font-size: 13px; text-decoration: none;">${t.website}</a>
         </p>
         <p style="color: rgba(255,255,255,0.4); font-size: 12px; text-align: center; margin: 0;">
           ${t.copyright}
@@ -105,7 +105,7 @@ export function createFooter(locale: Locale): string {
  * Email signature - Ukraine themed
  */
 export function createSignature(locale: Locale): string {
-  const ngoName = getLocalizedText(NGO_BRANDING.name, locale)
+  const orgName = getLocalizedText(ORG_BRANDING.name, locale)
 
   const signatureText = {
     en: {
@@ -129,9 +129,9 @@ export function createSignature(locale: Locale): string {
       <tr>
         <td>
           <p style="color: rgba(255,255,255,0.75); font-size: 16px; margin: 0 0 8px;">${t.regards}</p>
-          <p style="color: #ffffff; font-family: Georgia, 'Times New Roman', serif; font-weight: 600; font-size: 17px; margin: 0 0 8px;">${ngoName} ${t.team}</p>
+          <p style="color: #ffffff; font-family: Georgia, 'Times New Roman', serif; font-weight: 600; font-size: 17px; margin: 0 0 8px;">${orgName} ${t.team}</p>
           <p style="margin: 0;">
-            <a href="mailto:${NGO_BRANDING.contactEmail}" style="color: #F5B800; font-size: 14px; text-decoration: none;">${NGO_BRANDING.contactEmail}</a>
+            <a href="mailto:${ORG_BRANDING.contactEmail}" style="color: #F5B800; font-size: 14px; text-decoration: none;">${ORG_BRANDING.contactEmail}</a>
           </p>
         </td>
       </tr>

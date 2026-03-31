@@ -17,7 +17,7 @@
 
 ## 概述
 
-这是一个为 NGO 平台设计的邮件系统，具有以下特性：
+这是一个为 Way to Future UA 平台设计的邮件系统，具有以下特性：
 
 ✅ **统一的设计系统**
 - 统一的品牌元素（Logo、颜色、字体）
@@ -445,10 +445,10 @@ export { generateDonationReminderEmail } from './templates/donation-reminder'
 
 ### 品牌配置
 
-在 `config.ts` 中修改 NGO 品牌信息：
+在 `config.ts` 中修改品牌信息：
 
 ```typescript
-export const NGO_BRANDING: NGOBranding = {
+export const ORG_BRANDING: OrgBranding = {
   name: {
     en: 'Way to Future UA',
     zh: '乌克兰未来之路',
