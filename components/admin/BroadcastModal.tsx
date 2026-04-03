@@ -49,7 +49,7 @@ export default function BroadcastModal({
 
   // State
   const [templates, setTemplates] = useState<Array<{ name: string; fileName: string; projectId?: string }>>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('new-project')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
   const [previewLocale, setPreviewLocale] = useState<PreviewLocale>('en')
   const [previewHtml, setPreviewHtml] = useState<string | null>(null)
   const [previewSubject, setPreviewSubject] = useState<string | null>(null)
