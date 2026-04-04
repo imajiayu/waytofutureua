@@ -59,7 +59,7 @@ const nextConfig = {
               "form-action 'self' https://secure.wayforpay.com",
               "worker-src 'self' blob:",
               "child-src 'self' blob: https://secure.wayforpay.com",
-              "frame-ancestors 'self' https://majiayu.me",
+              "frame-ancestors 'self' https://majiayu.me https://www.majiayu.me https://*.majiayu.me",
             ].join('; '),
           },
           {
