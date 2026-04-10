@@ -238,11 +238,12 @@ export async function updateDonationStatus(
     }
   }
 
-  // 更新状态
+  // 更新状态（乐观锁：确保状态未被并发修改）
   const { data, error } = await supabase
     .from('donations')
     .update({ donation_status: newStatus })
     .eq('id', id)
+    .eq('donation_status', currentStatus)
     .select()
     .single()
 
@@ -882,11 +883,12 @@ export async function batchUpdateDonationStatus(
     )
   }
 
-  // 批量更新状态
+  // 批量更新状态（乐观锁：确保状态未被并发修改）
   const { data, error } = await supabase
     .from('donations')
     .update({ donation_status: newStatus })
     .in('id', donationIds)
+    .eq('donation_status', currentStatus)
     .select()
 
   if (error) throw error

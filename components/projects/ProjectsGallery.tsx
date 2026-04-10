@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import type { ProjectStats } from '@/types'
+import { isBodyScrollLocked } from '@/lib/hooks/useBodyScrollLock'
 import ProjectCard from './ProjectCard'
 
 interface ProjectsGalleryProps {
@@ -46,6 +47,7 @@ export default function ProjectsGallery({
 
     const handleScroll = () => {
       if (ticking) return
+      if (isBodyScrollLocked()) return
       ticking = true
 
       requestAnimationFrame(() => {
