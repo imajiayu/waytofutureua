@@ -56,7 +56,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   const [loadingFiles, setLoadingFiles] = useState(true)
   const [deletingFile, setDeletingFile] = useState<string | null>(null)
   const [confirmDeletePath, setConfirmDeletePath] = useState<string | null>(null)
-  const [faceBlur, setFaceBlur] = useState(true)
+  const [faceBlur, setFaceBlur] = useState(false)
 
   const currentStatus = (donation.donation_status || '') as DonationStatus
   const allowedStatuses = getNextAllowedStatuses(currentStatus)
