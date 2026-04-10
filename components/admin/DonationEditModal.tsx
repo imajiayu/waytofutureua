@@ -5,8 +5,8 @@ import type { Database } from '@/types/database'
 import AdminBaseModal from './AdminBaseModal'
 import {
   updateDonationStatus,
-  uploadDonationResultFile,
   createSignedUploadUrl,
+  processUploadedImage,
   getDonationResultFiles,
   deleteDonationResultFile
 } from '@/app/actions/admin'
@@ -119,28 +119,33 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
   const uploadFile = async (file: File): Promise<string | undefined> => {
     const isImageFile = file.type.startsWith('image/')
 
-    if (isImageFile) {
-      // 图片走 Server Action（支持 Cloudinary 人脸打码，图片通常较小不会触发 Vercel 4.5MB 限制）
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('donationId', donation.id.toString())
-      formData.append('faceBlur', faceBlur ? '1' : '0')
-      const result = await uploadDonationResultFile(formData)
-      return result.publicUrl
-    } else {
-      // 视频走签名 URL 直传 Supabase Storage（绕过 Vercel 4.5MB 请求体限制）
-      const { path, token } = await createSignedUploadUrl(donation.id, file.type)
-      const supabase = createClient()
-      const { error } = await supabase.storage
-        .from('donation-results')
-        .uploadToSignedUrl(path, token, file, {
-          contentType: file.type,
-        })
-      if (error) {
-        throw new Error(`Upload failed: ${error.message}`)
-      }
-      return undefined
+    // 所有文件统一走签名 URL 直传 Supabase Storage（绕过 Vercel 4.5MB 请求体限制）
+    const { path, token } = await createSignedUploadUrl(donation.id, file.type)
+    const supabase = createClient()
+    const { error } = await supabase.storage
+      .from('donation-results')
+      .uploadToSignedUrl(path, token, file, {
+        contentType: file.type,
+      })
+    if (error) {
+      throw new Error(`Upload failed: ${error.message}`)
     }
+
+    // 图片需要后处理（Cloudinary 人脸打码 + 缩略图生成）
+    if (isImageFile) {
+      try {
+        const result = await processUploadedImage(donation.id, path, faceBlur)
+        return result.publicUrl
+      } catch {
+        // 后处理失败，原图已安全存储，返回原图 URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('donation-results')
+          .getPublicUrl(path)
+        return publicUrl
+      }
+    }
+
+    return undefined
   }
 
   const handleDeleteFile = async (filePath: string) => {
@@ -217,22 +222,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
 
     try {
       let uploadedImageUrl: string | undefined
-      // 如果需要上传文件
-      if (needsFileUpload) {
-        if (filesToUpload.length === 0) {
-          setError('Please upload at least one result image/video')
-          setLoading(false)
-          return
-        }
-
-        // 必须包含至少一张图片（邮件需要图片）
-        const hasImage = filesToUpload.some(f => f.type.startsWith('image/'))
-        if (!hasImage) {
-          setError('At least one image file (JPEG, PNG, GIF) is required. Videos alone are not sufficient.')
-          setLoading(false)
-          return
-        }
-
+      // 如果有文件需要上传
+      if (needsFileUpload && filesToUpload.length > 0) {
         setUploading(true)
         setUploadProgress(0)
         try {

@@ -211,57 +211,29 @@ export async function updateDonationStatus(
     )
   }
 
-  // 如果是 delivering → completed，获取结果图片用于邮件
+  // 如果是 delivering → completed，尝试获取结果图片用于邮件（非必须）
   let resultImageUrl: string | undefined
   if (needsFileUpload(currentStatus, newStatus as DonationStatus)) {
     if (uploadedImageUrl) {
-      // 优先使用调用方传入的已上传图片 URL（避免 Storage list 的传播延迟）
       resultImageUrl = uploadedImageUrl
-      logger.debug('ADMIN', 'Using uploaded image URL from caller', {
-        donationId: current.donation_public_id,
-      })
     } else {
-      // 回退：从 Storage 列举文件（独立更新状态时使用）
       try {
-        const { data: files, error: listError } = await supabase.storage
+        const { data: files } = await supabase.storage
           .from('donation-results')
           .list(current.donation_public_id, { limit: 100 })
 
-        if (listError) {
-          throw new Error(`Failed to list result files: ${listError.message}`)
-        }
-
-        // 过滤掉文件夹（.thumbnails）和隐藏文件，只保留实际的图片/视频文件
-        const actualFiles = files?.filter(f =>
-          f.name &&
-          !f.name.startsWith('.') &&
-          f.id // 文件有 id，文件夹没有
-        ) || []
-
-        // 必须至少有一张图片（邮件需要图片）
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-        const imageFile = actualFiles.find(f =>
-          imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext))
-        )
+        const imageFile = files?.filter(f => f.name && !f.name.startsWith('.') && f.id)
+          ?.find(f => imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext)))
 
-        if (!imageFile) {
-          throw new Error('At least one image file is required to complete a donation. Please upload a photo before marking as completed.')
+        if (imageFile) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('donation-results')
+            .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
+          resultImageUrl = publicUrl
         }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('donation-results')
-          .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
-        resultImageUrl = publicUrl
-        logger.debug('ADMIN', 'Result image found', {
-          donationId: current.donation_public_id,
-          fileName: imageFile.name,
-        })
-      } catch (error) {
-        logger.error('ADMIN', 'Error getting result image', {
-          donationId: current.donation_public_id,
-          error: error instanceof Error ? error.message : String(error),
-        })
-        throw error
+      } catch {
+        // 获取图片失败不阻塞状态更新
       }
     }
   }
@@ -577,7 +549,7 @@ export async function createSignedUploadUrl(donationId: number, fileType: string
   const mimeToExt: Record<string, string> = {
     'video/mp4': 'mp4',
     'video/quicktime': 'mov',
-    // 图片也支持，但通常走 uploadDonationResultFile
+    // 图片和视频统一走签名 URL 直传
     'image/jpeg': 'jpg',
     'image/png': 'png',
     'image/gif': 'gif',
@@ -617,6 +589,148 @@ export async function createSignedUploadUrl(donationId: number, fileType: string
     path: data.path,
     token: data.token,
   }
+}
+
+/**
+ * 对已上传到 Storage 的图片进行后处理（Cloudinary 人脸打码 + 缩略图生成）
+ * 图片已通过签名 URL 直传到 Storage，此函数从 Storage 下载后处理再覆盖上传
+ */
+export async function processUploadedImage(
+  donationId: number,
+  filePath: string,
+  faceBlur: boolean
+): Promise<{ publicUrl: string }> {
+  const supabase = await getAdminClient()
+
+  // 从 Storage 下载已上传的原图
+  const { data: blob, error: downloadError } = await supabase.storage
+    .from('donation-results')
+    .download(filePath)
+
+  if (downloadError || !blob) {
+    throw new Error(`Failed to download image for processing: ${downloadError?.message}`)
+  }
+
+  const buffer = Buffer.from(await blob.arrayBuffer())
+  const fileName = filePath.split('/').pop() || 'unknown'
+  const donationPublicId = filePath.split('/')[0]
+  const timestamp = fileName.split('.')[0]
+  let finalFilePath = filePath
+
+  // Cloudinary 人脸打码处理
+  if (faceBlur && isCloudinaryConfigured()) {
+    try {
+      logger.info('ADMIN', 'Processing uploaded image with Cloudinary', { filePath })
+
+      const processed = await processImageWithCloudinary({
+        buffer,
+        fileName,
+        folder: 'ngo-donation-results',
+      })
+
+      const processedBuffer = processed.optimizedBuffer as Buffer
+      const newFileName = `${timestamp}.${processed.format}`
+      const newFilePath = `${donationPublicId}/${newFileName}`
+      const contentType = `image/${processed.format}`
+
+      logger.info('ADMIN', 'Cloudinary processing complete', {
+        filePath,
+        originalBytes: processed.originalSize,
+        processedBytes: processed.processedSize,
+        reduction: `${((1 - processed.processedSize / processed.originalSize) * 100).toFixed(1)}%`,
+      })
+
+      // 上传处理后的文件
+      const { error: uploadError } = await supabase.storage
+        .from('donation-results')
+        .upload(newFilePath, processedBuffer, {
+          contentType,
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+      if (uploadError) {
+        throw new Error(`Failed to upload processed image: ${uploadError.message}`)
+      }
+
+      // 如果格式变了（路径不同），删除原始文件
+      if (newFilePath !== filePath) {
+        await supabase.storage.from('donation-results').remove([filePath])
+      }
+
+      finalFilePath = newFilePath
+
+      // 用处理后的图片生成缩略图
+      try {
+        const thumbnailBuffer = await sharp(processedBuffer)
+          .resize(300, null, { withoutEnlargement: true, fit: 'inside' })
+          .jpeg({ quality: 80 })
+          .toBuffer()
+
+        await supabase.storage
+          .from('donation-results')
+          .upload(`${donationPublicId}/.thumbnails/${timestamp}_thumb.jpg`, thumbnailBuffer, {
+            contentType: 'image/jpeg',
+            cacheControl: '3600',
+            upsert: true,
+          })
+      } catch (thumbErr) {
+        logger.error('ADMIN', 'Thumbnail generation failed', {
+          error: thumbErr instanceof Error ? thumbErr.message : String(thumbErr),
+        })
+      }
+    } catch (cloudinaryError) {
+      // Cloudinary 失败，保留原图，仍然生成缩略图
+      logger.error('ADMIN', 'Cloudinary processing failed, keeping original', {
+        error: cloudinaryError instanceof Error ? cloudinaryError.message : String(cloudinaryError),
+      })
+
+      try {
+        const thumbnailBuffer = await sharp(buffer)
+          .resize(300, null, { withoutEnlargement: true, fit: 'inside' })
+          .jpeg({ quality: 80 })
+          .toBuffer()
+
+        await supabase.storage
+          .from('donation-results')
+          .upload(`${donationPublicId}/.thumbnails/${timestamp}_thumb.jpg`, thumbnailBuffer, {
+            contentType: 'image/jpeg',
+            cacheControl: '3600',
+            upsert: true,
+          })
+      } catch (thumbErr) {
+        logger.error('ADMIN', 'Thumbnail generation failed', {
+          error: thumbErr instanceof Error ? thumbErr.message : String(thumbErr),
+        })
+      }
+    }
+  } else {
+    // 不需要 Cloudinary，只生成缩略图
+    try {
+      const thumbnailBuffer = await sharp(buffer)
+        .resize(300, null, { withoutEnlargement: true, fit: 'inside' })
+        .jpeg({ quality: 80 })
+        .toBuffer()
+
+      await supabase.storage
+        .from('donation-results')
+        .upload(`${donationPublicId}/.thumbnails/${timestamp}_thumb.jpg`, thumbnailBuffer, {
+          contentType: 'image/jpeg',
+          cacheControl: '3600',
+          upsert: true,
+        })
+    } catch (thumbErr) {
+      logger.error('ADMIN', 'Thumbnail generation failed', {
+        error: thumbErr instanceof Error ? thumbErr.message : String(thumbErr),
+      })
+    }
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('donation-results')
+    .getPublicUrl(finalFilePath)
+
+  return { publicUrl }
 }
 
 /**
