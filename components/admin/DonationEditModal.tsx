@@ -116,7 +116,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
     setError('')
   }
 
-  const uploadFile = async (file: File): Promise<void> => {
+  const uploadFile = async (file: File): Promise<string | undefined> => {
     const isImageFile = file.type.startsWith('image/')
 
     if (isImageFile) {
@@ -125,7 +125,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
       formData.append('file', file)
       formData.append('donationId', donation.id.toString())
       formData.append('faceBlur', faceBlur ? '1' : '0')
-      await uploadDonationResultFile(formData)
+      const result = await uploadDonationResultFile(formData)
+      return result.publicUrl
     } else {
       // 视频走签名 URL 直传 Supabase Storage（绕过 Vercel 4.5MB 请求体限制）
       const { path, token } = await createSignedUploadUrl(donation.id, file.type)
@@ -138,6 +139,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
       if (error) {
         throw new Error(`Upload failed: ${error.message}`)
       }
+      return undefined
     }
   }
 
@@ -214,6 +216,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
     setLoading(true)
 
     try {
+      let uploadedImageUrl: string | undefined
       // 如果需要上传文件
       if (needsFileUpload) {
         if (filesToUpload.length === 0) {
@@ -233,14 +236,17 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
         setUploading(true)
         setUploadProgress(0)
         try {
-          // 上传所有文件
+          // 上传所有文件，记录第一张图片的 URL
           for (let i = 0; i < filesToUpload.length; i++) {
             const file = filesToUpload[i]
             // 上传前设置进度
             const progressBefore = Math.round((i / filesToUpload.length) * 100)
             setUploadProgress(progressBefore)
 
-            await uploadFile(file)
+            const url = await uploadFile(file)
+            if (!uploadedImageUrl && url) {
+              uploadedImageUrl = url
+            }
 
             // 上传后更新进度
             const progressAfter = Math.round(((i + 1) / filesToUpload.length) * 100)
@@ -254,8 +260,8 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
         }
       }
 
-      // 更新状态
-      const updated = await updateDonationStatus(donation.id, newStatus)
+      // 更新状态（传入已上传的图片 URL，避免 Storage list 延迟问题）
+      const updated = await updateDonationStatus(donation.id, newStatus, uploadedImageUrl)
       onSaved(updated)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to update donation')

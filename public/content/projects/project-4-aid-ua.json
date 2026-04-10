@@ -1,6 +1,7 @@
 {
   "title": "Список допомоги",
   "description": "Ці речі допоможуть дітям у навчанні та розвитку. До придбаних товарів додаються чеки.",
+  "expandHint": "Спочатку заплановані матеріали допомоги, завершені окремим фінансуванням до переїзду",
   "statusLabels": {
     "pending": "Очікує",
     "purchased": "Придбано",
@@ -125,5 +126,52 @@
   "receipts": {
     "description": "Чеки на покупки (завантажуються після покупки)",
     "images": []
+  },
+  "itemsV2": [
+    {
+      "item": "Фрукти",
+      "itemOriginal": "Фрукти",
+      "category": "food",
+      "quantity": 1,
+      "status": "delivered"
+    },
+    {
+      "item": "Їжа",
+      "itemOriginal": "Їжа",
+      "category": "food",
+      "quantity": 1,
+      "unitPrice": { "uah": 7745.56, "usd": 188 },
+      "status": "delivered"
+    },
+    {
+      "item": "Іграшки",
+      "itemOriginal": "Іграшки",
+      "category": "toys",
+      "quantity": 1,
+      "unitPrice": { "uah": 10187.50, "usd": 247 },
+      "status": "delivered"
+    },
+    {
+      "item": "Пальне для швидкої допомоги",
+      "itemOriginal": "Пальне для швидкої допомоги",
+      "category": "transport",
+      "quantity": 1,
+      "unitPrice": { "uah": 7131.93, "usd": 173 },
+      "status": "delivered"
+    }
+  ],
+  "totalV2": {
+    "items": 4,
+    "totalCost": { "uah": 25064.99, "usd": 607 }
+  },
+  "receiptsV2": {
+    "description": "Чеки на покупки",
+    "images": [
+      "/images/projects/project-4/details/receipts/img_5529.webp",
+      "/images/projects/project-4/details/receipts/img_5530.webp",
+      "/images/projects/project-4/details/receipts/img_5531.webp",
+      "/images/projects/project-4/details/receipts/img_5532.webp",
+      "/images/projects/project-4/details/receipts/img_5533.webp"
+    ]
   }
 }

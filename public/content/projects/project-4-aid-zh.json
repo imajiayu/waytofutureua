@@ -1,6 +1,7 @@
 {
   "title": "援助清单",
   "description": "这些物品将帮助孩子们的学习与成长。已购买的物品会附上收据凭证。",
+  "expandHint": "最初计划的援助物资，已在搬家前用另一笔资金完成",
   "statusLabels": {
     "pending": "待购买",
     "purchased": "已购买",
@@ -125,5 +126,52 @@
   "receipts": {
     "description": "采购凭证（购买完成后上传）",
     "images": []
+  },
+  "itemsV2": [
+    {
+      "item": "水果",
+      "itemOriginal": "Фрукти",
+      "category": "food",
+      "quantity": 1,
+      "status": "delivered"
+    },
+    {
+      "item": "食物",
+      "itemOriginal": "Їжа",
+      "category": "food",
+      "quantity": 1,
+      "unitPrice": { "uah": 7745.56, "usd": 188 },
+      "status": "delivered"
+    },
+    {
+      "item": "玩具",
+      "itemOriginal": "Іграшки",
+      "category": "toys",
+      "quantity": 1,
+      "unitPrice": { "uah": 10187.50, "usd": 247 },
+      "status": "delivered"
+    },
+    {
+      "item": "救护车汽油",
+      "itemOriginal": "Пальне для швидкої допомоги",
+      "category": "transport",
+      "quantity": 1,
+      "unitPrice": { "uah": 7131.93, "usd": 173 },
+      "status": "delivered"
+    }
+  ],
+  "totalV2": {
+    "items": 4,
+    "totalCost": { "uah": 25064.99, "usd": 607 }
+  },
+  "receiptsV2": {
+    "description": "采购凭证",
+    "images": [
+      "/images/projects/project-4/details/receipts/img_5529.webp",
+      "/images/projects/project-4/details/receipts/img_5530.webp",
+      "/images/projects/project-4/details/receipts/img_5531.webp",
+      "/images/projects/project-4/details/receipts/img_5532.webp",
+      "/images/projects/project-4/details/receipts/img_5533.webp"
+    ]
   }
 }

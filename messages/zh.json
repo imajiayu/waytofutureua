@@ -291,9 +291,12 @@
       "familyMomentAlt": "家庭时刻",
       "suppliesExpenses": "物资与支出",
       "suppliesExpensesDesc": "完全透明",
-      "supplyList": "物资清单",
+      "supplyListV1": "物资清单（第一版）",
+      "supplyListV2": "物资清单（第二版）",
+      "categoryTransport": "交通",
       "expenseReceipts": "支出收据",
-      "receiptImageAlt": "收据 {number}"
+      "receiptImageAlt": "收据 {number}",
+      "donationResultAlt": "捐赠成果照片 {index}"
     }
   },
   "donate": {

@@ -99,7 +99,12 @@
       "书籍、益智类玩具、教育类物品是当前最需要的",
       "帮助孩子们在战争中保留童年"
     ],
-    "conclusion": "这是目前最现实、最有意义的支持方式。"
+    "conclusion": "这是目前最现实、最有意义的支持方式。",
+    "expandHint": "查看最初援助计划"
+  },
+  "projectUpdate": {
+    "title": "项目更新",
+    "content": "计划赶不上变化。在我们的帮助下，奥克萨娜一家已于2026年3月搬家至第聂伯罗西部克里夫巴斯附近的Кіровоградська область，距离前线约200公里。他们使用收到的部分抚恤金贷款购买了一栋乡间房子。2026年4月9日，我们从第聂伯罗出发前往此处，使用网站上募集的全部捐款完成了这个项目。"
   },
   "familyGallery": {
     "images": [
@@ -109,6 +114,29 @@
       { "url": "/images/projects/project-4/details/boy-blocks-2.webp", "priority": "low" },
       { "url": "/images/projects/project-4/details/boy-drawing.webp", "priority": "low" },
       { "url": "/images/projects/project-4/details/boy-toy.webp", "priority": "low" }
+    ]
+  },
+  "donationResults": {
+    "title": "捐赠成果",
+    "items": [
+      { "image": "/images/projects/project-4/results/result-02.webp", "orientation": "landscape", "priority": 10 },
+      { "image": "/images/projects/project-4/results/result-04.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-05.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-01.webp", "orientation": "portrait", "priority": 10 },
+      { "image": "/images/projects/project-4/results/result-06.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-07.webp", "orientation": "landscape", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-08.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-03.webp", "orientation": "portrait", "priority": 10 },
+      { "image": "/images/projects/project-4/results/result-10.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-11.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-18.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-12.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-13.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-14.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-09.webp", "orientation": "landscape", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-15.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-16.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-17.webp", "orientation": "portrait", "priority": 3 }
     ]
   },
   "callToAction": {

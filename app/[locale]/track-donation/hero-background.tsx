@@ -6,7 +6,7 @@ import Image from 'next/image'
 const BG_SRCS = [
   '/images/track-donation/bg-1.webp',
   '/images/track-donation/bg-2.webp',
-  '/images/track-donation/bg-3.webp',
+  '/images/projects/project-4/results/result-12.webp',
 ]
 
 function preloadImages(srcs: string[]): Promise<void> {

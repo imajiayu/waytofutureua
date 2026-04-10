@@ -99,7 +99,12 @@
       "Books, educational toys, and learning materials are most needed",
       "Helps children preserve their childhood despite war"
     ],
-    "conclusion": "This is the most practical and meaningful way to help."
+    "conclusion": "This is the most practical and meaningful way to help.",
+    "expandHint": "View original aid plan"
+  },
+  "projectUpdate": {
+    "title": "Project Update",
+    "content": "Plans can't keep up with changes. With our help, Oksana's family moved in March 2026 to Kirovohrad Oblast, near Kryvbas west of Dnipro, about 200 km from the front line. They used part of the pension they received to take out a loan and buy a rural house. On April 9, 2026, we traveled from Dnipro to their new home and used all donations collected on this website to complete this project."
   },
   "familyGallery": {
     "images": [
@@ -109,6 +114,29 @@
       { "url": "/images/projects/project-4/details/boy-blocks-2.webp", "priority": "low" },
       { "url": "/images/projects/project-4/details/boy-drawing.webp", "priority": "low" },
       { "url": "/images/projects/project-4/details/boy-toy.webp", "priority": "low" }
+    ]
+  },
+  "donationResults": {
+    "title": "Donation Results",
+    "items": [
+      { "image": "/images/projects/project-4/results/result-02.webp", "orientation": "landscape", "priority": 10 },
+      { "image": "/images/projects/project-4/results/result-04.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-05.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-01.webp", "orientation": "portrait", "priority": 10 },
+      { "image": "/images/projects/project-4/results/result-06.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-07.webp", "orientation": "landscape", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-08.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-03.webp", "orientation": "portrait", "priority": 10 },
+      { "image": "/images/projects/project-4/results/result-10.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-11.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-18.webp", "orientation": "portrait", "priority": 6 },
+      { "image": "/images/projects/project-4/results/result-12.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-13.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-14.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-09.webp", "orientation": "landscape", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-15.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-16.webp", "orientation": "portrait", "priority": 3 },
+      { "image": "/images/projects/project-4/results/result-17.webp", "orientation": "portrait", "priority": 3 }
     ]
   },
   "callToAction": {

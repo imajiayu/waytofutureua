@@ -16,14 +16,14 @@ interface MosaicItem {
 }
 
 // 20 images from project donation results sections:
-// P0 donationResults ×2, P3 results ×17, P5 donationResults ×1
+// P0 donationResults ×2, P3 results ×15, P4 results ×2, P5 donationResults ×1
 // Desktop layout: 12 cols × 8 rows, all 96 cells covered
 const MOSAIC_ITEMS: MosaicItem[] = [
   // Row 1-2 (3+2+3+2+2 = 12)
   { imageUrl: '/images/projects/project-3/results/activity-2.webp', projectId: 3, colStart: 1, colEnd: 4, rowStart: 1, rowEnd: 3 },
   { imageUrl: '/images/projects/project-0/result/result15.webp', projectId: 0, colStart: 4, colEnd: 6, rowStart: 1, rowEnd: 3 },
   { imageUrl: '/images/projects/project-3/results/activity-3.webp', projectId: 3, colStart: 6, colEnd: 9, rowStart: 1, rowEnd: 3 },
-  { imageUrl: '/images/projects/project-3/results/activity-4.webp', projectId: 3, colStart: 9, colEnd: 11, rowStart: 1, rowEnd: 3 },
+  { imageUrl: '/images/projects/project-4/results/result-12.webp', projectId: 4, colStart: 9, colEnd: 11, rowStart: 1, rowEnd: 3 },
   { imageUrl: '/images/projects/project-3/results/activity-6.webp', projectId: 3, colStart: 11, colEnd: 13, rowStart: 1, rowEnd: 3 },
 
   // Row 3-4 (2+4+2+2+2 = 12)
@@ -37,7 +37,7 @@ const MOSAIC_ITEMS: MosaicItem[] = [
   { imageUrl: '/images/projects/project-3/results/activity-12.webp', projectId: 3, colStart: 1, colEnd: 3, rowStart: 5, rowEnd: 7 },
   { imageUrl: '/images/projects/project-3/results/activity-16.webp', projectId: 3, colStart: 3, colEnd: 6, rowStart: 5, rowEnd: 7 },
   { imageUrl: '/images/projects/project-3/results/activity-18.webp', projectId: 3, colStart: 6, colEnd: 8, rowStart: 5, rowEnd: 7 },
-  { imageUrl: '/images/projects/project-3/results/activity-22.webp', projectId: 3, colStart: 8, colEnd: 10, rowStart: 5, rowEnd: 7 },
+  { imageUrl: '/images/projects/project-4/results/result-13.webp', projectId: 4, colStart: 8, colEnd: 10, rowStart: 5, rowEnd: 7 },
   { imageUrl: '/images/projects/project-3/results/activity-20.webp', projectId: 3, colStart: 10, colEnd: 13, rowStart: 5, rowEnd: 7 },
 
   // Row 7-8 (3+2+3+2+2 = 12)

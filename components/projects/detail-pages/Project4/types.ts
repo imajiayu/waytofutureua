@@ -15,7 +15,7 @@ export interface Child {
 export interface AidItem {
   item: string
   itemOriginal: string
-  category: 'toys' | 'books' | 'educational' | 'furniture' | 'food'
+  category: 'toys' | 'books' | 'educational' | 'furniture' | 'food' | 'transport'
   quantity: number
   unitPrice?: { uah: number; usd: number }
   status: 'pending' | 'purchased' | 'delivered'
@@ -25,6 +25,7 @@ export interface AidItem {
 export interface AidListData {
   title: string
   description: string
+  expandHint?: string
   statusLabels: {
     pending: string
     purchased: string
@@ -38,6 +39,15 @@ export interface AidListData {
   exchangeRateNote?: string
   note?: string
   receipts?: {
+    description: string
+    images: string[]
+  }
+  itemsV2?: AidItem[]
+  totalV2?: {
+    items: number
+    totalCost: { uah: number; usd: number }
+  }
+  receiptsV2?: {
     description: string
     images: string[]
   }
@@ -110,10 +120,24 @@ export interface Project4Content {
     effectLabel: string
     reasons: string[]
     conclusion: string
+    expandHint?: string
+  }
+  projectUpdate?: {
+    title: string
+    content: string
   }
   familyGallery: {
     title?: string
     images: GalleryImage[]
+  }
+  donationResults?: {
+    title: string
+    items: {
+      image: string
+      orientation?: 'landscape' | 'portrait'
+      aspectRatio?: number
+      priority?: number
+    }[]
   }
   callToAction: {
     title: string

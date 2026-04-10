@@ -291,9 +291,12 @@
       "familyMomentAlt": "Family moment",
       "suppliesExpenses": "Supplies & Expenses",
       "suppliesExpensesDesc": "Complete transparency",
-      "supplyList": "Supply List",
+      "supplyListV1": "Supply List (v1)",
+      "supplyListV2": "Supply List (v2)",
+      "categoryTransport": "Transport",
       "expenseReceipts": "Expense Receipts",
-      "receiptImageAlt": "Receipt {number}"
+      "receiptImageAlt": "Receipt {number}",
+      "donationResultAlt": "Donation result photo {index}"
     }
   },
   "donate": {

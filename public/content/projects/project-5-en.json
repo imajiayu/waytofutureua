@@ -53,6 +53,16 @@
           "/images/projects/project-5/details/event-2/organizer-with-resident.webp",
           "/images/projects/project-5/details/event-2/serving-elderly-woman.webp",
           "/images/projects/project-5/details/event-2/elderly-residents-eating.webp"
+        ],
+        "receipts": [
+          "/images/projects/project-5/details/event-2-receipts/IMG_5628.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5629.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5630.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5631.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5632.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5633.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5634.webp",
+          "/images/projects/project-5/details/event-2-receipts/IMG_5635.webp"
         ]
       },
       {
@@ -65,6 +75,60 @@
           "/images/projects/project-5/details/event-3/IMG_0597.webp",
           "/images/projects/project-5/details/event-3/IMG_0642.webp",
           "/images/projects/project-5/details/event-3/IMG_0651.webp"
+        ],
+        "receipts": [
+          "/images/projects/project-5/details/event-3-receipts/IMG_5616.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5617.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5618.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5619.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5620.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5621.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5622.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5623.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5624.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5625.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5626.webp",
+          "/images/projects/project-5/details/event-3-receipts/IMG_5627.webp"
+        ]
+      },
+      {
+        "date": "2026-04-10",
+        "location": "Berezynska Street (Березинська вулиця)",
+        "images": [
+          "/images/projects/project-5/details/event-4/IMG_0959.webp",
+          "/images/projects/project-5/details/event-4/IMG_0963.webp",
+          "/images/projects/project-5/details/event-4/IMG_0965.webp",
+          "/images/projects/project-5/details/event-4/IMG_0967.webp",
+          "/images/projects/project-5/details/event-4/IMG_0972.webp",
+          "/images/projects/project-5/details/event-4/IMG_0983.webp"
+        ],
+        "receipts": [
+          "/images/projects/project-5/details/event-4-receipts/IMG_5590.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5591.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5592.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5593.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5594.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5595.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5596.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5597.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5598.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5599.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5600.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5601.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5602.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5603.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5604.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5605.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5606.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5607.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5608.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5609.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5610.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5611.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5612.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5613.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5614.webp",
+          "/images/projects/project-5/details/event-4-receipts/IMG_5615.webp"
         ]
       }
     ]

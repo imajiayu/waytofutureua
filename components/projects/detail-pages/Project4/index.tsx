@@ -4,7 +4,10 @@ import { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import UnifiedResultsSection from '@/components/projects/shared/UnifiedResultsSection'
+import type { ResultImage } from '@/components/projects/shared/UnifiedResultsSection'
 import { useActiveSection } from '@/lib/hooks/useActiveSection'
+import { CheckCircle2Icon } from '@/components/icons'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useTranslations } from 'next-intl'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
@@ -67,7 +70,10 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
   }, [content])
 
   const receiptLightboxImages = useMemo<LightboxImage[]>(
-    () => aidData?.receipts?.images?.map((url) => ({ url })) || [],
+    () => [
+      ...(aidData?.receipts?.images?.map((url) => ({ url })) || []),
+      ...(aidData?.receiptsV2?.images?.map((url) => ({ url })) || []),
+    ],
     [aidData]
   )
 
@@ -78,6 +84,9 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       { id: 'p4-introduction', label: t('sectionNav.introduction') },
       ...(aidData ? [{ id: 'p4-aid-list', label: t('sectionNav.aidList') }] : []),
       { id: 'p4-project-progress', label: t('sectionNav.projectProgress') },
+      ...(content.donationResults && content.donationResults.items.length > 0
+        ? [{ id: 'p4-donation-results', label: t('sectionNav.donationResults') }]
+        : []),
     ]
   }, [content, aidData, t])
 
@@ -228,7 +237,12 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       {/* Aid List - Standalone Section */}
       {aidData && (
         <FadeInSection id="p4-aid-list" delay={450}>
-          <AidListSection aidData={aidData} locale={locale} onReceiptClick={receiptLightbox.open} />
+          <AidListSection
+            aidData={aidData}
+            locale={locale}
+            onReceiptClick={receiptLightbox.open}
+            onReceiptV2Click={(idx) => receiptLightbox.open((aidData.receipts?.images?.length || 0) + idx)}
+          />
         </FadeInSection>
       )}
 
@@ -236,6 +250,24 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       <FadeInSection id="p4-project-progress">
         <ProjectProgressSection project={project} locale={locale} />
       </FadeInSection>
+
+      {/* Donation Results */}
+      {content.donationResults && content.donationResults.items.length > 0 && (
+        <FadeInSection id="p4-donation-results">
+          <UnifiedResultsSection
+            title={content.donationResults.title}
+            icon={<CheckCircle2Icon className="w-5 h-5 text-white/90" />}
+            gradient="from-amber-500 to-orange-500"
+            images={content.donationResults.items.map((item): ResultImage => ({
+              imageUrl: item.image,
+              orientation: item.orientation,
+              aspectRatio: item.aspectRatio,
+              priority: item.priority,
+            }))}
+            getAltText={(i) => t('project4.donationResultAlt', { index: i + 1 })}
+          />
+        </FadeInSection>
+      )}
 
       {/* Lightboxes */}
       {detailLightbox.isOpen && (

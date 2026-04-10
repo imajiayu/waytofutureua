@@ -28,7 +28,7 @@ const getSizeClasses = (size: ImageSize): string => {
     case 'small':
       return 'col-span-1 row-span-1'
     case 'medium':
-      return 'col-span-1 row-span-1'
+      return 'col-span-1 row-span-2'
     case 'large':
       return 'col-span-2 row-span-2'
     case 'xlarge':

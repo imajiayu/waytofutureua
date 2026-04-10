@@ -186,7 +186,8 @@ export async function getAdminDonations() {
  */
 export async function updateDonationStatus(
   id: number,
-  newStatus: string
+  newStatus: string,
+  uploadedImageUrl?: string
 ) {
   const supabase = await getAdminClient()
 
@@ -213,46 +214,55 @@ export async function updateDonationStatus(
   // 如果是 delivering → completed，获取结果图片用于邮件
   let resultImageUrl: string | undefined
   if (needsFileUpload(currentStatus, newStatus as DonationStatus)) {
-    try {
-      const { data: files, error: listError } = await supabase.storage
-        .from('donation-results')
-        .list(current.donation_public_id, { limit: 100 })
-
-      if (listError) {
-        throw new Error(`Failed to list result files: ${listError.message}`)
-      }
-
-      // 过滤掉文件夹（.thumbnails）和隐藏文件，只保留实际的图片/视频文件
-      const actualFiles = files?.filter(f =>
-        f.name &&
-        !f.name.startsWith('.') &&
-        f.id // 文件有 id，文件夹没有
-      ) || []
-
-      // 必须至少有一张图片（邮件需要图片）
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-      const imageFile = actualFiles.find(f =>
-        imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext))
-      )
-
-      if (!imageFile) {
-        throw new Error('At least one image file is required to complete a donation. Please upload a photo before marking as completed.')
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('donation-results')
-        .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
-      resultImageUrl = publicUrl
-      logger.debug('ADMIN', 'Result image found', {
+    if (uploadedImageUrl) {
+      // 优先使用调用方传入的已上传图片 URL（避免 Storage list 的传播延迟）
+      resultImageUrl = uploadedImageUrl
+      logger.debug('ADMIN', 'Using uploaded image URL from caller', {
         donationId: current.donation_public_id,
-        fileName: imageFile.name,
       })
-    } catch (error) {
-      logger.error('ADMIN', 'Error getting result image', {
-        donationId: current.donation_public_id,
-        error: error instanceof Error ? error.message : String(error),
-      })
-      throw error
+    } else {
+      // 回退：从 Storage 列举文件（独立更新状态时使用）
+      try {
+        const { data: files, error: listError } = await supabase.storage
+          .from('donation-results')
+          .list(current.donation_public_id, { limit: 100 })
+
+        if (listError) {
+          throw new Error(`Failed to list result files: ${listError.message}`)
+        }
+
+        // 过滤掉文件夹（.thumbnails）和隐藏文件，只保留实际的图片/视频文件
+        const actualFiles = files?.filter(f =>
+          f.name &&
+          !f.name.startsWith('.') &&
+          f.id // 文件有 id，文件夹没有
+        ) || []
+
+        // 必须至少有一张图片（邮件需要图片）
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        const imageFile = actualFiles.find(f =>
+          imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext))
+        )
+
+        if (!imageFile) {
+          throw new Error('At least one image file is required to complete a donation. Please upload a photo before marking as completed.')
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('donation-results')
+          .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
+        resultImageUrl = publicUrl
+        logger.debug('ADMIN', 'Result image found', {
+          donationId: current.donation_public_id,
+          fileName: imageFile.name,
+        })
+      } catch (error) {
+        logger.error('ADMIN', 'Error getting result image', {
+          donationId: current.donation_public_id,
+          error: error instanceof Error ? error.message : String(error),
+        })
+        throw error
+      }
     }
   }
 

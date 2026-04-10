@@ -291,9 +291,12 @@
       "familyMomentAlt": "Родинний момент",
       "suppliesExpenses": "Витрати та матеріали",
       "suppliesExpensesDesc": "Повна прозорість",
-      "supplyList": "Список матеріалів",
+      "supplyListV1": "Список матеріалів (v1)",
+      "supplyListV2": "Список матеріалів (v2)",
+      "categoryTransport": "Транспорт",
       "expenseReceipts": "Чеки витрат",
-      "receiptImageAlt": "Чек {number}"
+      "receiptImageAlt": "Чек {number}",
+      "donationResultAlt": "Фото результату пожертви {index}"
     }
   },
   "donate": {
