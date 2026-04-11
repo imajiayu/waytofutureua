@@ -133,6 +133,7 @@
       "itemOriginal": "Фрукти",
       "category": "food",
       "quantity": 1,
+      "unitPrice": { "uah": 4372.10, "usd": 106 },
       "status": "delivered"
     },
     {
@@ -162,7 +163,7 @@
   ],
   "totalV2": {
     "items": 4,
-    "totalCost": { "uah": 25064.99, "usd": 607 }
+    "totalCost": { "uah": 29437.09, "usd": 713 }
   },
   "receiptsV2": {
     "description": "Purchase receipts",
@@ -171,7 +172,8 @@
       "/images/projects/project-4/details/receipts/img_5530.webp",
       "/images/projects/project-4/details/receipts/img_5531.webp",
       "/images/projects/project-4/details/receipts/img_5532.webp",
-      "/images/projects/project-4/details/receipts/img_5533.webp"
+      "/images/projects/project-4/details/receipts/img_5533.webp",
+      "/images/projects/project-4/details/receipts/sydorenko_fruit.webp"
     ]
   }
 }
