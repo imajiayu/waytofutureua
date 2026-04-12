@@ -30,6 +30,7 @@ export interface TemplateContent {
 import project0Ongoing from './broadcast/project0-ongoing'
 import project3Completed from './broadcast/project3-completed'
 import project4Ongoing from './broadcast/project4-ongoing'
+import project4Completed from './broadcast/project4-completed'
 import project5Ongoing from './broadcast/project5-ongoing'
 
 // HTML 内容（通过 webpack asset/source 导入）
@@ -42,6 +43,9 @@ import project3CompletedUa from './content/project3-completed/ua.html'
 import project4OngoingEn from './content/project4-ongoing/en.html'
 import project4OngoingZh from './content/project4-ongoing/zh.html'
 import project4OngoingUa from './content/project4-ongoing/ua.html'
+import project4CompletedEn from './content/project4-completed/en.html'
+import project4CompletedZh from './content/project4-completed/zh.html'
+import project4CompletedUa from './content/project4-completed/ua.html'
 import project5OngoingEn from './content/project5-ongoing/en.html'
 import project5OngoingZh from './content/project5-ongoing/zh.html'
 import project5OngoingUa from './content/project5-ongoing/ua.html'
@@ -51,6 +55,7 @@ const REGISTERED_TEMPLATES: EmailTemplate[] = [
   project0Ongoing,
   project3Completed,
   project4Ongoing,
+  project4Completed,
   project5Ongoing,
 ]
 
@@ -70,6 +75,11 @@ const TEMPLATE_CONTENTS: Record<string, TemplateContent> = {
     en: project4OngoingEn,
     zh: project4OngoingZh,
     ua: project4OngoingUa,
+  },
+  'project4-completed': {
+    en: project4CompletedEn,
+    zh: project4CompletedZh,
+    ua: project4CompletedUa,
   },
   'project5-ongoing': {
     en: project5OngoingEn,
