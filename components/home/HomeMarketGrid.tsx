@@ -1,7 +1,7 @@
 import { getLocale } from 'next-intl/server'
 import { getPublicMarketItems } from '@/app/actions/market-items'
 import { loadMarketItemContents } from '@/lib/market/market-content'
-import MarketItemCard from '@/components/market/MarketItemCard'
+import HomeMarketCards from './HomeMarketCards'
 import { logger } from '@/lib/logger'
 
 export default async function HomeMarketGrid() {
@@ -23,13 +23,7 @@ export default async function HomeMarketGrid() {
     <div className="w-full mt-1 md:mt-2">
       {/* Horizontal Scrolling Container */}
       <div className="overflow-x-auto pb-4 pt-2 scrollbar-hide">
-        <div className="flex gap-5 min-w-min px-6">
-          {items.map((item) => (
-            <div key={item.id} className="w-[260px] sm:w-[280px] flex-shrink-0">
-              <MarketItemCard item={item} content={contentMap[item.id] ?? null} />
-            </div>
-          ))}
-        </div>
+        <HomeMarketCards items={items} contentMap={contentMap} />
       </div>
     </div>
   )
