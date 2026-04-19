@@ -114,7 +114,7 @@ export function formatDate(
   try {
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return 'N/A'
-    return date.toLocaleDateString(getJsLocale(locale), options)
+    return date.toLocaleDateString(getJsLocale(locale), { timeZone: 'UTC', ...options })
   } catch {
     return 'N/A'
   }
