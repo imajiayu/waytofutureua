@@ -15,10 +15,8 @@ export const revalidate = 0
  * - Email is obfuscated (j***e@e***.com)
  * - Donor name excluded for privacy
  */
-export async function GET(
-  request: Request,
-  { params }: { params: { orderReference: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ orderReference: string }> }) {
+  const params = await props.params;
   const { orderReference } = params
 
   if (!orderReference) {

@@ -8,19 +8,25 @@ import DonatePageClient from './DonatePageClient'
 export const revalidate = 60
 
 type Props = {
-  params: { locale: string }
-  searchParams: { project?: string }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ project?: string }>
 }
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
-export async function generateMetadata({
-  params: { locale },
-}: {
-  params: { locale: string }
-}) {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ locale: string }>
+  }
+) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'donate' })
   const tMeta = await getTranslations({ locale, namespace: 'metadata' })
 
@@ -40,7 +46,8 @@ export async function generateMetadata({
   }
 }
 
-export default async function DonatePage({ searchParams }: Props) {
+export default async function DonatePage(props: Props) {
+  const searchParams = await props.searchParams;
   const locale = await getLocale()
   const projects = await getAllProjectsWithStats()
 

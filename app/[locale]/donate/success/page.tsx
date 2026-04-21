@@ -15,11 +15,12 @@ export async function generateMetadata() {
   }
 }
 
-export default async function DonateSuccessPage({
-  searchParams,
-}: {
-  searchParams: { order?: string }
-}) {
+export default async function DonateSuccessPage(
+  props: {
+    searchParams: Promise<{ order?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const locale = await getLocale()
   const orderReference = searchParams.order
 

@@ -11,21 +11,23 @@ import ComplianceSection from '@/components/home/ComplianceSection'
 import ProjectResultsSection from '@/components/home/ProjectResultsSection'
 import HomeMarketGrid from '@/components/home/HomeMarketGrid'
 
-type Props = {
-  params: { locale: string }
-}
-
 export const revalidate = 60
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
-export async function generateMetadata({
-  params: { locale },
-}: {
-  params: { locale: string }
-}) {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ locale: string }>
+  }
+) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const tMeta = await getTranslations({ locale, namespace: 'metadata' })
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
@@ -44,7 +46,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function Home({ params }: Props) {
+export default async function Home() {
   const t = await getTranslations('home.hero')
 
   return (

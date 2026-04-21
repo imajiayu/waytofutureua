@@ -3,11 +3,17 @@ import { BASE_URL, getAlternates } from '@/lib/constants'
 import TrackDonationForm from './track-donation-form'
 import HeroBackground from './hero-background'
 
-export async function generateMetadata({
-  params: { locale },
-}: {
-  params: { locale: string }
-}) {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ locale: string }>
+  }
+) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'trackDonation' })
   const tMeta = await getTranslations({ locale, namespace: 'metadata' })
 

@@ -46,7 +46,7 @@
 
 | 类型 | 技术 |
 |------|------|
-| 前端 | Next.js 14 (App Router), TypeScript, Tailwind CSS, next-intl |
+| 前端 | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, next-intl |
 | 后端 | Supabase (PostgreSQL + Auth), WayForPay, NOWPayments, Resend, Cloudinary |
 | 部署 | Vercel, Supabase Cloud |
 
@@ -545,10 +545,10 @@ getTranslatedText(project.project_name_i18n, locale, fallback)
 - [义卖市场数据库架构](docs/MARKET_DATABASE_SCHEMA.md)
 - [义卖市场状态系统](docs/MARKET_STATUS.md)
 - [Supabase 文档](https://supabase.com/docs)
-- [Next.js 14 文档](https://nextjs.org/docs)
+- [Next.js 15 文档](https://nextjs.org/docs)
 - [next-intl 文档](https://next-intl-docs.vercel.app/)
 
 ---
 
 **文档版本**: 2.6.0
-**最后更新**: 2026-03-31
+**最后更新**: 2026-04-21

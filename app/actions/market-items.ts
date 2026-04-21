@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import type { MarketItem, PublicMarketItem, PublicMarketOrderRecord, MarketItemFilters } from '@/types/market'
 
@@ -13,7 +13,7 @@ export async function getPublicMarketItems(
   filters?: MarketItemFilters
 ): Promise<{ items: PublicMarketItem[]; error?: string }> {
   try {
-    const supabase = await createServerClient()
+    const supabase = createAnonClient()
 
     let query = supabase
       .from('market_items')
@@ -54,7 +54,7 @@ export async function getMarketItemById(
   id: number
 ): Promise<{ item: PublicMarketItem | null; error?: string }> {
   try {
-    const supabase = await createServerClient()
+    const supabase = createAnonClient()
 
     const { data, error } = await supabase
       .from('market_items')
@@ -83,7 +83,7 @@ export async function getPublicMarketOrders(
   itemId: number
 ): Promise<{ orders: PublicMarketOrderRecord[]; error?: string }> {
   try {
-    const supabase = await createServerClient()
+    const supabase = createAnonClient()
 
     const { data, error } = await supabase
       .from('market_orders_public')
