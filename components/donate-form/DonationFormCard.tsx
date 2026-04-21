@@ -187,6 +187,8 @@ function PaymentWidgetContainer({
   return null
 }
 
+type FieldKey = 'donationAmount' | 'quantity' | 'tipAmount' | 'total' | 'name' | 'email'
+
 export default function DonationFormCard({
   project,
   locale,
@@ -225,6 +227,7 @@ export default function DonationFormCard({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null)
   const [isCryptoLoading, setIsCryptoLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({})
   const widgetContainerRef = useRef<HTMLDivElement>(null)
   const formContainerRef = useRef<HTMLDivElement>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
@@ -232,6 +235,7 @@ export default function DonationFormCard({
   const donationAmountRef = useRef<HTMLInputElement>(null)
   const quantityRef = useRef<HTMLInputElement>(null)
   const tipAmountRef = useRef<HTMLInputElement>(null)
+  const totalAmountRef = useRef<HTMLDivElement>(null)
   const activeProjectIdRef = useRef(project?.id)
 
   // Check if this is an aggregated donation project
@@ -246,6 +250,7 @@ export default function DonationFormCard({
     setTipAmount(0)
     setTipAmountInput('')
     setError(null)
+    setFieldErrors({})
     setShowWidget(false)
     setPaymentParams(null)
     setCryptoPaymentData(null)
@@ -319,19 +324,31 @@ export default function DonationFormCard({
     return { value, wasInvalid: outOfRange }
   }
 
-  // Show error at form top, scroll to make it visible, and focus the invalid field
-  const showFieldError = (message: string, fieldRef?: React.RefObject<HTMLElement | null>) => {
-    setError(message)
+  // Set a field-level error, focus the field, and scroll it into view
+  const showFieldError = (
+    key: FieldKey,
+    message: string,
+    fieldRef?: React.RefObject<HTMLElement | null>,
+  ) => {
+    setFieldErrors(prev => ({ ...prev, [key]: message }))
     requestAnimationFrame(() => {
-      formContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      if (fieldRef?.current && 'focus' in fieldRef.current) {
-        (fieldRef.current as HTMLElement).focus({ preventScroll: true })
-      }
+      fieldRef?.current?.focus({ preventScroll: true })
+      fieldRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+  }
+
+  // Clear a specific field error (called on user input to dismiss stale errors)
+  const clearFieldError = (key: FieldKey) => {
+    setFieldErrors(prev => {
+      if (!prev[key]) return prev
+      const { [key]: _removed, ...rest } = prev
+      return rest
     })
   }
 
   // Validate all form fields before submit; scroll to first invalid field
   const validateForm = (): boolean => {
+    setFieldErrors({})
     let validatedDonationAmount = donationAmount
     let validatedTipAmount = tipAmount
 
@@ -342,7 +359,7 @@ export default function DonationFormCard({
       setDonationAmount(value)
       setDonationAmountInput(String(value))
       if (wasInvalid) {
-        showFieldError(t('errors.invalidAmount'), donationAmountRef)
+        showFieldError('donationAmount', t('errors.invalidAmount'), donationAmountRef)
         return false
       }
     }
@@ -352,7 +369,7 @@ export default function DonationFormCard({
       if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {
         const clamped = Math.max(1, Math.min(MAX_QUANTITY, Math.round(quantity) || 1))
         setQuantity(clamped)
-        showFieldError(t('errors.invalidQuantity'), quantityRef)
+        showFieldError('quantity', t('errors.invalidQuantity'), quantityRef)
         return false
       }
     }
@@ -364,7 +381,7 @@ export default function DonationFormCard({
       setTipAmount(value)
       setTipAmountInput(value === 0 ? '' : String(value))
       if (wasInvalid) {
-        showFieldError(t('errors.invalidAmount'), tipAmountRef)
+        showFieldError('tipAmount', t('errors.invalidAmount'), tipAmountRef)
         return false
       }
     }
@@ -372,30 +389,30 @@ export default function DonationFormCard({
     // 4. Total amount limit ($10,000 per transaction)
     const validatedProjectAmount = isAggregatedProject ? validatedDonationAmount : (project?.unit_price || 0) * quantity
     if (validatedProjectAmount + validatedTipAmount > MAX_AMOUNT) {
-      showFieldError(t('errors.totalLimitExceeded'))
+      showFieldError('total', t('errors.totalLimitExceeded'), totalAmountRef)
       return false
     }
 
     // 5. Donor name
     const trimmedName = donorName.trim()
     if (!trimmedName) {
-      showFieldError(t('validation.nameRequired'), nameInputRef)
+      showFieldError('name', t('validation.nameRequired'), nameInputRef)
       return false
     }
     if (trimmedName.length < 2) {
-      showFieldError(t('validation.nameMin'), nameInputRef)
+      showFieldError('name', t('validation.nameMin'), nameInputRef)
       return false
     }
 
     // 6. Donor email
     const trimmedEmail = donorEmail.trim()
     if (!trimmedEmail) {
-      showFieldError(t('validation.emailRequired'), emailInputRef)
+      showFieldError('email', t('validation.emailRequired'), emailInputRef)
       return false
     }
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
     if (!emailPattern.test(trimmedEmail)) {
-      showFieldError(t('validation.emailInvalid'), emailInputRef)
+      showFieldError('email', t('validation.emailInvalid'), emailInputRef)
       return false
     }
 
@@ -636,6 +653,7 @@ export default function DonationFormCard({
     setSelectedPaymentMethod(null)
     setIsCryptoLoading(false)
     setError(null)
+    setFieldErrors({})
   }
 
   // Handler to go back to payment method selection
@@ -739,15 +757,6 @@ export default function DonationFormCard({
 
         {/* Donation Form */}
         <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-medium flex items-center gap-2">
-              <svg className="w-5 h-5 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              {error}
-            </div>
-          )}
-
           {/* Amount/Quantity Selection - Different UI based on project type */}
           {isAggregatedProject ? (
             /* Aggregated Project: Direct Amount Input */
@@ -760,7 +769,12 @@ export default function DonationFormCard({
                   <button
                     key={amount}
                     type="button"
-                    onClick={() => { setDonationAmount(amount); setDonationAmountInput(String(amount)) }}
+                    onClick={() => {
+                      clearFieldError('donationAmount')
+                      clearFieldError('total')
+                      setDonationAmount(amount)
+                      setDonationAmountInput(String(amount))
+                    }}
                     className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
                       donationAmount === amount && donationAmountInput === String(amount)
                         ? 'bg-ukraine-blue-500 text-white border-ukraine-blue-500 shadow-md'
@@ -785,6 +799,8 @@ export default function DonationFormCard({
                   }
                 }}
                 onChange={(e) => {
+                  clearFieldError('donationAmount')
+                  clearFieldError('total')
                   const val = e.target.value
                   setDonationAmountInput(val)
                   // Live-update numeric state for total preview
@@ -796,9 +812,23 @@ export default function DonationFormCard({
                   setDonationAmount(value)
                   setDonationAmountInput(String(value))
                 }}
+                aria-invalid={!!fieldErrors.donationAmount}
+                aria-describedby={fieldErrors.donationAmount ? 'donation-amount-error' : undefined}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('amount.placeholder')}
               />
+              {fieldErrors.donationAmount && (
+                <p
+                  id="donation-amount-error"
+                  role="alert"
+                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                >
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{fieldErrors.donationAmount}</span>
+                </p>
+              )}
               <div className="mt-2 p-2.5 bg-ukraine-blue-50 rounded-lg">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-700">
@@ -821,7 +851,11 @@ export default function DonationFormCard({
                   <button
                     key={num}
                     type="button"
-                    onClick={() => setQuantity(num)}
+                    onClick={() => {
+                      clearFieldError('quantity')
+                      clearFieldError('total')
+                      setQuantity(num)
+                    }}
                     className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
                       quantity === num
                         ? 'bg-ukraine-blue-500 text-white border-ukraine-blue-500 shadow-md'
@@ -852,6 +886,8 @@ export default function DonationFormCard({
                   }
                 }}
                 onChange={(e) => {
+                  clearFieldError('quantity')
+                  clearFieldError('total')
                   const val = e.target.value
                   if (val === '') {
                     setQuantity(0)
@@ -885,9 +921,23 @@ export default function DonationFormCard({
                     setQuantity(num) // This removes leading zeros
                   }
                 }}
+                aria-invalid={!!fieldErrors.quantity}
+                aria-describedby={fieldErrors.quantity ? 'donation-quantity-error' : undefined}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('quantity.custom')}
               />
+              {fieldErrors.quantity && (
+                <p
+                  id="donation-quantity-error"
+                  role="alert"
+                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                >
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{fieldErrors.quantity}</span>
+                </p>
+              )}
               <div className="mt-2 p-2.5 bg-ukraine-blue-50 rounded-lg">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-700">
@@ -949,7 +999,12 @@ export default function DonationFormCard({
                   <button
                     key={amount}
                     type="button"
-                    onClick={() => { setTipAmount(amount); setTipAmountInput(String(amount)) }}
+                    onClick={() => {
+                      clearFieldError('tipAmount')
+                      clearFieldError('total')
+                      setTipAmount(amount)
+                      setTipAmountInput(String(amount))
+                    }}
                     className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
                       tipAmount === amount && tipAmountInput === String(amount)
                         ? 'bg-ukraine-gold-600 text-white border-ukraine-gold-600 shadow-md'
@@ -962,6 +1017,7 @@ export default function DonationFormCard({
               </div>
               <input
                 ref={tipAmountRef}
+                id="tip-amount"
                 type="number"
                 min="0"
                 max="9999.9"
@@ -973,6 +1029,8 @@ export default function DonationFormCard({
                   }
                 }}
                 onChange={(e) => {
+                  clearFieldError('tipAmount')
+                  clearFieldError('total')
                   const val = e.target.value
                   setTipAmountInput(val)
                   const num = parseFloat(val)
@@ -983,9 +1041,23 @@ export default function DonationFormCard({
                   setTipAmount(value)
                   setTipAmountInput(value === 0 ? '' : String(value))
                 }}
+                aria-invalid={!!fieldErrors.tipAmount}
+                aria-describedby={fieldErrors.tipAmount ? 'tip-amount-error' : undefined}
                 className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-gold-500 focus:border-transparent"
                 placeholder={t('tip.placeholder')}
               />
+              {fieldErrors.tipAmount && (
+                <p
+                  id="tip-amount-error"
+                  role="alert"
+                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                >
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{fieldErrors.tipAmount}</span>
+                </p>
+              )}
               {tipAmount > 0 && (
                 <p className="mt-2 text-xs text-ukraine-gold-700 flex items-center gap-1">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -998,7 +1070,7 @@ export default function DonationFormCard({
           )}
 
           {/* Total Amount Summary */}
-          <div className="border-t pt-3">
+          <div ref={totalAmountRef} className="border-t pt-3" tabIndex={-1}>
             <div className="p-3 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 rounded-lg border border-ukraine-blue-200">
               <div className="space-y-2">
                 {/* Show breakdown if there's a tip */}
@@ -1033,6 +1105,18 @@ export default function DonationFormCard({
                 </div>
               </div>
             </div>
+            {fieldErrors.total && (
+              <p
+                id="total-amount-error"
+                role="alert"
+                className="mt-2 text-xs text-red-600 flex items-start gap-1"
+              >
+                <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span>{fieldErrors.total}</span>
+              </p>
+            )}
           </div>
 
           {/* Donor Information */}
@@ -1053,11 +1137,28 @@ export default function DonationFormCard({
                 minLength={2}
                 maxLength={255}
                 value={donorName}
-                onChange={(e) => updateDonorInfo('name', e.target.value)}
+                onChange={(e) => {
+                  clearFieldError('name')
+                  updateDonorInfo('name', e.target.value)
+                }}
+                aria-invalid={!!fieldErrors.name}
+                aria-describedby={fieldErrors.name ? 'donor-name-error' : undefined}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('donor.namePlaceholder')}
               />
               <p className="mt-1 text-xs text-gray-500">{t('donor.nameHint')}</p>
+              {fieldErrors.name && (
+                <p
+                  id="donor-name-error"
+                  role="alert"
+                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                >
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{fieldErrors.name}</span>
+                </p>
+              )}
             </div>
 
             <div>
@@ -1070,13 +1171,30 @@ export default function DonationFormCard({
                 type="email"
                 required
                 value={donorEmail}
-                onChange={(e) => updateDonorInfo('email', e.target.value)}
+                onChange={(e) => {
+                  clearFieldError('email')
+                  updateDonorInfo('email', e.target.value)
+                }}
                 onBlur={(e) => updateDonorInfo('email', e.target.value.trim())}
                 pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? 'donor-email-error' : undefined}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
                 placeholder={t('donor.emailPlaceholder')}
               />
               <p className="mt-1 text-xs text-gray-500">{t('donor.emailHint')}</p>
+              {fieldErrors.email && (
+                <p
+                  id="donor-email-error"
+                  role="alert"
+                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                >
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>{fieldErrors.email}</span>
+                </p>
+              )}
             </div>
           </div>
 
