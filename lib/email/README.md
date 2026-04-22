@@ -408,7 +408,7 @@ export function generateDonationReminderEmail(
 创建 `senders/donation-reminder.ts`:
 
 ```typescript
-import { resend, FROM_EMAIL } from '../client'
+import { resend, getFromEmail } from '../client'
 import { DonationReminderEmailParams } from '../types'
 import { generateDonationReminderEmail } from '../templates/donation-reminder'
 
@@ -418,7 +418,7 @@ export async function sendDonationReminderEmail(
   const emailContent = generateDonationReminderEmail(params)
 
   const { data, error } = await resend.emails.send({
-    from: FROM_EMAIL,
+    from: getFromEmail(params.locale),
     to: params.to,
     subject: emailContent.subject,
     html: emailContent.html,

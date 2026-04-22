@@ -7,9 +7,9 @@ import { OrgBranding } from './types'
 // Organization Branding Configuration
 export const ORG_BRANDING: OrgBranding = {
   name: {
-    en: 'Way to Future UA',
+    en: 'WAY TO FUTURE UA',
     zh: '乌克兰未来之路',
-    ua: 'Way to Future UA'
+    ua: 'ШЛЯХ ДО МАЙБУТНЬОГО UA'
   },
   logoUrl: '', // No logo in emails
   websiteUrl: 'https://waytofutureua.org.ua',

@@ -2,7 +2,7 @@
  * Payment Success Email Sender
  */
 
-import { resend, FROM_EMAIL } from '../client'
+import { resend, getFromEmail } from '../client'
 import { PaymentSuccessEmailParams } from '../types'
 import { generatePaymentSuccessEmail } from '../templates/transactional/payment-success'
 import { logger } from '@/lib/logger'
@@ -15,7 +15,7 @@ export async function sendPaymentSuccessEmail(params: PaymentSuccessEmailParams)
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: getFromEmail(params.locale),
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,

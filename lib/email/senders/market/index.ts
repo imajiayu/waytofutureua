@@ -4,7 +4,7 @@
  * 义卖模块的邮件发送器，对标捐赠模块的 sender 模式。
  */
 
-import { resend, FROM_EMAIL } from '../../client'
+import { resend, getFromEmail } from '../../client'
 import type {
   MarketOrderPaidEmailParams,
   MarketOrderShippedEmailParams,
@@ -23,7 +23,7 @@ export async function sendMarketOrderPaidEmail(params: MarketOrderPaidEmailParam
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: getFromEmail(params.locale),
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
@@ -51,7 +51,7 @@ export async function sendMarketOrderShippedEmail(params: MarketOrderShippedEmai
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: getFromEmail(params.locale),
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
@@ -79,7 +79,7 @@ export async function sendMarketOrderCompletedEmail(params: MarketOrderCompleted
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: getFromEmail(params.locale),
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,

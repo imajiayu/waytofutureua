@@ -25,7 +25,7 @@ export type {
 } from './types'
 
 // Export client
-export { resend, FROM_EMAIL } from './client'
+export { resend, getFromEmail } from './client'
 
 // Export configuration
 export { ORG_BRANDING, EMAIL_COLORS } from './config'

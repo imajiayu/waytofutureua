@@ -2,7 +2,7 @@
  * Donation Completed Email Sender
  */
 
-import { resend, FROM_EMAIL } from '../client'
+import { resend, getFromEmail } from '../client'
 import { DonationCompletedEmailParams } from '../types'
 import { generateDonationCompletedEmail } from '../templates/transactional/donation-completed'
 import { logger } from '@/lib/logger'
@@ -15,7 +15,7 @@ export async function sendDonationCompletedEmail(params: DonationCompletedEmailP
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: getFromEmail(params.locale),
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,

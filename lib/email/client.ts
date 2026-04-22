@@ -3,6 +3,9 @@
  */
 
 import { Resend } from 'resend'
+import { ORG_BRANDING } from './config'
+import { getLocalizedText } from './utils'
+import type { Locale } from './types'
 
 // Lazy initialization to allow dotenv to load first
 let _resend: Resend | null = null
@@ -26,4 +29,16 @@ export const resend = new Proxy({} as Resend, {
   }
 })
 
-export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@waytofutureua.org.ua'
+const DEFAULT_FROM_ADDRESS = 'noreply@waytofutureua.org.ua'
+
+/**
+ * Build RFC 5322 formatted From header with localized display name.
+ * Example: `WAY TO FUTURE UA <noreply@waytofutureua.org.ua>`
+ */
+export function getFromEmail(
+  locale: Locale,
+  address: string = process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_ADDRESS
+): string {
+  const displayName = getLocalizedText(ORG_BRANDING.name, locale)
+  return `${displayName} <${address}>`
+}

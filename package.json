@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--no-deprecation' next dev",
+    "dev": "(sleep 3 && open http://localhost:3001) & NODE_OPTIONS='--no-deprecation' next dev -p 3001",
     "dev:verbose": "next dev",
     "build": "next build",
     "start": "next start",

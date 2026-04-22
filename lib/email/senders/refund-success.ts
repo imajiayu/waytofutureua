@@ -2,7 +2,7 @@
  * Refund Success Email Sender
  */
 
-import { resend, FROM_EMAIL } from '../client'
+import { resend, getFromEmail } from '../client'
 import { RefundSuccessEmailParams } from '../types'
 import { generateRefundSuccessEmail } from '../templates/transactional/refund-success'
 import { logger } from '@/lib/logger'
@@ -15,7 +15,7 @@ export async function sendRefundSuccessEmail(params: RefundSuccessEmailParams) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: getFromEmail(params.locale),
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,

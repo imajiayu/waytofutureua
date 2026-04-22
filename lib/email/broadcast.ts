@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { EmailTemplate, loadTemplateContent, replaceTemplateVariables } from './templates'
+import { getFromEmail } from './client'
 import { logger } from '@/lib/logger'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -76,8 +77,9 @@ export async function sendBroadcastEmail(
       const personalizedHtml = replaceTemplateVariables(htmlContent, personalizedVariables)
 
       // 发送邮件（群发使用专用地址，未配置时回退到默认地址）
+      const broadcastAddress = process.env.RESEND_BROADCAST_FROM_EMAIL || process.env.RESEND_FROM_EMAIL!
       const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_BROADCAST_FROM_EMAIL || process.env.RESEND_FROM_EMAIL!,
+        from: getFromEmail(locale, broadcastAddress),
         to: email,
         subject: subject,
         html: personalizedHtml,
