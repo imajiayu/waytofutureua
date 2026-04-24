@@ -162,6 +162,7 @@ waytofutureua/
 │   │   ├── track-donation.ts     # 追踪和退款
 │   │   ├── subscription.ts       # 订阅操作
 │   │   ├── email-broadcast.ts    # 群发邮件
+│   │   ├── email-history.ts      # 邮件发送历史（Resend /emails API）
 │   │   ├── market-auth.ts        # 义卖 Email OTP 认证
 │   │   ├── market-sale.ts        # 义卖下单 + 支付参数
 │   │   ├── market-items.ts       # 公开商品/订单查询

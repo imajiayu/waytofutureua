@@ -26,6 +26,8 @@ interface BroadcastModalProps {
   isOpen: boolean
   onClose: () => void
   subscribers: Subscriber[]
+  /** Fired when a broadcast finishes (success or partial failure), regardless of exact counts */
+  onSent?: () => void
 }
 
 type PreviewLocale = DonationLocale
@@ -39,7 +41,8 @@ const LOCALE_LABELS: Record<PreviewLocale, string> = {
 export default function BroadcastModal({
   isOpen,
   onClose,
-  subscribers
+  subscribers,
+  onSent
 }: BroadcastModalProps) {
   // Filter to only active subscribers
   const activeSubscribers = useMemo(
@@ -197,6 +200,9 @@ export default function BroadcastModal({
           sent: response.data.sent,
           failed: response.data.failed
         })
+        if (response.data.sent > 0 || response.data.failed > 0) {
+          onSent?.()
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send broadcast')
