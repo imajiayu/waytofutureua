@@ -173,10 +173,14 @@ async function downloadAttachment(
   }
 }
 
-function toResendAttachments(fetched: FetchedAttachment[]): Attachment[] {
+function toResendAttachments(fetched: FetchedAttachment[]): {
+  attachments: Attachment[]
+  sizeCapDropped: number
+} {
   // 逐个累加，超过 30MB 保险线就停止（剩余丢日志里），避免 send 整封 40MB 限制触发失败
   const out: Attachment[] = []
   let total = 0
+  let sizeCapDropped = 0
   for (const a of fetched) {
     if (total + a.size > ATTACHMENT_TOTAL_LIMIT_BYTES) {
       logger.warn('WEBHOOK:RESEND', 'Attachment total exceeds 30MB cap, dropping rest', {
@@ -184,6 +188,7 @@ function toResendAttachments(fetched: FetchedAttachment[]): Attachment[] {
         skippedSize: a.size,
         alreadyTotal: total,
       })
+      sizeCapDropped++
       continue
     }
     total += a.size
@@ -194,7 +199,7 @@ function toResendAttachments(fetched: FetchedAttachment[]): Attachment[] {
       contentId: a.contentId,
     })
   }
-  return out
+  return { attachments: out, sizeCapDropped }
 }
 
 function buildMetaBlockHtml(params: {
@@ -290,8 +295,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, skipped: 'self-domain sender' })
   }
 
-  // 断循环层 2：subject 已带 [Forwarded] 前缀——纯人类可读信号，双保险
-  if (metaSubject.startsWith(FORWARDED_PREFIX)) {
+  // 断循环层 2：subject 含 [Forwarded] 标记——bounce / auto-reply 经常会前置 Re: / Fwd:，所以用 includes 不用 startsWith
+  if (metaSubject.includes(FORWARDED_PREFIX)) {
     logger.info('WEBHOOK:RESEND', 'Skip already-forwarded email (subject prefix)', {
       subject: metaSubject.slice(0, 80),
     })
@@ -342,7 +347,9 @@ export async function POST(req: NextRequest) {
   const downloaded = (
     await Promise.all(inboundAttachments.map((m) => downloadAttachment(emailId, m)))
   ).filter((a): a is FetchedAttachment => a !== null)
-  const outgoingAttachments = toResendAttachments(downloaded)
+  const attachmentFetchFailed = inboundAttachments.length - downloaded.length
+  const { attachments: outgoingAttachments, sizeCapDropped: attachmentSizeCapDropped } =
+    toResendAttachments(downloaded)
 
   const metaHtml = buildMetaBlockHtml({
     from,
@@ -396,14 +403,16 @@ export async function POST(req: NextRequest) {
       messageId: result.data?.id,
       forwardedTo: forwardTo,
       attachmentCount: outgoingAttachments.length,
-      attachmentDropped: inboundAttachments.length - outgoingAttachments.length,
+      attachmentFetchFailed,
+      attachmentSizeCapDropped,
     })
 
     return NextResponse.json({
       ok: true,
       messageId: result.data?.id,
       attachmentCount: outgoingAttachments.length,
-      attachmentDropped: inboundAttachments.length - outgoingAttachments.length,
+      attachmentFetchFailed,
+      attachmentSizeCapDropped,
     })
   } catch (err) {
     logger.errorWithStack('WEBHOOK:RESEND', 'Forward threw', err)
