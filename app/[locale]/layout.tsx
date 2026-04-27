@@ -5,7 +5,7 @@ import { getMessages, getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { Analytics } from '@vercel/analytics/react'
 import { locales } from '@/i18n/config'
-import { BASE_URL, getAlternates } from '@/lib/constants'
+import { BASE_URL } from '@/lib/constants'
 import Navigation from '@/components/layout/Navigation'
 import Footer from '@/components/layout/Footer'
 import JsonLd from '@/components/seo/JsonLd'
@@ -84,7 +84,7 @@ export async function generateMetadata(
     twitter: {
       card: 'summary_large_image',
     },
-    alternates: getAlternates(`/${locale}`),
+    // alternates 由各 page.tsx 自行声明 —— layout 上设置会让所有子路由继承到指向首页的 canonical。
   }
 }
 

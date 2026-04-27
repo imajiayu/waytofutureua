@@ -11,6 +11,15 @@ type Props = {
   searchParams: Promise<{ order?: string }>
 }
 
+export async function generateMetadata({ params }: Props) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'market' })
+  return {
+    title: t('success.confirmed.title'),
+    robots: { index: false, follow: false },
+  }
+}
+
 // 状态分组对应的图标和颜色（含 sessionExpired）
 type StatusGroupKey = OrderStatusGroup | 'sessionExpired'
 const STATUS_GROUP_STYLES: Record<StatusGroupKey, {

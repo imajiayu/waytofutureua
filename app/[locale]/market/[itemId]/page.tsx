@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { BASE_URL } from '@/lib/constants'
+import { BASE_URL, getAlternates } from '@/lib/constants'
 import { getMarketItemById } from '@/app/actions/market-items'
 import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
 import MarketItemDetail from '@/components/market/MarketItemDetail'
@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: Props) {
       title,
       url: `${BASE_URL}/${locale}/market/${itemId}`,
     },
+    alternates: getAlternates(`/${locale}/market/${itemId}`),
   }
 }
 

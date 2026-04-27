@@ -10,6 +10,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '',
     '/donate',
     '/track-donation',
+    '/market',
+    '/privacy-policy',
+    '/public-agreement',
   ]
 
   const entries: MetadataRoute.Sitemap = []

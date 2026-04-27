@@ -10,6 +10,10 @@ export default createMiddleware({
 
   // Always use locale prefix (even for default locale)
   localePrefix: 'always',
+
+  // hreflang 由 HTML <link rel="alternate"> 接管。
+  // next-intl 默认会把 'ua' 原样写进 Link header（应为 ISO 'uk'），与 HTML 冲突时 Google 会丢弃 canonical。
+  alternateLinks: false,
 })
 
 export const config = {
