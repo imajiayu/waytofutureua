@@ -15,7 +15,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.supabase.co',
+        hostname: 'bajdimjfqojlatjmcffz.supabase.co',
       },
       {
         protocol: 'https',
@@ -29,8 +29,9 @@ const nextConfig = {
     qualities: [60, 75, 85, 100],
   },
   experimental: {
+    optimizePackageImports: ['i18n-iso-countries', 'react-international-phone'],
     serverActions: {
-      bodySizeLimit: '50mb', // 增加到 50MB 以支持文件上传
+      bodySizeLimit: '50mb', // 50MB：义卖订单视频凭证（shipped/completed）通过 Server Action 上传需要
       allowedOrigins: [
         'waytofutureua.org.ua',
         'www.waytofutureua.org.ua',

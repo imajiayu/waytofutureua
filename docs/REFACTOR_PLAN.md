@@ -21,7 +21,7 @@
 | --------------- | ------------------------------------------ | ------ |
 | **P0** 必做     | 工程化基础 + 高价值性能修复 + 严重规范问题 | 8      |
 | **P1** 应做     | 代码重复收敛、设计系统初建、中度性能修复   | 9      |
-| **P2** 有余力做 | 架构进化、清理、严格度提升                 | 9      |
+| **P2** 有余力做 | 架构进化、清理、严格度提升                 | 5      |
 
 ---
 
@@ -170,71 +170,34 @@
 
 ### P2-1 · 收敛 `market-sale.ts` 的 `locale as any`
 
-- [ ] **位置**：`app/actions/market-sale.ts:28`（及附近 `as any`）
-- **动作**：用类型守卫
-  ```ts
-  const VALID_LOCALES = ['en', 'zh', 'ua'] as const
-  type Locale = (typeof VALID_LOCALES)[number]
-  const isLocale = (x: unknown): x is Locale => VALID_LOCALES.includes(x as Locale)
-  ```
-- **验收**：该文件非支付段落 0 处 `as any`
+- [x] **位置**：`app/actions/market-sale.ts:30`
+- **动作**：用 P1-11 已建立的 `isAppLocale` 守卫替换 `locale as any`
+- **验收**：该文件非支付段落 0 处 `as any`（保留 `service.rpc as any` —— 等待迁移后类型重生成）
 
-### P2-2 · 图片 `alt` 补全
+### P2-4 · `next.config.js` 性能配置
 
-- [ ] **位置**：
-  - `components/home/ProjectResultsMosaic.tsx:114,153,182`（mosaic 图片当前 `alt=""`）
-  - 全仓 `rg 'alt=""' components/` 复核，保留装饰性图片空 alt，其余补文字
-- **动作**：补具备描述性的 alt，优先从 i18n 读取（如 `t('projectResultImage', { projectId })`）
-- **验收**：`rg 'alt=""' components/` 结果只剩已确认的装饰性图片
-
-### P2-3 · List key 使用 index 的修正
-
-- [ ] **位置**：
-  - `components/home/ApproachSection.tsx:100-117`
-  - `components/layout/Footer.tsx:184`
-  - `components/projects/detail-pages/Project0/sections/TeamSection.tsx`
-- **动作**：改为稳定 key（`member.name`、`info.label` 等）
-- **验收**：以上三处无 `key={index}`
-
-### P2-4 · `next.config.js` 图片与性能配置
-
-- [ ] **动作**：
+- [x] **动作**：
   1. `images.remotePatterns` 的 `**.supabase.co` 改为具体项目域名（`<project-ref>.supabase.co`）
-  2. 加 `experimental.optimizePackageImports: ['i18n-iso-countries', 'react-international-phone']`（按实际 import 挑选）
-  3. 评估 `serverActions.bodySizeLimit: '50mb'` 是否需要这么大——如果所有大文件都走 signed URL 直传 Storage，改为 `'5mb'`
-- **验收**：三项修改到位，`next build` 无新 warning
+  2. 加 `experimental.optimizePackageImports: ['i18n-iso-countries', 'react-international-phone']`（已确认两库均有 import 命中）
+- **不做**：`bodySizeLimit: '50mb'` 保留（义卖订单视频上传走 Server Action，需要大容量）
+- **验收**：两项修改到位，`next build` 无新 warning
 
-### P2-5 · `tsconfig` 严格度
+### P2-5 · `tsconfig` 严格度（保守）
 
-- [ ] **动作**：加入 `"noUncheckedIndexedAccess": true`、`"noImplicitOverride": true`，`npm run type-check` 修复新曝光的错误（数量不可预测，发现较多可拆成独立 PR）
+- [x] **动作**：加入 `"noImplicitOverride": true`（零成本，几乎无修改）
+- **不做**：`noUncheckedIndexedAccess` 跳过——全仓 100+ 处索引访问会被波及，多数会改为 `!` 非空断言反而降低代码质量
 - **验收**：`tsc --noEmit` 通过
 
 ### P2-6 · 邮件 sender 共享骨架
 
-- [ ] **位置**：`lib/email/senders/*.ts` 多个 sender 重复 try/catch + `resend.emails.send()` + logger
-- **动作**：抽 `lib/email/send.ts` 的 `sendEmail({ to, subject, html, text, category, tags? })`，内部处理重试/日志/失败返回
-- **验收**：每个 sender 主体只剩"组装模板 + 调 `sendEmail()`"两行
+- [x] **位置**：`lib/email/senders/{donation-completed,payment-success,refund-success}.ts`（各 37 行）+ `lib/email/senders/market/index.ts`（3 个 sender × ~30 行）
+- **动作**：抽 `lib/email/send.ts` 的 `sendEmail({ to, subject, html, text, locale, category, ...meta })`，内部处理 try/catch + logger
+- **验收**：每个 sender 主体只剩"组装模板 + 调 `sendEmail()`"
 
-### P2-7 · `FormField` / Zod 公用校验收敛
+### P2-9 · 相对导入收敛（已自动完成）
 
-- [ ] **位置**：`lib/validations.ts` + `lib/market/market-validations.ts`
-- **问题**：邮箱、电话、收货地址等 schema 在两处各自定义过
-- **动作**：邮箱/电话/必填字符串等"原子 schema"抽到 `lib/validations/base.ts`，业务 schema 组合之
-- **验收**：`rg "z.string().email\\("` 只剩一两处（业务组合处）
-
-### P2-8 · 未引用的 project 图片清理
-
-- [ ] **位置**：`public/images/projects/` 有 ~24 张 JSON 里未引用的图片
-- **动作**：
-  1. 脚本化扫描：`scripts/find-unused-project-images.ts`（对照 `public/content/projects/*.json` 和组件中动态引用的命名模式 `employer${i}` / `progress${i}`）
-  2. 人工 review 输出，确认无用的删掉
-- **验收**：扫描脚本产出清单 + 清理 commit
-
-### P2-9 · 相对导入收敛到 `@/` 别名
-
-- [ ] **问题**：`components/admin/` 中 22 处 `from '../../'` 样式的相对 import
-- **动作**：批量改写为 `@/` 路径别名（可用 codemod 或 VSCode 自动 import 重写）
-- **验收**：`rg "from ['\"]\\.\\./" components/admin/` 结果为 0
+- [x] **现状**：`rg "from ['\"]\\.\\./" components/admin/` 实测结果为 0；ESLint `simple-import-sort` 配合 IDE auto-import 已在 P0-2 后批量改写
+- **动作**：仅需在变更记录确认 + 勾选完成
 
 ---
 
@@ -260,23 +223,29 @@
 
 ## 变更记录
 
-| 日期       | 任务 ID | 执行人 | 备注                                                                                  |
-| ---------- | ------- | ------ | ------------------------------------------------------------------------------------- |
-| 2026-04-21 | —       | Claude | 初版文档创建                                                                          |
-| 2026-04-30 | P0-1    | Claude | Prettier + tailwindcss 插件接入，全量 format 236 文件                                 |
-| 2026-04-30 | P0-2    | Claude | ESLint 规则启用 + 修复（含 hook deps、unescaped entities、`<img>` per-line disable）  |
-| 2026-04-30 | P0-3    | Claude | admin-auth.ts console.error → logger.error('AUTH', ...); LogCategory 加 'AUTH' 分类   |
-| 2026-04-30 | P0-4    | Claude | cloudinary.ts fetchWithRetry 改返 `{ buffer, contentType }` tuple，移除 @ts-ignore    |
-| 2026-04-30 | P0-5    | Claude | MissionSection / ImpactSection 改 RSC；ApproachSection 抽 ScrollToComplianceButton    |
-| 2026-04-30 | P0-6    | Claude | 首页 7 处 `as any` 全部移除（next-intl 未启用 strict typed messages，可直接传模板串） |
-| 2026-04-30 | P0-7    | Claude | DonationResultViewer JSZip 改 `await import('jszip')` 按需加载                        |
-| 2026-04-30 | P0-8    | Claude | DonatePageClient 4 个 ProjectNDetailContent 改 next/dynamic                           |
-| 2026-04-30 | P1-10   | Claude | i18n-utils 瘦身：getProjectName/getLocation/getUnitName 改一行 @deprecated（38%）     |
-| 2026-04-30 | P1-11   | Claude | AppLocale + VALID_LOCALES 统一到 types/index.ts；SupportedLocale/DonationLocale 别名  |
-| 2026-04-30 | P1-9    | Claude | 抽出 useBidirectionalSticky hook，DonatePageClient 删除 80 行 sticky 内联实现         |
-| 2026-04-30 | P1-5    | Claude | DonationEditModal 748→145，拆出 5 子组件 + useDonationFileUpload hook                 |
-| 2026-04-30 | P1-6    | Claude | MarketOrderEditModal 671→194，拆出 5 子组件 + useMarketOrderFileUpload hook           |
-| 2026-04-30 | P1-3    | Claude | EmptyState（5 处）+ admin FilterBar（1 处）；DataTable 跳过（结构差异过大）           |
-| 2026-04-30 | P1-2    | Claude | FormField/TextField/SelectField 改造 4 个 admin 模态；前台 3 套样式不强行统一         |
-| 2026-04-30 | P1-7    | Claude | track-donation-form 717→290，拆出 SearchForm/OrderGroupCard/RefundConfirmationDialog  |
-| 2026-04-30 | P1-8    | Claude | ProjectDonationList 305→133，拆出 DonationTableDesktop + DonationCardMobile           |
+| 日期       | 任务 ID | 执行人 | 备注                                                                                     |
+| ---------- | ------- | ------ | ---------------------------------------------------------------------------------------- |
+| 2026-04-21 | —       | Claude | 初版文档创建                                                                             |
+| 2026-04-30 | P0-1    | Claude | Prettier + tailwindcss 插件接入，全量 format 236 文件                                    |
+| 2026-04-30 | P0-2    | Claude | ESLint 规则启用 + 修复（含 hook deps、unescaped entities、`<img>` per-line disable）     |
+| 2026-04-30 | P0-3    | Claude | admin-auth.ts console.error → logger.error('AUTH', ...); LogCategory 加 'AUTH' 分类      |
+| 2026-04-30 | P0-4    | Claude | cloudinary.ts fetchWithRetry 改返 `{ buffer, contentType }` tuple，移除 @ts-ignore       |
+| 2026-04-30 | P0-5    | Claude | MissionSection / ImpactSection 改 RSC；ApproachSection 抽 ScrollToComplianceButton       |
+| 2026-04-30 | P0-6    | Claude | 首页 7 处 `as any` 全部移除（next-intl 未启用 strict typed messages，可直接传模板串）    |
+| 2026-04-30 | P0-7    | Claude | DonationResultViewer JSZip 改 `await import('jszip')` 按需加载                           |
+| 2026-04-30 | P0-8    | Claude | DonatePageClient 4 个 ProjectNDetailContent 改 next/dynamic                              |
+| 2026-04-30 | P1-10   | Claude | i18n-utils 瘦身：getProjectName/getLocation/getUnitName 改一行 @deprecated（38%）        |
+| 2026-04-30 | P1-11   | Claude | AppLocale + VALID_LOCALES 统一到 types/index.ts；SupportedLocale/DonationLocale 别名     |
+| 2026-04-30 | P1-9    | Claude | 抽出 useBidirectionalSticky hook，DonatePageClient 删除 80 行 sticky 内联实现            |
+| 2026-04-30 | P1-5    | Claude | DonationEditModal 748→145，拆出 5 子组件 + useDonationFileUpload hook                    |
+| 2026-04-30 | P1-6    | Claude | MarketOrderEditModal 671→194，拆出 5 子组件 + useMarketOrderFileUpload hook              |
+| 2026-04-30 | P1-3    | Claude | EmptyState（5 处）+ admin FilterBar（1 处）；DataTable 跳过（结构差异过大）              |
+| 2026-04-30 | P1-2    | Claude | FormField/TextField/SelectField 改造 4 个 admin 模态；前台 3 套样式不强行统一            |
+| 2026-04-30 | P1-7    | Claude | track-donation-form 717→290，拆出 SearchForm/OrderGroupCard/RefundConfirmationDialog     |
+| 2026-04-30 | P1-8    | Claude | ProjectDonationList 305→133，拆出 DonationTableDesktop + DonationCardMobile              |
+| 2026-04-30 | P2 调研 | Claude | 删除 P2-2/P2-3/P2-7/P2-8 (不合理)；P2-4/P2-5 改为部分执行；P2 任务数 9→5                 |
+| 2026-04-30 | P2-1    | Claude | market-sale.ts: `locale as any` → `isAppLocale()` 守卫；移除 `as AppLocale` 冗余         |
+| 2026-04-30 | P2-4    | Claude | next.config: supabase 域名收紧到具体 ref + optimizePackageImports（i18n/phone）          |
+| 2026-04-30 | P2-5    | Claude | tsconfig: 加 `noImplicitOverride`（type-check 通过零修改）                               |
+| 2026-04-30 | P2-6    | Claude | 抽 `lib/email/send.ts` 的 sendEmail()；6 个 sender（捐赠 3 + 义卖 3）从 37 行缩到 ~15 行 |
+| 2026-04-30 | P2-9    | Claude | 标记完成（admin 中相对导入实测 0 处，P0-2 后已自动收敛）                                 |
