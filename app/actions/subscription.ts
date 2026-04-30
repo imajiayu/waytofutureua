@@ -9,9 +9,9 @@ import { z } from 'zod'
 import { logger } from '@/lib/logger'
 import { getUserClient } from '@/lib/supabase/action-clients'
 import { createSubscriptionSchema } from '@/lib/validations'
-import type { DonationLocale } from '@/types'
+import type { AppLocale } from '@/types'
 
-type Locale = DonationLocale
+type Locale = AppLocale
 
 // ==================== Types ====================
 

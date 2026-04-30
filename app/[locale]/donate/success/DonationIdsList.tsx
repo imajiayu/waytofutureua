@@ -1,8 +1,8 @@
 'use client'
 
 import CopyButton from '@/components/common/CopyButton'
-import { getLocation, getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
-import type { I18nText } from '@/types'
+import { getLocation, getProjectName, getUnitName } from '@/lib/i18n-utils'
+import type { AppLocale, I18nText } from '@/types'
 
 type Donation = {
   id: number
@@ -66,17 +66,17 @@ export default function DonationIdsList({ donations, locale, t }: DonationIdsLis
           const donationProjectName = getProjectName(
             donation.projects.project_name_i18n,
             donation.projects.project_name,
-            locale as SupportedLocale
+            locale as AppLocale
           )
           const donationLocation = getLocation(
             donation.projects.location_i18n,
             donation.projects.location,
-            locale as SupportedLocale
+            locale as AppLocale
           )
           const unitName = getUnitName(
             donation.projects.unit_name_i18n,
             donation.projects.unit_name,
-            locale as SupportedLocale
+            locale as AppLocale
           )
           const isAggregateProject = donation.projects.aggregate_donations === true
 

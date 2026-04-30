@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 
 import { getAdminMarketOrders } from '@/app/actions/market-admin'
+import EmptyState from '@/components/ui/EmptyState'
 import { getTranslatedText } from '@/lib/i18n-utils'
 import {
   canManageOrderFiles,
@@ -135,9 +136,7 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
             </div>
           )
         })}
-        {filteredOrders.length === 0 && (
-          <div className="py-8 text-center text-gray-400">No orders found</div>
-        )}
+        {filteredOrders.length === 0 && <EmptyState message="No orders found" />}
       </div>
 
       {/* Desktop table view */}
@@ -235,7 +234,7 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
       </div>
 
       {filteredOrders.length === 0 && (
-        <div className="hidden py-8 text-center text-gray-400 sm:block">No orders found</div>
+        <EmptyState message="No orders found" className="hidden sm:block" />
       )}
 
       {/* Edit Modal */}

@@ -11,11 +11,10 @@ import {
   isValidAdminTransition,
   needsFileUpload,
 } from '@/lib/donation-status'
-import type { SupportedLocale } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
 import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { createProjectSchema, updateProjectSchema } from '@/lib/validations'
-import type { I18nText } from '@/types'
+import type { AppLocale, I18nText } from '@/types'
 import type { Database } from '@/types/database'
 
 type Project = Database['public']['Tables']['projects']['Row']
@@ -271,7 +270,7 @@ export async function updateDonationStatus(
           quantity: 1,
           totalAmount: current.amount,
           currency: 'UAH',
-          locale: (current.locale || 'en') as SupportedLocale,
+          locale: (current.locale || 'en') as AppLocale,
           resultImageUrl,
         })
 

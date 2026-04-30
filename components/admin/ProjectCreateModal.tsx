@@ -8,6 +8,7 @@ import type { Database } from '@/types/database'
 
 import AdminBaseModal from './AdminBaseModal'
 import I18nFieldGroup from './I18nFieldGroup'
+import { SelectField, TextField } from './ui/FormField'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
@@ -57,41 +58,29 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
         <div className="border-b pb-4">
           <h3 className="mb-3 font-body text-lg font-semibold">Basic Information</h3>
           <div className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Project Name *</label>
-              <input
-                type="text"
-                value={formData.project_name}
-                onChange={(e) => updateField('project_name', e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Location *</label>
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => updateField('location', e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Status *</label>
-              <select
-                value={formData.status || 'planned'}
-                onChange={(e) => updateField('status', e.target.value as ProjectInsert['status'])}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-              >
-                <option value="planned">Planned</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="paused">Paused</option>
-              </select>
-            </div>
+            <TextField
+              label="Project Name"
+              required
+              value={formData.project_name || ''}
+              onChange={(v) => updateField('project_name', v)}
+            />
+            <TextField
+              label="Location"
+              required
+              value={formData.location || ''}
+              onChange={(v) => updateField('location', v)}
+            />
+            <SelectField
+              label="Status"
+              required
+              value={formData.status || 'planned'}
+              onChange={(v) => updateField('status', v as ProjectInsert['status'])}
+            >
+              <option value="planned">Planned</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="paused">Paused</option>
+            </SelectField>
           </div>
         </div>
 
@@ -99,39 +88,27 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
         <div className="border-b pb-4">
           <h3 className="mb-3 font-body text-lg font-semibold">Pricing & Units</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Unit Price *</label>
-              <input
-                type="number"
-                value={formData.unit_price}
-                onChange={(e) => updateField('unit_price', Number(e.target.value))}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-                required
-                min="0"
-                step="0.01"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Target Units</label>
-              <input
-                type="number"
-                value={formData.target_units || 0}
-                onChange={(e) => updateField('target_units', Number(e.target.value))}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-                min="0"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Unit Name</label>
-              <input
-                type="text"
-                value={formData.unit_name || ''}
-                onChange={(e) => updateField('unit_name', e.target.value || null)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
+            <TextField
+              label="Unit Price"
+              type="number"
+              required
+              min={0}
+              step={0.01}
+              value={formData.unit_price || 0}
+              onChange={(v) => updateField('unit_price', Number(v))}
+            />
+            <TextField
+              label="Target Units"
+              type="number"
+              min={0}
+              value={formData.target_units || 0}
+              onChange={(v) => updateField('target_units', Number(v))}
+            />
+            <TextField
+              label="Unit Name"
+              value={formData.unit_name || ''}
+              onChange={(v) => updateField('unit_name', v || null)}
+            />
           </div>
         </div>
 
@@ -139,26 +116,19 @@ export default function ProjectCreateModal({ onClose, onCreated }: Props) {
         <div className="border-b pb-4">
           <h3 className="mb-3 font-body text-lg font-semibold">Timeline & Project Type</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Start Date *</label>
-              <input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => updateField('start_date', e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">End Date</label>
-              <input
-                type="date"
-                value={formData.end_date || ''}
-                onChange={(e) => updateField('end_date', e.target.value || null)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </div>
+            <TextField
+              label="Start Date"
+              type="date"
+              required
+              value={formData.start_date || ''}
+              onChange={(v) => updateField('start_date', v)}
+            />
+            <TextField
+              label="End Date"
+              type="date"
+              value={formData.end_date || ''}
+              onChange={(v) => updateField('end_date', v || null)}
+            />
 
             <div className="space-y-3 rounded-lg bg-blue-50 p-4 sm:col-span-2">
               <p className="mb-2 text-sm font-medium text-blue-900">

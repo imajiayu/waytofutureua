@@ -3,9 +3,9 @@
 import { useTranslations } from 'next-intl'
 
 import { MapPinIcon } from '@/components/icons'
-import { formatDate, getLocation, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
+import { formatDate, getLocation, getUnitName } from '@/lib/i18n-utils'
 import { getProjectProgress } from '@/lib/project-utils'
-import type { ProjectStats } from '@/types'
+import type { AppLocale, ProjectStats } from '@/types'
 
 import LongTermBadge from '../LongTermBadge'
 import ProjectStatusBadge from '../ProjectStatusBadge'
@@ -19,8 +19,8 @@ interface ProjectProgressSectionProps {
 export default function ProjectProgressSection({ project, locale }: ProjectProgressSectionProps) {
   const t = useTranslations('projects')
 
-  const location = getLocation(project.location_i18n, project.location, locale as SupportedLocale)
-  const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as SupportedLocale)
+  const location = getLocation(project.location_i18n, project.location, locale as AppLocale)
+  const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as AppLocale)
   const { currentUnits, targetUnits, totalRaised, hasValidTarget, progressCurrent } =
     getProjectProgress(project)
 
@@ -64,14 +64,14 @@ export default function ProjectProgressSection({ project, locale }: ProjectProgr
             </svg>
             <span className="text-[10px] leading-tight text-gray-700 md:text-xs">
               <span className="font-medium">
-                {formatDate(project.start_date, locale as SupportedLocale)}
+                {formatDate(project.start_date, locale as AppLocale)}
               </span>
               {project.is_long_term !== true && (
                 <>
                   {' '}
                   →{' '}
                   <span className="font-medium">
-                    {formatDate(project.end_date, locale as SupportedLocale)}
+                    {formatDate(project.end_date, locale as AppLocale)}
                   </span>
                 </>
               )}

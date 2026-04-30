@@ -32,7 +32,7 @@ export interface DonationFilters {
   donor_email?: string
   date_from?: string
   date_to?: string
-  locale?: 'en' | 'zh' | 'ua'
+  locale?: AppLocale
 }
 
 // Constants (internal, used for type derivation)
@@ -73,10 +73,12 @@ const PROJECT_STATUSES = ['planned', 'active', 'completed', 'paused'] as const
  */
 // Note: DONATION_STATUSES and DonationStatus are re-exported at the top of this file
 
-const DONATION_LOCALES = ['en', 'zh', 'ua'] as const
+// Application locale (single source of truth)
+export const VALID_LOCALES = ['en', 'zh', 'ua'] as const
+export type AppLocale = (typeof VALID_LOCALES)[number]
+export const isAppLocale = (x: unknown): x is AppLocale =>
+  typeof x === 'string' && (VALID_LOCALES as readonly string[]).includes(x)
 
-// Type aliases for better type safety
-export type DonationLocale = (typeof DONATION_LOCALES)[number]
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number]
 
 // Project Results - for displaying project outcomes/achievements

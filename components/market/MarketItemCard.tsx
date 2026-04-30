@@ -5,9 +5,10 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useCallback } from 'react'
 
 import { useRouter } from '@/i18n/navigation'
-import { formatDate, getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
+import { formatDate, getTranslatedText } from '@/lib/i18n-utils'
 import { getItemDisplayInfo } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
+import type { AppLocale } from '@/types'
 import type { MarketItemContent, PublicMarketItem } from '@/types/market'
 
 interface MarketItemCardProps {
@@ -18,7 +19,7 @@ interface MarketItemCardProps {
 
 export default function MarketItemCard({ item, content, onNavigate }: MarketItemCardProps) {
   const t = useTranslations('market')
-  const locale = useLocale() as SupportedLocale
+  const locale = useLocale() as AppLocale
   const router = useRouter()
 
   const title = getTranslatedText(item.title_i18n, null, locale) || 'Untitled'

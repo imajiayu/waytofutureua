@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { deleteMarketItem, getAdminMarketItems, updateMarketItem } from '@/app/actions/market-admin'
+import EmptyState from '@/components/ui/EmptyState'
 import { getTranslatedText } from '@/lib/i18n-utils'
 import { getNextItemStatuses, ITEM_STATUS_COLORS } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
@@ -126,7 +127,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
             </div>
           )
         })}
-        {items.length === 0 && <div className="py-8 text-center text-gray-400">No items found</div>}
+        {items.length === 0 && <EmptyState message="No items found" />}
       </div>
 
       {/* Desktop table view */}
@@ -210,9 +211,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
         </table>
       </div>
 
-      {items.length === 0 && (
-        <div className="hidden py-8 text-center text-gray-400 sm:block">No items found</div>
-      )}
+      {items.length === 0 && <EmptyState message="No items found" className="hidden sm:block" />}
 
       {isCreating && (
         <MarketItemCreateModal onClose={() => setIsCreating(false)} onCreated={handleCreated} />

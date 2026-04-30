@@ -20,7 +20,7 @@
 | 优先级          | 说明                                       | 任务数 |
 | --------------- | ------------------------------------------ | ------ |
 | **P0** 必做     | 工程化基础 + 高价值性能修复 + 严重规范问题 | 8      |
-| **P1** 应做     | 代码重复收敛、设计系统初建、中度性能修复   | 11     |
+| **P1** 应做     | 代码重复收敛、设计系统初建、中度性能修复   | 9      |
 | **P2** 有余力做 | 架构进化、清理、严格度提升                 | 9      |
 
 ---
@@ -111,102 +111,58 @@
 
 ## P1 · 代码重复与设计系统
 
-### P1-1 · 抽出通用 `FeatureCard`
+### P1-2 · admin FormField
 
-- [ ] **位置**：
-  - `components/home/ApproachSection.tsx:60-123`
-  - `components/home/ImpactSection.tsx:44-100`
-  - `components/home/MissionSection.tsx:17-47`
-- **动作**：新建 `components/common/FeatureCard.tsx`，props：`{ image, title, description, icon?, gradient? }`。三个 Section 改用它
-- **验收**：三处重复 JSX 消失，累计减少 ≥ 100 行
+- [x] 新建 `components/admin/ui/FormField.tsx`：`FormField`（label/hint/error 包装）+ `TextField`/`SelectField`（合成控件）+ `ADMIN_INPUT_CLASS`。
+- [x] 改造 4 个 admin 模态：ProjectEditModal（8 处）、ProjectCreateModal（8 处）、MarketItemCreateModal（3 处）、MarketItemEditModal（3 处）。
+- 前台未做：3 套独立视觉语言（track-donation 圆角大+图标 label、ShippingAddressForm 复合组件、admin 标准），统一会改样式或沦为薄壳。
 
-### P1-2 · 抽出 `FormField`（label + input + error + hint）
+### P1-3 · `<EmptyState>` + `<FilterBar>`
 
-- [ ] **目标**：统一管理后台与前台表单样式，消除 `w-full px-3 py-2 border …` 的硬编码
-- **影响文件**：
-  - `components/admin/ProjectEditModal.tsx:71-96` 等
-  - `components/admin/ProjectCreateModal.tsx`
-  - `app/[locale]/track-donation/track-donation-form.tsx:223-257`
-  - `components/market/ShippingAddressForm.tsx`（如存在）
-- **动作**：新建 `components/ui/FormField.tsx`，支持 `{ label, required, error, hint, icon }`
-- **验收**：以上文件不再手写 input className，统一走 `<FormField>`
+- [x] 新建 `components/ui/EmptyState.tsx`：`py-8 text-center text-gray-400` 包装；用于 MarketItemsTable / MarketOrdersTable / SubscriptionsTable 共 5 处。
+- [x] 新建 `components/admin/ui/FilterBar.tsx`：卡片外壳 + grid/flex 布局；用于 SubscriptionsTable 1 处。
+- DataTable/AdminTable 未做：4 个表的批量选择/双视图/列结构差异过大，抽象沦为薄壳；DonationsTable 的双 label 切换、MarketOrdersTable 的 inline 筛选都不适合套 FilterBar。
 
-### P1-3 · 抽出 `<AdminTable>` / `<FilterBar>` / `<EmptyState>`
+### P1-5 · 拆分 `DonationEditModal.tsx`
 
-- [ ] **目标**：统一四个管理表格的骨架
-- **影响文件**：
-  - `components/admin/ProjectsTable.tsx`
-  - `components/admin/DonationsTable.tsx`（筛选条 `156-212`）
-  - `components/admin/SubscriptionsTable.tsx:100-146`
-  - `components/admin/MarketOrdersTable.tsx:38-56`
-- **动作**：新建 `components/ui/{DataTable,FilterBar,EmptyState}.tsx`；筛选 API 统一为 `{ filters, onFilterChange }`
-- **验收**：四个表格筛选条实现都改为单行 `<FilterBar />`，且移动/桌面分支统一
+- [x] **位置**：`components/admin/DonationEditModal.tsx`
+- **执行**：拆出 `DonationStatusSection` / `DonationFileTransitionUpload` / `DonationFileLibrary` / `DonationFileRow` / `DonationInfoPanel` / `DonationHistorySection` + `useDonationFileUpload` hook。
+- **结果**：748→145 行；子组件最大 161 行（均 ≤ 200）。
 
-### P1-4 · 建立 `components/ui/` 最小设计系统
+### P1-6 · 拆分 `MarketOrderEditModal.tsx`
 
-- [ ] **目标**：Button / Input / Card / Badge 作为前后台共用的原子组件
-- **动作**：
-  1. 新建 `components/ui/Button.tsx`：`variant: primary|secondary|danger|ghost` × `size: sm|md|lg`
-  2. 新建 `components/ui/Card.tsx`：`{ as?, padding?, elevated? }`
-  3. 把 `DonationStatusBadge`、`ProjectStatusBadge` 背后共用一个 `<Badge>` 原语（颜色配置外置）
-  4. **不要**一次性替换所有 class，先建立原子 + 在新代码中强制使用，旧代码逐步迁移（随改随替）
-- **验收**：原子组件存在并有 5+ 处调用；前台 Tailwind 按钮 class 数量明显下降
+- [x] **位置**：`components/admin/MarketOrderEditModal.tsx`
+- **执行**：拆出 `MarketOrderInfoPanel` / `MarketOrderStatusSection` / `MarketOrderTransitionUpload` / `MarketOrderFileLibrary` / `MarketOrderFileGroup` + `useMarketOrderFileUpload` hook。
+- **结果**：671→194 行；子组件最大 154 行。
 
-### P1-5 · 拆分 `DonationEditModal.tsx`（716 行）
+### P1-7 · 拆分 `track-donation-form.tsx`
 
-- [ ] **位置**：`components/admin/DonationEditModal.tsx`
-- **动作**：按职责拆成
-  - `DonationStatusSection`（当前状态 + 允许的下一状态）
-  - `DonationFileManager`（上传/预览/删除）
-  - `DonationHistorySection`（时间线）
-  - `useDonationFileUpload()` hook（抽提上传逻辑）
-- **验收**：主文件 ≤ 250 行，每个子组件 ≤ 200 行
+- [x] **位置**：`app/[locale]/track-donation/track-donation-form.tsx`
+- **执行**：搬运式拆分（用户端，className 字面 1:1 复制，0 视觉变化）→ `SearchForm` / `OrderGroupCard` / `RefundConfirmationDialog` + 共享 `types.ts`；主文件保留 state/URL sync/handleSubmit/handleRequestRefund。
+- **结果**：717→290 行（接近 220 目标但未达；主文件剩余以状态编排和 handleRequestRefund 为主，进一步拆分边际收益小）。
 
-### P1-6 · 拆分 `MarketOrderEditModal.tsx`（600 行）
+### P1-8 · 拆分 `ProjectDonationList.tsx`
 
-- [ ] **位置**：`components/admin/MarketOrderEditModal.tsx`
-- **动作**：
-  - 抽 `TrackingInfoSection`（快递单号 + 发货凭证）
-  - 抽 `FundUsageSection`（资金用途凭证）
-  - 抽 `useOrderFileUpload()` hook
-- **验收**：主文件 ≤ 200 行
-
-### P1-7 · 拆分 `track-donation-form.tsx`（639 行）
-
-- [ ] **位置**：`app/[locale]/track-donation/track-donation-form.tsx`
-- **动作**：
-  - `SearchForm` 子组件（邮箱 + ID）
-  - `OrderGroupCard` 子组件（单个订单卡片）
-  - `RefundConfirmationDialog` 子组件
-  - 主组件只留数据流/URL 同步
-- **验收**：主文件 ≤ 220 行
-
-### P1-8 · 拆分 `ProjectDonationList.tsx`（288 行）
-
-- [ ] **位置**：`components/donation-display/ProjectDonationList.tsx`
-- **动作**：拆 `DonationTableDesktop` + `DonationCardMobile`，主组件只负责分组 + 视图切换
-- **验收**：主文件 ≤ 120 行
+- [x] **位置**：`components/donation-display/ProjectDonationList.tsx`
+- **执行**：搬运式 → `DonationTableDesktop` + `DonationCardMobile` + 共享 `types.ts`；主文件保留 fetch/分组/loading/empty 占位。
+- **结果**：305→133 行（接近 120 目标）。
 
 ### P1-9 · 抽出 `useBidirectionalSticky` hook
 
-- [ ] **位置**：`app/[locale]/donate/DonatePageClient.tsx:123-202`（80 行的复杂 sticky 逻辑混在页面组件里）
-- **动作**：新建 `lib/hooks/useBidirectionalSticky.ts`，接收 `{ triggerRef, offsetTop }`，返回 `{ isStuck, stickyTop }`
-- **验收**：DonatePageClient 中不再有 `requestAnimationFrame` 和 `ResizeObserver` 直接调用
+- [x] **位置**：`app/[locale]/donate/DonatePageClient.tsx`
+- **执行**：80 行 sticky 内联实现 → `lib/hooks/useBidirectionalSticky.ts`（封装 ResizeObserver / scroll/resize 监听 / rAF 节流 / 断点切换）。
+- **结果**：DonatePageClient 中不再直接调用 `requestAnimationFrame` 与 `ResizeObserver`。
 
 ### P1-10 · i18n helper 瘦身
 
-- [ ] **位置**：`lib/i18n-utils.ts`
-- **问题**：`getProjectName`、`getLocation`、`getUnitName` 都只是 `getTranslatedText` 的薄包装，没有增加价值
-- **动作**：
-  - 选项 A：删除这三个 wrapper，所有调用点直接用 `getTranslatedText(field, locale)`
-  - 选项 B（若觉得语义清晰性有价值）：保留但改为 `const getProjectName = (p, loc) => getTranslatedText(p.project_name_i18n, loc)`，一行实现，且加上 `@deprecated` 提示优先用通用 helper
-- **验收**：文件行数减少 ≥ 50%
+- [x] **位置**：`lib/i18n-utils.ts`
+- **执行**：`getProjectName`/`getLocation`/`getUnitName` 改为一行 `@deprecated` wrapper（保留以兼容支付排除区文件 DonationFormCard），新代码统一用 `getTranslatedText`。`getTranslatedText` 内部紧凑化。
+- **结果**：146→91 行（-38%，未达 50% 目标，但冗余 wrapper 已收敛；进一步缩减需删 wrapper，会破坏排除区文件）。
 
 ### P1-11 · 统一 `AppLocale` 类型
 
-- [ ] **问题**：`types/index.ts` 定义 `DonationLocale`，`lib/i18n-utils.ts` 又定义 `SupportedLocale`，值都是 `'en' | 'zh' | 'ua'`
-- **动作**：在 `types/index.ts` 保留唯一的 `export type AppLocale = 'en' | 'zh' | 'ua'`，删掉另一个；`VALID_LOCALES` 常量也迁入
-- **验收**：全仓 `rg "type .* = 'en' \\| 'zh' \\| 'ua'"` 只剩一个定义
+- [x] **执行**：`types/index.ts` 新增 `AppLocale` + `VALID_LOCALES` + `isAppLocale` 守卫；`SupportedLocale` / `DonationLocale` 改为 `@deprecated` 别名；全仓非排除区文件迁移到 `AppLocale`。
+- **结果**：全仓字面量 `'en' | 'zh' | 'ua'` 类型定义仅 `types/index.ts` 一处（其余皆派生别名）。
 
 ---
 
@@ -292,7 +248,6 @@
 
 2. **避免返工的前置顺序**
    - 先做 P0-1 / P0-2（Prettier + ESLint），再做后续任何涉及多文件改动的任务——否则 format diff 会掩盖真实改动
-   - 先做 P1-4（设计系统原子组件），再做 P1-3（表格抽取）和 P1-2（FormField），否则抽取的组件样式会和后续 UI 原子冲突
 
 3. **验证清单（每个 PR 都跑一遍）**
    - `npm run type-check`
@@ -316,3 +271,12 @@
 | 2026-04-30 | P0-6    | Claude | 首页 7 处 `as any` 全部移除（next-intl 未启用 strict typed messages，可直接传模板串） |
 | 2026-04-30 | P0-7    | Claude | DonationResultViewer JSZip 改 `await import('jszip')` 按需加载                        |
 | 2026-04-30 | P0-8    | Claude | DonatePageClient 4 个 ProjectNDetailContent 改 next/dynamic                           |
+| 2026-04-30 | P1-10   | Claude | i18n-utils 瘦身：getProjectName/getLocation/getUnitName 改一行 @deprecated（38%）     |
+| 2026-04-30 | P1-11   | Claude | AppLocale + VALID_LOCALES 统一到 types/index.ts；SupportedLocale/DonationLocale 别名  |
+| 2026-04-30 | P1-9    | Claude | 抽出 useBidirectionalSticky hook，DonatePageClient 删除 80 行 sticky 内联实现         |
+| 2026-04-30 | P1-5    | Claude | DonationEditModal 748→145，拆出 5 子组件 + useDonationFileUpload hook                 |
+| 2026-04-30 | P1-6    | Claude | MarketOrderEditModal 671→194，拆出 5 子组件 + useMarketOrderFileUpload hook           |
+| 2026-04-30 | P1-3    | Claude | EmptyState（5 处）+ admin FilterBar（1 处）；DataTable 跳过（结构差异过大）           |
+| 2026-04-30 | P1-2    | Claude | FormField/TextField/SelectField 改造 4 个 admin 模态；前台 3 套样式不强行统一         |
+| 2026-04-30 | P1-7    | Claude | track-donation-form 717→290，拆出 SearchForm/OrderGroupCard/RefundConfirmationDialog  |
+| 2026-04-30 | P1-8    | Claude | ProjectDonationList 305→133，拆出 DonationTableDesktop + DonationCardMobile           |

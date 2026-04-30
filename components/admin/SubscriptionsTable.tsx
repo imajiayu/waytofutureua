@@ -8,6 +8,8 @@
 import { useState } from 'react'
 
 import { EmailSubscription } from '@/app/actions/subscription'
+import FilterBar from '@/components/admin/ui/FilterBar'
+import EmptyState from '@/components/ui/EmptyState'
 import { formatDateTime } from '@/lib/i18n-utils'
 
 interface SubscriptionsTableProps {
@@ -99,50 +101,43 @@ export default function SubscriptionsTable({
       </div>
 
       {/* Filters */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Search */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Search Email</label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by email..."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="all">All</option>
-              <option value="subscribed">Subscribed</option>
-              <option value="unsubscribed">Unsubscribed</option>
-            </select>
-          </div>
-
-          {/* Locale Filter */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Language</label>
-            <select
-              value={localeFilter}
-              onChange={(e) => setLocaleFilter(e.target.value as any)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="all">All Languages</option>
-              <option value="en">English</option>
-              <option value="zh">Chinese</option>
-              <option value="ua">Українська</option>
-            </select>
-          </div>
+      <FilterBar>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Search Email</label>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by email..."
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
+          />
         </div>
-      </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as any)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="all">All</option>
+            <option value="subscribed">Subscribed</option>
+            <option value="unsubscribed">Unsubscribed</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Language</label>
+          <select
+            value={localeFilter}
+            onChange={(e) => setLocaleFilter(e.target.value as any)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="all">All Languages</option>
+            <option value="en">English</option>
+            <option value="zh">Chinese</option>
+            <option value="ua">Українська</option>
+          </select>
+        </div>
+      </FilterBar>
 
       {/* Results Count */}
       <div className="text-sm text-gray-600">
@@ -152,9 +147,7 @@ export default function SubscriptionsTable({
       {/* Mobile card view */}
       <div className="space-y-2 sm:hidden">
         {filteredSubscriptions.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white py-8 text-center text-gray-500">
-            No subscriptions found
-          </div>
+          <EmptyState message="No subscriptions found" />
         ) : (
           filteredSubscriptions.map((subscription) => (
             <div key={subscription.id} className="rounded-lg border border-gray-200 bg-white p-3">

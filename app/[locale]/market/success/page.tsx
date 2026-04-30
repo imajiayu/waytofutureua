@@ -1,10 +1,11 @@
 import { getTranslations } from 'next-intl/server'
 
 import { Link } from '@/i18n/navigation'
-import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import { getOrderStatusGroup, type OrderStatusGroup } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { createServerClient } from '@/lib/supabase/server'
+import type { AppLocale } from '@/types'
 import type { MarketOrder } from '@/types/market'
 
 type Props = {
@@ -165,7 +166,7 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
                   ? getTranslatedText(
                       (order as any).market_items.title_i18n,
                       null,
-                      locale as SupportedLocale
+                      locale as AppLocale
                     )
                   : `${t('order.item')} #${order.item_id}`}
               </span>

@@ -2,12 +2,13 @@
 
 import { randomBytes } from 'crypto'
 
-import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
 import { salePurchaseSchema } from '@/lib/market/market-validations'
 import { createMarketPayment } from '@/lib/market/wayforpay'
 import type { WayForPayPaymentParams } from '@/lib/payment/wayforpay/server'
 import { createServerClient, createServiceClient } from '@/lib/supabase/server'
+import type { AppLocale } from '@/types'
 import type { MarketItem, ShippingAddress } from '@/types/market'
 
 interface CreateSaleOrderResult {
@@ -71,8 +72,7 @@ export async function createSaleOrder(
   const orderReference = `MKT-${Date.now()}-${randomBytes(8).toString('hex').toUpperCase()}`
   const totalAmount = Math.round(typedItem.fixed_price * quantity * 100) / 100
   const currency = typedItem.currency || 'USD'
-  const itemTitle =
-    getTranslatedText(typedItem.title_i18n, null, locale as SupportedLocale) || 'Item'
+  const itemTitle = getTranslatedText(typedItem.title_i18n, null, locale as AppLocale) || 'Item'
 
   // 5. 原子化：扣库存 + 创建订单（单个 PL/pgSQL 事务，失败自动回滚）
   const service = createServiceClient()

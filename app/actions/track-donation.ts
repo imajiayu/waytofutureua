@@ -12,11 +12,11 @@ import {
   REFUNDABLE_STATUSES,
 } from '@/lib/donation-status'
 import { sendRefundSuccessEmail } from '@/lib/email'
-import type { SupportedLocale } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
 import { processWayForPayRefund } from '@/lib/payment/wayforpay/server'
 import { getInternalClient, getPublicClient } from '@/lib/supabase/action-clients'
 import { requestRefundSchema, trackDonationSchema } from '@/lib/validations'
+import type { AppLocale } from '@/types'
 
 /**
  * Track Donations - Secure Implementation
@@ -353,7 +353,7 @@ export async function requestRefund(data: { donationPublicId: string; email: str
               donationIds: refundableDonations.map((d) => d.donation_public_id),
               refundAmount: totalOrderAmount,
               currency: (donationData.currency as string) || 'USD',
-              locale: (firstDonation.locale as SupportedLocale) || 'en',
+              locale: (firstDonation.locale as AppLocale) || 'en',
             })
             logger.info('REFUND', 'Refund success email sent', { to: firstDonation.donor_email })
           }

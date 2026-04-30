@@ -1,6 +1,6 @@
 'use server'
 
-import { getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
+import { getProjectName, getUnitName } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
 import {
   createNowPaymentsPayment,
@@ -13,7 +13,7 @@ import { createWayForPayPayment, type WayForPayPaymentParams } from '@/lib/payme
 import { getPublicClient } from '@/lib/supabase/action-clients'
 import { getProjectStats } from '@/lib/supabase/queries'
 import { donationFormSchema } from '@/lib/validations'
-import type { DonationStatus, ProjectStats } from '@/types'
+import type { AppLocale, DonationStatus, ProjectStats } from '@/types'
 
 type WayForPayPaymentResult =
   | {
@@ -149,7 +149,7 @@ export async function createWayForPayDonation(data: {
     const unitName = getUnitName(
       project.unit_name_i18n,
       project.unit_name,
-      validated.locale as SupportedLocale
+      validated.locale as AppLocale
     )
 
     // Calculate project amount based on project type
@@ -243,7 +243,7 @@ export async function createWayForPayDonation(data: {
     const projectName = getProjectName(
       project.project_name_i18n,
       project.project_name,
-      validated.locale as SupportedLocale
+      validated.locale as AppLocale
     )
 
     // Create WayForPay payment parameters
@@ -497,7 +497,7 @@ export async function createNowPaymentsDonation(data: {
     const unitName = getUnitName(
       project.unit_name_i18n,
       project.unit_name,
-      validated.locale as SupportedLocale
+      validated.locale as AppLocale
     )
 
     // Calculate project amount based on project type
@@ -582,7 +582,7 @@ export async function createNowPaymentsDonation(data: {
     const projectName = getProjectName(
       project.project_name_i18n,
       project.project_name,
-      validated.locale as SupportedLocale
+      validated.locale as AppLocale
     )
 
     // Create NOWPayments payment

@@ -7,9 +7,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Link } from '@/i18n/navigation'
 import { useMarketItemContent } from '@/lib/hooks/useMarketItemContent'
-import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import { getItemDisplayInfo } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
+import type { AppLocale } from '@/types'
 import type { PublicMarketItem } from '@/types/market'
 
 import MarketOrderList from './MarketOrderList'
@@ -36,7 +37,7 @@ interface MarketItemDetailProps {
 
 export default function MarketItemDetail({ item, locale }: MarketItemDetailProps) {
   const t = useTranslations('market')
-  const title = getTranslatedText(item.title_i18n, null, locale as SupportedLocale) || 'Untitled'
+  const title = getTranslatedText(item.title_i18n, null, locale as AppLocale) || 'Untitled'
   const { labelKey, colors } = getItemDisplayInfo(item.status, item.stock_quantity)
   const { data: content, loading } = useMarketItemContent(item.id, locale)
   const price = item.fixed_price || 0

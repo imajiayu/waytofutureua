@@ -6,15 +6,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { MapPinIcon } from '@/components/icons'
 import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
 import { usePathname, useRouter } from '@/i18n/navigation'
-import {
-  formatDate,
-  getLocation,
-  getProjectName,
-  getUnitName,
-  type SupportedLocale,
-} from '@/lib/i18n-utils'
+import { formatDate, getLocation, getProjectName, getUnitName } from '@/lib/i18n-utils'
 import { getProjectProgress } from '@/lib/project-utils'
-import type { ProjectStats } from '@/types'
+import type { AppLocale, ProjectStats } from '@/types'
 
 import LongTermBadge from './LongTermBadge'
 import ProjectStatusBadge from './ProjectStatusBadge'
@@ -66,10 +60,10 @@ export default function ProjectCard({
   const projectName = getProjectName(
     project.project_name_i18n,
     project.project_name,
-    locale as SupportedLocale
+    locale as AppLocale
   )
-  const location = getLocation(project.location_i18n, project.location, locale as SupportedLocale)
-  const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as SupportedLocale)
+  const location = getLocation(project.location_i18n, project.location, locale as AppLocale)
+  const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as AppLocale)
 
   // P2 优化: useCallback 避免不必要的重渲染
   const handleDonateClick = useCallback(() => {
@@ -219,7 +213,7 @@ export default function ProjectCard({
                   />
                 </svg>
                 <span className="rounded bg-black/20 px-2 py-0.5 text-left text-sm font-medium text-white shadow-md backdrop-blur-sm">
-                  {t('startDate')}: {formatDate(project.start_date, locale as SupportedLocale)}
+                  {t('startDate')}: {formatDate(project.start_date, locale as AppLocale)}
                 </span>
               </div>
 
@@ -240,7 +234,7 @@ export default function ProjectCard({
                     />
                   </svg>
                   <span className="rounded bg-black/20 px-2 py-0.5 text-left text-sm font-medium text-white shadow-md backdrop-blur-sm">
-                    {t('endDate')}: {formatDate(project.end_date, locale as SupportedLocale)}
+                    {t('endDate')}: {formatDate(project.end_date, locale as AppLocale)}
                   </span>
                 </div>
               )}
@@ -412,7 +406,7 @@ export default function ProjectCard({
                 />
               </svg>
               <span className="rounded bg-black/20 px-2 py-1 text-sm font-medium text-white shadow-md backdrop-blur-sm">
-                {t('startDate')}: {formatDate(project.start_date, locale as SupportedLocale)}
+                {t('startDate')}: {formatDate(project.start_date, locale as AppLocale)}
               </span>
             </div>
 
@@ -433,7 +427,7 @@ export default function ProjectCard({
                   />
                 </svg>
                 <span className="rounded bg-black/20 px-2 py-1 text-sm font-medium text-white shadow-md backdrop-blur-sm">
-                  {t('endDate')}: {formatDate(project.end_date, locale as SupportedLocale)}
+                  {t('endDate')}: {formatDate(project.end_date, locale as AppLocale)}
                 </span>
               </div>
             )}

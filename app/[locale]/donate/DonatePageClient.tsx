@@ -39,7 +39,9 @@ const ProjectDonationList = dynamic(
   { ssr: true, loading: () => <div className="h-32 animate-pulse rounded-lg bg-gray-100" /> }
 )
 
-import { getProjectName, type SupportedLocale } from '@/lib/i18n-utils'
+import { useBidirectionalSticky } from '@/lib/hooks/useBidirectionalSticky'
+import { getProjectName } from '@/lib/i18n-utils'
+import type { AppLocale } from '@/types'
 
 // P2 优化: 动态加载 BottomSheet 组件（仅移动端使用）
 const BottomSheet = dynamic(() => import('@/components/common/BottomSheet'), {
@@ -128,88 +130,13 @@ export default function DonatePageClient({
   // Refs for bidirectional sticky sidebar
   const sidebarRef = useRef<HTMLDivElement>(null)
   const sidebarInnerRef = useRef<HTMLDivElement>(null)
-  const [stickyTop, setStickyTop] = useState(NAV_HEIGHT)
-
-  // Bidirectional sticky sidebar effect
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    let lastScrollY = window.scrollY
-    let currentTop = NAV_HEIGHT
-    let ticking = false
-    let lastSidebarHeight = 0
-
-    const updatePosition = () => {
-      const sidebarInner = sidebarInnerRef.current
-      if (!sidebarInner || window.innerWidth < MOBILE_BREAKPOINT) {
-        setStickyTop(NAV_HEIGHT)
-        ticking = false
-        return
-      }
-
-      const scrollY = window.scrollY
-      const scrollDelta = scrollY - lastScrollY
-      const viewportHeight = window.innerHeight
-      const sidebarHeight = sidebarInner.offsetHeight
-
-      // Reset position if sidebar height changed significantly (form state changed)
-      if (Math.abs(sidebarHeight - lastSidebarHeight) > 50) {
-        currentTop = NAV_HEIGHT
-        lastSidebarHeight = sidebarHeight
-      }
-
-      // If sidebar is shorter than available viewport, just stick to top
-      if (sidebarHeight <= viewportHeight - NAV_HEIGHT - BOTTOM_PADDING) {
-        setStickyTop(NAV_HEIGHT)
-        lastScrollY = scrollY
-        ticking = false
-        return
-      }
-
-      // Sidebar is taller than viewport - bidirectional sticky
-      const minTop = viewportHeight - sidebarHeight - BOTTOM_PADDING // bottom-aligned (negative)
-      const maxTop = NAV_HEIGHT // top-aligned
-
-      // Update currentTop based on scroll delta
-      currentTop = currentTop - scrollDelta
-
-      // Clamp to valid range
-      currentTop = Math.max(minTop, Math.min(maxTop, currentTop))
-
-      setStickyTop(currentTop)
-
-      lastScrollY = scrollY
-      ticking = false
-    }
-
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(updatePosition)
-        ticking = true
-      }
-    }
-
-    // Initialize
-    lastSidebarHeight = sidebarInnerRef.current?.offsetHeight || 0
-    updatePosition()
-
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', updatePosition)
-
-    // Observe sidebar height changes (for form state changes)
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(updatePosition)
-    })
-    if (sidebarInnerRef.current) {
-      resizeObserver.observe(sidebarInnerRef.current)
-    }
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', updatePosition)
-      resizeObserver.disconnect()
-    }
-  }, [selectedProjectId]) // Recalculate when project changes
+  const stickyTop = useBidirectionalSticky({
+    innerRef: sidebarInnerRef,
+    navHeight: NAV_HEIGHT,
+    bottomPadding: BOTTOM_PADDING,
+    desktopBreakpoint: MOBILE_BREAKPOINT,
+    deps: [selectedProjectId],
+  })
 
   // Listen for navigation donate button click to expand sheet
   useEffect(() => {
@@ -398,7 +325,7 @@ export default function DonatePageClient({
               projectName={getProjectName(
                 selectedProject.project_name_i18n,
                 selectedProject.project_name,
-                locale as SupportedLocale
+                locale as AppLocale
               )}
               locale={locale}
             />

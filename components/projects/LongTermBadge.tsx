@@ -2,18 +2,24 @@
 
 import { useTranslations } from 'next-intl'
 
+import Badge from '@/components/ui/Badge'
+
+const LONG_TERM_COLOR = {
+  bg: 'bg-ukraine-blue-100',
+  text: 'text-ukraine-blue-800',
+  border: 'border-ukraine-blue-200',
+}
+
 /**
  * Long-term Project Badge Component
  *
- * Displays a badge indicating a project is long-term/ongoing.
- * Style aligned with ProjectStatusBadge for visual consistency.
+ * Backed by the shared `<Badge>` primitive in `components/ui/`.
  */
 export default function LongTermBadge() {
   const t = useTranslations('projects')
-
   return (
-    <span className="inline-flex items-center rounded-full border border-ukraine-blue-200 bg-ukraine-blue-100 px-2.5 py-0.5 text-xs font-medium text-ukraine-blue-800">
+    <Badge color={LONG_TERM_COLOR} bordered>
       {t('longTerm')}
-    </span>
+    </Badge>
   )
 }

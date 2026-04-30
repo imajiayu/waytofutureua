@@ -2,9 +2,10 @@
  * Email System Type Definitions
  */
 
-import type { I18nText } from '@/types'
+import type { AppLocale, I18nText } from '@/types'
 
-export type Locale = 'en' | 'zh' | 'ua'
+/** @deprecated Use `AppLocale` from `@/types`. */
+export type Locale = AppLocale
 
 export { type I18nText }
 

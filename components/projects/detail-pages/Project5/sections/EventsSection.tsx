@@ -12,8 +12,9 @@ import {
   ReceiptIcon,
 } from '@/components/icons'
 import { SectionHeader } from '@/components/projects/shared'
-import { formatDate, type SupportedLocale } from '@/lib/i18n-utils'
+import { formatDate } from '@/lib/i18n-utils'
 import { formatCurrency } from '@/lib/utils'
+import type { AppLocale } from '@/types'
 
 import type { EventsContent } from '../types'
 
@@ -87,7 +88,7 @@ export default function EventsSection({
                     <div className="flex items-center gap-1.5 text-gray-800">
                       <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0 text-teal-600" />
                       <span className="text-sm font-semibold">
-                        {formatDate(event.date, locale as SupportedLocale)}
+                        {formatDate(event.date, locale as AppLocale)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-500">

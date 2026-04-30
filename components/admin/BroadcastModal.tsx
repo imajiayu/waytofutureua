@@ -15,11 +15,11 @@ import {
 } from '@/app/actions/email-broadcast'
 import { SpinnerIcon } from '@/components/icons'
 import { clientLogger } from '@/lib/logger-client'
-import type { DonationLocale } from '@/types'
+import type { AppLocale } from '@/types'
 
 export interface Subscriber {
   email: string
-  locale: DonationLocale
+  locale: AppLocale
   is_subscribed: boolean
 }
 
@@ -31,7 +31,7 @@ interface BroadcastModalProps {
   onSent?: () => void
 }
 
-type PreviewLocale = DonationLocale
+type PreviewLocale = AppLocale
 
 const LOCALE_LABELS: Record<PreviewLocale, string> = {
   en: 'English',

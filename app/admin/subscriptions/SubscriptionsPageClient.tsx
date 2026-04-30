@@ -11,7 +11,7 @@ import { EmailSubscription } from '@/app/actions/subscription'
 import BroadcastModal, { Subscriber } from '@/components/admin/BroadcastModal'
 import EmailHistory from '@/components/admin/EmailHistory'
 import SubscriptionsTable from '@/components/admin/SubscriptionsTable'
-import type { DonationLocale } from '@/types'
+import type { AppLocale } from '@/types'
 
 interface SubscriptionsPageClientProps {
   initialSubscriptions: EmailSubscription[]
@@ -26,7 +26,7 @@ export default function SubscriptionsPageClient({
   // Convert to Subscriber format for BroadcastModal
   const subscribers: Subscriber[] = initialSubscriptions.map((s) => ({
     email: s.email,
-    locale: s.locale as DonationLocale,
+    locale: s.locale as AppLocale,
     is_subscribed: s.is_subscribed,
   }))
 

@@ -9,6 +9,7 @@ import type { MarketItem } from '@/types/market'
 
 import AdminBaseModal from './AdminBaseModal'
 import I18nFieldGroup from './I18nFieldGroup'
+import { TextField } from './ui/FormField'
 
 interface Props {
   onClose: () => void
@@ -55,41 +56,29 @@ export default function MarketItemCreateModal({ onClose, onCreated }: Props) {
         />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Price *</label>
-            <input
-              type="number"
-              value={formData.fixed_price || ''}
-              onChange={(e) => setFormData({ ...formData, fixed_price: Number(e.target.value) })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-              required
-              min="0.01"
-              step="0.01"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Currency</label>
-            <input
-              type="text"
-              value={formData.currency}
-              onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Stock Quantity *</label>
-            <input
-              type="number"
-              value={formData.stock_quantity}
-              onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-              required
-              min="1"
-              step="1"
-            />
-          </div>
+          <TextField
+            label="Price"
+            type="number"
+            required
+            min={0.01}
+            step={0.01}
+            value={formData.fixed_price || ''}
+            onChange={(v) => setFormData({ ...formData, fixed_price: Number(v) })}
+          />
+          <TextField
+            label="Currency"
+            value={formData.currency}
+            onChange={(v) => setFormData({ ...formData, currency: v })}
+          />
+          <TextField
+            label="Stock Quantity"
+            type="number"
+            required
+            min={1}
+            step={1}
+            value={formData.stock_quantity}
+            onChange={(v) => setFormData({ ...formData, stock_quantity: Number(v) })}
+          />
         </div>
 
         <div className="flex justify-end space-x-3 border-t pt-4">

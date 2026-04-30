@@ -12,9 +12,9 @@ import { getAvailableTemplates, getEmailTemplate } from '@/lib/email/templates'
 import { logger } from '@/lib/logger'
 import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { sendBroadcastSchema } from '@/lib/validations'
-import type { DonationLocale } from '@/types'
+import type { AppLocale } from '@/types'
 
-type Locale = DonationLocale
+type Locale = AppLocale
 
 // ==================== Types ====================
 
