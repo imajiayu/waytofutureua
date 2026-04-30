@@ -29,7 +29,7 @@
 
 ### P0-1 · 引入 Prettier + tailwindcss 插件
 
-- [ ] **目标**：确立代码格式化基线，消除 diff 噪声
+- [x] **目标**：确立代码格式化基线，消除 diff 噪声
 - **动作**：
   1. `npm i -D prettier prettier-plugin-tailwindcss`
   2. 新建 `.prettierrc`：`{ "semi": false, "singleQuote": true, "trailingComma": "es5", "printWidth": 100, "plugins": ["prettier-plugin-tailwindcss"] }`
@@ -40,7 +40,7 @@
 
 ### P0-2 · 扩充 ESLint 规则
 
-- [ ] **目标**：拦截 hooks 误用 / a11y / 未使用变量等类低级错误
+- [x] **目标**：拦截 hooks 误用 / a11y / 未使用变量等类低级错误
 - **动作**：
   1. 新建 `.eslintrc.json` 扩展 `next/core-web-vitals`
   2. 加入插件：`eslint-plugin-react-hooks`（已内置 next）、`eslint-plugin-jsx-a11y`、`eslint-plugin-simple-import-sort`
@@ -50,21 +50,21 @@
 
 ### P0-3 · 替换 `lib/supabase/admin-auth.ts` 中的 `console.error`
 
-- [ ] **位置**：`lib/supabase/admin-auth.ts:58`
+- [x] **位置**：`lib/supabase/admin-auth.ts:58`
 - **问题**：`is_admin` RPC 失败时直接 `console.error`，生产日志与 `logger` 分叉
 - **动作**：替换为 `logger.error('AUTH', 'is_admin RPC failed', { error: rpcError.message })`
 - **验收**：全仓 `rg "console\\.(log|error|warn)"` 只剩下 `lib/logger*.ts`、`scripts/`、`lib/email/templates/test-templates.ts`
 
 ### P0-4 · Cloudinary Buffer `@ts-ignore` 规范化
 
-- [ ] **位置**：`lib/cloudinary.ts:61-62, 176-177`
+- [x] **位置**：`lib/cloudinary.ts:61-62, 176-177`
 - **问题**：往 Buffer 上挂 `_contentType` 并用 `@ts-ignore` 绕过
 - **动作**：改为显式的 `{ buffer: Buffer; contentType: string }` tuple，或定义 `interface BufferWithContentType extends Buffer { _contentType?: string }`
 - **验收**：文件内 0 处 `@ts-ignore`
 
 ### P0-5 · 删除首页 Section 的无效 `"use client"`
 
-- [ ] **目标**：减少首屏 JS，把能静态化的组件还给服务端
+- [x] **目标**：减少首屏 JS，把能静态化的组件还给服务端
 - **位置**：
   - `components/home/ApproachSection.tsx`（仅 `handleScrollToCompliance` 需要客户端）
   - `components/home/ImpactSection.tsx`（纯静态卡片 + 一个 MobileCarousel）
@@ -77,7 +77,7 @@
 
 ### P0-6 · `as any` 在 i18n key 上的三处收敛
 
-- [ ] **位置**：`components/home/ApproachSection.tsx:74,95,100`、`components/home/ImpactSection.tsx:58,82,91`、`components/home/ComplianceSection.tsx:52`
+- [x] **位置**：`components/home/ApproachSection.tsx:74,95,100`、`components/home/ImpactSection.tsx:58,82,91`、`components/home/ComplianceSection.tsx:52`
 - **动作**：定义 `as const` 元组
   ```ts
   const APPROACH_KEYS = ['transparent', 'efficient', 'direct'] as const
@@ -88,14 +88,14 @@
 
 ### P0-7 · JSZip 按需加载
 
-- [ ] **位置**：`components/donation-display/DonationResultViewer.tsx` 顶部 `import JSZip from 'jszip'`
+- [x] **位置**：`components/donation-display/DonationResultViewer.tsx` 顶部 `import JSZip from 'jszip'`
 - **问题**：JSZip（~ 100KB gzipped）在页面加载时被立即拉入，即使用户从不点"下载全部"
 - **动作**：把 import 移到 `handleDownloadAll` 内部：`const JSZip = (await import('jszip')).default`
 - **验收**：`next build` 分析 DonationResultViewer 的 chunk 不再包含 jszip
 
 ### P0-8 · 项目详情页组件按需加载
 
-- [ ] **位置**：`app/[locale]/donate/DonatePageClient.tsx:10-14`
+- [x] **位置**：`app/[locale]/donate/DonatePageClient.tsx:10-14`
 - **问题**：6 个 `Project{N}DetailContent` 全部静态 import，但单次渲染只会用 1 个
 - **动作**：
   ```ts
@@ -305,7 +305,14 @@
 
 ## 变更记录
 
-| 日期       | 任务 ID | 执行人 | 备注         |
-| ---------- | ------- | ------ | ------------ |
-| 2026-04-21 | —       | Claude | 初版文档创建 |
-|            |         |        |              |
+| 日期       | 任务 ID | 执行人 | 备注                                                                                  |
+| ---------- | ------- | ------ | ------------------------------------------------------------------------------------- |
+| 2026-04-21 | —       | Claude | 初版文档创建                                                                          |
+| 2026-04-30 | P0-1    | Claude | Prettier + tailwindcss 插件接入，全量 format 236 文件                                 |
+| 2026-04-30 | P0-2    | Claude | ESLint 规则启用 + 修复（含 hook deps、unescaped entities、`<img>` per-line disable）  |
+| 2026-04-30 | P0-3    | Claude | admin-auth.ts console.error → logger.error('AUTH', ...); LogCategory 加 'AUTH' 分类   |
+| 2026-04-30 | P0-4    | Claude | cloudinary.ts fetchWithRetry 改返 `{ buffer, contentType }` tuple，移除 @ts-ignore    |
+| 2026-04-30 | P0-5    | Claude | MissionSection / ImpactSection 改 RSC；ApproachSection 抽 ScrollToComplianceButton    |
+| 2026-04-30 | P0-6    | Claude | 首页 7 处 `as any` 全部移除（next-intl 未启用 strict typed messages，可直接传模板串） |
+| 2026-04-30 | P0-7    | Claude | DonationResultViewer JSZip 改 `await import('jszip')` 按需加载                        |
+| 2026-04-30 | P0-8    | Claude | DonatePageClient 4 个 ProjectNDetailContent 改 next/dynamic                           |

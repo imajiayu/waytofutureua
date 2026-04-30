@@ -1,27 +1,13 @@
-'use client'
-
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import MobileCarousel from '@/components/common/MobileCarousel'
 
-export default function ApproachSection() {
-  const t = useTranslations('home.hero.approach')
-  const tCompliance = useTranslations('home.hero.compliance')
+import ScrollToComplianceButton from './ScrollToComplianceButton'
 
-  const handleScrollToCompliance = () => {
-    const complianceSection = document.getElementById('compliance-section')
-    if (complianceSection) {
-      const navHeight = 80
-      const elementPosition = complianceSection.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - navHeight
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      })
-    }
-  }
+export default async function ApproachSection() {
+  const t = await getTranslations('home.hero.approach')
+  const tCompliance = await getTranslations('home.hero.compliance')
 
   const features = [
     {
@@ -95,7 +81,7 @@ export default function ApproachSection() {
         {/* Background Image */}
         <Image
           src={image}
-          alt={t(`${key}.title` as any)}
+          alt={t(`${key}.title`)}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes={isMobile ? '78vw' : '(max-width: 768px) 100vw, 33vw'}
@@ -120,12 +106,12 @@ export default function ApproachSection() {
           <div className="mt-auto flex flex-col gap-4">
             {/* Title with backdrop - auto width */}
             <h3 className="inline-block self-start rounded-lg bg-black/20 px-3 py-2 font-display text-xl font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm sm:text-2xl">
-              {t(`${key}.title` as any)}
+              {t(`${key}.title`)}
             </h3>
 
             {/* List Items with subtle backdrop - auto width */}
             <ul className="space-y-2">
-              {(t.raw(`${key}.items` as any) as string[]).map((item: string, index: number) => (
+              {(t.raw(`${key}.items`) as string[]).map((item: string, index: number) => (
                 <li key={index} className="flex items-start">
                   <svg
                     className="mr-2 mt-0.5 h-4 w-4 flex-shrink-0 text-life-400 drop-shadow-lg sm:h-5 sm:w-5"
@@ -177,25 +163,7 @@ export default function ApproachSection() {
             <p className="break-words text-center text-lg text-gray-600 sm:text-left sm:text-xl">
               {t('subtitle')}
             </p>
-            <button
-              onClick={handleScrollToCompliance}
-              className="inline-flex flex-shrink-0 items-center rounded-lg border-2 border-ukraine-blue-500 bg-white px-4 py-2 font-semibold text-ukraine-blue-500 shadow-sm transition-all duration-200 hover:bg-ukraine-blue-50 hover:shadow-md"
-            >
-              <svg
-                className="mr-1.5 h-4 w-4 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <span className="whitespace-nowrap text-sm">{tCompliance('button')}</span>
-            </button>
+            <ScrollToComplianceButton label={tCompliance('button')} />
           </div>
         </div>
 

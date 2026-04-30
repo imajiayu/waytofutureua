@@ -1,6 +1,5 @@
 'use client'
 
-import JSZip from 'jszip'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
@@ -98,7 +97,8 @@ export default function DonationResultViewer({
         return
       }
 
-      // Multiple files: create zip
+      // Multiple files: create zip (动态加载 jszip，避免 ~100KB gzip 进入初始 bundle)
+      const JSZip = (await import('jszip')).default
       const zip = new JSZip()
 
       // Download all files and add to zip

@@ -1,12 +1,10 @@
-'use client'
-
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import MobileCarousel from '@/components/common/MobileCarousel'
 
-export default function ImpactSection() {
-  const t = useTranslations('home.hero.impact')
+export default async function ImpactSection() {
+  const t = await getTranslations('home.hero.impact')
 
   const stats = [
     {
@@ -74,7 +72,7 @@ export default function ImpactSection() {
         {/* Background Image */}
         <Image
           src={image}
-          alt={t(`${key}.label` as any)}
+          alt={t(`${key}.label`)}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes={isMobile ? '78vw' : '(max-width: 768px) 100vw, 33vw'}
@@ -102,7 +100,7 @@ export default function ImpactSection() {
                   : 'text-[clamp(2rem,_4vw+0.5rem,_3.75rem)]'
               }`}
             >
-              {t(`${key}.value` as any)}
+              {t(`${key}.value`)}
             </div>
 
             {/* Label with backdrop */}
@@ -113,7 +111,7 @@ export default function ImpactSection() {
                   : 'text-[clamp(1rem,_2vw+0.25rem,_1.25rem)]'
               }`}
             >
-              {t(`${key}.label` as any)}
+              {t(`${key}.label`)}
             </div>
           </div>
 

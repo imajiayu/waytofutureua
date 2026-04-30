@@ -30,7 +30,12 @@ interface FetchRetryOptions {
   timeout?: number
 }
 
-async function fetchWithRetry(url: string, options: FetchRetryOptions): Promise<Buffer> {
+interface FetchedBuffer {
+  buffer: Buffer
+  contentType: string
+}
+
+async function fetchWithRetry(url: string, options: FetchRetryOptions): Promise<FetchedBuffer> {
   const { maxRetries, initialDelay, backoffMultiplier, timeout = 30000 } = options
   let lastError: Error | null = null
   let currentDelay = initialDelay
@@ -57,14 +62,11 @@ async function fetchWithRetry(url: string, options: FetchRetryOptions): Promise<
 
       const arrayBuffer = await response.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
-
       const contentType = response.headers.get('content-type') || 'image/jpeg'
-      // @ts-ignore - 临时存储 contentType
-      buffer._contentType = contentType
 
       logger.debug('MEDIA:CLOUDINARY', 'Fetch successful', { bytes: buffer.length })
 
-      return buffer
+      return { buffer, contentType }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
       logger.warn('MEDIA:CLOUDINARY', 'Fetch attempt failed', {
@@ -151,7 +153,7 @@ export async function processImageWithCloudinary(
     })
 
     // 步骤 3: 下载转换后的图片（带重试机制）
-    const optimizedBuffer = await fetchWithRetry(transformedUrl, {
+    const { buffer: optimizedBuffer, contentType } = await fetchWithRetry(transformedUrl, {
       maxRetries: 3,
       initialDelay: 1000,
       backoffMultiplier: 2,
@@ -174,8 +176,6 @@ export async function processImageWithCloudinary(
       })
     }
 
-    // @ts-ignore
-    const contentType = (optimizedBuffer as any)._contentType || 'image/jpeg'
     const format = contentType.split('/')[1]?.split(';')[0] || 'jpg'
 
     return {

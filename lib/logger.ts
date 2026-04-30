@@ -24,6 +24,7 @@ export type LogCategory =
   // Core operations
   | 'DONATION'
   | 'ADMIN'
+  | 'AUTH'
   | 'EMAIL'
   | 'SUBSCRIPTION'
   // Infrastructure

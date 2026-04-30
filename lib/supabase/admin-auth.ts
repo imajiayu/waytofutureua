@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+import { logger } from '@/lib/logger'
 import type { Database } from '@/types/database'
 
 /**
@@ -56,7 +57,7 @@ export async function isAdmin() {
   if (error || !user) return false
   const { data: adminCheck, error: rpcError } = await supabase.rpc('is_admin')
   if (rpcError) {
-    console.error('[AUTH] is_admin RPC failed:', rpcError.message)
+    logger.error('AUTH', 'is_admin RPC failed', { error: rpcError.message })
     return false
   }
   return !!adminCheck

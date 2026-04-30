@@ -53,7 +53,7 @@ export default async function ComplianceSection() {
 
                 {/* Document Name */}
                 <p className="line-clamp-3 text-center text-sm font-medium leading-tight text-gray-900 transition-colors group-hover:text-ukraine-blue-500">
-                  {t(`documents.${key}` as any)}
+                  {t(`documents.${key}`)}
                 </p>
 
                 {/* Download Indicator */}

@@ -6,14 +6,27 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import DonationFormCard, { type DonorInfo } from '@/components/donate-form/DonationFormCard'
 import { ChevronDownIcon, ChevronUpIcon } from '@/components/icons'
-import {
-  Project0DetailContent,
-  Project3DetailContent,
-  Project4DetailContent,
-  Project5DetailContent,
-} from '@/components/projects/detail-pages'
 import ProjectsGallery from '@/components/projects/ProjectsGallery'
 import type { ProjectStats } from '@/types'
+
+// P0-8 优化: 项目详情组件按需加载（每次渲染只用 1 个，4 个全静态 import 浪费首屏 bundle）
+const detailLoading = () => <div className="h-96 animate-pulse rounded-2xl bg-gray-100" />
+const Project0DetailContent = dynamic(() => import('@/components/projects/detail-pages/Project0'), {
+  ssr: true,
+  loading: detailLoading,
+})
+const Project3DetailContent = dynamic(() => import('@/components/projects/detail-pages/Project3'), {
+  ssr: true,
+  loading: detailLoading,
+})
+const Project4DetailContent = dynamic(() => import('@/components/projects/detail-pages/Project4'), {
+  ssr: true,
+  loading: detailLoading,
+})
+const Project5DetailContent = dynamic(() => import('@/components/projects/detail-pages/Project5'), {
+  ssr: true,
+  loading: detailLoading,
+})
 // P2 优化: 动态加载折叠区域组件（默认折叠，用户点击后才显示）
 const DonationStatusFlow = dynamic(
   () => import('@/components/donation-display/DonationStatusFlow'),

@@ -1,12 +1,10 @@
-'use client'
-
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import MobileCarousel from '@/components/common/MobileCarousel'
 
-export default function MissionSection() {
-  const t = useTranslations('home.hero.mission')
+export default async function MissionSection() {
+  const t = await getTranslations('home.hero.mission')
 
   const cards = [
     { key: 'displaced', image: '/images/mission/displaced.webp' },
