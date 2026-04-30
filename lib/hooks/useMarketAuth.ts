@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
+import { useCallback, useEffect, useState } from 'react'
+
+import { createClient } from '@/lib/supabase/client'
 
 interface MarketAuthState {
   user: User | null
@@ -36,11 +37,11 @@ export function useMarketAuth(): MarketAuthState {
     })
 
     // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null)
-      }
-    )
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
 
     return () => subscription.unsubscribe()
   }, [])

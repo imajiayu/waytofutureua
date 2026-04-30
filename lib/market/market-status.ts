@@ -10,8 +10,8 @@ import type { MarketItemStatus, MarketOrderStatus } from '@/types/market'
 // ============================================
 
 export const ITEM_ADMIN_TRANSITIONS: Partial<Record<MarketItemStatus, MarketItemStatus[]>> = {
-  draft:     ['on_sale'],
-  on_sale:   ['off_shelf'],
+  draft: ['on_sale'],
+  on_sale: ['off_shelf'],
   off_shelf: ['on_sale'],
 }
 
@@ -20,13 +20,13 @@ export const ITEM_ADMIN_TRANSITIONS: Partial<Record<MarketItemStatus, MarketItem
 // ============================================
 
 export const ORDER_ADMIN_TRANSITIONS: Record<MarketOrderStatus, MarketOrderStatus[]> = {
-  pending:             [],
-  widget_load_failed:  [],
-  paid:                ['shipped'],
-  shipped:             ['completed'],
-  completed:           [],
-  expired:             [],
-  declined:            [],
+  pending: [],
+  widget_load_failed: [],
+  paid: ['shipped'],
+  shipped: ['completed'],
+  completed: [],
+  expired: [],
+  declined: [],
 }
 
 // ============================================
@@ -34,9 +34,9 @@ export const ORDER_ADMIN_TRANSITIONS: Record<MarketOrderStatus, MarketOrderStatu
 // ============================================
 
 export const ITEM_STATUS_COLORS: Record<MarketItemStatus, { bg: string; text: string }> = {
-  draft:     { bg: 'bg-gray-100',   text: 'text-gray-600' },
-  on_sale:   { bg: 'bg-life-100',   text: 'text-life-800' },
-  off_shelf: { bg: 'bg-gray-100',   text: 'text-gray-600' },
+  draft: { bg: 'bg-gray-100', text: 'text-gray-600' },
+  on_sale: { bg: 'bg-life-100', text: 'text-life-800' },
+  off_shelf: { bg: 'bg-gray-100', text: 'text-gray-600' },
 }
 
 /** 已售（在售但库存为 0）的展示颜色 */
@@ -53,16 +53,13 @@ const SOLD_COLORS = { bg: 'bg-warm-100', text: 'text-warm-700' } as const
  * @returns hasStock  — 是否有库存
  * @returns isSold    — 是否已售罄
  */
-export function getItemDisplayInfo(
-  status: MarketItemStatus,
-  stockQuantity: number | null,
-) {
+export function getItemDisplayInfo(status: MarketItemStatus, stockQuantity: number | null) {
   const isOnSale = status === 'on_sale'
   const hasStock = isOnSale && stockQuantity !== null && stockQuantity > 0
   const isSold = isOnSale && (!stockQuantity || stockQuantity <= 0)
 
   return {
-    labelKey: isSold ? 'sale.sold' : `status.${status}` as const,
+    labelKey: isSold ? 'sale.sold' : (`status.${status}` as const),
     colors: isSold ? SOLD_COLORS : ITEM_STATUS_COLORS[status],
     hasStock,
     isSold,
@@ -70,13 +67,13 @@ export function getItemDisplayInfo(
 }
 
 export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: string }> = {
-  pending:            { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },
-  widget_load_failed: { bg: 'bg-warm-100',         text: 'text-warm-800' },
-  paid:               { bg: 'bg-life-100',         text: 'text-life-800' },
-  shipped:            { bg: 'bg-ukraine-blue-100', text: 'text-ukraine-blue-700' },
-  completed:          { bg: 'bg-life-100',         text: 'text-life-800' },
-  expired:            { bg: 'bg-gray-100',         text: 'text-gray-600' },
-  declined:           { bg: 'bg-warm-100',         text: 'text-warm-800' },
+  pending: { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },
+  widget_load_failed: { bg: 'bg-warm-100', text: 'text-warm-800' },
+  paid: { bg: 'bg-life-100', text: 'text-life-800' },
+  shipped: { bg: 'bg-ukraine-blue-100', text: 'text-ukraine-blue-700' },
+  completed: { bg: 'bg-life-100', text: 'text-life-800' },
+  expired: { bg: 'bg-gray-100', text: 'text-gray-600' },
+  declined: { bg: 'bg-warm-100', text: 'text-warm-800' },
 }
 
 // ============================================
@@ -85,7 +82,9 @@ export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: 
 
 /** 支付 Webhook 可更新的源状态 — widget_load_failed 和 expired（cron 清理后）也可被 webhook 恢复为 paid */
 export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
-  'pending', 'widget_load_failed', 'expired'
+  'pending',
+  'widget_load_failed',
+  'expired',
 ] as const
 
 // ============================================
@@ -145,7 +144,10 @@ export function needsFileUpload(from: MarketOrderStatus, to: MarketOrderStatus):
 }
 
 /** 获取当前转换对应的文件分类 */
-export function getFileCategory(from: MarketOrderStatus, to: MarketOrderStatus): MarketOrderFileCategory | null {
+export function getFileCategory(
+  from: MarketOrderStatus,
+  to: MarketOrderStatus
+): MarketOrderFileCategory | null {
   if (from === 'paid' && to === 'shipped') return 'shipping'
   if (from === 'shipped' && to === 'completed') return 'completion'
   return null

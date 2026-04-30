@@ -3,12 +3,13 @@
  * Displayed after user clicks unsubscribe link from email
  */
 
-import { getTranslations } from 'next-intl/server'
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
+
 import UnsubscribedClient from './UnsubscribedClient'
 
 export async function generateMetadata({
-  params
+  params,
 }: {
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
@@ -24,7 +25,7 @@ export async function generateMetadata({
 
 export default async function UnsubscribedPage({
   params,
-  searchParams
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
   searchParams: Promise<{ error?: string }>

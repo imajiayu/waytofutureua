@@ -5,8 +5,8 @@
 
 import {
   createWayForPayPayment,
-  verifyWayForPaySignature,
   generateWebhookResponseSignature,
+  verifyWayForPaySignature,
   type WayForPayPaymentParams,
 } from '@/lib/payment/wayforpay/server'
 
@@ -56,4 +56,4 @@ export function createMarketPayment(params: {
 // 导出复用的验证函数
 // ============================================
 
-export { verifyWayForPaySignature, generateWebhookResponseSignature }
+export { generateWebhookResponseSignature, verifyWayForPaySignature }

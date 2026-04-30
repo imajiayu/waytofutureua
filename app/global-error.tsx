@@ -42,37 +42,45 @@ export default function GlobalError({
   return (
     <html lang={locale}>
       <body>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          padding: '20px',
-          fontFamily: 'system-ui, sans-serif',
-          backgroundColor: '#f9fafb',
-        }}>
-          <div style={{
-            maxWidth: '600px',
-            textAlign: 'center',
-            backgroundColor: 'white',
-            padding: '40px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          }}>
-            <h1 style={{
-              fontSize: '2rem',
-              marginBottom: '1rem',
-              color: '#111827',
-              fontWeight: '600',
-            }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            padding: '20px',
+            fontFamily: 'system-ui, sans-serif',
+            backgroundColor: '#f9fafb',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '600px',
+              textAlign: 'center',
+              backgroundColor: 'white',
+              padding: '40px',
+              borderRadius: '12px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <h1
+              style={{
+                fontSize: '2rem',
+                marginBottom: '1rem',
+                color: '#111827',
+                fontWeight: '600',
+              }}
+            >
               {messages.title}
             </h1>
-            <p style={{
-              marginBottom: '2rem',
-              color: '#6b7280',
-              lineHeight: '1.6',
-            }}>
+            <p
+              style={{
+                marginBottom: '2rem',
+                color: '#6b7280',
+                lineHeight: '1.6',
+              }}
+            >
               {messages.description}
             </p>
             <button

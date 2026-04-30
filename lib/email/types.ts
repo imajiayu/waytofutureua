@@ -21,13 +21,13 @@ export interface DonationItem {
   locationI18n: I18nText
   unitNameI18n: I18nText
   amount: number
-  isAggregate: boolean  // true for aggregate mode (no unit_name), false for unit mode
+  isAggregate: boolean // true for aggregate mode (no unit_name), false for unit mode
 }
 
 // Payment success email parameters
 export interface PaymentSuccessEmailParams extends BaseEmailParams {
   donorName: string
-  donations: DonationItem[]  // Multiple donations in an order
+  donations: DonationItem[] // Multiple donations in an order
   totalAmount: number
   currency: string
 }

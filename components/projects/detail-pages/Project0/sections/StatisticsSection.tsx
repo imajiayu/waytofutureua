@@ -1,7 +1,8 @@
 'use client'
 
-import type { SectionProps, Statistic } from '../types'
 import AnimatedNumber from '@/components/projects/shared/AnimatedNumber'
+
+import type { SectionProps, Statistic } from '../types'
 
 const STAT_CARD_GRADIENTS = [
   'bg-gradient-to-br from-ukraine-blue-500 to-ukraine-blue-700',
@@ -12,14 +13,14 @@ const STAT_CARD_GRADIENTS = [
 function AnimatedStatCard({ stat, index }: { stat: Statistic; index: number }) {
   return (
     <div
-      className={`relative p-4 md:p-5 rounded-xl md:rounded-2xl overflow-hidden group ${STAT_CARD_GRADIENTS[index] ?? STAT_CARD_GRADIENTS[2]}`}
+      className={`group relative overflow-hidden rounded-xl p-4 md:rounded-2xl md:p-5 ${STAT_CARD_GRADIENTS[index] ?? STAT_CARD_GRADIENTS[2]}`}
     >
       {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-white/10" />
 
       <div className="relative z-10">
         <div
-          className={`font-data text-3xl md:text-4xl lg:text-5xl font-bold mb-1 tracking-tight ${index < 2 ? 'text-white' : 'text-gray-900'}`}
+          className={`mb-1 font-data text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl ${index < 2 ? 'text-white' : 'text-gray-900'}`}
         >
           <AnimatedNumber
             value={stat.value}
@@ -29,12 +30,12 @@ function AnimatedStatCard({ stat, index }: { stat: Statistic; index: number }) {
           />
         </div>
         <div
-          className={`font-display text-xs md:text-sm font-semibold mb-0.5 ${index < 2 ? 'text-white/90' : 'text-gray-800'}`}
+          className={`mb-0.5 font-display text-xs font-semibold md:text-sm ${index < 2 ? 'text-white/90' : 'text-gray-800'}`}
         >
           {stat.label}
         </div>
         <div
-          className={`text-[10px] md:text-xs leading-tight ${index < 2 ? 'text-white/70' : 'text-gray-600'}`}
+          className={`text-[10px] leading-tight md:text-xs ${index < 2 ? 'text-white/70' : 'text-gray-600'}`}
         >
           {stat.description}
         </div>

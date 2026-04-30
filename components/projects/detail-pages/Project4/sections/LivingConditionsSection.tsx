@@ -2,14 +2,19 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+
 import { SectionHeader } from '@/components/projects/shared'
+
 import type { SectionProps } from '../types'
 
 interface LivingConditionsSectionProps extends SectionProps {
   onImageClick?: (index: number) => void
 }
 
-export default function LivingConditionsSection({ content, onImageClick }: LivingConditionsSectionProps) {
+export default function LivingConditionsSection({
+  content,
+  onImageClick,
+}: LivingConditionsSectionProps) {
   const t = useTranslations('projects.project4')
   const defaultImages = [
     '/images/projects/project-4/details/wood-stove.webp',
@@ -22,21 +27,25 @@ export default function LivingConditionsSection({ content, onImageClick }: Livin
 
   return (
     <section>
-      <SectionHeader title={content.livingConditions.title} gradientClassName="from-stone-500 to-stone-700" className="mb-4" />
+      <SectionHeader
+        title={content.livingConditions.title}
+        gradientClassName="from-stone-500 to-stone-700"
+        className="mb-4"
+      />
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:items-stretch">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:items-stretch">
         {/* Left: Description + List */}
         <div className="flex flex-col justify-center space-y-4">
-          <p className="text-gray-700 leading-relaxed">
-            {content.livingConditions.description}
-          </p>
+          <p className="leading-relaxed text-gray-700">{content.livingConditions.description}</p>
 
           <ul className="space-y-2.5">
             {content.livingConditions.points.map((point, idx) => (
               <li key={idx} className="flex items-start gap-3">
-                <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${statusColors[idx] || statusColors[0]}`} />
-                <span className="text-sm text-gray-600 leading-relaxed">{point}</span>
+                <span
+                  className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${statusColors[idx] || statusColors[0]}`}
+                />
+                <span className="text-sm leading-relaxed text-gray-600">{point}</span>
               </li>
             ))}
           </ul>
@@ -49,9 +58,14 @@ export default function LivingConditionsSection({ content, onImageClick }: Livin
               key={idx}
               role="button"
               tabIndex={0}
-              className="relative aspect-[16/9] lg:aspect-auto lg:flex-1 rounded-xl overflow-hidden cursor-pointer group"
+              className="group relative aspect-[16/9] cursor-pointer overflow-hidden rounded-xl lg:aspect-auto lg:flex-1"
               onClick={() => onImageClick?.(idx)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick?.(idx) } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onImageClick?.(idx)
+                }
+              }}
             >
               <Image
                 src={img}
@@ -60,7 +74,7 @@ export default function LivingConditionsSection({ content, onImageClick }: Livin
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
             </div>
           ))}
         </div>

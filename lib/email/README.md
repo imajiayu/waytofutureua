@@ -20,21 +20,25 @@
 这是一个为 Way to Future UA 平台设计的邮件系统，具有以下特性：
 
 ✅ **统一的设计系统**
+
 - 统一的品牌元素（Logo、颜色、字体）
 - 可复用的组件（Header、Footer、按钮等）
 - 一致的布局和样式
 
 ✅ **多语言支持**
+
 - 支持 3 种语言（英文、中文、乌克兰语）
 - 使用项目的 i18n 字段（`project_name_i18n` 等）
 - 自动根据用户语言选择内容
 
 ✅ **类型安全**
+
 - TypeScript 严格类型检查
 - 明确的参数接口
 - 编译时错误检测
 
 ✅ **易于扩展**
+
 - 模块化设计
 - 清晰的目录结构
 - 简单的模板创建流程
@@ -95,24 +99,24 @@ const emailParams = {
   projectNameI18n: {
     en: 'Clean Water Project',
     zh: '清洁水源项目',
-    ua: 'Проект чистої води'
+    ua: 'Проект чистої води',
   },
   locationI18n: {
     en: 'Kyiv, Ukraine',
     zh: '乌克兰基辅',
-    ua: 'Київ, Україна'
+    ua: 'Київ, Україна',
   },
   unitNameI18n: {
     en: 'water filter',
     zh: '净水器',
-    ua: 'фільтр для води'
+    ua: 'фільтр для води',
   },
   donationIds: ['1-ABC123', '1-DEF456'],
   quantity: 2,
-  unitPrice: 50.00,
-  totalAmount: 100.00,
+  unitPrice: 50.0,
+  totalAmount: 100.0,
   currency: 'UAH',
-  locale: 'en'
+  locale: 'en',
 }
 ```
 
@@ -138,6 +142,7 @@ try {
 **触发时机**: WayForPay Webhook 收到 `Approved` 状态
 
 **内容**:
+
 - 感谢信息
 - 捐赠详情（项目、地点、数量、金额）
 - 捐赠 ID 列表
@@ -145,6 +150,7 @@ try {
 - 后续流程说明
 
 **发送函数**:
+
 ```typescript
 import { sendPaymentSuccessEmail } from '@/lib/email'
 
@@ -172,12 +178,14 @@ await sendPaymentSuccessEmail({
 **触发时机**: 管理员将捐赠状态更新为 `completed`
 
 **内容**:
+
 - 祝贺信息
 - 捐赠详情
 - 配送确认照片
 - 感谢和分享鼓励
 
 **发送函数**:
+
 ```typescript
 import { sendDonationCompletedEmail } from '@/lib/email'
 
@@ -208,7 +216,7 @@ export async function completeDonation(donationId: string, resultImageUrl: strin
     .from('donations')
     .update({
       donation_status: 'completed',
-      donation_result_url: resultImageUrl
+      donation_result_url: resultImageUrl,
     })
     .eq('id', donationId)
     .select()
@@ -233,7 +241,7 @@ export async function completeDonation(donationId: string, resultImageUrl: strin
     totalAmount: donation.amount,
     currency: 'UAH',
     locale: donation.locale,
-    resultImageUrl
+    resultImageUrl,
   })
 }
 ```
@@ -247,6 +255,7 @@ export async function completeDonation(donationId: string, resultImageUrl: strin
 **触发时机**: WayForPay Webhook 收到 `Refunded` 状态
 
 **内容**:
+
 - 退款确认信息
 - 退款金额和捐赠 ID
 - 退款原因（可选）
@@ -254,6 +263,7 @@ export async function completeDonation(donationId: string, resultImageUrl: strin
 - 感谢和期待未来支持
 
 **发送函数**:
+
 ```typescript
 import { sendRefundSuccessEmail } from '@/lib/email'
 
@@ -291,7 +301,7 @@ if (transactionStatus === WAYFORPAY_STATUS.REFUNDED) {
     refundAmount: donation.amount,
     currency: 'UAH',
     locale: donation.locale,
-    refundReason: 'Customer request'
+    refundReason: 'Customer request',
   })
 }
 ```
@@ -372,14 +382,23 @@ export interface DonationReminderEmailParams extends BaseEmailParams {
 ```typescript
 import { Locale } from '../../types'
 
-export const donationReminderContent: Record<Locale, {
-  subject: string
-  title: string
-  // ... 其他字段
-}> = {
-  en: { /* 英文内容 */ },
-  zh: { /* 中文内容 */ },
-  ua: { /* 乌克兰语内容 */ }
+export const donationReminderContent: Record<
+  Locale,
+  {
+    subject: string
+    title: string
+    // ... 其他字段
+  }
+> = {
+  en: {
+    /* 英文内容 */
+  },
+  zh: {
+    /* 中文内容 */
+  },
+  ua: {
+    /* 乌克兰语内容 */
+  },
 }
 ```
 
@@ -412,9 +431,7 @@ import { resend, getFromEmail } from '../client'
 import { DonationReminderEmailParams } from '../types'
 import { generateDonationReminderEmail } from '../templates/donation-reminder'
 
-export async function sendDonationReminderEmail(
-  params: DonationReminderEmailParams
-) {
+export async function sendDonationReminderEmail(params: DonationReminderEmailParams) {
   const emailContent = generateDonationReminderEmail(params)
 
   const { data, error } = await resend.emails.send({
@@ -422,7 +439,7 @@ export async function sendDonationReminderEmail(
     to: params.to,
     subject: emailContent.subject,
     html: emailContent.html,
-    text: emailContent.text
+    text: emailContent.text,
   })
 
   if (error) throw error
@@ -452,14 +469,14 @@ export const ORG_BRANDING: OrgBranding = {
   name: {
     en: 'Way to Future UA',
     zh: '乌克兰未来之路',
-    ua: 'Way to Future UA'
+    ua: 'Way to Future UA',
   },
   logoUrl: 'https://waytofutureua.org.ua/logo.png',
   websiteUrl: 'https://waytofutureua.org.ua',
   contactEmail: 'contact@waytofutureua.org.ua',
   socialLinks: {
     // 社交媒体链接
-  }
+  },
 }
 ```
 
@@ -506,6 +523,7 @@ npm run test:email:zh
 ### 测试邮件内容
 
 测试脚本会：
+
 1. 生成随机捐赠 ID
 2. 使用测试数据发送邮件
 3. 输出 Resend Email ID
@@ -524,7 +542,7 @@ await sendPaymentSuccessEmail({
   projectNameI18n: {
     en: 'Test Project',
     zh: '测试项目',
-    ua: 'Тестовий проект'
+    ua: 'Тестовий проект',
   },
   // ... 其他测试数据
 })
@@ -545,6 +563,7 @@ await sendPaymentSuccessEmail({
 ### Q: 邮件发送失败怎么办？
 
 检查：
+
 1. `RESEND_API_KEY` 是否正确
 2. 发件人邮箱是否已在 Resend 验证
 3. Resend Dashboard 中的错误日志
@@ -562,6 +581,7 @@ await sendPaymentSuccessEmail({
    - ✅ `projectNameI18n: { en: 'Clean Water', zh: '清洁水', ua: 'Чиста вода' }`
 
 2. **错误处理不影响主流程**
+
    ```typescript
    try {
      await sendEmail(params)
@@ -572,9 +592,12 @@ await sendPaymentSuccessEmail({
    ```
 
 3. **使用类型安全**
+
    ```typescript
    // 利用 TypeScript 类型检查
-   const params: PaymentSuccessEmailParams = { /* ... */ }
+   const params: PaymentSuccessEmailParams = {
+     /* ... */
+   }
    await sendPaymentSuccessEmail(params)
    ```
 

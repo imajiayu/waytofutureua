@@ -1,5 +1,7 @@
-import { getTranslations, getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
+
 import { locales } from '@/i18n/config'
+
 import DonationDetails from './DonationDetails'
 import SuccessActionButtons from './SuccessActionButtons'
 
@@ -16,12 +18,10 @@ export async function generateMetadata() {
   }
 }
 
-export default async function DonateSuccessPage(
-  props: {
-    searchParams: Promise<{ order?: string }>
-  }
-) {
-  const searchParams = await props.searchParams;
+export default async function DonateSuccessPage(props: {
+  searchParams: Promise<{ order?: string }>
+}) {
+  const searchParams = await props.searchParams
   const locale = await getLocale()
   const orderReference = searchParams.order
 

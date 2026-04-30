@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
-import { getAdminUser } from '@/lib/supabase/admin-auth'
+
 import { getAdminDonations } from '@/app/actions/admin'
 import DonationsTable from '@/components/admin/DonationsTable'
+import { getAdminUser } from '@/lib/supabase/admin-auth'
 
 export default async function AdminDonationsPage() {
   const user = await getAdminUser()
@@ -14,7 +15,7 @@ export default async function AdminDonationsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 font-body">Donations</h1>
+        <h1 className="font-body text-2xl font-bold text-gray-900">Donations</h1>
       </div>
       <DonationsTable initialDonations={donations} statusHistory={history} />
     </div>

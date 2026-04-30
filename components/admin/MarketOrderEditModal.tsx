@@ -1,18 +1,32 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import AdminBaseModal from './AdminBaseModal'
-import { createClient } from '@/lib/supabase/client'
-import { ORDER_STATUS_COLORS, getNextOrderStatuses, needsTrackingNumber, needsFileUpload, getFileCategory, canManageOrderFiles } from '@/lib/market/market-status'
+import { useCallback, useEffect, useState } from 'react'
+
 import { updateMarketOrderStatus } from '@/app/actions/market-admin'
 import {
-  uploadMarketOrderFile,
   createMarketOrderSignedUploadUrl,
-  getMarketOrderFiles,
   deleteMarketOrderFile,
+  getMarketOrderFiles,
+  uploadMarketOrderFile,
 } from '@/app/actions/market-order-files'
-import type { AdminMarketOrder, MarketOrderStatus, MarketOrderFile, MarketOrderFileCategory } from '@/types/market'
 import { getTranslatedText } from '@/lib/i18n-utils'
+import {
+  canManageOrderFiles,
+  getFileCategory,
+  getNextOrderStatuses,
+  needsFileUpload,
+  needsTrackingNumber,
+  ORDER_STATUS_COLORS,
+} from '@/lib/market/market-status'
+import { createClient } from '@/lib/supabase/client'
+import type {
+  AdminMarketOrder,
+  MarketOrderFile,
+  MarketOrderFileCategory,
+  MarketOrderStatus,
+} from '@/types/market'
+
+import AdminBaseModal from './AdminBaseModal'
 
 interface Props {
   order: AdminMarketOrder
@@ -20,7 +34,14 @@ interface Props {
   onSaved: () => void
 }
 
-const VALID_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime']
+const VALID_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'video/mp4',
+  'video/quicktime',
+]
 const MAX_SIZE = 50 * 1024 * 1024
 
 const CATEGORY_LABELS: Record<MarketOrderFileCategory, string> = {
@@ -55,11 +76,16 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
   const canUpdate = nextStatuses.length > 0
   const canManageFiles = canManageOrderFiles(currentStatus)
 
-  const selectedCategory = newStatus ? getFileCategory(currentStatus, newStatus as MarketOrderStatus) : null
+  const selectedCategory = newStatus
+    ? getFileCategory(currentStatus, newStatus as MarketOrderStatus)
+    : null
   const showFileUpload = newStatus && needsFileUpload(currentStatus, newStatus as MarketOrderStatus)
-  const showTrackingInput = newStatus && needsTrackingNumber(currentStatus, newStatus as MarketOrderStatus)
+  const showTrackingInput =
+    newStatus && needsTrackingNumber(currentStatus, newStatus as MarketOrderStatus)
 
-  const itemTitle = order.market_items ? getTranslatedText(order.market_items.title_i18n, null, 'en') : `#${order.item_id}`
+  const itemTitle = order.market_items
+    ? getTranslatedText(order.market_items.title_i18n, null, 'en')
+    : `#${order.item_id}`
 
   // Load existing files
   const loadFiles = useCallback(async () => {
@@ -85,14 +111,14 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
   // ── File handlers ────────────────────────────
 
   const validateFiles = (selected: File[]): boolean => {
-    const invalid = selected.filter(f => !VALID_TYPES.includes(f.type))
+    const invalid = selected.filter((f) => !VALID_TYPES.includes(f.type))
     if (invalid.length > 0) {
-      setError(`Invalid file type: ${invalid.map(f => f.name).join(', ')}`)
+      setError(`Invalid file type: ${invalid.map((f) => f.name).join(', ')}`)
       return false
     }
-    const oversized = selected.filter(f => f.size > MAX_SIZE)
+    const oversized = selected.filter((f) => f.size > MAX_SIZE)
     if (oversized.length > 0) {
-      setError(`File too large: ${oversized.map(f => f.name).join(', ')} (max 50MB)`)
+      setError(`File too large: ${oversized.map((f) => f.name).join(', ')} (max 50MB)`)
       return false
     }
     return true
@@ -191,7 +217,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
           setLoading(false)
           return
         }
-        const hasImage = transitionFiles.some(f => f.type.startsWith('image/'))
+        const hasImage = transitionFiles.some((f) => f.type.startsWith('image/'))
         if (!hasImage) {
           setError('At least one image file is required. Videos alone are not sufficient.')
           setLoading(false)
@@ -207,7 +233,9 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
             setUploadProgress(Math.round(((i + 1) / transitionFiles.length) * 100))
           }
         } catch (err: unknown) {
-          throw new Error(`File upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
+          throw new Error(
+            `File upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+          )
         } finally {
           setUploading(false)
           setUploadProgress(0)
@@ -241,15 +269,15 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
   }
 
   // Group files by category
-  const shippingFiles = files.filter(f => f.category === 'shipping')
-  const completionFiles = files.filter(f => f.category === 'completion')
+  const shippingFiles = files.filter((f) => f.category === 'shipping')
+  const completionFiles = files.filter((f) => f.category === 'completion')
 
   return (
     <AdminBaseModal title={`Order: ${order.order_reference}`} onClose={onClose} error={error}>
       <form onSubmit={handleSubmit}>
         {/* ── Order Info ─────────────────────────── */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <div className="mb-6 rounded-lg bg-gray-50 p-4">
+          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
               <span className="font-medium text-gray-600">Buyer:</span>
               <span className="ml-2 text-gray-900">{order.buyer_email}</span>
@@ -260,24 +288,34 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
             </div>
             <div>
               <span className="font-medium text-gray-600">Amount:</span>
-              <span className="ml-2 text-gray-900">{order.quantity} × ${order.unit_price} = ${order.total_amount}</span>
+              <span className="ml-2 text-gray-900">
+                {order.quantity} × ${order.unit_price} = ${order.total_amount}
+              </span>
             </div>
             <div>
               <span className="font-medium text-gray-600">Status:</span>
-              <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${ORDER_STATUS_COLORS[currentStatus].bg} ${ORDER_STATUS_COLORS[currentStatus].text}`}>
+              <span
+                className={`ml-2 rounded px-2 py-0.5 text-xs font-medium ${ORDER_STATUS_COLORS[currentStatus].bg} ${ORDER_STATUS_COLORS[currentStatus].text}`}
+              >
                 {currentStatus}
               </span>
             </div>
             {order.tracking_number && (
               <div>
                 <span className="font-medium text-gray-600">Tracking:</span>
-                <span className="ml-2 text-gray-900 font-mono text-xs">{order.tracking_number}</span>
-                {order.tracking_carrier && <span className="ml-1 text-gray-500">({order.tracking_carrier})</span>}
+                <span className="ml-2 font-mono text-xs text-gray-900">
+                  {order.tracking_number}
+                </span>
+                {order.tracking_carrier && (
+                  <span className="ml-1 text-gray-500">({order.tracking_carrier})</span>
+                )}
               </div>
             )}
             <div>
               <span className="font-medium text-gray-600">Shipping:</span>
-              <span className="ml-2 text-gray-900">{order.shipping_name}, {order.shipping_city}, {order.shipping_country}</span>
+              <span className="ml-2 text-gray-900">
+                {order.shipping_name}, {order.shipping_city}, {order.shipping_country}
+              </span>
             </div>
           </div>
         </div>
@@ -285,11 +323,11 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
         {/* ── Section 1: Status Update ──────────── */}
         {canUpdate && (
           <div className="mb-6">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 font-body">Update Status</h3>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <h3 className="mb-3 font-body text-sm font-semibold text-gray-700">Update Status</h3>
 
-              <div className="flex gap-2 mb-4">
-                {nextStatuses.map(status => (
+              <div className="mb-4 flex gap-2">
+                {nextStatuses.map((status) => (
                   <button
                     key={status}
                     type="button"
@@ -298,10 +336,10 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                       setTransitionFiles([])
                       setError('')
                     }}
-                    className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                    className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
                       newStatus === status
                         ? 'bg-blue-600 text-white'
-                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                        : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     → {status}
@@ -311,38 +349,40 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
 
               {/* Tracking number input */}
               {showTrackingInput && (
-                <div className="space-y-3 mb-4">
+                <div className="mb-4 space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Tracking Number <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={trackingNumber}
-                      onChange={e => setTrackingNumber(e.target.value)}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
                       placeholder="e.g. UA123456789"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Carrier (optional)</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Carrier (optional)
+                    </label>
                     <input
                       type="text"
                       value={trackingCarrier}
-                      onChange={e => setTrackingCarrier(e.target.value)}
+                      onChange={(e) => setTrackingCarrier(e.target.value)}
                       placeholder="e.g. Nova Poshta"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                     />
                   </div>
                 </div>
               )}
 
               {/* Action buttons */}
-              <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200">
+              <div className="flex justify-end space-x-3 border-t border-gray-200 pt-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                   disabled={loading}
                 >
                   Cancel
@@ -350,7 +390,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                 <button
                   type="submit"
                   disabled={loading || uploading || !newStatus}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Update Status'}
                 </button>
@@ -362,8 +402,8 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
         {/* ── Section 2: File Upload for Transition ─ */}
         {showFileUpload && selectedCategory && (
           <div className="mb-6">
-            <div className="bg-white rounded-lg p-4 border-2 border-dashed border-blue-300">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2 font-body">
+            <div className="rounded-lg border-2 border-dashed border-blue-300 bg-white p-4">
+              <h3 className="mb-3 flex items-center gap-2 font-body text-sm font-semibold text-gray-700">
                 <span className="text-blue-600">📸</span>
                 Upload {CATEGORY_LABELS[selectedCategory]}
                 <span className="text-red-500">*</span>
@@ -372,7 +412,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                 type="file"
                 accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
                 onChange={handleTransitionFileChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
                 required
                 disabled={uploading}
                 multiple
@@ -383,7 +423,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                     {transitionFiles.length} file(s) selected:
                   </p>
                   {transitionFiles.map((file, index) => (
-                    <p key={index} className="text-xs text-gray-600 ml-2">
+                    <p key={index} className="ml-2 text-xs text-gray-600">
                       • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                     </p>
                   ))}
@@ -391,13 +431,13 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
               )}
               {uploading && (
                 <div className="mt-3">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <div className="mb-1 flex justify-between text-sm text-gray-600">
                     <span>Uploading...</span>
                     <span>{uploadProgress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="h-2 w-full rounded-full bg-gray-200">
                     <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      className="h-2 rounded-full bg-blue-600 transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -413,14 +453,14 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
         {/* ── Section 3: File Management ──────────── */}
         {canManageFiles && (
           <div className="mb-6">
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2 font-body">
+            <div className="rounded-lg border border-gray-200 bg-white p-4">
+              <h3 className="mb-3 flex items-center gap-2 font-body text-sm font-semibold text-gray-700">
                 📁 Proof Files Management
               </h3>
 
               {/* Existing files grouped by category */}
               {loadingFiles ? (
-                <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded">Loading files...</div>
+                <div className="rounded bg-gray-50 p-4 text-sm text-gray-500">Loading files...</div>
               ) : (
                 <div className="space-y-4">
                   {/* Shipping Proof */}
@@ -447,15 +487,17 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
               )}
 
               {/* Upload new files */}
-              <div className="pt-4 border-t border-gray-200 mt-4">
-                <h4 className="text-xs font-medium text-gray-600 mb-2 uppercase">Upload New Files</h4>
+              <div className="mt-4 border-t border-gray-200 pt-4">
+                <h4 className="mb-2 text-xs font-medium uppercase text-gray-600">
+                  Upload New Files
+                </h4>
                 <div className="space-y-2">
-                  <div className="flex gap-2 items-center mb-2">
+                  <div className="mb-2 flex items-center gap-2">
                     <label className="text-sm text-gray-700">Category:</label>
                     <select
                       value={mgmtCategory}
-                      onChange={e => setMgmtCategory(e.target.value as MarketOrderFileCategory)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      onChange={(e) => setMgmtCategory(e.target.value as MarketOrderFileCategory)}
+                      className="rounded border border-gray-300 px-2 py-1 text-sm"
                     >
                       <option value="shipping">Shipping Proof</option>
                       <option value="completion">Fund Usage Proof</option>
@@ -466,26 +508,33 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                     type="file"
                     accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
                     onChange={handleMgmtFileChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full rounded-md border border-gray-300 px-3 py-2"
                     disabled={uploading}
                     multiple
                   />
                   {mgmtFiles.length > 0 && !uploading && (
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-green-600">{mgmtFiles.length} file(s) selected</p>
+                      <p className="text-sm font-medium text-green-600">
+                        {mgmtFiles.length} file(s) selected
+                      </p>
                       {mgmtFiles.map((file, i) => (
-                        <p key={i} className="text-xs text-gray-600 ml-2">• {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                        <p key={i} className="ml-2 text-xs text-gray-600">
+                          • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        </p>
                       ))}
                     </div>
                   )}
                   {uploading && (
                     <div>
-                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <div className="mb-1 flex justify-between text-sm text-gray-600">
                         <span>Uploading...</span>
                         <span>{uploadProgress}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                      <div className="h-2 w-full rounded-full bg-gray-200">
+                        <div
+                          className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
                       </div>
                     </div>
                   )}
@@ -493,18 +542,26 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
                     type="button"
                     onClick={handleUploadOnly}
                     disabled={uploading || mgmtFiles.length === 0}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                    className="rounded-md bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
                   >
-                    {uploading ? 'Uploading...' : `Upload ${mgmtFiles.length > 0 ? `${mgmtFiles.length} File(s)` : 'Files'}`}
+                    {uploading
+                      ? 'Uploading...'
+                      : `Upload ${mgmtFiles.length > 0 ? `${mgmtFiles.length} File(s)` : 'Files'}`}
                   </button>
-                  <p className="text-xs text-gray-500">Accepted: JPEG, PNG, GIF, MP4, MOV (max 50MB)</p>
+                  <p className="text-xs text-gray-500">
+                    Accepted: JPEG, PNG, GIF, MP4, MOV (max 50MB)
+                  </p>
                 </div>
               </div>
 
               {/* Close button */}
               {!canUpdate && (
-                <div className="flex justify-end pt-4 border-t border-gray-200 mt-4">
-                  <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                <div className="mt-4 flex justify-end border-t border-gray-200 pt-4">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+                  >
                     Close
                   </button>
                 </div>
@@ -538,26 +595,40 @@ function FileGroup({
 }) {
   return (
     <div>
-      <h4 className="text-xs font-medium text-gray-600 mb-2 uppercase">{label}</h4>
+      <h4 className="mb-2 text-xs font-medium uppercase text-gray-600">{label}</h4>
       {files.length === 0 ? (
-        <div className="text-sm text-gray-400 p-3 bg-gray-50 rounded">No files</div>
+        <div className="rounded bg-gray-50 p-3 text-sm text-gray-400">No files</div>
       ) : (
         <div className="space-y-3">
-          {files.map(file => (
-            <div key={file.path} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-medium text-gray-900 truncate">{file.name}</span>
+          {files.map((file) => (
+            <div key={file.path} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="truncate text-sm font-medium text-gray-900">{file.name}</span>
                     <span className="text-xs text-gray-500">({formatFileSize(file.size)})</span>
                   </div>
                   {file.contentType.startsWith('image/') && (
-                    <img src={file.publicUrl} alt={file.name} className="max-w-full sm:max-w-xs max-h-48 rounded border border-gray-300 mb-2" />
+                    // eslint-disable-next-line @next/next/no-img-element -- 管理员后台预览，已上传文件尺寸未知
+                    <img
+                      src={file.publicUrl}
+                      alt={file.name}
+                      className="mb-2 max-h-48 max-w-full rounded border border-gray-300 sm:max-w-xs"
+                    />
                   )}
                   {file.contentType.startsWith('video/') && (
-                    <video src={file.publicUrl} controls className="max-w-full sm:max-w-xs max-h-48 rounded border border-gray-300 mb-2" />
+                    <video
+                      src={file.publicUrl}
+                      controls
+                      className="mb-2 max-h-48 max-w-full rounded border border-gray-300 sm:max-w-xs"
+                    />
                   )}
-                  <a href={file.publicUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
+                  <a
+                    href={file.publicUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 hover:underline"
+                  >
                     View Full Size
                   </a>
                 </div>
@@ -568,14 +639,14 @@ function FileGroup({
                       type="button"
                       onClick={() => onDelete(file.path)}
                       disabled={deletingFile === file.path}
-                      className="px-3 py-1 text-sm bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 transition-colors"
+                      className="rounded bg-red-700 px-3 py-1 text-sm text-white transition-colors hover:bg-red-800 disabled:opacity-50"
                     >
                       {deletingFile === file.path ? 'Deleting...' : 'Confirm?'}
                     </button>
                     <button
                       type="button"
                       onClick={() => onConfirmDelete(null)}
-                      className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                      className="rounded bg-gray-200 px-3 py-1 text-sm text-gray-700 transition-colors hover:bg-gray-300"
                     >
                       Cancel
                     </button>
@@ -585,7 +656,7 @@ function FileGroup({
                     type="button"
                     onClick={() => onConfirmDelete(file.path)}
                     disabled={deletingFile === file.path}
-                    className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    className="rounded bg-red-600 px-3 py-1 text-sm text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                   >
                     Delete
                   </button>

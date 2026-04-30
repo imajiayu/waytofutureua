@@ -1,18 +1,20 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
-import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
-import { FadeInSection, SectionNav } from '@/components/projects/shared'
-import { useActiveSection } from '@/lib/hooks/useActiveSection'
 import { useTranslations } from 'next-intl'
-import { useProjectContent } from '@/lib/hooks/useProjectContent'
-import { useLightbox } from '@/lib/hooks/useLightbox'
-import type { Project5Content, Project5DetailContentProps } from './types'
-import { HeroSection, BackgroundSection, EventsSection } from './sections'
-import { UnifiedResultsSection } from '@/components/projects/shared'
-import type { ResultImage } from '@/components/projects/shared'
+import { useMemo, useState } from 'react'
+
 import { CheckCircle2Icon } from '@/components/icons'
+import type { ResultImage } from '@/components/projects/shared'
+import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import { UnifiedResultsSection } from '@/components/projects/shared'
+import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
+import { useLightbox } from '@/lib/hooks/useLightbox'
+import { useProjectContent } from '@/lib/hooks/useProjectContent'
+
+import { BackgroundSection, EventsSection, HeroSection } from './sections'
+import type { Project5Content, Project5DetailContentProps } from './types'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
@@ -29,22 +31,19 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
   // Prepare per-event lightbox image arrays (photos and receipts separately)
   const eventLightboxImagesMap = useMemo(() => {
     if (!content?.events?.list) return []
-    return content.events.list.map((event) =>
-      event.images.map((url) => ({ url }))
-    )
+    return content.events.list.map((event) => event.images.map((url) => ({ url })))
   }, [content?.events?.list])
 
   const receiptLightboxImagesMap = useMemo(() => {
     if (!content?.events?.list) return []
-    return content.events.list.map((event) =>
-      (event.receipts ?? []).map((url) => ({ url }))
-    )
+    return content.events.list.map((event) => (event.receipts ?? []).map((url) => ({ url })))
   }, [content?.events?.list])
 
   const [lightboxSource, setLightboxSource] = useState<'photos' | 'receipts'>('photos')
-  const lightboxImages = lightboxSource === 'receipts'
-    ? (receiptLightboxImagesMap[selectedEventIndex] ?? [])
-    : (eventLightboxImagesMap[selectedEventIndex] ?? [])
+  const lightboxImages =
+    lightboxSource === 'receipts'
+      ? (receiptLightboxImagesMap[selectedEventIndex] ?? [])
+      : (eventLightboxImagesMap[selectedEventIndex] ?? [])
 
   const handleEventImageClick = (eventIndex: number, imageIndex: number) => {
     setSelectedEventIndex(eventIndex)
@@ -65,7 +64,9 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
       { id: 'p5-background', label: t('sectionNav.background') },
       ...(content.events?.list?.length ? [{ id: 'p5-events', label: t('sectionNav.events') }] : []),
       { id: 'p5-project-progress', label: t('sectionNav.projectProgress') },
-      ...(content.donationResults?.items?.length ? [{ id: 'p5-donation-results', label: t('sectionNav.donationResults') }] : []),
+      ...(content.donationResults?.items?.length
+        ? [{ id: 'p5-donation-results', label: t('sectionNav.donationResults') }]
+        : []),
     ]
   }, [content, t])
 
@@ -74,11 +75,11 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="relative h-[45vh] min-h-[320px] rounded-xl overflow-hidden bg-gradient-to-br from-stone-100 to-orange-100 animate-pulse">
+        <div className="relative h-[45vh] min-h-[320px] animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-stone-100 to-orange-100">
           <div className="absolute inset-0 flex items-end p-4">
-            <div className="space-y-2 w-full max-w-xl">
-              <div className="h-7 bg-white/30 rounded w-3/4" />
-              <div className="h-4 bg-white/20 rounded w-1/2" />
+            <div className="w-full max-w-xl space-y-2">
+              <div className="h-7 w-3/4 rounded bg-white/30" />
+              <div className="h-4 w-1/2 rounded bg-white/20" />
             </div>
           </div>
         </div>
@@ -88,8 +89,8 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
 
   if (!content) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
-        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
+      <div className="overflow-hidden rounded-2xl bg-white p-8 shadow-sm">
+        <p className="text-center text-gray-600">{t('contentNotAvailable')}</p>
       </div>
     )
   }
@@ -128,13 +129,15 @@ export default function Project5DetailContent({ project, locale }: Project5Detai
         <FadeInSection id="p5-donation-results" delay={300}>
           <UnifiedResultsSection
             title={content.donationResults.title}
-            icon={<CheckCircle2Icon className="w-5 h-5 text-white/90" />}
+            icon={<CheckCircle2Icon className="h-5 w-5 text-white/90" />}
             gradient="from-cyan-600 to-teal-600"
-            images={content.donationResults.items.map((item): ResultImage => ({
-              imageUrl: item.image,
-              orientation: item.orientation,
-              aspectRatio: item.aspectRatio,
-            }))}
+            images={content.donationResults.items.map(
+              (item): ResultImage => ({
+                imageUrl: item.image,
+                orientation: item.orientation,
+                aspectRatio: item.aspectRatio,
+              })
+            )}
             getAltText={(i) => t('project5.donationResultAlt', { index: i + 1 })}
           />
         </FadeInSection>

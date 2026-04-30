@@ -76,8 +76,8 @@ const PROJECT_STATUSES = ['planned', 'active', 'completed', 'paused'] as const
 const DONATION_LOCALES = ['en', 'zh', 'ua'] as const
 
 // Type aliases for better type safety
-export type DonationLocale = typeof DONATION_LOCALES[number]
-export type ProjectStatus = typeof PROJECT_STATUSES[number]
+export type DonationLocale = (typeof DONATION_LOCALES)[number]
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number]
 
 // Project Results - for displaying project outcomes/achievements
 export interface ProjectResult {

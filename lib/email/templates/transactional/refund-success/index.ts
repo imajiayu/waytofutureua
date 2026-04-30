@@ -6,31 +6,24 @@
  * without alarming the recipient, while maintaining trust.
  */
 
-import { RefundSuccessEmailParams, EmailContent } from '../../../types'
-import { getLocalizedText, formatCurrency } from '../../../utils'
-import { createEmailLayout } from '../../base/layout'
+import { EmailContent, RefundSuccessEmailParams } from '../../../types'
+import { formatCurrency, getLocalizedText } from '../../../utils'
+import { escapeHtml } from '../../../utils'
 import {
   createDetailBox,
   createDonationIdsList,
+  createErrorBox,
   createInfoBox,
   createSignature,
-  createErrorBox
 } from '../../base/components'
+import { createEmailLayout } from '../../base/layout'
 import { refundSuccessContent } from './content'
-import { escapeHtml } from '../../../utils'
 
 /**
  * Generate refund success email content
  */
 export function generateRefundSuccessEmail(params: RefundSuccessEmailParams): EmailContent {
-  const {
-    locale,
-    donorName,
-    projectNameI18n,
-    donationIds,
-    refundAmount,
-    currency
-  } = params
+  const { locale, donorName, projectNameI18n, donationIds, refundAmount, currency } = params
 
   const t = refundSuccessContent[locale]
   const projectName = getLocalizedText(projectNameI18n, locale)
@@ -39,7 +32,7 @@ export function generateRefundSuccessEmail(params: RefundSuccessEmailParams): Em
   const badgeText = {
     en: 'Refund Processed',
     zh: '退款已处理',
-    ua: 'Повернення оброблено'
+    ua: 'Повернення оброблено',
   }[locale]
 
   // Build email content with Ukraine theme - warm but informational
@@ -100,7 +93,7 @@ export function generateRefundSuccessEmail(params: RefundSuccessEmailParams): Em
     title: t.title,
     content: contentHTML,
     locale,
-    badge: badgeText
+    badge: badgeText,
   })
 
   // Plain text version
@@ -114,7 +107,7 @@ ${t.processed}
 ${t.refundAmountLabel} ${formatCurrency(refundAmount, currency)}
 
 ${t.donationIdsLabel}
-${donationIds.map(id => `- ${id}`).join('\n')}
+${donationIds.map((id) => `- ${id}`).join('\n')}
 
 ${t.gratitude}
 
@@ -126,6 +119,6 @@ ${t.contact}
   return {
     subject: t.subject,
     html,
-    text
+    text,
   }
 }

@@ -1,11 +1,13 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import ProjectStatusBadge from '@/components/projects/ProjectStatusBadge'
+
 import { HomeIcon, MapPinIcon } from '@/components/icons'
+import ProjectStatusBadge from '@/components/projects/ProjectStatusBadge'
 import ProjectHeroBase from '@/components/projects/shared/ProjectHeroBase'
-import type { Project4Content } from '../types'
 import type { ProjectStats } from '@/types'
+
+import type { Project4Content } from '../types'
 
 interface HeroSectionProps {
   content: Project4Content | null
@@ -27,14 +29,14 @@ export default function HeroSection({ content, project, locale }: HeroSectionPro
         'bg-gradient-to-b from-black/30 to-transparent',
       ]}
       glowEffects={
-        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl" />
       }
       overlayEffects={
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-amber-300/40 rounded-full animate-pulse"
+              className="absolute h-1 w-1 animate-pulse rounded-full bg-amber-300/40"
               style={{
                 left: `${15 + i * 15}%`,
                 top: `${20 + (i % 3) * 25}%`,
@@ -47,26 +49,26 @@ export default function HeroSection({ content, project, locale }: HeroSectionPro
       }
     >
       {/* Badges */}
-      <div className="flex items-center gap-1.5 mb-2">
-        <div className="flex items-center gap-1 px-2 py-1 bg-amber-600/90 backdrop-blur-md rounded-full shadow-lg">
-          <HomeIcon className="w-3 h-3 text-white" />
-          <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-wider">
+      <div className="mb-2 flex items-center gap-1.5">
+        <div className="flex items-center gap-1 rounded-full bg-amber-600/90 px-2 py-1 shadow-lg backdrop-blur-md">
+          <HomeIcon className="h-3 w-3 text-white" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-white md:text-xs">
             {t('project4.familySupport')}
           </span>
         </div>
         <ProjectStatusBadge status={project.status} />
       </div>
 
-      <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-1 leading-[1.1] tracking-tight drop-shadow-lg">
+      <h1 className="mb-1 font-display text-2xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-lg md:text-4xl">
         {content?.title || t('project4.defaultTitle')}
       </h1>
-      <p className="text-sm md:text-base text-white/90 max-w-2xl font-light">
+      <p className="max-w-2xl text-sm font-light text-white/90 md:text-base">
         {content?.subtitle || ''}
       </p>
 
       {content?.location && (
-        <div className="flex items-center gap-1.5 mt-2 text-white/70">
-          <MapPinIcon className="w-3.5 h-3.5" />
+        <div className="mt-2 flex items-center gap-1.5 text-white/70">
+          <MapPinIcon className="h-3.5 w-3.5" />
           <span className="text-xs md:text-sm">{content.location}</span>
         </div>
       )}

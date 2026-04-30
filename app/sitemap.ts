@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+
 import { locales } from '@/i18n/config'
 import { BASE_URL } from '@/lib/constants'
 

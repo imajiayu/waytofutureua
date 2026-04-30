@@ -1,24 +1,27 @@
 import { z } from 'zod'
+
 import { MARKET_ORDER_STATUSES } from '@/types/market'
 
 // ============================================
 // 共享规则
 // ============================================
 
-const i18nTextSchema = z.object({
-  en: z.string().optional(),
-  zh: z.string().optional(),
-  ua: z.string().optional(),
-}).refine(data => data.en || data.zh || data.ua, {
-  message: 'At least one language is required',
-})
+const i18nTextSchema = z
+  .object({
+    en: z.string().optional(),
+    zh: z.string().optional(),
+    ua: z.string().optional(),
+  })
+  .refine((data) => data.en || data.zh || data.ua, {
+    message: 'At least one language is required',
+  })
 
 export const shippingAddressSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  phone: z.string().max(30).refine(
-    val => val.replace(/\D/g, '').length >= 7,
-    'Valid phone number is required',
-  ),
+  phone: z
+    .string()
+    .max(30)
+    .refine((val) => val.replace(/\D/g, '').length >= 7, 'Valid phone number is required'),
   address_line1: z.string().min(5, 'Address must be at least 5 characters').max(200),
   address_line2: z.string().max(200).optional(),
   city: z.string().min(2, 'City must be at least 2 characters').max(100),

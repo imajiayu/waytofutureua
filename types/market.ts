@@ -6,14 +6,19 @@ import type { I18nText } from './index'
 
 /** 商品状态 */
 export const MARKET_ITEM_STATUSES = ['draft', 'on_sale', 'off_shelf'] as const
-export type MarketItemStatus = typeof MARKET_ITEM_STATUSES[number]
+export type MarketItemStatus = (typeof MARKET_ITEM_STATUSES)[number]
 
 /** 订单状态 */
 export const MARKET_ORDER_STATUSES = [
-  'pending', 'widget_load_failed', 'paid', 'shipped', 'completed',
-  'expired', 'declined',
+  'pending',
+  'widget_load_failed',
+  'paid',
+  'shipped',
+  'completed',
+  'expired',
+  'declined',
 ] as const
-export type MarketOrderStatus = typeof MARKET_ORDER_STATUSES[number]
+export type MarketOrderStatus = (typeof MARKET_ORDER_STATUSES)[number]
 
 // ============================================
 // 2. 收货地址

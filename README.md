@@ -79,11 +79,13 @@ STRIPE_WEBHOOK_SECRET=
 ## 📝 Database Schema
 
 The database uses 3 migration files:
+
 1. `001_init_schema.sql` - Tables and constraints
 2. `002_init_functions_views.sql` - Functions and views
 3. `003_init_policies.sql` - RLS policies and triggers
 
 Donation Status Flow:
+
 ```
 paid → confirmed → delivering → completed
         ↓

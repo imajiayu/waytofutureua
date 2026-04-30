@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+
 import { BASE_URL } from '@/lib/constants'
 
 /** 安全序列化 JSON-LD：转义 </ 防止 script 注入 */
@@ -22,7 +23,7 @@ export default async function JsonLd({ locale }: { locale: string }) {
     '@type': 'NGO',
     '@id': `${BASE_URL}/#organization`,
     name: 'WAY TO FUTURE UA',
-    alternateName: 'Шлях до Здоров\'я',
+    alternateName: "Шлях до Здоров'я",
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',

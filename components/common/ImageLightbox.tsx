@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useCallback, useState, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import { useTranslations } from 'next-intl'
-import { XIcon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon } from '@/components/icons'
-import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+import { ChevronLeftIcon, ChevronRightIcon, Loader2Icon, XIcon } from '@/components/icons'
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 
 export interface LightboxImage {
   url: string
@@ -131,7 +132,7 @@ export default function ImageLightbox({
       aria-modal="true"
       aria-label={t('title')}
       tabIndex={-1}
-      className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center touch-none outline-none"
+      className="fixed inset-0 z-50 flex touch-none items-center justify-center bg-black/95 outline-none"
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -140,10 +141,10 @@ export default function ImageLightbox({
       {/* Close Button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+        className="absolute right-4 top-4 z-10 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
         aria-label={t('close')}
       >
-        <XIcon className="w-6 h-6" />
+        <XIcon className="h-6 w-6" />
       </button>
 
       {/* Previous Button */}
@@ -153,10 +154,10 @@ export default function ImageLightbox({
             e.stopPropagation()
             goToPrevious()
           }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
           aria-label={t('previousImage')}
         >
-          <ChevronLeftIcon className="w-8 h-8" />
+          <ChevronLeftIcon className="h-8 w-8" />
         </button>
       )}
 
@@ -167,16 +168,16 @@ export default function ImageLightbox({
             e.stopPropagation()
             goToNext()
           }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
           aria-label={t('nextImage')}
         >
-          <ChevronRightIcon className="w-8 h-8" />
+          <ChevronRightIcon className="h-8 w-8" />
         </button>
       )}
 
       {/* Image/Video Container */}
       <div
-        className="w-full h-full flex items-center justify-center p-4"
+        className="flex h-full w-full items-center justify-center p-4"
         onClick={(e) => e.stopPropagation()}
       >
         {currentImage.isVideo ? (
@@ -184,33 +185,43 @@ export default function ImageLightbox({
             src={currentImage.url}
             controls
             autoPlay
-            className="max-w-[calc(100vw-80px)] max-h-[calc(100vh-80px)] rounded-lg object-contain"
+            className="max-h-[calc(100vh-80px)] max-w-[calc(100vw-80px)] rounded-lg object-contain"
           />
         ) : (
           <>
             {/* Thumbnail placeholder (if available) - shown while loading */}
             {!imageLoaded && currentImage.thumbnailUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- lightbox 需展示原图任意尺寸，无法预知 width/height
               <img
                 src={currentImage.thumbnailUrl}
-                alt={currentImage.alt || currentImage.caption || t('imageAlt', { index: currentIndex + 1 })}
-                className="max-w-[calc(100vw-80px)] max-h-[calc(100vh-80px)] object-contain rounded-lg blur-sm"
+                alt={
+                  currentImage.alt ||
+                  currentImage.caption ||
+                  t('imageAlt', { index: currentIndex + 1 })
+                }
+                className="max-h-[calc(100vh-80px)] max-w-[calc(100vw-80px)] rounded-lg object-contain blur-sm"
               />
             )}
 
             {/* Main image */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- lightbox 需展示原图任意尺寸，无法预知 width/height */}
             <img
               src={currentImage.url}
-              alt={currentImage.alt || currentImage.caption || t('imageAlt', { index: currentIndex + 1 })}
-              className={`max-w-[calc(100vw-80px)] max-h-[calc(100vh-80px)] object-contain rounded-lg transition-opacity duration-300 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0 absolute'
+              alt={
+                currentImage.alt ||
+                currentImage.caption ||
+                t('imageAlt', { index: currentIndex + 1 })
+              }
+              className={`max-h-[calc(100vh-80px)] max-w-[calc(100vw-80px)] rounded-lg object-contain transition-opacity duration-300 ${
+                imageLoaded ? 'opacity-100' : 'absolute opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
             />
 
             {/* Loading spinner - shown while loading */}
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <Loader2Icon className="w-8 h-8 text-white animate-spin" />
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <Loader2Icon className="h-8 w-8 animate-spin text-white" />
               </div>
             )}
           </>
@@ -218,11 +229,11 @@ export default function ImageLightbox({
       </div>
 
       {/* Bottom Info - fixed at bottom */}
-      <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center gap-2 pointer-events-none">
+      <div className="pointer-events-none absolute bottom-4 left-0 right-0 flex flex-col items-center gap-2">
         {/* Caption */}
         {currentImage.caption && (
-          <div className="max-w-3xl text-center bg-black/50 rounded-lg px-4 py-2">
-            <p className="text-white text-sm md:text-base leading-relaxed">
+          <div className="max-w-3xl rounded-lg bg-black/50 px-4 py-2 text-center">
+            <p className="text-sm leading-relaxed text-white md:text-base">
               {currentImage.caption}
             </p>
           </div>
@@ -230,7 +241,7 @@ export default function ImageLightbox({
 
         {/* Progress Dots - Smart collapse when many images */}
         {images.length > 1 && (
-          <div className="flex items-center gap-1.5 pointer-events-auto max-w-[80vw] justify-center">
+          <div className="pointer-events-auto flex max-w-[80vw] items-center justify-center gap-1.5">
             {images.map((_, index) => {
               // 计算当前点与选中点的距离
               const distance = Math.abs(index - currentIndex)
@@ -245,9 +256,7 @@ export default function ImageLightbox({
                       setCurrentIndex(index)
                     }}
                     className={`h-2 rounded-full transition-all ${
-                      index === currentIndex
-                        ? 'bg-white w-6'
-                        : 'bg-white/40 hover:bg-white/60 w-2'
+                      index === currentIndex ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
                     }`}
                     aria-label={t('goToImage', { number: index + 1 })}
                   />
@@ -269,7 +278,8 @@ export default function ImageLightbox({
               if (isEdge) {
                 // 只在两端显示一个缩小的点作为提示
                 const isStart = index < currentIndex && currentIndex > maxVisibleDistance
-                const isEnd = index > currentIndex && currentIndex < images.length - maxVisibleDistance - 1
+                const isEnd =
+                  index > currentIndex && currentIndex < images.length - maxVisibleDistance - 1
                 if (!isStart && !isEnd) return null
 
                 return (
@@ -279,7 +289,7 @@ export default function ImageLightbox({
                       e.stopPropagation()
                       setCurrentIndex(index)
                     }}
-                    className="w-1 h-1 rounded-full bg-white/30 transition-all"
+                    className="h-1 w-1 rounded-full bg-white/30 transition-all"
                     aria-label={t('goToImage', { number: index + 1 })}
                   />
                 )
@@ -294,10 +304,10 @@ export default function ImageLightbox({
                   }}
                   className={`h-2 rounded-full transition-all ${
                     index === currentIndex
-                      ? 'bg-white w-6'
+                      ? 'w-6 bg-white'
                       : distance <= 1
-                        ? 'bg-white/40 hover:bg-white/60 w-2'
-                        : 'bg-white/30 hover:bg-white/50 w-1.5'
+                        ? 'w-2 bg-white/40 hover:bg-white/60'
+                        : 'w-1.5 bg-white/30 hover:bg-white/50'
                   }`}
                   aria-label={t('goToImage', { number: index + 1 })}
                 />
@@ -307,7 +317,7 @@ export default function ImageLightbox({
         )}
 
         {/* Image Counter */}
-        <div className="text-white/60 text-sm">
+        <div className="text-sm text-white/60">
           {currentIndex + 1} / {images.length}
         </div>
       </div>

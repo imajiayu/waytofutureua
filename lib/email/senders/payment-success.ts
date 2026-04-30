@@ -2,10 +2,11 @@
  * Payment Success Email Sender
  */
 
-import { resend, getFromEmail } from '../client'
-import { PaymentSuccessEmailParams } from '../types'
-import { generatePaymentSuccessEmail } from '../templates/transactional/payment-success'
 import { logger } from '@/lib/logger'
+
+import { getFromEmail, resend } from '../client'
+import { generatePaymentSuccessEmail } from '../templates/transactional/payment-success'
+import { PaymentSuccessEmailParams } from '../types'
 
 /**
  * Send payment success confirmation email
@@ -19,7 +20,7 @@ export async function sendPaymentSuccessEmail(params: PaymentSuccessEmailParams)
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
-      text: emailContent.text
+      text: emailContent.text,
     })
 
     if (error) {

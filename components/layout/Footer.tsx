@@ -1,8 +1,9 @@
 // P1 优化: 转换为服务端组件，减少客户端 JS
-import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
-import { Link } from '@/i18n/navigation'
+import { getTranslations } from 'next-intl/server'
+
 import { MapPinIcon } from '@/components/icons'
+import { Link } from '@/i18n/navigation'
 
 export default async function Footer() {
   const t = await getTranslations('footer')
@@ -13,7 +14,7 @@ export default async function Footer() {
       href: 'https://www.youtube.com/@AlexWaytohealth',
       icon: (
         <svg
-          className="w-7 h-7"
+          className="h-7 w-7"
           fill="currentColor"
           viewBox="0 0 576 512"
           xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +28,7 @@ export default async function Footer() {
       href: 'https://www.instagram.com/way__to_health',
       icon: (
         <svg
-          className="w-7 h-7"
+          className="h-7 w-7"
           fill="currentColor"
           viewBox="0 0 448 512"
           xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +42,7 @@ export default async function Footer() {
       href: '#',
       icon: (
         <svg
-          className="w-7 h-7"
+          className="h-7 w-7"
           fill="currentColor"
           viewBox="0 0 448 512"
           xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +56,7 @@ export default async function Footer() {
       href: '#',
       icon: (
         <svg
-          className="w-7 h-7"
+          className="h-7 w-7"
           fill="currentColor"
           viewBox="0 0 496 512"
           xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +73,7 @@ export default async function Footer() {
       value: t('contactInfo.emailValue'),
       icon: (
         <svg
-          className="w-5 h-5 text-gray-400 flex-shrink-0"
+          className="h-5 w-5 flex-shrink-0 text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -92,7 +93,7 @@ export default async function Footer() {
       value: t('contactInfo.phoneValue'),
       icon: (
         <svg
-          className="w-5 h-5 text-gray-400 flex-shrink-0"
+          className="h-5 w-5 flex-shrink-0 text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -109,18 +110,20 @@ export default async function Footer() {
     },
     {
       label: t('address'),
-      value: t('contactInfo.addressValue').split('\n').map((line, i, arr) => (
-        <span key={i}>
-          {line}
-          {i < arr.length - 1 && <br />}
-        </span>
-      )),
-      icon: <MapPinIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />,
+      value: t('contactInfo.addressValue')
+        .split('\n')
+        .map((line, i, arr) => (
+          <span key={i}>
+            {line}
+            {i < arr.length - 1 && <br />}
+          </span>
+        )),
+      icon: <MapPinIcon className="h-5 w-5 flex-shrink-0 text-gray-400" />,
     },
   ]
 
   return (
-    <footer className="relative bg-white border-t border-gray-200 overflow-hidden">
+    <footer className="relative overflow-hidden border-t border-gray-200 bg-white">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         {/* Desktop background image */}
@@ -129,7 +132,7 @@ export default async function Footer() {
           alt=""
           fill
           sizes="100vw"
-          className="hidden md:block object-cover object-right"
+          className="hidden object-cover object-right md:block"
           quality={85}
           priority={false}
         />
@@ -140,7 +143,7 @@ export default async function Footer() {
           alt=""
           fill
           sizes="100vw"
-          className="md:hidden object-cover object-right"
+          className="object-cover object-right md:hidden"
           quality={85}
           priority={false}
         />
@@ -150,23 +153,23 @@ export default async function Footer() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 md:pb-16">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-6 md:flex-row md:gap-8 md:pb-16">
           {/* Left: Social Media Icons */}
           <div className="flex-shrink-0">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 font-display">
+            <h3 className="mb-6 font-display text-lg font-semibold text-gray-900">
               {t('followUs')}
             </h3>
 
             {/* 2x2 Grid - Equal height and width */}
-            <div className="grid grid-cols-2 gap-3 w-fit">
+            <div className="grid w-fit grid-cols-2 gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center w-20 h-20 bg-gray-50/90 backdrop-blur-sm rounded-lg text-gray-600 hover:bg-ukraine-blue-50 hover:text-ukraine-blue-500 transition-all duration-200 hover:scale-110 hover:shadow-lg border border-gray-100/50 hover:border-ukraine-blue-200"
+                  className="flex h-20 w-20 items-center justify-center rounded-lg border border-gray-100/50 bg-gray-50/90 text-gray-600 backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:border-ukraine-blue-200 hover:bg-ukraine-blue-50 hover:text-ukraine-blue-500 hover:shadow-lg"
                   aria-label={social.name}
                 >
                   {social.icon}
@@ -176,27 +179,27 @@ export default async function Footer() {
           </div>
 
           {/* Middle: Contact Information */}
-          <div className="flex-shrink-0 max-w-xs">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 font-display">
+          <div className="max-w-xs flex-shrink-0">
+            <h3 className="mb-6 font-display text-lg font-semibold text-gray-900">
               {t('contactUs')}
             </h3>
             <div className="space-y-4">
               {contactInfo.map((info, index) => (
                 <div key={index} className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 mt-0.5">{info.icon}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">
+                  <div className="mt-0.5 flex-shrink-0">{info.icon}</div>
+                  <div className="min-w-0 flex-1">
+                    <p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-gray-500">
                       {info.label}
                     </p>
                     {info.href ? (
                       <a
                         href={info.href}
-                        className="text-sm text-gray-900 hover:text-ukraine-blue-500 transition-colors break-words"
+                        className="break-words text-sm text-gray-900 transition-colors hover:text-ukraine-blue-500"
                       >
                         {info.value}
                       </a>
                     ) : (
-                      <p className="text-sm text-gray-900 break-words leading-relaxed">
+                      <p className="break-words text-sm leading-relaxed text-gray-900">
                         {info.value}
                       </p>
                     )}
@@ -208,19 +211,19 @@ export default async function Footer() {
 
           {/* Right: Policies */}
           <div className="flex-shrink-0">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 font-display">
+            <h3 className="mb-6 font-display text-lg font-semibold text-gray-900">
               {t('policies')}
             </h3>
             <div className="space-y-3">
               <Link
                 href="/privacy-policy"
-                className="block text-sm text-gray-700 hover:text-ukraine-blue-500 transition-colors hover:underline underline-offset-2"
+                className="block text-sm text-gray-700 underline-offset-2 transition-colors hover:text-ukraine-blue-500 hover:underline"
               >
                 {t('privacyPolicy')}
               </Link>
               <Link
                 href="/public-agreement"
-                className="block text-sm text-gray-700 hover:text-ukraine-blue-500 transition-colors hover:underline underline-offset-2"
+                className="block text-sm text-gray-700 underline-offset-2 transition-colors hover:text-ukraine-blue-500 hover:underline"
               >
                 {t('publicAgreement')}
               </Link>
@@ -229,7 +232,7 @@ export default async function Footer() {
         </div>
 
         {/* Copyright - Bottom on mobile, bottom-left on desktop */}
-        <div className="text-sm text-gray-600 mt-8 md:mt-0 md:absolute md:bottom-12 md:left-4 lg:left-8">
+        <div className="mt-8 text-sm text-gray-600 md:absolute md:bottom-12 md:left-4 md:mt-0 lg:left-8">
           <p>{t('copyrightLine1', { year: new Date().getFullYear() })}</p>
           <p>{t('copyrightLine2')}</p>
         </div>

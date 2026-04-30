@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import JSZip from 'jszip'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
-import { XIcon, ImageIcon, Loader2Icon, DownloadIcon, PlayCircleIcon } from '@/components/icons'
+import { useEffect, useMemo, useState } from 'react'
+
 import { getAllDonationResultFiles } from '@/app/actions/donation-result'
-import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
-import JSZip from 'jszip'
+import { DownloadIcon, ImageIcon, Loader2Icon, PlayCircleIcon, XIcon } from '@/components/icons'
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { clientLogger } from '@/lib/logger-client'
 
 // P2 优化: 动态加载灯箱组件
@@ -30,7 +31,7 @@ interface DonationFile {
 
 export default function DonationResultViewer({
   donationPublicId,
-  onClose
+  onClose,
 }: DonationResultViewerProps) {
   const t = useTranslations('donationResult')
   const [files, setFiles] = useState<DonationFile[]>([])
@@ -107,7 +108,10 @@ export default function DonationResultViewer({
           const blob = await response.blob()
           zip.file(file.name, blob)
         } catch (err) {
-          clientLogger.error('DOWNLOAD', `Failed to download file`, { fileName: file.name, error: err instanceof Error ? err.message : String(err) })
+          clientLogger.error('DOWNLOAD', `Failed to download file`, {
+            fileName: file.name,
+            error: err instanceof Error ? err.message : String(err),
+          })
         }
       }
 
@@ -121,7 +125,10 @@ export default function DonationResultViewer({
       document.body.removeChild(link)
       URL.revokeObjectURL(link.href)
     } catch (err) {
-      clientLogger.error('DOWNLOAD', 'Failed to download zip', { donationPublicId, error: err instanceof Error ? err.message : String(err) })
+      clientLogger.error('DOWNLOAD', 'Failed to download zip', {
+        donationPublicId,
+        error: err instanceof Error ? err.message : String(err),
+      })
       alert(t('errors.downloadFailed'))
     } finally {
       setDownloading(false)
@@ -139,47 +146,48 @@ export default function DonationResultViewer({
     <>
       {/* Main Modal */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4"
         onClick={onClose}
       >
         <div
-          className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200"
+          className="animate-in fade-in zoom-in max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between border-b border-gray-200 p-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 font-display">
-                {t('title')}
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                {t('donationId')}: <code className="font-data bg-gray-100 px-2 py-1 rounded text-gray-800">{donationPublicId}</code>
+              <h2 className="font-display text-2xl font-bold text-gray-900">{t('title')}</h2>
+              <p className="mt-1 text-sm text-gray-600">
+                {t('donationId')}:{' '}
+                <code className="rounded bg-gray-100 px-2 py-1 font-data text-gray-800">
+                  {donationPublicId}
+                </code>
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="rounded-full p-2 transition-colors hover:bg-gray-100"
               aria-label={t('close')}
             >
-              <XIcon className="w-6 h-6 text-gray-600" />
+              <XIcon className="h-6 w-6 text-gray-600" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          <div className="max-h-[calc(90vh-140px)] overflow-y-auto p-6">
             {loading && (
               <div className="flex flex-col items-center justify-center py-20">
-                <Loader2Icon className="w-12 h-12 text-ukraine-blue-500 animate-spin mb-4" />
+                <Loader2Icon className="mb-4 h-12 w-12 animate-spin text-ukraine-blue-500" />
                 <p className="text-gray-600">{t('loading')}</p>
               </div>
             )}
 
             {error && (
               <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-16 h-16 rounded-full bg-warm-100 flex items-center justify-center mb-4">
-                  <ImageIcon className="w-8 h-8 text-warm-600" />
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warm-100">
+                  <ImageIcon className="h-8 w-8 text-warm-600" />
                 </div>
-                <p className="text-warm-600 font-medium mb-2">{error}</p>
+                <p className="mb-2 font-medium text-warm-600">{error}</p>
                 <p className="text-sm text-gray-600">{t('contactSupport')}</p>
               </div>
             )}
@@ -187,59 +195,62 @@ export default function DonationResultViewer({
             {!loading && !error && files.length > 0 && (
               <div className="space-y-4">
                 {/* Thumbnail Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                   {files.map((file, index) => (
                     <button
                       key={index}
                       onClick={() => openLightbox(index)}
-                      className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 hover:ring-2 hover:ring-ukraine-blue-500 transition-all group"
+                      className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100 transition-all hover:ring-2 hover:ring-ukraine-blue-500"
                     >
                       {file.isImage && (
                         <>
                           {/* 优先使用缩略图 */}
                           {file.thumbnailUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element -- Cloudinary 缩略图任意尺寸，aspect-square 容器内已 contain
                             <img
                               src={file.thumbnailUrl}
                               alt={t('resultThumbnailAlt', { index: index + 1 })}
-                              className="w-full h-full object-cover"
+                              className="h-full w-full object-cover"
                               loading="lazy"
                             />
                           ) : (
                             // 如果没有缩略图，显示占位符 + 图标
-                            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            <div className="flex h-full w-full items-center justify-center bg-gray-200">
+                              <ImageIcon className="h-12 w-12 text-gray-400" />
                             </div>
                           )}
                         </>
                       )}
                       {file.isVideo && (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-900">
-                          <PlayCircleIcon className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <div className="flex h-full w-full items-center justify-center bg-gray-900">
+                          <PlayCircleIcon className="h-16 w-16 text-white opacity-80 transition-opacity group-hover:opacity-100" />
                         </div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2">
-                        <p className="text-white text-xs truncate">{file.name}</p>
+                        <p className="truncate text-xs text-white">{file.name}</p>
                       </div>
                     </button>
                   ))}
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 justify-end pt-4 border-t">
+                <div className="flex justify-end gap-3 border-t pt-4">
                   <button
                     onClick={handleDownloadAll}
                     disabled={downloading}
-                    className="flex items-center gap-2 px-4 py-2 bg-ukraine-blue-500 text-white rounded-lg hover:bg-ukraine-blue-600 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 rounded-lg bg-ukraine-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-ukraine-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {downloading ? (
                       <>
-                        <Loader2Icon className="w-4 h-4 animate-spin" />
+                        <Loader2Icon className="h-4 w-4 animate-spin" />
                         {t('downloading')}
                       </>
                     ) : (
                       <>
-                        <DownloadIcon className="w-4 h-4" />
-                        {files.length === 1 ? t('download') : `${t('downloadAll')} (${files.length})`}
+                        <DownloadIcon className="h-4 w-4" />
+                        {files.length === 1
+                          ? t('download')
+                          : `${t('downloadAll')} (${files.length})`}
                       </>
                     )}
                   </button>

@@ -1,6 +1,7 @@
 import { createServerClient as createSSRClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+
 import type { Database } from '@/types/database'
 
 export const createServerClient = async () => {
@@ -74,8 +75,8 @@ export const createServiceClient = () => {
         headers: {
           // Disable caching by adding cache-control header
           'cache-control': 'no-cache, no-store, must-revalidate',
-          'pragma': 'no-cache',
-          'expires': '0',
+          pragma: 'no-cache',
+          expires: '0',
         },
       },
     }

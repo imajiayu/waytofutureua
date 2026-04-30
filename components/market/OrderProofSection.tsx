@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { useEffect, useState } from 'react'
+
 import { getOrderProofFiles } from '@/app/actions/market-order-files'
-import type { MarketOrderFile, MarketOrderFileCategory } from '@/types/market'
 import ImageLightbox, { type LightboxImage } from '@/components/common/ImageLightbox'
+import type { MarketOrderFile, MarketOrderFileCategory } from '@/types/market'
 
 interface Props {
   orderId: number
@@ -34,7 +35,7 @@ export default function OrderProofSection({ orderId, status }: Props) {
   if (loading) return null
   if (files.length === 0) return null
 
-  const lightboxImages: LightboxImage[] = files.map(f => ({
+  const lightboxImages: LightboxImage[] = files.map((f) => ({
     url: f.publicUrl,
     caption: f.category === 'shipping' ? t('shippingProof') : t('completionProof'),
     alt: f.name,
@@ -43,22 +44,20 @@ export default function OrderProofSection({ orderId, status }: Props) {
   }))
 
   // Group by category
-  const grouped = CATEGORY_ORDER
-    .map(cat => ({
-      category: cat,
-      label: cat === 'shipping' ? t('shippingProof') : t('completionProof'),
-      items: files.filter(f => f.category === cat),
-    }))
-    .filter(g => g.items.length > 0)
+  const grouped = CATEGORY_ORDER.map((cat) => ({
+    category: cat,
+    label: cat === 'shipping' ? t('shippingProof') : t('completionProof'),
+    items: files.filter((f) => f.category === cat),
+  })).filter((g) => g.items.length > 0)
 
   return (
     <div className="mt-3">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="inline-flex items-center gap-1.5 text-sm text-ukraine-blue-600 hover:text-ukraine-blue-800 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-ukraine-blue-600 transition-colors hover:text-ukraine-blue-800"
       >
         <svg
-          className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`}
+          className={`h-3.5 w-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
@@ -70,11 +69,11 @@ export default function OrderProofSection({ orderId, status }: Props) {
       </button>
 
       {expanded && (
-        <div className="mt-2 space-y-3 mkt-fade-in">
-          {grouped.map(group => (
+        <div className="mkt-fade-in mt-2 space-y-3">
+          {grouped.map((group) => (
             <div key={group.category}>
-              <p className="text-xs font-medium text-gray-500 mb-1.5">{group.label}</p>
-              <div className="flex gap-2 flex-wrap">
+              <p className="mb-1.5 text-xs font-medium text-gray-500">{group.label}</p>
+              <div className="flex flex-wrap gap-2">
                 {group.items.map((file) => {
                   const globalIndex = files.indexOf(file)
                   const isImage = file.contentType.startsWith('image/')
@@ -83,19 +82,24 @@ export default function OrderProofSection({ orderId, status }: Props) {
                     <button
                       key={file.path}
                       onClick={() => setLightboxIndex(globalIndex)}
-                      className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 hover:border-ukraine-blue-400 transition-colors flex-shrink-0"
+                      className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-ukraine-blue-400"
                     >
                       {isImage && (
+                        // eslint-disable-next-line @next/next/no-img-element -- 凭证缩略图，固定 80×80 容器中已 cover
                         <img
                           src={file.publicUrl}
                           alt={file.name}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                           loading="lazy"
                         />
                       )}
                       {isVideo && (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                          <svg
+                            className="h-6 w-6 text-gray-400"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path d="M8 5v14l11-7z" />
                           </svg>
                         </div>

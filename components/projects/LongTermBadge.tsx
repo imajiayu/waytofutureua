@@ -12,7 +12,7 @@ export default function LongTermBadge() {
   const t = useTranslations('projects')
 
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-ukraine-blue-100 text-ukraine-blue-800 border-ukraine-blue-200">
+    <span className="inline-flex items-center rounded-full border border-ukraine-blue-200 bg-ukraine-blue-100 px-2.5 py-0.5 text-xs font-medium text-ukraine-blue-800">
       {t('longTerm')}
     </span>
   )

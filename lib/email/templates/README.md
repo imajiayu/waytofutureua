@@ -45,6 +45,7 @@ lib/email/templates/
 ### 1. 事务性邮件（Transactional Emails）
 
 **特点**:
+
 - 系统自动触发（支付、捐赠送达、退款）
 - 内容根据数据自动填充
 - 使用 React Email 组件（TypeScript）
@@ -52,11 +53,11 @@ lib/email/templates/
 
 **现有模板**:
 
-| 模板 | 触发时机 | 用途 |
-|------|---------|------|
-| `payment-success` | WayForPay 支付成功回调 | 确认用户捐赠并提供订单信息 |
-| `donation-completed` | 管理员标记配送完成 | 通知用户捐赠已送达受助者 |
-| `refund-success` | WayForPay 退款成功回调 | 确认退款已处理 |
+| 模板                 | 触发时机               | 用途                       |
+| -------------------- | ---------------------- | -------------------------- |
+| `payment-success`    | WayForPay 支付成功回调 | 确认用户捐赠并提供订单信息 |
+| `donation-completed` | 管理员标记配送完成     | 通知用户捐赠已送达受助者   |
+| `refund-success`     | WayForPay 退款成功回调 | 确认退款已处理             |
 
 **使用示例**:
 
@@ -77,6 +78,7 @@ await sendPaymentSuccessEmail({
 ### 2. 群发邮件（Broadcast Emails）
 
 **特点**:
+
 - 管理员手动触发
 - 每个模板是一个独立的文件夹
 - 支持模板变量替换（如 `{{donate_url}}`）
@@ -103,9 +105,10 @@ content/
 import { EmailTemplate } from '../../index'
 
 const template: EmailTemplate = {
-  name: 'New Project Announcement',      // 显示名称
-  fileName: 'new-project',                // 文件夹名（唯一标识）
-  subject: {                              // 邮件主题（多语言）
+  name: 'New Project Announcement', // 显示名称
+  fileName: 'new-project', // 文件夹名（唯一标识）
+  subject: {
+    // 邮件主题（多语言）
     en: 'New Project Available',
     zh: '新项目上线',
     ua: 'Новий проект доступний',
@@ -123,11 +126,11 @@ export default template
 
 **可用变量**:
 
-| 变量 | 说明 | 示例 |
-|------|------|------|
-| `{{donate_url}}` | 捐赠页面链接 | `https://example.com/en/donate` |
+| 变量                  | 说明                 | 示例                                            |
+| --------------------- | -------------------- | ----------------------------------------------- |
+| `{{donate_url}}`      | 捐赠页面链接         | `https://example.com/en/donate`                 |
 | `{{unsubscribe_url}}` | 取消订阅链接（唯一） | `https://example.com/api/unsubscribe?email=...` |
-| `{{app_url}}` | 应用主页链接 | `https://example.com` |
+| `{{app_url}}`         | 应用主页链接         | `https://example.com`                           |
 
 ---
 

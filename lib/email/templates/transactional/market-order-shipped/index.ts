@@ -6,16 +6,16 @@
  * custom amount card) and shipping proof images matching donation-completed style.
  */
 
-import { MarketOrderShippedEmailParams, EmailContent } from '../../../types'
-import { getLocalizedText, formatCurrency, getMarketOrdersUrl, escapeHtml } from '../../../utils'
-import { createEmailLayout } from '../../base/layout'
+import { EmailContent, MarketOrderShippedEmailParams } from '../../../types'
+import { escapeHtml, formatCurrency, getLocalizedText, getMarketOrdersUrl } from '../../../utils'
 import {
+  createButton,
   createDetailBox,
   createDetailRow,
   createImage,
-  createButton,
-  createSignature
+  createSignature,
 } from '../../base/components'
+import { createEmailLayout } from '../../base/layout'
 import { marketOrderShippedContent } from './content'
 
 /**
@@ -31,14 +31,18 @@ function createTrackingCard(
     <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, rgba(7,108,179,0.25) 0%, rgba(6,90,150,0.12) 100%); border: 2px solid rgba(7,108,179,0.5); border-radius: 16px; margin: 20px 0;">
       <tr>
         <td style="padding: 20px;">
-          ${trackingCarrier ? `
+          ${
+            trackingCarrier
+              ? `
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 10px;">
             <tr>
               <td style="color: rgba(255,255,255,0.6); font-size: 13px;">${labels.carrierLabel}</td>
               <td align="right" style="color: #ffffff; font-size: 14px; font-weight: 600;">${trackingCarrier}</td>
             </tr>
           </table>
-          ` : ''}
+          `
+              : ''
+          }
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td style="color: rgba(255,255,255,0.6); font-size: 13px;">${labels.trackingNumberLabel}</td>
@@ -56,7 +60,9 @@ function createTrackingCard(
 /**
  * Generate market order shipped email content
  */
-export function generateMarketOrderShippedEmail(params: MarketOrderShippedEmailParams): EmailContent {
+export function generateMarketOrderShippedEmail(
+  params: MarketOrderShippedEmailParams
+): EmailContent {
   const {
     locale,
     shippingName,
@@ -69,7 +75,7 @@ export function generateMarketOrderShippedEmail(params: MarketOrderShippedEmailP
     shippingCountry,
     trackingNumber,
     trackingCarrier,
-    proofImageUrls
+    proofImageUrls,
   } = params
 
   const t = marketOrderShippedContent[locale]
@@ -79,7 +85,7 @@ export function generateMarketOrderShippedEmail(params: MarketOrderShippedEmailP
   const badgeText = {
     en: 'Order Shipped',
     zh: '已发货',
-    ua: 'Відправлено'
+    ua: 'Відправлено',
   }[locale]
 
   // Shipped notice — custom gold-accented announcement (like payment-success thankYou)
@@ -94,17 +100,20 @@ export function generateMarketOrderShippedEmail(params: MarketOrderShippedEmailP
   `
 
   // Proof images — matches donation-completed image section pattern exactly
-  const proofImagesHTML = proofImageUrls.length > 0 ? `
+  const proofImagesHTML =
+    proofImageUrls.length > 0
+      ? `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 28px 0;">
       <tr>
         <td>
           <p style="color: #F5B800; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; font-weight: 600; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 1px;">${t.shippingProofTitle}</p>
           <p style="color: rgba(255,255,255,0.75); font-size: 15px; margin: 0 0 16px;">${t.shippingProofDescription}</p>
-          ${proofImageUrls.map(url => createImage(url, 'Shipping proof')).join('')}
+          ${proofImageUrls.map((url) => createImage(url, 'Shipping proof')).join('')}
         </td>
       </tr>
     </table>
-  ` : ''
+  `
+      : ''
 
   const contentHTML = `
     <p style="color: rgba(255,255,255,0.9); font-size: 16px; line-height: 1.7; margin: 0 0 20px;">
@@ -162,7 +171,7 @@ export function generateMarketOrderShippedEmail(params: MarketOrderShippedEmailP
     title: t.title,
     content: contentHTML,
     locale,
-    badge: badgeText
+    badge: badgeText,
   })
 
   const text = `
@@ -193,6 +202,6 @@ ${t.contact}
   return {
     subject: t.subject(orderReference),
     html,
-    text
+    text,
   }
 }

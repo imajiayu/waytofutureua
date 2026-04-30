@@ -2,6 +2,7 @@
 
 > **范围**：本文档只覆盖**性能 + 代码规范**优化，**不涉及支付流程**。
 > 明确排除的文件/模块：
+>
 > - `components/donate-form/DonationFormCard.tsx`（包含支付入口逻辑）
 > - `components/donate-form/widgets/*`（WayForPay / NowPayments widget）
 > - `lib/wayforpay/`、`lib/payment/`、`lib/market/wayforpay.ts`
@@ -16,11 +17,11 @@
 
 ## 总览 · 按优先级
 
-| 优先级 | 说明 | 任务数 |
-|-------|------|--------|
-| **P0** 必做 | 工程化基础 + 高价值性能修复 + 严重规范问题 | 8 |
-| **P1** 应做 | 代码重复收敛、设计系统初建、中度性能修复 | 11 |
-| **P2** 有余力做 | 架构进化、清理、严格度提升 | 9 |
+| 优先级          | 说明                                       | 任务数 |
+| --------------- | ------------------------------------------ | ------ |
+| **P0** 必做     | 工程化基础 + 高价值性能修复 + 严重规范问题 | 8      |
+| **P1** 应做     | 代码重复收敛、设计系统初建、中度性能修复   | 11     |
+| **P2** 有余力做 | 架构进化、清理、严格度提升                 | 9      |
 
 ---
 
@@ -80,7 +81,7 @@
 - **动作**：定义 `as const` 元组
   ```ts
   const APPROACH_KEYS = ['transparent', 'efficient', 'direct'] as const
-  type ApproachKey = typeof APPROACH_KEYS[number]
+  type ApproachKey = (typeof APPROACH_KEYS)[number]
   ```
   再用模板串引用 `t(\`approach.${k}.title\`)`，消除 `as any`
 - **验收**：这三个文件里 0 处 `as any`
@@ -98,7 +99,10 @@
 - **问题**：6 个 `Project{N}DetailContent` 全部静态 import，但单次渲染只会用 1 个
 - **动作**：
   ```ts
-  const Project0DetailContent = dynamic(() => import('@/components/projects/detail-pages/Project0'), { ssr: true })
+  const Project0DetailContent = dynamic(
+    () => import('@/components/projects/detail-pages/Project0'),
+    { ssr: true }
+  )
   // 其余类推
   ```
 - **验收**：每个 project detail 打进独立 chunk，donate 页初始 bundle 减小
@@ -214,7 +218,7 @@
 - **动作**：用类型守卫
   ```ts
   const VALID_LOCALES = ['en', 'zh', 'ua'] as const
-  type Locale = typeof VALID_LOCALES[number]
+  type Locale = (typeof VALID_LOCALES)[number]
   const isLocale = (x: unknown): x is Locale => VALID_LOCALES.includes(x as Locale)
   ```
 - **验收**：该文件非支付段落 0 处 `as any`
@@ -301,7 +305,7 @@
 
 ## 变更记录
 
-| 日期 | 任务 ID | 执行人 | 备注 |
-|------|---------|--------|------|
-| 2026-04-21 | — | Claude | 初版文档创建 |
-| | | | |
+| 日期       | 任务 ID | 执行人 | 备注         |
+| ---------- | ------- | ------ | ------------ |
+| 2026-04-21 | —       | Claude | 初版文档创建 |
+|            |         |        |              |

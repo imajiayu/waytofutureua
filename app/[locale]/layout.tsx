@@ -1,15 +1,17 @@
+import '../globals.css'
+
+import { Analytics } from '@vercel/analytics/react'
 import type { Metadata, Viewport } from 'next'
-import { Fraunces, Source_Sans_3, JetBrains_Mono } from 'next/font/google'
+import { Fraunces, JetBrains_Mono, Source_Sans_3 } from 'next/font/google'
+import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations } from 'next-intl/server'
-import { notFound } from 'next/navigation'
-import { Analytics } from '@vercel/analytics/react'
+
+import Footer from '@/components/layout/Footer'
+import Navigation from '@/components/layout/Navigation'
+import JsonLd from '@/components/seo/JsonLd'
 import { locales } from '@/i18n/config'
 import { BASE_URL } from '@/lib/constants'
-import Navigation from '@/components/layout/Navigation'
-import Footer from '@/components/layout/Footer'
-import JsonLd from '@/components/seo/JsonLd'
-import '../globals.css'
 
 // 标题字体 - Fraunces 可变字体 (温暖有机的衬线字体)
 const fraunces = Fraunces({
@@ -43,16 +45,12 @@ const localeToOgLocale: Record<string, string> = {
   ua: 'uk_UA',
 }
 
-export async function generateMetadata(
-  props: {
-    params: Promise<{ locale: string }>
-  }
-): Promise<Metadata> {
-  const params = await props.params;
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const params = await props.params
 
-  const {
-    locale
-  } = params;
+  const { locale } = params
 
   const t = await getTranslations({ locale, namespace: 'metadata' })
   const tCommon = await getTranslations({ locale, namespace: 'common' })
@@ -72,9 +70,7 @@ export async function generateMetadata(
         { url: '/favicon-128.webp', sizes: '128x128', type: 'image/webp' },
         { url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' },
       ],
-      apple: [
-        { url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' },
-      ],
+      apple: [{ url: '/favicon-512.webp', sizes: '512x512', type: 'image/webp' }],
     },
     openGraph: {
       siteName: title,
@@ -99,21 +95,15 @@ export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
-export default async function RootLayout(
-  props: {
-    children: React.ReactNode
-    params: Promise<{ locale: string }>
-  }
-) {
-  const params = await props.params;
+export default async function RootLayout(props: {
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}) {
+  const params = await props.params
 
-  const {
-    locale
-  } = params;
+  const { locale } = params
 
-  const {
-    children
-  } = props;
+  const { children } = props
 
   // Validate locale
   if (!locales.includes(locale as any)) {
@@ -125,13 +115,13 @@ export default async function RootLayout(
 
   return (
     <html lang={localeToHtmlLang[locale] || locale}>
-      <body className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} font-body antialiased`}>
+      <body
+        className={`${fraunces.variable} ${sourceSans.variable} ${jetbrainsMono.variable} font-body antialiased`}
+      >
         <JsonLd locale={locale} />
         <NextIntlClientProvider messages={messages}>
           <Navigation />
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <main className="min-h-screen">{children}</main>
           <Footer />
         </NextIntlClientProvider>
         <Analytics />

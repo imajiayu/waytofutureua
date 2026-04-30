@@ -1,7 +1,9 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+
 import { GiftIcon } from '@/components/icons'
+
 import { GiftListAccordion } from '../components'
 import type { SectionProps } from '../types'
 
@@ -23,15 +25,15 @@ export default function GiftsListSection({
 
   return (
     <section>
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-christmas-gold to-amber-500 flex items-center justify-center shadow-md">
-          <GiftIcon className="w-4 h-4 text-white" />
+      <div className="mb-3 flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-christmas-gold to-amber-500 shadow-md">
+          <GiftIcon className="h-4 w-4 text-white" />
         </div>
         <div>
-          <h2 className="font-display text-base md:text-lg font-bold text-gray-900">
+          <h2 className="font-display text-base font-bold text-gray-900 md:text-lg">
             {t('project3.childrenWishes')}
           </h2>
-          <p className="text-[10px] md:text-xs text-gray-500">{t('project3.childrenWishesDesc')}</p>
+          <p className="text-[10px] text-gray-500 md:text-xs">{t('project3.childrenWishesDesc')}</p>
         </div>
       </div>
       <div className="space-y-2">

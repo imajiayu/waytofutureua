@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+
 import { logger } from '@/lib/logger'
 
 if (!process.env.WAYFORPAY_MERCHANT_ACCOUNT) {
@@ -183,7 +184,7 @@ export const WAYFORPAY_STATUS = {
   VOIDED: 'Voided', // Asset un-holding completed (pre-auth cancellation)
 } as const
 
-export type WayForPayStatus = typeof WAYFORPAY_STATUS[keyof typeof WAYFORPAY_STATUS]
+export type WayForPayStatus = (typeof WAYFORPAY_STATUS)[keyof typeof WAYFORPAY_STATUS]
 
 /**
  * Generate WayForPay webhook response signature
@@ -242,12 +243,7 @@ export function createWayForPayRefund({
 }): WayForPayRefundParams {
   // Generate signature
   // Order: merchantAccount;orderReference;amount;currency
-  const signatureValues = [
-    WAYFORPAY_MERCHANT_ACCOUNT,
-    orderReference,
-    amount,
-    currency,
-  ]
+  const signatureValues = [WAYFORPAY_MERCHANT_ACCOUNT, orderReference, amount, currency]
 
   const merchantSignature = generateSignature(signatureValues)
 
@@ -336,7 +332,7 @@ export async function processWayForPayRefund({
     throw new Error(`WayForPay API error: ${response.status} ${response.statusText}`)
   }
 
-  const data = await response.json() as WayForPayRefundResponse
+  const data = (await response.json()) as WayForPayRefundResponse
 
   // Log response (hide signature for security)
   logger.info('PAYMENT:WAYFORPAY', 'Refund API response', {

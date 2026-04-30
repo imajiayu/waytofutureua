@@ -1,36 +1,40 @@
 'use client'
 
-import { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { FadeInSection, SectionNav } from '@/components/projects/shared'
-import UnifiedResultsSection from '@/components/projects/shared/UnifiedResultsSection'
-import type { ResultImage } from '@/components/projects/shared/UnifiedResultsSection'
-import { useActiveSection } from '@/lib/hooks/useActiveSection'
-import { CheckCircle2Icon } from '@/components/icons'
-import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useTranslations } from 'next-intl'
-import { useProjectContents } from '@/lib/hooks/useProjectContent'
-import { useLightbox } from '@/lib/hooks/useLightbox'
+import { useMemo } from 'react'
+
 import type { LightboxImage } from '@/components/common/ImageLightbox'
-import type { Project4Content, Project4DetailContentProps, AidListData } from './types'
+import { CheckCircle2Icon } from '@/components/icons'
+import { FadeInSection, SectionNav } from '@/components/projects/shared'
+import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
+import type { ResultImage } from '@/components/projects/shared/UnifiedResultsSection'
+import UnifiedResultsSection from '@/components/projects/shared/UnifiedResultsSection'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
+import { useLightbox } from '@/lib/hooks/useLightbox'
+import { useProjectContents } from '@/lib/hooks/useProjectContent'
 
 // Sections
 import {
-  HeroSection,
+  AidListSection,
+  FamilyGallerySection,
   FamilySection,
+  HeroSection,
   LivingConditionsSection,
   StorySection,
-  AidListSection,
   WhyGiftsSection,
-  FamilyGallerySection,
 } from './sections'
+import type { AidListData, Project4Content, Project4DetailContentProps } from './types'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project4DetailContent({ project, locale }: Project4DetailContentProps) {
   const t = useTranslations('projects')
-  const { data: [content, aidData], loading } = useProjectContents<[Project4Content, AidListData]>([
+  const {
+    data: [content, aidData],
+    loading,
+  } = useProjectContents<[Project4Content, AidListData]>([
     { url: `/content/projects/project-4-${locale}.json`, projectId: 4 },
     { url: `/content/projects/project-4-aid-${locale}.json`, projectId: 4 },
   ])
@@ -95,19 +99,19 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="relative h-[45vh] min-h-[320px] rounded-xl overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100 animate-pulse">
+        <div className="relative h-[45vh] min-h-[320px] animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-amber-100 to-orange-100">
           <div className="absolute inset-0 flex items-end p-4">
-            <div className="space-y-2 w-full max-w-xl">
-              <div className="h-7 bg-white/30 rounded w-3/4" />
-              <div className="h-4 bg-white/20 rounded w-1/2" />
+            <div className="w-full max-w-xl space-y-2">
+              <div className="h-7 w-3/4 rounded bg-white/30" />
+              <div className="h-4 w-1/2 rounded bg-white/20" />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 space-y-3">
-          <div className="h-4 bg-gray-200 rounded animate-pulse" />
+        <div className="space-y-3 rounded-xl bg-white p-4">
+          <div className="h-4 animate-pulse rounded bg-gray-200" />
           <div className="grid grid-cols-3 gap-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
+              <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-100" />
             ))}
           </div>
         </div>
@@ -117,8 +121,8 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
 
   if (!content) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
-        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
+      <div className="overflow-hidden rounded-2xl bg-white p-8 shadow-sm">
+        <p className="text-center text-gray-600">{t('contentNotAvailable')}</p>
       </div>
     )
   }
@@ -132,34 +136,37 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
       <SectionNav sections={sections} activeSectionId={activeSectionId} />
 
       {/* Main Content */}
-      <article id="p4-introduction" className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 md:p-6 space-y-6 md:space-y-8">
+      <article
+        id="p4-introduction"
+        className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:rounded-3xl"
+      >
+        <div className="space-y-6 p-4 md:space-y-8 md:p-6">
           {/* Introduction with Highlights */}
           {content.introduction && (
             <FadeInSection>
               <section>
                 {/* Highlights - Key Numbers */}
                 {content.highlights && content.highlights.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2 md:gap-3 mb-5">
+                  <div className="mb-5 grid grid-cols-3 gap-2 md:gap-3">
                     {content.highlights.map((h, idx) => (
                       <div
                         key={idx}
-                        className="relative flex flex-col items-center text-center p-2.5 md:p-4 bg-gradient-to-br from-amber-50 via-orange-50/80 to-amber-100/60 rounded-xl border border-amber-200/60 shadow-sm overflow-hidden group"
+                        className="group relative flex flex-col items-center overflow-hidden rounded-xl border border-amber-200/60 bg-gradient-to-br from-amber-50 via-orange-50/80 to-amber-100/60 p-2.5 text-center shadow-sm md:p-4"
                       >
                         {/* Decorative background number */}
-                        <span className="absolute -right-1 -top-2 text-[3rem] md:text-[4.5rem] font-black text-amber-200/40 leading-none select-none pointer-events-none">
+                        <span className="pointer-events-none absolute -right-1 -top-2 select-none text-[3rem] font-black leading-none text-amber-200/40 md:text-[4.5rem]">
                           {h.number}
                         </span>
                         {/* Main number */}
-                        <span className="relative text-2xl md:text-4xl font-black text-amber-600 leading-none mb-1 md:mb-1.5">
+                        <span className="relative mb-1 text-2xl font-black leading-none text-amber-600 md:mb-1.5 md:text-4xl">
                           {h.number}
                         </span>
                         {/* Label */}
-                        <span className="relative text-xs md:text-sm font-semibold text-gray-800 leading-tight">
+                        <span className="relative text-xs font-semibold leading-tight text-gray-800 md:text-sm">
                           {h.label}
                         </span>
                         {/* Detail */}
-                        <span className="relative text-[10px] md:text-xs text-gray-500 leading-snug mt-0.5 text-balance">
+                        <span className="relative mt-0.5 text-balance text-[10px] leading-snug text-gray-500 md:text-xs">
                           {h.detail}
                         </span>
                       </div>
@@ -170,7 +177,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
                 {/* Introduction Text */}
                 <div className="max-w-3xl space-y-3">
                   {content.introduction.map((p, idx) => (
-                    <p key={idx} className="text-sm md:text-base text-gray-700 leading-relaxed">
+                    <p key={idx} className="text-sm leading-relaxed text-gray-700 md:text-base">
                       {p}
                     </p>
                   ))}
@@ -187,7 +194,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
                   {content.images.slice(0, 3).map((img, idx) => (
                     <div
                       key={idx}
-                      className="relative aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
+                      className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl md:rounded-2xl"
                       onClick={() => detailLightbox.open(idx)}
                     >
                       <Image
@@ -197,7 +204,7 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
                         sizes="(max-width: 768px) 33vw, 33vw"
                         className="object-cover transition-all duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
                     </div>
                   ))}
                 </div>
@@ -212,7 +219,10 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
 
           {/* Living Conditions */}
           <FadeInSection delay={200}>
-            <LivingConditionsSection content={content} onImageClick={livingConditionsLightbox.open} />
+            <LivingConditionsSection
+              content={content}
+              onImageClick={livingConditionsLightbox.open}
+            />
           </FadeInSection>
 
           {/* Children's Talents */}
@@ -241,7 +251,9 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
             aidData={aidData}
             locale={locale}
             onReceiptClick={receiptLightbox.open}
-            onReceiptV2Click={(idx) => receiptLightbox.open((aidData.receipts?.images?.length || 0) + idx)}
+            onReceiptV2Click={(idx) =>
+              receiptLightbox.open((aidData.receipts?.images?.length || 0) + idx)
+            }
           />
         </FadeInSection>
       )}
@@ -256,14 +268,16 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
         <FadeInSection id="p4-donation-results">
           <UnifiedResultsSection
             title={content.donationResults.title}
-            icon={<CheckCircle2Icon className="w-5 h-5 text-white/90" />}
+            icon={<CheckCircle2Icon className="h-5 w-5 text-white/90" />}
             gradient="from-amber-500 to-orange-500"
-            images={content.donationResults.items.map((item): ResultImage => ({
-              imageUrl: item.image,
-              orientation: item.orientation,
-              aspectRatio: item.aspectRatio,
-              priority: item.priority,
-            }))}
+            images={content.donationResults.items.map(
+              (item): ResultImage => ({
+                imageUrl: item.image,
+                orientation: item.orientation,
+                aspectRatio: item.aspectRatio,
+                priority: item.priority,
+              })
+            )}
             getAltText={(i) => t('project4.donationResultAlt', { index: i + 1 })}
           />
         </FadeInSection>

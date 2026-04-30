@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import type { Database } from '@/types/database'
-import ProjectEditModal from './ProjectEditModal'
-import ProjectCreateModal from './ProjectCreateModal'
+
 import ProjectStatusBadge from '@/components/projects/ProjectStatusBadge'
+import type { Database } from '@/types/database'
+
+import ProjectCreateModal from './ProjectCreateModal'
+import ProjectEditModal from './ProjectEditModal'
 
 type Project = Database['public']['Tables']['projects']['Row']
 
@@ -36,40 +38,40 @@ export default function ProjectsTable({ initialProjects }: Props) {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg">
+    <div className="rounded-lg bg-white shadow">
       <div className="px-4 py-5 sm:p-6">
         <div className="mb-4">
           <button
             onClick={handleCreateNew}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Create New Project
           </button>
         </div>
 
         {/* Mobile card view */}
-        <div className="sm:hidden space-y-3">
+        <div className="space-y-3 sm:hidden">
           {projects.map((project) => (
             <div
               key={project.id}
-              className="bg-white border border-gray-200 rounded-lg p-3 active:bg-gray-50"
+              className="rounded-lg border border-gray-200 bg-white p-3 active:bg-gray-50"
               onClick={() => handleEdit(project)}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-sm text-gray-900">{project.project_name}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{project.location}</div>
+                  <div className="text-sm font-medium text-gray-900">{project.project_name}</div>
+                  <div className="mt-0.5 text-xs text-gray-500">{project.location}</div>
                 </div>
                 <ProjectStatusBadge status={project.status || 'active'} />
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {project.aggregate_donations ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
                       Aggregated
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
                       Unit-based
                     </span>
                   )}
@@ -83,67 +85,67 @@ export default function ProjectsTable({ initialProjects }: Props) {
         </div>
 
         {/* Desktop table view */}
-        <div className="hidden sm:block overflow-x-auto">
+        <div className="hidden overflow-x-auto sm:block">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   ID
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   Project Name
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   Location
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   Status
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   Type
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   Progress
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:px-6">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {projects.map((project) => (
                 <tr
                   key={project.id}
-                  className="hover:bg-gray-50 cursor-pointer"
+                  className="cursor-pointer hover:bg-gray-50"
                   onClick={() => handleEdit(project)}
                 >
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 sm:px-6">
                     {project.id}
                   </td>
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 sm:px-6">
                     {project.project_name}
                   </td>
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:px-6">
                     {project.location}
                   </td>
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-3 py-4 sm:px-6">
                     <ProjectStatusBadge status={project.status || 'active'} />
                   </td>
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-3 py-4 sm:px-6">
                     {project.aggregate_donations ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
                         Aggregated
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
                         Unit-based
                       </span>
                     )}
                   </td>
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:px-6">
                     {project.current_units} / {project.target_units || 0}
                   </td>
-                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
+                  <td className="whitespace-nowrap px-3 py-4 text-sm sm:px-6">
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -162,10 +164,7 @@ export default function ProjectsTable({ initialProjects }: Props) {
       </div>
 
       {isCreating && (
-        <ProjectCreateModal
-          onClose={() => setIsCreating(false)}
-          onCreated={handleCreated}
-        />
+        <ProjectCreateModal onClose={() => setIsCreating(false)} onCreated={handleCreated} />
       )}
 
       {editingProject && (

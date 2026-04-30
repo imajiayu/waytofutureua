@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
+import { useState } from 'react'
+
 import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
+import { useRouter } from '@/i18n/navigation'
 
 export default function SuccessActionButtons() {
   const t = useTranslations('donateSuccess')
@@ -24,16 +25,16 @@ export default function SuccessActionButtons() {
     <>
       <GlobalLoadingSpinner isLoading={isNavigating} />
 
-      <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="mt-12 flex flex-col justify-center gap-4 sm:flex-row">
         <button
           onClick={handleTrackDonation}
-          className="group relative inline-flex items-center justify-center px-8 py-4 bg-ukraine-gold-500 text-ukraine-blue-900 rounded-2xl font-semibold shadow-xl hover:shadow-2xl hover:bg-ukraine-gold-600 transition-all duration-300 hover:scale-105 overflow-hidden"
+          className="group relative inline-flex items-center justify-center overflow-hidden rounded-2xl bg-ukraine-gold-500 px-8 py-4 font-semibold text-ukraine-blue-900 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-ukraine-gold-600 hover:shadow-2xl"
         >
           {/* Button Shine Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          <div className="absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
 
           <svg
-            className="w-5 h-5 mr-2 relative z-10"
+            className="relative z-10 mr-2 h-5 w-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -50,9 +51,9 @@ export default function SuccessActionButtons() {
 
         <button
           onClick={handleBackHome}
-          className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-700 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-gray-300 hover:scale-105"
+          className="inline-flex items-center justify-center rounded-2xl border-2 border-gray-200 bg-white px-8 py-4 font-semibold text-gray-700 shadow-lg transition-all duration-300 hover:scale-105 hover:border-gray-300 hover:shadow-xl"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

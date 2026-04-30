@@ -1,18 +1,20 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import type { ProjectStats } from '@/types'
-import { createWayForPayDonation, createNowPaymentsDonation } from '@/app/actions/donation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+import { createNowPaymentsDonation, createWayForPayDonation } from '@/app/actions/donation'
 import { createEmailSubscription } from '@/app/actions/subscription'
-import WayForPayWidget from '@/components/donate-form/widgets/WayForPayWidget'
 import NowPaymentsWidget from '@/components/donate-form/widgets/NowPaymentsWidget'
-import PaymentMethodSelector, { type PaymentMethod } from './PaymentMethodSelector'
-import CryptoSelector from './CryptoSelector'
-import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
-import { getProjectName, getLocation, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
-import { clientLogger } from '@/lib/logger-client'
+import WayForPayWidget from '@/components/donate-form/widgets/WayForPayWidget'
 import { MapPinIcon, SpinnerIcon } from '@/components/icons'
+import { getLocation, getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
+import { clientLogger } from '@/lib/logger-client'
+import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
+import type { ProjectStats } from '@/types'
+
+import CryptoSelector from './CryptoSelector'
+import PaymentMethodSelector, { type PaymentMethod } from './PaymentMethodSelector'
 
 export interface DonorInfo {
   name: string
@@ -34,7 +36,14 @@ interface DonationFormCardProps {
 }
 
 interface PaymentWidgetContainerProps {
-  processingState: 'idle' | 'selecting_method' | 'selecting_crypto' | 'creating' | 'ready' | 'crypto_ready' | 'error'
+  processingState:
+    | 'idle'
+    | 'selecting_method'
+    | 'selecting_crypto'
+    | 'creating'
+    | 'ready'
+    | 'crypto_ready'
+    | 'error'
   paymentParams: any | null
   amount: number
   locale: string
@@ -49,57 +58,57 @@ function PaymentWidgetContainer({
   amount,
   locale,
   error,
-  onBack
+  onBack,
 }: PaymentWidgetContainerProps) {
   const t = useTranslations('donate')
 
   // Creating donation state
   if (processingState === 'creating') {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2 font-display">
+          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">
             {t('processing.title')}
           </h2>
-          <p className="text-sm text-gray-600">
-            {t('processing.wait')}
-          </p>
+          <p className="text-sm text-gray-600">{t('processing.wait')}</p>
         </div>
 
         {/* Amount Display */}
-        <div className="p-4 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 rounded-lg border border-ukraine-blue-200">
+        <div className="rounded-lg border border-ukraine-blue-200 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 p-4">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">
-              {t('processing.donationAmount')}
-            </p>
-            <p className="text-3xl font-bold text-ukraine-blue-500 font-data">
+            <p className="mb-1 text-sm text-gray-600">{t('processing.donationAmount')}</p>
+            <p className="font-data text-3xl font-bold text-ukraine-blue-500">
               ${amount.toFixed(2)} USD
             </p>
           </div>
         </div>
 
         {/* Processing Animation */}
-        <div className="py-8 flex flex-col items-center justify-center space-y-4">
-          <SpinnerIcon className="animate-spin h-16 w-16 text-ukraine-blue-500" />
-          <p className="text-gray-600 font-medium">
-            {t('processing.creatingRecord')}
-          </p>
+        <div className="flex flex-col items-center justify-center space-y-4 py-8">
+          <SpinnerIcon className="h-16 w-16 animate-spin text-ukraine-blue-500" />
+          <p className="font-medium text-gray-600">{t('processing.creatingRecord')}</p>
         </div>
 
         {/* Security Notice */}
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
           <div className="flex gap-3">
-            <svg className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            <svg
+              className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
             </svg>
             <div className="text-sm text-gray-700">
-              <p className="font-medium mb-1">
-                {t('securePayment.title')}
-              </p>
-              <p className="text-gray-600">
-                {t('securePayment.description')}
-              </p>
+              <p className="mb-1 font-medium">{t('securePayment.title')}</p>
+              <p className="text-gray-600">{t('securePayment.description')}</p>
             </div>
           </div>
         </div>
@@ -110,47 +119,51 @@ function PaymentWidgetContainer({
   // Error state
   if (processingState === 'error' || error) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2 font-display">
+          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">
             {t('paymentError.title')}
           </h2>
         </div>
 
         {/* Amount Display */}
-        <div className="p-4 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 rounded-lg border border-ukraine-blue-200">
+        <div className="rounded-lg border border-ukraine-blue-200 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 p-4">
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">
-              {t('processing.donationAmount')}
-            </p>
-            <p className="text-3xl font-bold text-ukraine-blue-500 font-data">
+            <p className="mb-1 text-sm text-gray-600">{t('processing.donationAmount')}</p>
+            <p className="font-data text-3xl font-bold text-ukraine-blue-500">
               ${amount.toFixed(2)} USD
             </p>
           </div>
         </div>
 
         {/* Error Message */}
-        <div className="p-5 bg-warm-50 border-2 border-warm-200 rounded-lg">
-          <div className="flex gap-3 mb-4">
-            <svg className="w-6 h-6 text-warm-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="rounded-lg border-2 border-warm-200 bg-warm-50 p-5">
+          <div className="mb-4 flex gap-3">
+            <svg
+              className="h-6 w-6 flex-shrink-0 text-warm-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <div className="flex-1">
-              <p className="text-base font-bold text-warm-800 mb-2">
+              <p className="mb-2 text-base font-bold text-warm-800">
                 {t('paymentError.unableToProcess')}
               </p>
-              <p className="text-sm text-warm-700 mb-3">{error}</p>
-              <p className="text-xs text-warm-600">
-                {t('paymentError.tryAgainMessage')}
-              </p>
+              <p className="mb-3 text-sm text-warm-700">{error}</p>
+              <p className="text-xs text-warm-600">{t('paymentError.tryAgainMessage')}</p>
             </div>
           </div>
           {/* Network Access Notice */}
-          <div className="pt-3 border-t border-warm-300">
-            <p className="text-sm text-ukraine-gold-700 font-medium">
-              {t('networkNotice')}
-            </p>
+          <div className="border-t border-warm-300 pt-3">
+            <p className="text-sm font-medium text-ukraine-gold-700">{t('networkNotice')}</p>
           </div>
         </div>
 
@@ -158,14 +171,17 @@ function PaymentWidgetContainer({
         <button
           type="button"
           onClick={onBack}
-          className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2 shadow-sm"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-400 hover:bg-gray-50"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
-          <span>
-            {t('paymentError.backToEdit')}
-          </span>
+          <span>{t('paymentError.backToEdit')}</span>
         </button>
       </div>
     )
@@ -208,9 +224,15 @@ export default function DonationFormCard({
   const t = useTranslations('donate')
 
   // Get translated project data
-  const projectName = project ? getProjectName(project.project_name_i18n, project.project_name, locale as SupportedLocale) : ''
-  const location = project ? getLocation(project.location_i18n, project.location, locale as SupportedLocale) : ''
-  const unitName = project ? getUnitName(project.unit_name_i18n, project.unit_name, locale as SupportedLocale) : ''
+  const projectName = project
+    ? getProjectName(project.project_name_i18n, project.project_name, locale as SupportedLocale)
+    : ''
+  const location = project
+    ? getLocation(project.location_i18n, project.location, locale as SupportedLocale)
+    : ''
+  const unitName = project
+    ? getUnitName(project.unit_name_i18n, project.unit_name, locale as SupportedLocale)
+    : ''
 
   // Project-specific fields (reset when project changes)
   const [quantity, setQuantity] = useState(1)
@@ -223,7 +245,15 @@ export default function DonationFormCard({
   const [paymentParams, setPaymentParams] = useState<any | null>(null)
   const [cryptoPaymentData, setCryptoPaymentData] = useState<CreatePaymentResponse | null>(null)
   const [showWidget, setShowWidget] = useState(false)
-  const [processingState, setProcessingState] = useState<'idle' | 'selecting_method' | 'selecting_crypto' | 'creating' | 'ready' | 'crypto_ready' | 'error'>('idle')
+  const [processingState, setProcessingState] = useState<
+    | 'idle'
+    | 'selecting_method'
+    | 'selecting_crypto'
+    | 'creating'
+    | 'ready'
+    | 'crypto_ready'
+    | 'error'
+  >('idle')
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null)
   const [isCryptoLoading, setIsCryptoLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -261,7 +291,9 @@ export default function DonationFormCard({
 
   // Calculate project amount based on project type
   const projectAmount = project
-    ? (isAggregatedProject ? donationAmount : (project.unit_price || 0) * quantity)
+    ? isAggregatedProject
+      ? donationAmount
+      : (project.unit_price || 0) * quantity
     : 0
   const totalAmount = projectAmount + tipAmount
 
@@ -271,7 +303,7 @@ export default function DonationFormCard({
   const tipOptions = [5, 10, 20]
 
   // Validation constants
-  const MAX_QUANTITY = 10  // Maximum units per order
+  const MAX_QUANTITY = 10 // Maximum units per order
   const MAX_AMOUNT = 10000 // Maximum amount per order
 
   // Helper function to scroll to the form/widget area
@@ -291,14 +323,14 @@ export default function DonationFormCard({
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       } else {
         // Desktop: Scroll to show the container in view
         targetElement.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
-          inline: 'nearest'
+          inline: 'nearest',
         })
       }
     })
@@ -317,7 +349,12 @@ export default function DonationFormCard({
   }, [paymentParams, scrollToFormArea])
 
   // Clamp a raw input string to [min, max], round to 1 decimal, fallback if out of range
-  const clampAmount = (raw: string, min: number, max: number, fallback: number): { value: number; wasInvalid: boolean } => {
+  const clampAmount = (
+    raw: string,
+    min: number,
+    max: number,
+    fallback: number
+  ): { value: number; wasInvalid: boolean } => {
     const num = parseFloat(raw)
     const outOfRange = isNaN(num) || num < min || num > max
     const value = isNaN(num) || num < min ? fallback : num > max ? max : Math.round(num * 10) / 10
@@ -328,9 +365,9 @@ export default function DonationFormCard({
   const showFieldError = (
     key: FieldKey,
     message: string,
-    fieldRef?: React.RefObject<HTMLElement | null>,
+    fieldRef?: React.RefObject<HTMLElement | null>
   ) => {
-    setFieldErrors(prev => ({ ...prev, [key]: message }))
+    setFieldErrors((prev) => ({ ...prev, [key]: message }))
     requestAnimationFrame(() => {
       fieldRef?.current?.focus({ preventScroll: true })
       fieldRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -339,7 +376,7 @@ export default function DonationFormCard({
 
   // Clear a specific field error (called on user input to dismiss stale errors)
   const clearFieldError = (key: FieldKey) => {
-    setFieldErrors(prev => {
+    setFieldErrors((prev) => {
       if (!prev[key]) return prev
       const { [key]: _removed, ...rest } = prev
       return rest
@@ -387,7 +424,9 @@ export default function DonationFormCard({
     }
 
     // 4. Total amount limit ($10,000 per transaction)
-    const validatedProjectAmount = isAggregatedProject ? validatedDonationAmount : (project?.unit_price || 0) * quantity
+    const validatedProjectAmount = isAggregatedProject
+      ? validatedDonationAmount
+      : (project?.unit_price || 0) * quantity
     if (validatedProjectAmount + validatedTipAmount > MAX_AMOUNT) {
       showFieldError('total', t('errors.totalLimitExceeded'), totalAmountRef)
       return false
@@ -525,16 +564,22 @@ export default function DonationFormCard({
       // P2 优化: Fire-and-forget 模式 - 邮件订阅不阻塞支付流程
       // 订阅失败不影响支付成功，无需等待
       if (subscribeToNewsletter && donorEmail) {
-        createEmailSubscription(
-          donorEmail.trim(),
-          locale as SupportedLocale
-        ).catch(subscriptionError => {
-          clientLogger.error('FORM:DONATION', 'Failed to create email subscription', { error: subscriptionError instanceof Error ? subscriptionError.message : String(subscriptionError) })
-        })
+        createEmailSubscription(donorEmail.trim(), locale as SupportedLocale).catch(
+          (subscriptionError) => {
+            clientLogger.error('FORM:DONATION', 'Failed to create email subscription', {
+              error:
+                subscriptionError instanceof Error
+                  ? subscriptionError.message
+                  : String(subscriptionError),
+            })
+          }
+        )
       }
     } catch (err) {
       if (activeProjectIdRef.current !== requestProjectId) return
-      clientLogger.error('FORM:DONATION', 'Error creating payment intent', { error: err instanceof Error ? err.message : String(err) })
+      clientLogger.error('FORM:DONATION', 'Error creating payment intent', {
+        error: err instanceof Error ? err.message : String(err),
+      })
       if (err instanceof Error && err.message.includes('email')) {
         setError(t('errors.invalidEmail'))
       } else if (err instanceof Error && err.message.includes('validation')) {
@@ -622,16 +667,22 @@ export default function DonationFormCard({
       // P2 优化: Fire-and-forget 模式 - 邮件订阅不阻塞支付流程
       // 订阅失败不影响支付成功，无需等待
       if (subscribeToNewsletter && donorEmail) {
-        createEmailSubscription(
-          donorEmail.trim(),
-          locale as SupportedLocale
-        ).catch(subscriptionError => {
-          clientLogger.error('FORM:DONATION', 'Failed to create email subscription', { error: subscriptionError instanceof Error ? subscriptionError.message : String(subscriptionError) })
-        })
+        createEmailSubscription(donorEmail.trim(), locale as SupportedLocale).catch(
+          (subscriptionError) => {
+            clientLogger.error('FORM:DONATION', 'Failed to create email subscription', {
+              error:
+                subscriptionError instanceof Error
+                  ? subscriptionError.message
+                  : String(subscriptionError),
+            })
+          }
+        )
       }
     } catch (err) {
       if (activeProjectIdRef.current !== requestProjectId) return
-      clientLogger.error('FORM:DONATION', 'Error creating crypto payment', { error: err instanceof Error ? err.message : String(err) })
+      clientLogger.error('FORM:DONATION', 'Error creating crypto payment', {
+        error: err instanceof Error ? err.message : String(err),
+      })
       if (err instanceof Error && err.message.includes('email')) {
         setError(t('errors.invalidEmail'))
       } else if (err instanceof Error && err.message.includes('validation')) {
@@ -668,7 +719,7 @@ export default function DonationFormCard({
   if (showWidget && project) {
     return (
       <div ref={widgetContainerRef}>
-        <div className="bg-white rounded-xl border-2 border-gray-200 shadow-lg overflow-hidden">
+        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-lg">
           {processingState === 'selecting_method' && (
             <PaymentMethodSelector
               amount={totalAmount}
@@ -692,7 +743,9 @@ export default function DonationFormCard({
               onBack={handleBack}
             />
           )}
-          {(processingState === 'creating' || processingState === 'ready' || processingState === 'error') && (
+          {(processingState === 'creating' ||
+            processingState === 'ready' ||
+            processingState === 'error') && (
             <PaymentWidgetContainer
               processingState={processingState}
               paymentParams={paymentParams}
@@ -711,18 +764,26 @@ export default function DonationFormCard({
   if (!project) {
     return (
       <div>
-        <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-ukraine-blue-100 flex items-center justify-center">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+        <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-ukraine-blue-100">
+            <svg
+              className="h-8 w-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 11l5-5m0 0l5 5m-5-5v12"
+              />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-2 font-display">
+          <h3 className="mb-2 font-display text-lg font-semibold text-gray-700">
             {t('noProjectSelected')}
           </h3>
-          <p className="text-sm text-gray-500">
-            {t('formCard.noProjectDescription')}
-          </p>
+          <p className="text-sm text-gray-500">{t('formCard.noProjectDescription')}</p>
         </div>
       </div>
     )
@@ -731,40 +792,38 @@ export default function DonationFormCard({
   // Show donation form
   return (
     <div ref={formContainerRef}>
-      <div className="bg-white rounded-xl border-2 border-gray-200 shadow-lg overflow-hidden relative">
+      <div className="relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-lg">
         {/* Project Summary */}
-        <div className="bg-ukraine-blue-50 p-6 border-b border-gray-200">
-          <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 font-display">
+        <div className="border-b border-gray-200 bg-ukraine-blue-50 p-6">
+          <h3 className="mb-3 line-clamp-2 font-display text-lg font-bold text-gray-900">
             {projectName}
           </h3>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <MapPinIcon className="w-4 h-4 flex-shrink-0" />
+              <MapPinIcon className="h-4 w-4 flex-shrink-0" />
               <span>{location}</span>
             </div>
             {!isAggregatedProject && (
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-ukraine-blue-500 font-data">
+                <span className="font-data text-2xl font-bold text-ukraine-blue-500">
                   ${(project.unit_price || 0).toFixed(2)}
                 </span>
-                <span className="text-sm text-gray-500">
-                  {t('quantity.perUnit', { unitName })}
-                </span>
+                <span className="text-sm text-gray-500">{t('quantity.perUnit', { unitName })}</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Donation Form */}
-        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4 p-6">
           {/* Amount/Quantity Selection - Different UI based on project type */}
           {isAggregatedProject ? (
             /* Aggregated Project: Direct Amount Input */
             <div>
-              <label htmlFor="donation-amount" className="block text-sm font-medium mb-2">
+              <label htmlFor="donation-amount" className="mb-2 block text-sm font-medium">
                 {t('amount.label')} *
               </label>
-              <div className="grid grid-cols-4 gap-2 mb-3">
+              <div className="mb-3 grid grid-cols-4 gap-2">
                 {amountOptions.map((amount) => (
                   <button
                     key={amount}
@@ -775,10 +834,10 @@ export default function DonationFormCard({
                       setDonationAmount(amount)
                       setDonationAmountInput(String(amount))
                     }}
-                    className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                       donationAmount === amount && donationAmountInput === String(amount)
-                        ? 'bg-ukraine-blue-500 text-white border-ukraine-blue-500 shadow-md'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'border-ukraine-blue-500 bg-ukraine-blue-500 text-white shadow-md'
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     ${amount}
@@ -814,27 +873,35 @@ export default function DonationFormCard({
                 }}
                 aria-invalid={!!fieldErrors.donationAmount}
                 aria-describedby={fieldErrors.donationAmount ? 'donation-amount-error' : undefined}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
                 placeholder={t('amount.placeholder')}
               />
               {fieldErrors.donationAmount && (
                 <p
                   id="donation-amount-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
                 >
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>{fieldErrors.donationAmount}</span>
                 </p>
               )}
-              <div className="mt-2 p-2.5 bg-ukraine-blue-50 rounded-lg">
-                <div className="flex justify-between items-center">
+              <div className="mt-2 rounded-lg bg-ukraine-blue-50 p-2.5">
+                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">
                     {t('payment.projectTotal')}:
                   </span>
-                  <span className="text-xl font-bold text-ukraine-blue-500 font-data">
+                  <span className="font-data text-xl font-bold text-ukraine-blue-500">
                     ${projectAmount.toFixed(2)} {t('payment.currency')}
                   </span>
                 </div>
@@ -843,10 +910,10 @@ export default function DonationFormCard({
           ) : (
             /* Unit-based Project: Quantity Selection */
             <div>
-              <label htmlFor="donation-quantity" className="block text-sm font-medium mb-2">
+              <label htmlFor="donation-quantity" className="mb-2 block text-sm font-medium">
                 {t('quantity.label')} *
               </label>
-              <div className="grid grid-cols-4 gap-2 mb-3">
+              <div className="mb-3 grid grid-cols-4 gap-2">
                 {quantityOptions.map((num) => (
                   <button
                     key={num}
@@ -856,10 +923,10 @@ export default function DonationFormCard({
                       clearFieldError('total')
                       setQuantity(num)
                     }}
-                    className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                       quantity === num
-                        ? 'bg-ukraine-blue-500 text-white border-ukraine-blue-500 shadow-md'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'border-ukraine-blue-500 bg-ukraine-blue-500 text-white shadow-md'
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     {num}
@@ -923,27 +990,35 @@ export default function DonationFormCard({
                 }}
                 aria-invalid={!!fieldErrors.quantity}
                 aria-describedby={fieldErrors.quantity ? 'donation-quantity-error' : undefined}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
                 placeholder={t('quantity.custom')}
               />
               {fieldErrors.quantity && (
                 <p
                   id="donation-quantity-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
                 >
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>{fieldErrors.quantity}</span>
                 </p>
               )}
-              <div className="mt-2 p-2.5 bg-ukraine-blue-50 rounded-lg">
-                <div className="flex justify-between items-center">
+              <div className="mt-2 rounded-lg bg-ukraine-blue-50 p-2.5">
+                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">
                     {t('payment.projectTotal')}:
                   </span>
-                  <span className="text-xl font-bold text-ukraine-blue-500 font-data">
+                  <span className="font-data text-xl font-bold text-ukraine-blue-500">
                     ${projectAmount.toFixed(2)} {t('payment.currency')}
                   </span>
                 </div>
@@ -954,47 +1029,46 @@ export default function DonationFormCard({
           {/* Tip for Rehabilitation Center - Only show if NOT project 0 */}
           {project.id !== 0 && (
             <div className="border-t pt-5">
-              <div className="flex items-start justify-between gap-2 mb-4">
-                <h4 className="font-semibold text-gray-900 font-display">
-                  {t('tip.title')}
-                </h4>
-                <div className="flex-shrink-0 bg-ukraine-gold-50 px-2 py-1 rounded text-xs font-medium text-ukraine-gold-700 border border-ukraine-gold-200">
+              <div className="mb-4 flex items-start justify-between gap-2">
+                <h4 className="font-display font-semibold text-gray-900">{t('tip.title')}</h4>
+                <div className="flex-shrink-0 rounded border border-ukraine-gold-200 bg-ukraine-gold-50 px-2 py-1 text-xs font-medium text-ukraine-gold-700">
                   {t('tip.optional')}
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-ukraine-gold-50 to-ukraine-gold-100 rounded-lg p-4 mb-3 border border-ukraine-gold-200">
-                <p className="text-sm text-gray-800 font-medium mb-3">
-                  {t('tip.description')}
-                </p>
+              <div className="mb-3 rounded-lg border border-ukraine-gold-200 bg-gradient-to-br from-ukraine-gold-50 to-ukraine-gold-100 p-4">
+                <p className="mb-3 text-sm font-medium text-gray-800">{t('tip.description')}</p>
 
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="bg-white/80 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-ukraine-gold-600 font-data">1,600+</div>
-                    <div className="text-xs text-gray-600 mt-1">{t('tip.patientsServed')}</div>
+                <div className="mb-3 grid grid-cols-2 gap-3">
+                  <div className="rounded-lg bg-white/80 p-3 text-center">
+                    <div className="font-data text-2xl font-bold text-ukraine-gold-600">1,600+</div>
+                    <div className="mt-1 text-xs text-gray-600">{t('tip.patientsServed')}</div>
                   </div>
-                  <div className="bg-white/80 rounded-lg p-3 text-center">
-                    <div className="text-2xl font-bold text-ukraine-gold-600 font-data">$1,000</div>
-                    <div className="text-xs text-gray-600 mt-1">{t('tip.avgCostPerPatient')}</div>
+                  <div className="rounded-lg bg-white/80 p-3 text-center">
+                    <div className="font-data text-2xl font-bold text-ukraine-gold-600">$1,000</div>
+                    <div className="mt-1 text-xs text-gray-600">{t('tip.avgCostPerPatient')}</div>
                   </div>
                 </div>
 
-                <div className="text-xs text-gray-600 text-center">
-                  {t('tip.asOfDate')}
-                </div>
+                <div className="text-center text-xs text-gray-600">{t('tip.asOfDate')}</div>
               </div>
 
               <a
                 href={`/${locale}/donate?project=0`}
-                className="text-sm text-ukraine-blue-500 hover:text-ukraine-blue-600 font-medium inline-flex items-center gap-1 mb-3"
+                className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-ukraine-blue-500 hover:text-ukraine-blue-600"
               >
                 {t('tip.viewDetails')}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </a>
 
-              <div className="grid grid-cols-3 gap-2 mb-3">
+              <div className="mb-3 grid grid-cols-3 gap-2">
                 {tipOptions.map((amount) => (
                   <button
                     key={amount}
@@ -1005,10 +1079,10 @@ export default function DonationFormCard({
                       setTipAmount(amount)
                       setTipAmountInput(String(amount))
                     }}
-                    className={`px-3 py-2 rounded-lg border font-medium text-sm transition-all ${
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                       tipAmount === amount && tipAmountInput === String(amount)
-                        ? 'bg-ukraine-gold-600 text-white border-ukraine-gold-600 shadow-md'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'border-ukraine-gold-600 bg-ukraine-gold-600 text-white shadow-md'
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     ${amount}
@@ -1043,25 +1117,37 @@ export default function DonationFormCard({
                 }}
                 aria-invalid={!!fieldErrors.tipAmount}
                 aria-describedby={fieldErrors.tipAmount ? 'tip-amount-error' : undefined}
-                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-gold-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2.5 focus:border-transparent focus:ring-2 focus:ring-ukraine-gold-500"
                 placeholder={t('tip.placeholder')}
               />
               {fieldErrors.tipAmount && (
                 <p
                   id="tip-amount-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
                 >
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>{fieldErrors.tipAmount}</span>
                 </p>
               )}
               {tipAmount > 0 && (
-                <p className="mt-2 text-xs text-ukraine-gold-700 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                <p className="mt-2 flex items-center gap-1 text-xs text-ukraine-gold-700">
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {t('tip.thankYou')}
                 </p>
@@ -1071,35 +1157,29 @@ export default function DonationFormCard({
 
           {/* Total Amount Summary */}
           <div ref={totalAmountRef} className="border-t pt-3" tabIndex={-1}>
-            <div className="p-3 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 rounded-lg border border-ukraine-blue-200">
+            <div className="rounded-lg border border-ukraine-blue-200 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 p-3">
               <div className="space-y-2">
                 {/* Show breakdown if there's a tip */}
                 {tipAmount > 0 && (
                   <>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">
-                        {t('payment.projectDonation')}:
-                      </span>
-                      <span className="font-semibold text-gray-900 font-data">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">{t('payment.projectDonation')}:</span>
+                      <span className="font-data font-semibold text-gray-900">
                         ${projectAmount.toFixed(2)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">
-                        {t('payment.tipAmount')}:
-                      </span>
-                      <span className="font-semibold text-ukraine-gold-700 font-data">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">{t('payment.tipAmount')}:</span>
+                      <span className="font-data font-semibold text-ukraine-gold-700">
                         ${tipAmount.toFixed(2)}
                       </span>
                     </div>
-                    <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-2"></div>
+                    <div className="my-2 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
                   </>
                 )}
-                <div className="flex justify-between items-center">
-                  <span className="text-base font-bold text-gray-900">
-                    {t('payment.total')}:
-                  </span>
-                  <span className="text-2xl font-bold text-ukraine-blue-500 font-data">
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-bold text-gray-900">{t('payment.total')}:</span>
+                  <span className="font-data text-2xl font-bold text-ukraine-blue-500">
                     ${totalAmount.toFixed(2)} {t('payment.currency')}
                   </span>
                 </div>
@@ -1109,10 +1189,18 @@ export default function DonationFormCard({
               <p
                 id="total-amount-error"
                 role="alert"
-                className="mt-2 text-xs text-red-600 flex items-start gap-1"
+                className="mt-2 flex items-start gap-1 text-xs text-red-600"
               >
-                <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <svg
+                  className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>{fieldErrors.total}</span>
               </p>
@@ -1121,12 +1209,12 @@ export default function DonationFormCard({
 
           {/* Donor Information */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900 border-b pb-2 font-display">
+            <h4 className="border-b pb-2 font-display font-semibold text-gray-900">
               {t('donor.title')}
             </h4>
 
             <div>
-              <label htmlFor="donor-name" className="block text-sm font-medium mb-1">
+              <label htmlFor="donor-name" className="mb-1 block text-sm font-medium">
                 {t('donor.name')} *
               </label>
               <input
@@ -1143,7 +1231,7 @@ export default function DonationFormCard({
                 }}
                 aria-invalid={!!fieldErrors.name}
                 aria-describedby={fieldErrors.name ? 'donor-name-error' : undefined}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
                 placeholder={t('donor.namePlaceholder')}
               />
               <p className="mt-1 text-xs text-gray-500">{t('donor.nameHint')}</p>
@@ -1151,10 +1239,18 @@ export default function DonationFormCard({
                 <p
                   id="donor-name-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
                 >
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>{fieldErrors.name}</span>
                 </p>
@@ -1162,7 +1258,7 @@ export default function DonationFormCard({
             </div>
 
             <div>
-              <label htmlFor="donor-email" className="block text-sm font-medium mb-1">
+              <label htmlFor="donor-email" className="mb-1 block text-sm font-medium">
                 {t('donor.email')} *
               </label>
               <input
@@ -1179,7 +1275,7 @@ export default function DonationFormCard({
                 pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
                 aria-invalid={!!fieldErrors.email}
                 aria-describedby={fieldErrors.email ? 'donor-email-error' : undefined}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
                 placeholder={t('donor.emailPlaceholder')}
               />
               <p className="mt-1 text-xs text-gray-500">{t('donor.emailHint')}</p>
@@ -1187,10 +1283,18 @@ export default function DonationFormCard({
                 <p
                   id="donor-email-error"
                   role="alert"
-                  className="mt-1 text-xs text-red-600 flex items-start gap-1"
+                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
                 >
-                  <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span>{fieldErrors.email}</span>
                 </p>
@@ -1201,14 +1305,14 @@ export default function DonationFormCard({
           {/* Contact Methods (Optional) */}
           <div className="space-y-3">
             <div>
-              <h4 className="font-semibold text-gray-900 border-b pb-2 font-display">
+              <h4 className="border-b pb-2 font-display font-semibold text-gray-900">
                 {t('contact.title')}
               </h4>
-              <p className="text-xs text-gray-600 mt-1">{t('contact.description')}</p>
+              <p className="mt-1 text-xs text-gray-600">{t('contact.description')}</p>
             </div>
 
             <div>
-              <label htmlFor="contact-telegram" className="block text-sm font-medium mb-1">
+              <label htmlFor="contact-telegram" className="mb-1 block text-sm font-medium">
                 {t('contact.telegram')}
               </label>
               <input
@@ -1217,13 +1321,13 @@ export default function DonationFormCard({
                 maxLength={255}
                 value={contactTelegram}
                 onChange={(e) => updateDonorInfo('telegram', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
                 placeholder={t('contact.telegramPlaceholder')}
               />
             </div>
 
             <div>
-              <label htmlFor="contact-whatsapp" className="block text-sm font-medium mb-1">
+              <label htmlFor="contact-whatsapp" className="mb-1 block text-sm font-medium">
                 {t('contact.whatsapp')}
               </label>
               <input
@@ -1232,7 +1336,7 @@ export default function DonationFormCard({
                 maxLength={255}
                 value={contactWhatsapp}
                 onChange={(e) => updateDonorInfo('whatsapp', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
                 placeholder={t('contact.whatsappPlaceholder')}
               />
             </div>
@@ -1240,7 +1344,7 @@ export default function DonationFormCard({
 
           {/* Message (Optional) */}
           <div>
-            <label htmlFor="donor-message" className="block text-sm font-medium mb-1">
+            <label htmlFor="donor-message" className="mb-1 block text-sm font-medium">
               {t('message.label')}
             </label>
             <textarea
@@ -1249,7 +1353,7 @@ export default function DonationFormCard({
               rows={3}
               value={donorMessage}
               onChange={(e) => updateDonorInfo('message', e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent resize-none"
+              className="w-full resize-none rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
               placeholder={t('message.placeholder')}
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -1259,12 +1363,12 @@ export default function DonationFormCard({
 
           {/* Newsletter Subscription */}
           <div className="pt-2">
-            <label className="flex items-start gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-start gap-2">
               <input
                 type="checkbox"
                 checked={subscribeToNewsletter}
                 onChange={(e) => updateDonorInfo('subscribeToNewsletter', e.target.checked)}
-                className="mt-0.5 w-3.5 h-3.5 text-gray-400 bg-transparent border-gray-300 rounded focus:ring-0 focus:ring-offset-0"
+                className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 bg-transparent text-gray-400 focus:ring-0 focus:ring-offset-0"
               />
               <span className="text-xs text-gray-500">
                 {t('subscription.label')} · {t('subscription.privacyNote')}
@@ -1276,42 +1380,47 @@ export default function DonationFormCard({
           <button
             type="submit"
             disabled={processingState === 'creating' || project.status !== 'active'}
-            className={`group relative w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 shadow-md overflow-hidden ${
+            className={`group relative w-full overflow-hidden rounded-xl px-6 py-3 font-semibold shadow-md transition-all duration-300 ${
               project.status !== 'active'
-                ? 'bg-gray-400 text-white cursor-not-allowed'
-                : 'bg-ukraine-gold-500 text-ukraine-blue-900 hover:bg-ukraine-gold-600 hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
+                ? 'cursor-not-allowed bg-gray-400 text-white'
+                : 'bg-ukraine-gold-500 text-ukraine-blue-900 hover:bg-ukraine-gold-600 hover:shadow-xl disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
             }`}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            <div className="absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
             <span className="relative z-10">
-              {project.status !== 'active'
-                ? t('formCard.projectEnded')
-                : t('submit')
-              }
+              {project.status !== 'active' ? t('formCard.projectEnded') : t('submit')}
             </span>
           </button>
 
           {/* Network Access Notice */}
-          <p className="text-sm text-ukraine-gold-700 text-center font-medium">
+          <p className="text-center text-sm font-medium text-ukraine-gold-700">
             {t('networkNotice')}
           </p>
         </form>
 
         {/* Overlay when project is not active - covers entire card */}
         {project.status !== 'active' && (
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
-                <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-slate-900/60 backdrop-blur-sm">
+            <div className="mx-4 max-w-sm rounded-2xl bg-white p-8 text-center shadow-2xl">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+                <svg
+                  className="h-8 w-8 text-slate-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                  />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">
+              <h3 className="mb-2 font-display text-xl font-bold text-gray-900">
                 {t('formCard.cannotDonateNow')}
               </h3>
-              <p className="text-sm text-gray-600">
-                {t('formCard.projectNotActive')}
-              </p>
+              <p className="text-sm text-gray-600">{t('formCard.projectNotActive')}</p>
             </div>
           </div>
         )}

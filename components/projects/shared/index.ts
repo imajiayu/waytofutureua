@@ -13,11 +13,11 @@
  * - SectionNav: Sticky horizontal section quick-navigation bar
  */
 
+export { default as AnimatedNumber } from './AnimatedNumber'
+export { default as FadeInSection } from './FadeInSection'
 export { default as ProjectProgressBar } from './ProjectProgressBar'
 export { default as ProjectResultsMasonry } from './ProjectResultsMasonry'
-export { default as FadeInSection } from './FadeInSection'
-export { default as AnimatedNumber } from './AnimatedNumber'
 export { default as SectionHeader } from './SectionHeader'
 export { default as SectionNav } from './SectionNav'
-export { default as UnifiedResultsSection } from './UnifiedResultsSection'
 export type { ResultImage } from './UnifiedResultsSection'
+export { default as UnifiedResultsSection } from './UnifiedResultsSection'

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface FadeInSectionProps {
   children: React.ReactNode
@@ -39,7 +39,7 @@ export default function FadeInSection({
       ref={ref}
       id={id}
       className={`transition-all duration-700 ease-out ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
       } ${className}`}
     >
       {children}

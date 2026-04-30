@@ -1,21 +1,22 @@
 'use server'
 
-import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { revalidatePath } from 'next/cache'
-import type { Database } from '@/types/database'
-import type { I18nText } from '@/types'
 import sharp from 'sharp'
-import { processImageWithCloudinary, isCloudinaryConfigured } from '@/lib/cloudinary'
+import { z } from 'zod'
+
+import { isCloudinaryConfigured, processImageWithCloudinary } from '@/lib/cloudinary'
 import {
+  type DonationStatus,
+  isFailedStatus,
   isValidAdminTransition,
   needsFileUpload,
-  isFailedStatus,
-  type DonationStatus
 } from '@/lib/donation-status'
-import { logger } from '@/lib/logger'
-import { z } from 'zod'
-import { createProjectSchema, updateProjectSchema } from '@/lib/validations'
 import type { SupportedLocale } from '@/lib/i18n-utils'
+import { logger } from '@/lib/logger'
+import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
+import { createProjectSchema, updateProjectSchema } from '@/lib/validations'
+import type { I18nText } from '@/types'
+import type { Database } from '@/types/database'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
@@ -76,16 +77,12 @@ export async function createProject(project: ProjectInsert) {
     validated = createProjectSchema.parse(project) as ProjectInsert
   } catch (err) {
     if (err instanceof z.ZodError) {
-      throw new Error(`Validation failed: ${err.errors.map(e => e.message).join(', ')}`)
+      throw new Error(`Validation failed: ${err.errors.map((e) => e.message).join(', ')}`)
     }
     throw err
   }
 
-  const { data, error } = await supabase
-    .from('projects')
-    .insert(validated)
-    .select()
-    .single()
+  const { data, error } = await supabase.from('projects').insert(validated).select().single()
 
   if (error) throw error
 
@@ -109,7 +106,7 @@ export async function updateProject(id: number, updates: ProjectUpdate) {
     validated = updateProjectSchema.passthrough().parse(safeUpdates) as ProjectUpdate
   } catch (err) {
     if (err instanceof z.ZodError) {
-      throw new Error(`Validation failed: ${err.errors.map(e => e.message).join(', ')}`)
+      throw new Error(`Validation failed: ${err.errors.map((e) => e.message).join(', ')}`)
     }
     throw err
   }
@@ -140,19 +137,14 @@ export async function getAdminDonations() {
 
   // 并行获取捐赠和状态历史
   const [donationsResult, historyResult] = await Promise.all([
-    supabase
-      .from('donations')
-      .select(`
+    supabase.from('donations').select(`
         *,
         projects (
           project_name,
           project_name_i18n
         )
       `),
-    supabase
-      .from('donation_status_history')
-      .select('*')
-      .order('changed_at', { ascending: true })
+    supabase.from('donation_status_history').select('*').order('changed_at', { ascending: true }),
   ])
 
   if (donationsResult.error) throw donationsResult.error
@@ -176,8 +168,10 @@ export async function getAdminDonations() {
   })
 
   return {
-    donations: sorted as (Donation & { projects: { project_name: string; project_name_i18n: I18nText } })[],
-    history: history as Database['public']['Tables']['donation_status_history']['Row'][]
+    donations: sorted as (Donation & {
+      projects: { project_name: string; project_name_i18n: I18nText }
+    })[],
+    history: history as Database['public']['Tables']['donation_status_history']['Row'][],
   }
 }
 
@@ -194,7 +188,9 @@ export async function updateDonationStatus(
   // 获取当前捐赠记录（包含更多信息用于发送邮件）
   const { data: current, error: fetchError } = await supabase
     .from('donations')
-    .select('donation_status, donation_public_id, donor_email, donor_name, amount, locale, project_id')
+    .select(
+      'donation_status, donation_public_id, donor_email, donor_name, amount, locale, project_id'
+    )
     .eq('id', id)
     .single()
 
@@ -223,11 +219,14 @@ export async function updateDonationStatus(
           .list(current.donation_public_id, { limit: 100 })
 
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-        const imageFile = files?.filter(f => f.name && !f.name.startsWith('.') && f.id)
-          ?.find(f => imageExtensions.some(ext => f.name.toLowerCase().endsWith(ext)))
+        const imageFile = files
+          ?.filter((f) => f.name && !f.name.startsWith('.') && f.id)
+          ?.find((f) => imageExtensions.some((ext) => f.name.toLowerCase().endsWith(ext)))
 
         if (imageFile) {
-          const { data: { publicUrl } } = supabase.storage
+          const {
+            data: { publicUrl },
+          } = supabase.storage
             .from('donation-results')
             .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
           resultImageUrl = publicUrl
@@ -273,7 +272,7 @@ export async function updateDonationStatus(
           totalAmount: current.amount,
           currency: 'UAH',
           locale: (current.locale || 'en') as SupportedLocale,
-          resultImageUrl
+          resultImageUrl,
         })
 
         logger.info('ADMIN', 'Donation completed email sent', {
@@ -403,7 +402,7 @@ export async function uploadDonationResultFile(formData: FormData) {
         const thumbnailBuffer = await sharp(buffer)
           .resize(300, null, {
             withoutEnlargement: true,
-            fit: 'inside'
+            fit: 'inside',
           })
           .jpeg({ quality: 80 })
           .toBuffer()
@@ -411,13 +410,11 @@ export async function uploadDonationResultFile(formData: FormData) {
         const thumbnailFileName = `${timestamp}_thumb.jpg`
         const thumbnailPath = `${donation.donation_public_id}/.thumbnails/${thumbnailFileName}`
 
-        await supabase.storage
-          .from('donation-results')
-          .upload(thumbnailPath, thumbnailBuffer, {
-            contentType: 'image/jpeg',
-            cacheControl: '3600',
-            upsert: false,
-          })
+        await supabase.storage.from('donation-results').upload(thumbnailPath, thumbnailBuffer, {
+          contentType: 'image/jpeg',
+          cacheControl: '3600',
+          upsert: false,
+        })
 
         logger.debug('ADMIN', 'Thumbnail created', { fileName: thumbnailFileName })
       } catch (thumbnailError) {
@@ -425,7 +422,6 @@ export async function uploadDonationResultFile(formData: FormData) {
           error: thumbnailError instanceof Error ? thumbnailError.message : String(thumbnailError),
         })
       }
-
     } catch (cloudinaryError) {
       // Cloudinary 处理失败，回退到直接上传原图
       logger.error('ADMIN', 'Cloudinary processing failed, uploading original', {
@@ -449,7 +445,7 @@ export async function uploadDonationResultFile(formData: FormData) {
         const thumbnailBuffer = await sharp(buffer)
           .resize(300, null, {
             withoutEnlargement: true,
-            fit: 'inside'
+            fit: 'inside',
           })
           .jpeg({ quality: 80 })
           .toBuffer()
@@ -457,13 +453,11 @@ export async function uploadDonationResultFile(formData: FormData) {
         const thumbnailFileName = `${timestamp}_thumb.jpg`
         const thumbnailPath = `${donation.donation_public_id}/.thumbnails/${thumbnailFileName}`
 
-        await supabase.storage
-          .from('donation-results')
-          .upload(thumbnailPath, thumbnailBuffer, {
-            contentType: 'image/jpeg',
-            cacheControl: '3600',
-            upsert: false,
-          })
+        await supabase.storage.from('donation-results').upload(thumbnailPath, thumbnailBuffer, {
+          contentType: 'image/jpeg',
+          cacheControl: '3600',
+          upsert: false,
+        })
       } catch (thumbnailError) {
         logger.error('ADMIN', 'Failed to generate thumbnail', {
           error: thumbnailError instanceof Error ? thumbnailError.message : String(thumbnailError),
@@ -475,7 +469,9 @@ export async function uploadDonationResultFile(formData: FormData) {
     if (!isImage) {
       logger.debug('MEDIA', 'Uploading video file directly', { fileName: file.name })
     } else if (!faceBlur) {
-      logger.info('MEDIA', 'Face blur disabled by admin, uploading original image', { fileName: file.name })
+      logger.info('MEDIA', 'Face blur disabled by admin, uploading original image', {
+        fileName: file.name,
+      })
     } else {
       logger.warn('MEDIA', 'Cloudinary not configured, uploading original image')
     }
@@ -498,7 +494,7 @@ export async function uploadDonationResultFile(formData: FormData) {
         const thumbnailBuffer = await sharp(buffer)
           .resize(300, null, {
             withoutEnlargement: true,
-            fit: 'inside'
+            fit: 'inside',
           })
           .jpeg({ quality: 80 })
           .toBuffer()
@@ -506,13 +502,11 @@ export async function uploadDonationResultFile(formData: FormData) {
         const thumbnailFileName = `${timestamp}_thumb.jpg`
         const thumbnailPath = `${donation.donation_public_id}/.thumbnails/${thumbnailFileName}`
 
-        await supabase.storage
-          .from('donation-results')
-          .upload(thumbnailPath, thumbnailBuffer, {
-            contentType: 'image/jpeg',
-            cacheControl: '3600',
-            upsert: false,
-          })
+        await supabase.storage.from('donation-results').upload(thumbnailPath, thumbnailBuffer, {
+          contentType: 'image/jpeg',
+          cacheControl: '3600',
+          upsert: false,
+        })
 
         logger.debug('ADMIN', 'Thumbnail created', { fileName: thumbnailFileName })
       } catch (thumbnailError) {
@@ -524,9 +518,10 @@ export async function uploadDonationResultFile(formData: FormData) {
   }
 
   // 获取公开 URL（使用最终的文件路径）
-  const finalFilePath = isImage && isCloudinaryConfigured()
-    ? `${donation.donation_public_id}/${finalFileName}`
-    : filePath
+  const finalFilePath =
+    isImage && isCloudinaryConfigured()
+      ? `${donation.donation_public_id}/${finalFileName}`
+      : filePath
 
   const {
     data: { publicUrl },
@@ -535,7 +530,7 @@ export async function uploadDonationResultFile(formData: FormData) {
   return {
     publicUrl,
     filePath: finalFilePath,
-    donationPublicId: donation.donation_public_id
+    donationPublicId: donation.donation_public_id,
   }
 }
 
@@ -727,9 +722,9 @@ export async function processUploadedImage(
     }
   }
 
-  const { data: { publicUrl } } = supabase.storage
-    .from('donation-results')
-    .getPublicUrl(finalFilePath)
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('donation-results').getPublicUrl(finalFilePath)
 
   return { publicUrl }
 }
@@ -755,7 +750,7 @@ export async function getDonationResultFiles(donationId: number) {
   const { data: files, error: listError } = await supabase.storage
     .from('donation-results')
     .list(donation.donation_public_id, {
-      sortBy: { column: 'created_at', order: 'desc' }
+      sortBy: { column: 'created_at', order: 'desc' },
     })
 
   if (listError) {
@@ -763,18 +758,16 @@ export async function getDonationResultFiles(donationId: number) {
   }
 
   // 过滤掉 .thumbnails 文件夹和其他隐藏文件/文件夹
-  const actualFiles = (files || []).filter(file =>
-    file.name &&
-    !file.name.startsWith('.') &&
-    file.id // 文件有 id，文件夹没有
+  const actualFiles = (files || []).filter(
+    (file) => file.name && !file.name.startsWith('.') && file.id // 文件有 id，文件夹没有
   )
 
   // 为每个文件生成公开 URL
-  const filesWithUrls = actualFiles.map(file => {
+  const filesWithUrls = actualFiles.map((file) => {
     const filePath = `${donation.donation_public_id}/${file.name}`
-    const { data: { publicUrl } } = supabase.storage
-      .from('donation-results')
-      .getPublicUrl(filePath)
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from('donation-results').getPublicUrl(filePath)
 
     return {
       name: file.name,
@@ -783,7 +776,7 @@ export async function getDonationResultFiles(donationId: number) {
       size: file.metadata?.size || 0,
       contentType: file.metadata?.mimetype || '',
       createdAt: file.created_at,
-      updatedAt: file.updated_at
+      updatedAt: file.updated_at,
     }
   })
 
@@ -841,10 +834,7 @@ export async function deleteDonationResultFile(donationId: number, filePath: str
 /**
  * 批量更新捐赠状态
  */
-export async function batchUpdateDonationStatus(
-  donationIds: number[],
-  newStatus: string
-) {
+export async function batchUpdateDonationStatus(donationIds: number[], newStatus: string) {
   const supabase = await getAdminClient()
 
   if (donationIds.length === 0) {
@@ -864,7 +854,7 @@ export async function batchUpdateDonationStatus(
   }
 
   // 验证所有捐赠的状态是否相同
-  const statuses = new Set(donations.map(d => d.donation_status))
+  const statuses = new Set(donations.map((d) => d.donation_status))
   if (statuses.size !== 1) {
     throw new Error('All selected donations must have the same status')
   }
@@ -873,7 +863,9 @@ export async function batchUpdateDonationStatus(
 
   // delivering → completed 不支持批量更新（需要上传文件）
   if (needsFileUpload(currentStatus, newStatus as DonationStatus)) {
-    throw new Error('Batch update from delivering to completed is not supported. Please update donations individually to upload result files.')
+    throw new Error(
+      'Batch update from delivering to completed is not supported. Please update donations individually to upload result files.'
+    )
   }
 
   // 验证状态转换
@@ -896,4 +888,3 @@ export async function batchUpdateDonationStatus(
   revalidatePath('/admin/donations')
   return data as Donation[]
 }
-

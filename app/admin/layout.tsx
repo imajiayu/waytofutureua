@@ -1,10 +1,12 @@
+import '../globals.css'
+
 import type { Metadata } from 'next'
-import { Source_Sans_3, JetBrains_Mono } from 'next/font/google'
+import { JetBrains_Mono, Source_Sans_3 } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import { getAdminUser } from '@/lib/supabase/admin-auth'
+
 import AdminNav from '@/components/admin/AdminNav'
-import '../globals.css'
+import { getAdminUser } from '@/lib/supabase/admin-auth'
 
 // 管理后台使用 Source Sans 3 作为主字体，保持专业简洁
 const sourceSans = Source_Sans_3({
@@ -27,11 +29,7 @@ export const metadata: Metadata = {
   description: 'Admin panel for managing projects and donations',
 }
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getAdminUser()
 
   // Get English messages for admin panel
@@ -54,11 +52,9 @@ export default async function AdminLayout({
     <html lang="en">
       <body className={`${sourceSans.variable} ${jetbrainsMono.variable} font-body antialiased`}>
         <NextIntlClientProvider messages={messages} locale="en">
-          <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+          <div className="min-h-screen overflow-x-hidden bg-gray-50">
             <AdminNav />
-            <main className="max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
-              {children}
-            </main>
+            <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">{children}</main>
           </div>
         </NextIntlClientProvider>
       </body>

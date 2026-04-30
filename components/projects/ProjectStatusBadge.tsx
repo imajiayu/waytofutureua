@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+
 import type { ProjectStatus } from '@/types'
 
 interface Props {
@@ -22,13 +23,15 @@ export default function ProjectStatusBadge({ status }: Props) {
   const t = useTranslations('projects')
 
   // Normalize status to valid ProjectStatus or default to 'active'
-  const validStatus = (status === 'planned' || status === 'active' || status === 'completed' || status === 'paused')
-    ? status
-    : 'active'
+  const validStatus =
+    status === 'planned' || status === 'active' || status === 'completed' || status === 'paused'
+      ? status
+      : 'active'
 
   // Get status color classes based on project status
   const getStatusClasses = (status: ProjectStatus): string => {
-    const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border'
+    const baseClasses =
+      'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border'
 
     switch (status) {
       // Planned - Gold (similar to donation pending)
@@ -52,9 +55,5 @@ export default function ProjectStatusBadge({ status }: Props) {
     }
   }
 
-  return (
-    <span className={getStatusClasses(validStatus)}>
-      {t(`status.${validStatus}` as any)}
-    </span>
-  )
+  return <span className={getStatusClasses(validStatus)}>{t(`status.${validStatus}` as any)}</span>
 }

@@ -3,11 +3,7 @@
  * 运行: npx tsx lib/email/templates/test-templates.ts
  */
 
-import {
-  getAvailableTemplates,
-  getCompleteEmailTemplate,
-  replaceTemplateVariables,
-} from './index'
+import { getAvailableTemplates, getCompleteEmailTemplate, replaceTemplateVariables } from './index'
 
 async function testTemplateSystem() {
   console.log('🧪 Testing Email Template System...\n')
@@ -44,10 +40,7 @@ async function testTemplateSystem() {
     unsubscribe_url: 'https://example.com/unsubscribe?email=test@example.com',
   }
 
-  const replacedContent = replaceTemplateVariables(
-    templateData.content.en,
-    testVariables
-  )
+  const replacedContent = replaceTemplateVariables(templateData.content.en, testVariables)
 
   if (
     replacedContent.includes(testVariables.donate_url) &&

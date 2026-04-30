@@ -1,13 +1,14 @@
 'use server'
 
 import { randomBytes } from 'crypto'
-import { createServerClient, createServiceClient } from '@/lib/supabase/server'
-import { createMarketPayment } from '@/lib/market/wayforpay'
-import { salePurchaseSchema } from '@/lib/market/market-validations'
+
 import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
-import type { ShippingAddress, MarketItem } from '@/types/market'
+import { salePurchaseSchema } from '@/lib/market/market-validations'
+import { createMarketPayment } from '@/lib/market/wayforpay'
 import type { WayForPayPaymentParams } from '@/lib/payment/wayforpay/server'
+import { createServerClient, createServiceClient } from '@/lib/supabase/server'
+import type { MarketItem, ShippingAddress } from '@/types/market'
 
 interface CreateSaleOrderResult {
   success: boolean
@@ -35,7 +36,10 @@ export async function createSaleOrder(
 
   // 2. 验证认证
   const supabase = await createServerClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return { success: false, error: 'not_authenticated' }
   }
@@ -67,31 +71,35 @@ export async function createSaleOrder(
   const orderReference = `MKT-${Date.now()}-${randomBytes(8).toString('hex').toUpperCase()}`
   const totalAmount = Math.round(typedItem.fixed_price * quantity * 100) / 100
   const currency = typedItem.currency || 'USD'
-  const itemTitle = getTranslatedText(typedItem.title_i18n, null, locale as SupportedLocale) || 'Item'
+  const itemTitle =
+    getTranslatedText(typedItem.title_i18n, null, locale as SupportedLocale) || 'Item'
 
   // 5. 原子化：扣库存 + 创建订单（单个 PL/pgSQL 事务，失败自动回滚）
   const service = createServiceClient()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- 新函数尚未加入 database.ts 类型定义，部署迁移后重新生成类型即可移除
-  const { data: orderId, error: atomicError } = await (service.rpc as any)('create_market_order_atomic', {
-    p_order_reference: orderReference,
-    p_buyer_id: userId,
-    p_buyer_email: userEmail,
-    p_item_id: itemId,
-    p_quantity: quantity,
-    p_unit_price: typedItem.fixed_price,
-    p_total_amount: totalAmount,
-    p_currency: currency,
-    p_payment_method: 'wayforpay',
-    p_shipping_name: shipping.name,
-    p_shipping_phone: shipping.phone || null,
-    p_shipping_address_line1: shipping.address_line1,
-    p_shipping_address_line2: shipping.address_line2 || null,
-    p_shipping_city: shipping.city,
-    p_shipping_state: shipping.state || null,
-    p_shipping_postal_code: shipping.postal_code,
-    p_shipping_country: shipping.country,
-    p_locale: locale,
-  })
+  // 新函数尚未加入 database.ts 类型定义，部署迁移后重新生成类型即可移除 cast
+  const { data: orderId, error: atomicError } = await (service.rpc as any)(
+    'create_market_order_atomic',
+    {
+      p_order_reference: orderReference,
+      p_buyer_id: userId,
+      p_buyer_email: userEmail,
+      p_item_id: itemId,
+      p_quantity: quantity,
+      p_unit_price: typedItem.fixed_price,
+      p_total_amount: totalAmount,
+      p_currency: currency,
+      p_payment_method: 'wayforpay',
+      p_shipping_name: shipping.name,
+      p_shipping_phone: shipping.phone || null,
+      p_shipping_address_line1: shipping.address_line1,
+      p_shipping_address_line2: shipping.address_line2 || null,
+      p_shipping_city: shipping.city,
+      p_shipping_state: shipping.state || null,
+      p_shipping_postal_code: shipping.postal_code,
+      p_shipping_country: shipping.country,
+      p_locale: locale,
+    }
+  )
 
   if (atomicError || !orderId) {
     const isStockError = atomicError?.message?.includes('INSUFFICIENT_STOCK')
@@ -175,13 +183,16 @@ export async function markMarketOrderWidgetFailed(
 
     if (error) {
       logger.error('MARKET:SALE', 'Failed to mark as widget_load_failed', {
-        orderReference, error: error.message,
+        orderReference,
+        error: error.message,
       })
       return { success: false, error: 'operation_failed' }
     }
 
     if (!data || data.length === 0) {
-      logger.debug('MARKET:SALE', 'No pending order to mark as widget_load_failed', { orderReference })
+      logger.debug('MARKET:SALE', 'No pending order to mark as widget_load_failed', {
+        orderReference,
+      })
       return { success: true }
     }
 
@@ -191,17 +202,22 @@ export async function markMarketOrderWidgetFailed(
     const restored = await restoreStock(service, order.item_id, order.quantity)
     if (!restored) {
       logger.error('MARKET:SALE', 'widget_load_failed: stock restore FAILED', {
-        orderReference, itemId: order.item_id, quantity: order.quantity,
+        orderReference,
+        itemId: order.item_id,
+        quantity: order.quantity,
       })
     }
 
     logger.info('MARKET:SALE', 'Marked as widget_load_failed + stock rolled back', {
-      orderReference, itemId: order.item_id, quantity: order.quantity,
+      orderReference,
+      itemId: order.item_id,
+      quantity: order.quantity,
     })
     return { success: true }
   } catch (error) {
     logger.error('MARKET:SALE', 'markMarketOrderWidgetFailed failed', {
-      orderReference, error: error instanceof Error ? error.message : String(error),
+      orderReference,
+      error: error instanceof Error ? error.message : String(error),
     })
     return { success: false, error: 'operation_failed' }
   }
@@ -228,14 +244,17 @@ export async function cancelMarketOrder(
 
     if (error) {
       logger.error('MARKET:SALE', 'Failed to cancel order (expired)', {
-        orderReference, error: error.message,
+        orderReference,
+        error: error.message,
       })
       return { success: false, error: 'operation_failed' }
     }
 
     if (!data || data.length === 0) {
       // P2-6: 订单可能已被 Webhook 处理为 paid — 告知前端不要回到 checkout
-      logger.warn('MARKET:SALE', 'No pending order to cancel — may already be processed', { orderReference })
+      logger.warn('MARKET:SALE', 'No pending order to cancel — may already be processed', {
+        orderReference,
+      })
       return { success: false, error: 'order_already_processed' }
     }
 
@@ -244,17 +263,22 @@ export async function cancelMarketOrder(
     const restored = await restoreStock(service, order.item_id, order.quantity)
     if (!restored) {
       logger.error('MARKET:SALE', 'cancel order: stock restore FAILED', {
-        orderReference, itemId: order.item_id, quantity: order.quantity,
+        orderReference,
+        itemId: order.item_id,
+        quantity: order.quantity,
       })
     }
 
     logger.info('MARKET:SALE', 'Order cancelled (expired) + stock rolled back', {
-      orderReference, itemId: order.item_id, quantity: order.quantity,
+      orderReference,
+      itemId: order.item_id,
+      quantity: order.quantity,
     })
     return { success: true }
   } catch (error) {
     logger.error('MARKET:SALE', 'cancelMarketOrder failed', {
-      orderReference, error: error instanceof Error ? error.message : String(error),
+      orderReference,
+      error: error instanceof Error ? error.message : String(error),
     })
     return { success: false, error: 'operation_failed' }
   }
@@ -280,4 +304,3 @@ async function restoreStock(
   }
   return true
 }
-

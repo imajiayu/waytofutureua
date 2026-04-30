@@ -8,9 +8,9 @@
 
 'use server'
 
-import { getAdminClient } from '@/lib/supabase/action-clients'
 import { resend } from '@/lib/email/client'
 import { logger } from '@/lib/logger'
+import { getAdminClient } from '@/lib/supabase/action-clients'
 
 export type EmailLastEvent =
   | 'bounced'

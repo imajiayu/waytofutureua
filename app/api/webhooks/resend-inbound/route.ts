@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Webhook } from 'svix'
+import { type Attachment, Resend } from 'resend'
 import sanitizeHtml from 'sanitize-html'
-import { Resend, type Attachment } from 'resend'
+import { Webhook } from 'svix'
+
 import { logger } from '@/lib/logger'
 
 export const runtime = 'nodejs'
@@ -133,7 +134,7 @@ type FetchedAttachment = {
 // Resend `emails.receiving.get` 返回的 attachments[] 是 metadata，必须再 /attachments/{id} 拿一次签名 URL 再下载
 async function downloadAttachment(
   emailId: string,
-  meta: InboundAttachmentMeta,
+  meta: InboundAttachmentMeta
 ): Promise<FetchedAttachment | null> {
   const detail = await resend.emails.receiving.attachments.get({ emailId, id: meta.id })
   if (detail.error || !detail.data?.download_url) {
@@ -336,9 +337,7 @@ export async function POST(req: NextRequest) {
   const textBody = detail.text ?? ''
 
   const safeHtml = htmlBody ? sanitizeHtml(htmlBody, SANITIZE_OPTIONS) : ''
-  const safeReplyTo = EMAIL_RE.test(rawFrom)
-    ? rawFrom
-    : extractEmailAddress(rawFrom) ?? undefined
+  const safeReplyTo = EMAIL_RE.test(rawFrom) ? rawFrom : (extractEmailAddress(rawFrom) ?? undefined)
 
   // 附件并行下载；单个失败不阻塞其他附件和正文转发
   const inboundAttachments = Array.isArray(detail.attachments)

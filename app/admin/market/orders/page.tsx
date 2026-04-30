@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
-import { getAdminUser } from '@/lib/supabase/admin-auth'
+
 import { getAdminMarketOrders } from '@/app/actions/market-admin'
 import MarketOrdersTable from '@/components/admin/MarketOrdersTable'
+import { getAdminUser } from '@/lib/supabase/admin-auth'
 
 export default async function AdminMarketOrdersPage() {
   const user = await getAdminUser()
@@ -11,8 +12,8 @@ export default async function AdminMarketOrdersPage() {
 
   return (
     <div>
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 font-body">Market Orders</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="font-body text-2xl font-bold text-gray-900">Market Orders</h1>
       </div>
       <MarketOrdersTable initialOrders={orders} />
     </div>

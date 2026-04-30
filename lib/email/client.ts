@@ -3,9 +3,10 @@
  */
 
 import { Resend } from 'resend'
+
 import { ORG_BRANDING } from './config'
-import { getLocalizedText } from './utils'
 import type { Locale } from './types'
+import { getLocalizedText } from './utils'
 
 // Lazy initialization to allow dotenv to load first
 let _resend: Resend | null = null
@@ -26,7 +27,7 @@ export const resend = new Proxy({} as Resend, {
     const client = getResendClient()
     const value = client[prop as keyof Resend]
     return typeof value === 'function' ? value.bind(client) : value
-  }
+  },
 })
 
 const DEFAULT_FROM_ADDRESS = 'noreply@waytofutureua.org.ua'

@@ -4,20 +4,22 @@
  */
 
 import { redirect } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase/server'
+
 import { getSubscriptions } from '@/app/actions/subscription'
+import { createServerClient } from '@/lib/supabase/server'
+
 import SubscriptionsPageClient from './SubscriptionsPageClient'
 
 export const metadata = {
   title: 'Email Subscriptions - Admin',
-  description: 'Manage email subscriptions and send newsletter broadcasts'
+  description: 'Manage email subscriptions and send newsletter broadcasts',
 }
 
 export default async function SubscriptionsPage() {
   // Check authentication
   const supabase = await createServerClient()
   const {
-    data: { user }
+    data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
@@ -36,7 +38,7 @@ export default async function SubscriptionsPage() {
   if (error) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="text-red-700">Error loading subscriptions: {error}</p>
         </div>
       </div>

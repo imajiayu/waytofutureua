@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
 import { clientLogger } from '@/lib/logger-client'
 import type { MarketItemContent } from '@/types/market'
 

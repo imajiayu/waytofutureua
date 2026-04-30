@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import type { ProjectResult } from '@/types'
+import { useMemo, useState } from 'react'
+
 import type { LightboxImage } from '@/components/common/ImageLightbox'
+import type { ProjectResult } from '@/types'
 
 // P2 优化: 动态加载灯箱组件，减少初始 bundle
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
@@ -42,10 +43,10 @@ const getSizeClasses = (size: ImageSize): string => {
 const getSizeFromPriority = (priority?: number): ImageSize => {
   const p = priority ?? 5 // Default priority is 5
 
-  if (p >= 10) return 'xlarge'  // Only priority 10 gets xlarge
-  if (p >= 8) return 'large'    // Priority 8-9 gets large
-  if (p >= 5) return 'medium'   // Priority 5-7 gets medium
-  return 'small'                // Priority <5 gets small
+  if (p >= 10) return 'xlarge' // Only priority 10 gets xlarge
+  if (p >= 8) return 'large' // Priority 8-9 gets large
+  if (p >= 5) return 'medium' // Priority 5-7 gets medium
+  return 'small' // Priority <5 gets small
 }
 
 export default function ProjectResultsMasonry({
@@ -91,15 +92,20 @@ export default function ProjectResultsMasonry({
     <>
       <div className={`w-full ${className}`}>
         {/* Masonry Grid */}
-        <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 auto-rows-[80px] md:auto-rows-[100px] gap-1.5 md:gap-3 grid-flow-dense">
+        <div className="grid grid-flow-dense auto-rows-[80px] grid-cols-4 gap-1.5 md:auto-rows-[100px] md:grid-cols-5 md:gap-3 lg:grid-cols-6">
           {masonryItems.map((item, index) => (
             <div
               key={index}
               role="button"
               tabIndex={0}
-              className={`${getSizeClasses(item.size)} group relative overflow-hidden rounded-lg cursor-pointer`}
+              className={`${getSizeClasses(item.size)} group relative cursor-pointer overflow-hidden rounded-lg`}
               onClick={() => openLightbox(index)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(index) } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  openLightbox(index)
+                }
+              }}
             >
               {/* Image */}
               <Image

@@ -1,6 +1,7 @@
 'use client'
 
-import { useRef, useState, useEffect, useCallback, useLayoutEffect } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+
 import { cn } from '@/lib/utils'
 
 export interface SectionNavItem {
@@ -23,11 +24,7 @@ interface IndicatorStyle {
   opacity: number
 }
 
-export default function SectionNav({
-  sections,
-  activeSectionId,
-  className,
-}: SectionNavProps) {
+export default function SectionNav({ sections, activeSectionId, className }: SectionNavProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const pillRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
@@ -127,25 +124,25 @@ export default function SectionNav({
   if (sections.length === 0) return null
 
   return (
-    <div
-      ref={containerRef}
-      className={cn('sticky top-[8.5rem] md:top-[5.5rem] z-40', className)}
-    >
+    <div ref={containerRef} className={cn('sticky top-[8.5rem] z-40 md:top-[5.5rem]', className)}>
       {/* Rectangular mask behind rounded container — only when stuck */}
       {isStuck && (
-        <div className="absolute -top-8 left-0 right-0 bottom-0 bg-slate-50 -z-10" aria-hidden="true" />
+        <div
+          className="absolute -top-8 bottom-0 left-0 right-0 -z-10 bg-slate-50"
+          aria-hidden="true"
+        />
       )}
 
       <div
         className={cn(
           'relative',
-          'bg-white/95 backdrop-blur-md rounded-2xl',
-          'shadow-[0_2px_12px_-2px_rgba(7,108,179,0.08)] border border-ukraine-blue-100/60',
+          'rounded-2xl bg-white/95 backdrop-blur-md',
+          'border border-ukraine-blue-100/60 shadow-[0_2px_12px_-2px_rgba(7,108,179,0.08)]'
         )}
       >
         <div
           ref={scrollContainerRef}
-          className="relative flex items-center gap-1 px-1.5 py-1.5 overflow-x-auto scrollbar-hide"
+          className="scrollbar-hide relative flex items-center gap-1 overflow-x-auto px-1.5 py-1.5"
         >
           {/* Sliding indicator */}
           <div
@@ -153,7 +150,7 @@ export default function SectionNav({
               'absolute top-1.5 h-[calc(100%-12px)] rounded-xl',
               'bg-gradient-to-r from-ukraine-blue-500 to-ukraine-blue-600',
               'shadow-[0_1px_4px_rgba(7,108,179,0.3)]',
-              hasInitialized ? 'transition-all duration-300 ease-out' : '',
+              hasInitialized ? 'transition-all duration-300 ease-out' : ''
             )}
             style={{
               left: indicator.left,
@@ -172,8 +169,8 @@ export default function SectionNav({
                 className={cn(
                   'relative z-10 flex-shrink-0',
                   'px-4 py-2 md:py-1.5',
-                  'text-xs md:text-sm font-semibold font-display tracking-wide',
-                  'rounded-xl whitespace-nowrap',
+                  'font-display text-xs font-semibold tracking-wide md:text-sm',
+                  'whitespace-nowrap rounded-xl',
                   'transition-colors duration-300',
                   isActive
                     ? 'text-white'

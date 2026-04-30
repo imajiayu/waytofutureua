@@ -1,4 +1,5 @@
 import { SectionHeader } from '@/components/projects/shared'
+
 import type { BackgroundContent } from '../types'
 
 interface BackgroundSectionProps {
@@ -7,13 +8,17 @@ interface BackgroundSectionProps {
 
 export default function BackgroundSection({ background }: BackgroundSectionProps) {
   return (
-    <section className="bg-white rounded-xl md:rounded-2xl shadow-sm overflow-hidden p-5 md:p-8">
-      <SectionHeader title={background.title} gradientClassName="from-orange-400 to-amber-500" className="mb-4" />
+    <section className="overflow-hidden rounded-xl bg-white p-5 shadow-sm md:rounded-2xl md:p-8">
+      <SectionHeader
+        title={background.title}
+        gradientClassName="from-orange-400 to-amber-500"
+        className="mb-4"
+      />
 
       {/* Paragraphs */}
       <div className="space-y-4">
         {background.paragraphs.map((paragraph, idx) => (
-          <p key={idx} className="text-sm md:text-base text-gray-700 leading-relaxed">
+          <p key={idx} className="text-sm leading-relaxed text-gray-700 md:text-base">
             {paragraph}
           </p>
         ))}

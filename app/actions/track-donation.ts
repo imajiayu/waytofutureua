@@ -1,21 +1,22 @@
 'use server'
 
 import { z } from 'zod'
-import { getPublicClient, getInternalClient } from '@/lib/supabase/action-clients'
-import { processWayForPayRefund } from '@/lib/payment/wayforpay/server'
-import { sendRefundSuccessEmail } from '@/lib/email'
+
 import {
   canRequestRefund,
+  type DonationStatus,
+  isFailedStatus,
+  isPrePaymentStatus,
   isRefundInProgress,
   NON_REFUNDABLE_COMPLETED,
-  isPrePaymentStatus,
-  isFailedStatus,
   REFUNDABLE_STATUSES,
-  type DonationStatus
 } from '@/lib/donation-status'
-import { logger } from '@/lib/logger'
+import { sendRefundSuccessEmail } from '@/lib/email'
 import type { SupportedLocale } from '@/lib/i18n-utils'
-import { trackDonationSchema, requestRefundSchema } from '@/lib/validations'
+import { logger } from '@/lib/logger'
+import { processWayForPayRefund } from '@/lib/payment/wayforpay/server'
+import { getInternalClient, getPublicClient } from '@/lib/supabase/action-clients'
+import { requestRefundSchema, trackDonationSchema } from '@/lib/validations'
 
 /**
  * Track Donations - Secure Implementation
@@ -26,10 +27,7 @@ import { trackDonationSchema, requestRefundSchema } from '@/lib/validations'
  * - Prevents enumeration attacks (need both email AND valid donation ID)
  * - No service role needed
  */
-export async function trackDonations(data: {
-  email: string
-  donationId: string
-}) {
+export async function trackDonations(data: { email: string; donationId: string }) {
   try {
     // 1. Validate input
     const validated = trackDonationSchema.parse(data)
@@ -42,13 +40,10 @@ export async function trackDonations(data: {
     //   - Verify donation ID belongs to this email
     //   - Return all donations for this email if verified
     //   - Return empty result if verification fails
-    const { data: donations, error } = await supabase.rpc(
-      'get_donations_by_email_verified',
-      {
-        p_email: validated.email,
-        p_donation_id: validated.donationId,
-      }
-    )
+    const { data: donations, error } = await supabase.rpc('get_donations_by_email_verified', {
+      p_email: validated.email,
+      p_donation_id: validated.donationId,
+    })
 
     if (error) {
       logger.error('DONATION', 'get_donations_by_email_verified failed', { error: error.message })
@@ -99,10 +94,7 @@ export async function trackDonations(data: {
  * - WayForPay "RefundInProcessing" → donation status "refund_processing"
  * - WayForPay "Declined" → return error, keep original status
  */
-export async function requestRefund(data: {
-  donationPublicId: string
-  email: string
-}) {
+export async function requestRefund(data: { donationPublicId: string; email: string }) {
   try {
     // 1. Validate input
     const validated = requestRefundSchema.parse(data)
@@ -156,7 +148,9 @@ export async function requestRefund(data: {
     const serviceSupabase = getInternalClient()
     const orderReference = donation.order_reference as string
     if (!orderReference) {
-      logger.error('REFUND', 'Missing order_reference', { donationPublicId: validated.donationPublicId })
+      logger.error('REFUND', 'Missing order_reference', {
+        donationPublicId: validated.donationPublicId,
+      })
       return { error: 'serverError' }
     }
 
@@ -167,7 +161,10 @@ export async function requestRefund(data: {
       .single()
 
     if (paymentError || !paymentInfo) {
-      logger.error('REFUND', 'Failed to fetch payment method', { donationPublicId: validated.donationPublicId, error: paymentError?.message })
+      logger.error('REFUND', 'Failed to fetch payment method', {
+        donationPublicId: validated.donationPublicId,
+        error: paymentError?.message,
+      })
       return { error: 'serverError' }
     }
 
@@ -181,17 +178,22 @@ export async function requestRefund(data: {
     // Include fields needed for refund email — 使用 service client 查询 PII 字段
     const { data: orderDonations, error: orderError } = await serviceSupabase
       .from('donations')
-      .select('id, donation_public_id, amount, donation_status, donor_name, donor_email, locale, project_id')
+      .select(
+        'id, donation_public_id, amount, donation_status, donor_name, donor_email, locale, project_id'
+      )
       .eq('order_reference', orderReference)
 
     if (orderError || !orderDonations || orderDonations.length === 0) {
-      logger.error('REFUND', 'Failed to fetch order donations', { orderReference: donationData.order_reference, error: orderError?.message })
+      logger.error('REFUND', 'Failed to fetch order donations', {
+        orderReference: donationData.order_reference,
+        error: orderError?.message,
+      })
       return { error: 'serverError' }
     }
 
     // Check if any donation in this order is already refunded/refunding
-    const hasRefundInProgress = orderDonations.some(d =>
-      d.donation_status && isRefundInProgress(d.donation_status as DonationStatus)
+    const hasRefundInProgress = orderDonations.some(
+      (d) => d.donation_status && isRefundInProgress(d.donation_status as DonationStatus)
     )
 
     if (hasRefundInProgress) {
@@ -199,8 +201,8 @@ export async function requestRefund(data: {
     }
 
     // Filter donations that can be refunded (exclude completed donations)
-    const refundableDonations = orderDonations.filter(d =>
-      d.donation_status && canRequestRefund(d.donation_status as DonationStatus)
+    const refundableDonations = orderDonations.filter(
+      (d) => d.donation_status && canRequestRefund(d.donation_status as DonationStatus)
     )
 
     // Check if there are any refundable donations
@@ -217,29 +219,33 @@ export async function requestRefund(data: {
     // For NOWPayments (crypto): Mark as refunding for manual processing
     // Crypto refunds require manual handling by admin
     if (paymentMethod === 'NOWPayments') {
-      const donationIds = refundableDonations.map(d => d.id)
+      const donationIds = refundableDonations.map((d) => d.id)
 
       const { error: updateError } = await serviceSupabase
         .from('donations')
         .update({
           donation_status: 'refunding',
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .in('id', donationIds)
 
       if (updateError) {
-        logger.error('REFUND', 'Failed to update NOWPayments donation status', { error: updateError.message })
+        logger.error('REFUND', 'Failed to update NOWPayments donation status', {
+          error: updateError.message,
+        })
         return { error: 'serverError' }
       }
 
-      logger.info('REFUND', 'NOWPayments donations marked for manual refund', { count: donationIds.length })
+      logger.info('REFUND', 'NOWPayments donations marked for manual refund', {
+        count: donationIds.length,
+      })
 
       return {
         success: true,
         status: 'refunding',
         affectedDonations: refundableDonations.length,
         totalAmount: totalOrderAmount,
-        message: 'Crypto refund request submitted for manual processing'
+        message: 'Crypto refund request submitted for manual processing',
       }
     }
 
@@ -247,7 +253,7 @@ export async function requestRefund(data: {
     try {
       const wayforpayResponse = await processWayForPayRefund({
         orderReference: donationData.order_reference,
-        amount: totalOrderAmount,  // ← Full order amount, not just one donation!
+        amount: totalOrderAmount, // ← Full order amount, not just one donation!
         currency: (donationData.currency as 'UAH' | 'USD' | 'EUR') || 'USD',
         comment: `Full order refund requested by user (donation ID: ${validated.donationPublicId}, order: ${donationData.order_reference})`,
       })
@@ -263,20 +269,22 @@ export async function requestRefund(data: {
           newStatus = 'refund_processing'
           break
         case 'Voided':
-          newStatus = 'refunded'  // Voided means pre-auth was cancelled, treat as refunded
+          newStatus = 'refunded' // Voided means pre-auth was cancelled, treat as refunded
           break
         case 'Declined':
           return { error: 'refundDeclined', message: wayforpayResponse.reason }
         default:
           // Unknown status from WayForPay - mark as refunding so admin knows user wants refund
-          logger.warn('REFUND', 'Unknown WayForPay refund status', { status: wayforpayResponse.transactionStatus })
+          logger.warn('REFUND', 'Unknown WayForPay refund status', {
+            status: wayforpayResponse.transactionStatus,
+          })
           newStatus = 'refunding'
       }
 
       // 7. Update ONLY refundable donations (paid/confirmed/delivering) to the new status
       // Completed donations are excluded from refund
       // Also skip if already refunded (prevent race condition with webhook)
-      const donationIds = refundableDonations.map(d => d.id)
+      const donationIds = refundableDonations.map((d) => d.id)
 
       // Check if any donation is already refunded (webhook may have processed first)
       const { data: currentDonations } = await serviceSupabase
@@ -284,29 +292,32 @@ export async function requestRefund(data: {
         .select('id, donation_status')
         .in('id', donationIds)
 
-      const alreadyRefunded = currentDonations?.every(d => d.donation_status === 'refunded')
+      const alreadyRefunded = currentDonations?.every((d) => d.donation_status === 'refunded')
       if (alreadyRefunded) {
-        logger.debug('REFUND', 'All donations already refunded by webhook', { orderReference: donationData.order_reference })
+        logger.debug('REFUND', 'All donations already refunded by webhook', {
+          orderReference: donationData.order_reference,
+        })
         return {
           success: true,
           status: 'refunded',
           affectedDonations: refundableDonations.length,
-          totalAmount: totalOrderAmount
+          totalAmount: totalOrderAmount,
         }
       }
 
       // Filter out already refunded donations
-      const idsToUpdate = currentDonations
-        ?.filter(d => d.donation_status !== 'refunded')
-        .map(d => d.id) || []
+      const idsToUpdate =
+        currentDonations?.filter((d) => d.donation_status !== 'refunded').map((d) => d.id) || []
 
       if (idsToUpdate.length === 0) {
-        logger.debug('REFUND', 'No donations to update - all already refunded', { orderReference: donationData.order_reference })
+        logger.debug('REFUND', 'No donations to update - all already refunded', {
+          orderReference: donationData.order_reference,
+        })
         return {
           success: true,
           status: 'refunded',
           affectedDonations: refundableDonations.length,
-          totalAmount: totalOrderAmount
+          totalAmount: totalOrderAmount,
         }
       }
 
@@ -314,7 +325,7 @@ export async function requestRefund(data: {
         .from('donations')
         .update({
           donation_status: newStatus,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .in('id', idsToUpdate)
 
@@ -339,7 +350,7 @@ export async function requestRefund(data: {
               to: firstDonation.donor_email,
               donorName: firstDonation.donor_name || '',
               projectNameI18n: project.project_name_i18n as { en: string; zh: string; ua: string },
-              donationIds: refundableDonations.map(d => d.donation_public_id),
+              donationIds: refundableDonations.map((d) => d.donation_public_id),
               refundAmount: totalOrderAmount,
               currency: (donationData.currency as string) || 'USD',
               locale: (firstDonation.locale as SupportedLocale) || 'en',
@@ -356,10 +367,9 @@ export async function requestRefund(data: {
       return {
         success: true,
         status: newStatus,
-        affectedDonations: refundableDonations.length,  // Return how many donations were refunded
-        totalAmount: totalOrderAmount
+        affectedDonations: refundableDonations.length, // Return how many donations were refunded
+        totalAmount: totalOrderAmount,
       }
-
     } catch (wayforpayError: unknown) {
       logger.error('REFUND', 'WayForPay refund API error', {
         error: wayforpayError instanceof Error ? wayforpayError.message : String(wayforpayError),
@@ -367,18 +377,20 @@ export async function requestRefund(data: {
       })
 
       // Update status to 'refunding' so admin knows user attempted refund
-      const donationIds = refundableDonations.map(d => d.id)
+      const donationIds = refundableDonations.map((d) => d.id)
 
       try {
         await serviceSupabase
           .from('donations')
           .update({
             donation_status: 'refunding',
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .in('id', donationIds)
 
-        logger.info('REFUND', 'Donations marked as refunding after API error', { count: donationIds.length })
+        logger.info('REFUND', 'Donations marked as refunding after API error', {
+          count: donationIds.length,
+        })
       } catch (updateError) {
         logger.error('REFUND', 'Failed to update status to refunding', {
           error: updateError instanceof Error ? updateError.message : String(updateError),
@@ -387,10 +399,12 @@ export async function requestRefund(data: {
 
       return {
         error: 'refundApiError',
-        message: wayforpayError instanceof Error ? wayforpayError.message : 'Failed to process refund with payment provider'
+        message:
+          wayforpayError instanceof Error
+            ? wayforpayError.message
+            : 'Failed to process refund with payment provider',
       }
     }
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: 'validationError' }

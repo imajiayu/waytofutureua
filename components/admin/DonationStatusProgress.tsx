@@ -2,10 +2,10 @@
 
 import {
   DISPLAY_FLOW_STATUSES,
+  type DonationStatus,
   getNextAllowedStatuses,
-  isRefundStatus,
   isRefundPending,
-  type DonationStatus
+  isRefundStatus,
 } from '@/lib/donation-status'
 
 interface DonationStatusProgressProps {
@@ -14,7 +14,7 @@ interface DonationStatusProgressProps {
   selectedStatus?: string
 }
 
-const NORMAL_FLOW_STATUSES = DISPLAY_FLOW_STATUSES.map(status => ({
+const NORMAL_FLOW_STATUSES = DISPLAY_FLOW_STATUSES.map((status) => ({
   key: status,
   label: status.charAt(0).toUpperCase() + status.slice(1),
 }))
@@ -27,14 +27,20 @@ export default function DonationStatusProgress({
   const currentIndex = NORMAL_FLOW_STATUSES.findIndex((s) => s.key === currentStatus)
   const allowedNextStatuses = getNextAllowedStatuses(currentStatus as DonationStatus)
 
-  const getStatusState = (status: string, index: number): 'completed' | 'current' | 'next' | 'future' => {
+  const getStatusState = (
+    status: string,
+    index: number
+  ): 'completed' | 'current' | 'next' | 'future' => {
     if (index < currentIndex) return 'completed'
     if (status === currentStatus) return 'current'
     if (allowedNextStatuses.includes(status as DonationStatus)) return 'next'
     return 'future'
   }
 
-  const getStatusStyles = (state: 'completed' | 'current' | 'next' | 'future', isSelected: boolean) => {
+  const getStatusStyles = (
+    state: 'completed' | 'current' | 'next' | 'future',
+    isSelected: boolean
+  ) => {
     if (state === 'completed') {
       return {
         circle: 'bg-green-500 text-white border-green-500',
@@ -79,18 +85,14 @@ export default function DonationStatusProgress({
           const isLast = index === NORMAL_FLOW_STATUSES.length - 1
 
           return (
-            <div key={status.key} className="flex items-center flex-1">
-              <div className="flex flex-col items-center relative">
+            <div key={status.key} className="flex flex-1 items-center">
+              <div className="relative flex flex-col items-center">
                 {/* Circle */}
                 <button
                   type="button"
                   onClick={() => isClickable && onStatusSelect(status.key)}
                   disabled={!isClickable}
-                  className={`
-                    w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center
-                    transition-all duration-200 z-10 flex-shrink-0
-                    ${styles.circle}
-                  `}
+                  className={`z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200 sm:h-10 sm:w-10 ${styles.circle} `}
                   title={
                     state === 'completed'
                       ? 'Completed'
@@ -102,7 +104,7 @@ export default function DonationStatusProgress({
                   }
                 >
                   {state === 'completed' ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -115,14 +117,16 @@ export default function DonationStatusProgress({
                 </button>
 
                 {/* Label */}
-                <span className={`mt-1 sm:mt-2 text-[10px] sm:text-xs text-center whitespace-nowrap ${styles.label}`}>
+                <span
+                  className={`mt-1 whitespace-nowrap text-center text-[10px] sm:mt-2 sm:text-xs ${styles.label}`}
+                >
                   {status.label}
                 </span>
               </div>
 
               {/* Connecting Line */}
               {!isLast && (
-                <div className="flex-1 h-0.5 mx-1 sm:mx-2 relative -top-4 sm:-top-5 min-w-4">
+                <div className="relative -top-4 mx-1 h-0.5 min-w-4 flex-1 sm:-top-5 sm:mx-2">
                   <div className={`h-full ${styles.line}`} />
                 </div>
               )}
@@ -133,24 +137,22 @@ export default function DonationStatusProgress({
 
       {/* Special Status Info - shown for refund statuses or failed */}
       {(isRefundStatus(currentStatus as DonationStatus) || currentStatus === 'failed') && (
-        <div className="mt-6 p-4 rounded-lg border-2 border-orange-300 bg-orange-50">
+        <div className="mt-6 rounded-lg border-2 border-orange-300 bg-orange-50 p-4">
           <div className="flex items-center gap-2">
             <span
-              className={`
-              px-3 py-1 rounded-full text-sm font-semibold
-              ${
+              className={`rounded-full px-3 py-1 text-sm font-semibold ${
                 isRefundPending(currentStatus as DonationStatus)
                   ? 'bg-orange-100 text-orange-800 ring-2 ring-orange-400'
                   : currentStatus === 'refunded'
                     ? 'bg-slate-200 text-slate-700'
                     : 'bg-red-200 text-red-800'
-              }
-            `}
+              } `}
             >
               {currentStatus.toUpperCase().replace('_', ' ')}
             </span>
             <span className="text-sm text-gray-700">
-              {isRefundPending(currentStatus as DonationStatus) && 'This donation is being refunded'}
+              {isRefundPending(currentStatus as DonationStatus) &&
+                'This donation is being refunded'}
               {currentStatus === 'refunded' && 'This donation has been refunded'}
               {currentStatus === 'failed' && 'Payment failed'}
             </span>

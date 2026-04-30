@@ -2,10 +2,11 @@
  * Donation Completed Email Sender
  */
 
-import { resend, getFromEmail } from '../client'
-import { DonationCompletedEmailParams } from '../types'
-import { generateDonationCompletedEmail } from '../templates/transactional/donation-completed'
 import { logger } from '@/lib/logger'
+
+import { getFromEmail, resend } from '../client'
+import { generateDonationCompletedEmail } from '../templates/transactional/donation-completed'
+import { DonationCompletedEmailParams } from '../types'
 
 /**
  * Send donation completed notification email
@@ -19,7 +20,7 @@ export async function sendDonationCompletedEmail(params: DonationCompletedEmailP
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
-      text: emailContent.text
+      text: emailContent.text,
     })
 
     if (error) {

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
 import { adminLogin } from '@/app/actions/admin'
 import { createClient } from '@/lib/supabase/client'
 
@@ -13,7 +14,9 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (user) {
         // 已登录，重定向到项目页面
@@ -34,7 +37,7 @@ export default function AdminLoginPage() {
   // 显示加载状态
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-gray-600">Checking session...</div>
       </div>
     )
@@ -62,12 +65,10 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-5 sm:p-8 bg-white rounded-lg shadow mx-4 sm:mx-0">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="mx-4 w-full max-w-md space-y-8 rounded-lg bg-white p-5 shadow sm:mx-0 sm:p-8">
         <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900 font-body">
-            Admin Login
-          </h2>
+          <h2 className="text-center font-body text-3xl font-bold text-gray-900">Admin Login</h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -88,7 +89,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               />
             </div>
             <div>
@@ -103,7 +104,7 @@ export default function AdminLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               />
             </div>
           </div>
@@ -111,7 +112,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
           >
             {loading ? 'Logging in...' : 'Sign in'}
           </button>

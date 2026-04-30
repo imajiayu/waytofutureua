@@ -12,7 +12,13 @@ module.exports = {
         // 标题/展示字体 - Fraunces (温暖有机的衬线字体)
         display: ['var(--font-fraunces)', 'Georgia', 'serif'],
         // 正文字体 - Source Sans 3 (温暖友好的无衬线)
-        body: ['var(--font-source-sans)', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        body: [
+          'var(--font-source-sans)',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'system-ui',
+          'sans-serif',
+        ],
         // 数据/统计字体 - JetBrains Mono (清晰醒目的等宽字体)
         data: ['var(--font-jetbrains-mono)', 'ui-monospace', 'monospace'],
         // 中文字体回退
@@ -49,7 +55,7 @@ module.exports = {
             200: '#8DD5F0',
             300: '#52BFE8',
             400: '#1FA8E1',
-            500: '#076CB3',  // Logo 蓝色 - UI 主色
+            500: '#076CB3', // Logo 蓝色 - UI 主色
             600: '#065A96',
             700: '#054878',
             800: '#04375B',
@@ -62,7 +68,7 @@ module.exports = {
             200: '#FDE68A',
             300: '#FCD34D',
             400: '#FBBF24',
-            500: '#F5B800',  // 主色 - CTA 按钮
+            500: '#F5B800', // 主色 - CTA 按钮
             600: '#D19A00',
             700: '#A67C00',
             800: '#7C5D00',

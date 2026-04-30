@@ -1,6 +1,7 @@
-import { EmailTemplate, loadTemplateContent, replaceTemplateVariables } from './templates'
-import { getFromEmail, resend } from './client'
 import { logger } from '@/lib/logger'
+
+import { getFromEmail, resend } from './client'
+import { EmailTemplate, loadTemplateContent, replaceTemplateVariables } from './templates'
 
 interface BroadcastEmailParams {
   template: EmailTemplate
@@ -32,9 +33,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
  * 采用 Resend Batch API 批量投递（每批最多 100 封，permissive 模式）。
  * 每个收件人依然拿到独立渲染的正文（含 per-recipient unsubscribe URL 和 List-Unsubscribe 头）。
  */
-export async function sendBroadcastEmail(
-  params: BroadcastEmailParams
-): Promise<BroadcastResult> {
+export async function sendBroadcastEmail(params: BroadcastEmailParams): Promise<BroadcastResult> {
   const { template, locale, recipients, variables = {} } = params
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -59,8 +58,7 @@ export async function sendBroadcastEmail(
     ...variables,
   }
 
-  const broadcastAddress =
-    process.env.RESEND_BROADCAST_FROM_EMAIL || process.env.RESEND_FROM_EMAIL!
+  const broadcastAddress = process.env.RESEND_BROADCAST_FROM_EMAIL || process.env.RESEND_FROM_EMAIL!
   const from = getFromEmail(locale, broadcastAddress)
 
   let successCount = 0

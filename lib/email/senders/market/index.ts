@@ -4,16 +4,17 @@
  * 义卖模块的邮件发送器，对标捐赠模块的 sender 模式。
  */
 
-import { resend, getFromEmail } from '../../client'
-import type {
-  MarketOrderPaidEmailParams,
-  MarketOrderShippedEmailParams,
-  MarketOrderCompletedEmailParams
-} from '../../types'
+import { logger } from '@/lib/logger'
+
+import { getFromEmail, resend } from '../../client'
+import { generateMarketOrderCompletedEmail } from '../../templates/transactional/market-order-completed'
 import { generateMarketOrderPaidEmail } from '../../templates/transactional/market-order-paid'
 import { generateMarketOrderShippedEmail } from '../../templates/transactional/market-order-shipped'
-import { generateMarketOrderCompletedEmail } from '../../templates/transactional/market-order-completed'
-import { logger } from '@/lib/logger'
+import type {
+  MarketOrderCompletedEmailParams,
+  MarketOrderPaidEmailParams,
+  MarketOrderShippedEmailParams,
+} from '../../types'
 
 /**
  * Send market order paid confirmation email
@@ -27,7 +28,7 @@ export async function sendMarketOrderPaidEmail(params: MarketOrderPaidEmailParam
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
-      text: emailContent.text
+      text: emailContent.text,
     })
 
     if (error) {
@@ -35,7 +36,11 @@ export async function sendMarketOrderPaidEmail(params: MarketOrderPaidEmailParam
       throw error
     }
 
-    logger.info('MARKET:EMAIL', 'Order paid email sent', { messageId: data?.id, to: params.to, orderReference: params.orderReference })
+    logger.info('MARKET:EMAIL', 'Order paid email sent', {
+      messageId: data?.id,
+      to: params.to,
+      orderReference: params.orderReference,
+    })
     return data
   } catch (error) {
     logger.errorWithStack('MARKET:EMAIL', 'Failed to send order paid email', error)
@@ -55,7 +60,7 @@ export async function sendMarketOrderShippedEmail(params: MarketOrderShippedEmai
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
-      text: emailContent.text
+      text: emailContent.text,
     })
 
     if (error) {
@@ -63,7 +68,11 @@ export async function sendMarketOrderShippedEmail(params: MarketOrderShippedEmai
       throw error
     }
 
-    logger.info('MARKET:EMAIL', 'Order shipped email sent', { messageId: data?.id, to: params.to, orderReference: params.orderReference })
+    logger.info('MARKET:EMAIL', 'Order shipped email sent', {
+      messageId: data?.id,
+      to: params.to,
+      orderReference: params.orderReference,
+    })
     return data
   } catch (error) {
     logger.errorWithStack('MARKET:EMAIL', 'Failed to send order shipped email', error)
@@ -83,7 +92,7 @@ export async function sendMarketOrderCompletedEmail(params: MarketOrderCompleted
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
-      text: emailContent.text
+      text: emailContent.text,
     })
 
     if (error) {
@@ -91,7 +100,11 @@ export async function sendMarketOrderCompletedEmail(params: MarketOrderCompleted
       throw error
     }
 
-    logger.info('MARKET:EMAIL', 'Order completed email sent', { messageId: data?.id, to: params.to, orderReference: params.orderReference })
+    logger.info('MARKET:EMAIL', 'Order completed email sent', {
+      messageId: data?.id,
+      to: params.to,
+      orderReference: params.orderReference,
+    })
     return data
   } catch (error) {
     logger.errorWithStack('MARKET:EMAIL', 'Failed to send order completed email', error)

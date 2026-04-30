@@ -95,12 +95,7 @@ function formatContext(context?: LogContext): string {
   return parts.length > 0 ? ` | ${parts.join(' ')}` : ''
 }
 
-function log(
-  level: LogLevel,
-  category: LogCategory,
-  message: string,
-  context?: LogContext
-): void {
+function log(level: LogLevel, category: LogCategory, message: string, context?: LogContext): void {
   if (!shouldLog(level)) return
 
   const entry: LogEntry = {

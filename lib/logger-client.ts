@@ -98,29 +98,17 @@ function log(
 }
 
 export const clientLogger = {
-  debug: (
-    category: ClientLogCategory,
-    message: string,
-    context?: ClientLogContext
-  ) => log('debug', category, message, context),
+  debug: (category: ClientLogCategory, message: string, context?: ClientLogContext) =>
+    log('debug', category, message, context),
 
-  info: (
-    category: ClientLogCategory,
-    message: string,
-    context?: ClientLogContext
-  ) => log('info', category, message, context),
+  info: (category: ClientLogCategory, message: string, context?: ClientLogContext) =>
+    log('info', category, message, context),
 
-  warn: (
-    category: ClientLogCategory,
-    message: string,
-    context?: ClientLogContext
-  ) => log('warn', category, message, context),
+  warn: (category: ClientLogCategory, message: string, context?: ClientLogContext) =>
+    log('warn', category, message, context),
 
-  error: (
-    category: ClientLogCategory,
-    message: string,
-    context?: ClientLogContext
-  ) => log('error', category, message, context),
+  error: (category: ClientLogCategory, message: string, context?: ClientLogContext) =>
+    log('error', category, message, context),
 
   // Convenience method for logging errors with details
   errorWithDetails: (

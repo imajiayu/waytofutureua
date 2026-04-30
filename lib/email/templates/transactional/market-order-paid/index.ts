@@ -6,16 +6,16 @@
  * with item name, quantity breakdown, and shipping destination.
  */
 
-import { MarketOrderPaidEmailParams, EmailContent } from '../../../types'
-import { getLocalizedText, formatCurrency, getMarketOrdersUrl, escapeHtml } from '../../../utils'
-import { createEmailLayout } from '../../base/layout'
+import { EmailContent, MarketOrderPaidEmailParams } from '../../../types'
+import { escapeHtml, formatCurrency, getLocalizedText, getMarketOrdersUrl } from '../../../utils'
 import {
-  createOrderTotal,
-  createInfoBox,
   createActionBox,
   createButton,
-  createSignature
+  createInfoBox,
+  createOrderTotal,
+  createSignature,
 } from '../../base/components'
+import { createEmailLayout } from '../../base/layout'
 import { marketOrderPaidContent } from './content'
 
 /**
@@ -28,7 +28,13 @@ function createMarketItemCard(
   quantity: number,
   unitPrice: string,
   shippingTo: string,
-  labels: { orderRefLabel: string; itemLabel: string; quantityLabel: string; unitPriceLabel: string; shippingToLabel: string }
+  labels: {
+    orderRefLabel: string
+    itemLabel: string
+    quantityLabel: string
+    unitPriceLabel: string
+    shippingToLabel: string
+  }
 ): string {
   return `
     <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, rgba(7,108,179,0.15) 0%, rgba(6,90,150,0.08) 100%); border: 1px solid rgba(7,108,179,0.3); border-radius: 16px; margin: 20px 0;">
@@ -99,7 +105,7 @@ export function generateMarketOrderPaidEmail(params: MarketOrderPaidEmailParams)
     totalAmount,
     currency,
     shippingCity,
-    shippingCountry
+    shippingCountry,
   } = params
 
   const t = marketOrderPaidContent[locale]
@@ -110,7 +116,7 @@ export function generateMarketOrderPaidEmail(params: MarketOrderPaidEmailParams)
   const badgeText = {
     en: 'Payment Confirmed',
     zh: '支付已确认',
-    ua: 'Платіж підтверджено'
+    ua: 'Платіж підтверджено',
   }[locale]
 
   const contentHTML = `
@@ -129,19 +135,28 @@ export function generateMarketOrderPaidEmail(params: MarketOrderPaidEmailParams)
       quantity,
       formatCurrency(unitPrice, currency),
       shippingTo,
-      { orderRefLabel: t.orderRefLabel, itemLabel: t.itemLabel, quantityLabel: t.quantityLabel, unitPriceLabel: t.unitPriceLabel, shippingToLabel: t.shippingToLabel }
+      {
+        orderRefLabel: t.orderRefLabel,
+        itemLabel: t.itemLabel,
+        quantityLabel: t.quantityLabel,
+        unitPriceLabel: t.unitPriceLabel,
+        shippingToLabel: t.shippingToLabel,
+      }
     )}
 
     ${createOrderTotal(t.totalAmountLabel, formatCurrency(totalAmount, currency))}
 
     ${createInfoBox(t.orderRefLabel + ' ' + escapeHtml(orderReference))}
 
-    ${createActionBox(t.nextStepsTitle, `
+    ${createActionBox(
+      t.nextStepsTitle,
+      `
       <p style="margin: 0 0 16px;">${t.nextStepsContent}</p>
       <div style="text-align: center;">
         ${createButton(t.viewOrderButton, ordersUrl, 'gold')}
       </div>
-    `)}
+    `
+    )}
 
     <p style="color: rgba(255,255,255,0.75); font-size: 16px; line-height: 1.7; margin: 28px 0 0;">
       ${t.contact}
@@ -154,7 +169,7 @@ export function generateMarketOrderPaidEmail(params: MarketOrderPaidEmailParams)
     title: t.title,
     content: contentHTML,
     locale,
-    badge: badgeText
+    badge: badgeText,
   })
 
   const text = `
@@ -181,6 +196,6 @@ ${t.contact}
   return {
     subject: t.subject(orderReference),
     html,
-    text
+    text,
   }
 }

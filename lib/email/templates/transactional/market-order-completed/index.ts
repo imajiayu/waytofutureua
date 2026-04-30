@@ -6,23 +6,25 @@
  * proof images with gold label, green CTA, share encouragement.
  */
 
-import { MarketOrderCompletedEmailParams, EmailContent } from '../../../types'
-import { getLocalizedText, formatCurrency, getMarketOrdersUrl, escapeHtml } from '../../../utils'
-import { createEmailLayout } from '../../base/layout'
+import { EmailContent, MarketOrderCompletedEmailParams } from '../../../types'
+import { escapeHtml, formatCurrency, getLocalizedText, getMarketOrdersUrl } from '../../../utils'
 import {
+  createButton,
   createDetailBox,
   createDetailRow,
-  createSuccessBox,
   createImage,
-  createButton,
-  createSignature
+  createSignature,
+  createSuccessBox,
 } from '../../base/components'
+import { createEmailLayout } from '../../base/layout'
 import { marketOrderCompletedContent } from './content'
 
 /**
  * Generate market order completed email content
  */
-export function generateMarketOrderCompletedEmail(params: MarketOrderCompletedEmailParams): EmailContent {
+export function generateMarketOrderCompletedEmail(
+  params: MarketOrderCompletedEmailParams
+): EmailContent {
   const {
     locale,
     shippingName,
@@ -33,7 +35,7 @@ export function generateMarketOrderCompletedEmail(params: MarketOrderCompletedEm
     currency,
     shippingCity,
     shippingCountry,
-    proofImageUrls
+    proofImageUrls,
   } = params
 
   const t = marketOrderCompletedContent[locale]
@@ -43,21 +45,24 @@ export function generateMarketOrderCompletedEmail(params: MarketOrderCompletedEm
   const badgeText = {
     en: 'Order Complete',
     zh: '订单完成',
-    ua: 'Замовлення завершено'
+    ua: 'Замовлення завершено',
   }[locale]
 
   // Fund usage proof — identical to donation-completed image section
-  const proofImagesHTML = proofImageUrls.length > 0 ? `
+  const proofImagesHTML =
+    proofImageUrls.length > 0
+      ? `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 28px 0;">
       <tr>
         <td>
           <p style="color: #F5B800; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; font-weight: 600; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 1px;">${t.fundUsageProofTitle}</p>
           <p style="color: rgba(255,255,255,0.75); font-size: 15px; margin: 0 0 16px;">${t.fundUsageProofDescription}</p>
-          ${proofImageUrls.map(url => createImage(url, 'Fund usage proof')).join('')}
+          ${proofImageUrls.map((url) => createImage(url, 'Fund usage proof')).join('')}
         </td>
       </tr>
     </table>
-  ` : ''
+  `
+      : ''
 
   const contentHTML = `
     <p style="color: rgba(255,255,255,0.9); font-size: 16px; line-height: 1.7; margin: 0 0 20px;">
@@ -112,7 +117,7 @@ export function generateMarketOrderCompletedEmail(params: MarketOrderCompletedEm
     title: t.title,
     content: contentHTML,
     locale,
-    badge: badgeText
+    badge: badgeText,
   })
 
   const text = `
@@ -145,6 +150,6 @@ ${t.contact}
   return {
     subject: t.subject(orderReference),
     html,
-    text
+    text,
   }
 }

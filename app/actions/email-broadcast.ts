@@ -5,13 +5,14 @@
 
 'use server'
 
-import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
+import { z } from 'zod'
+
 import { sendBroadcastEmail } from '@/lib/email/broadcast'
 import { getAvailableTemplates, getEmailTemplate } from '@/lib/email/templates'
-import { z } from 'zod'
-import type { DonationLocale } from '@/types'
 import { logger } from '@/lib/logger'
+import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { sendBroadcastSchema } from '@/lib/validations'
+import type { DonationLocale } from '@/types'
 
 type Locale = DonationLocale
 
@@ -77,7 +78,7 @@ export async function sendEmailBroadcast(
     if (!template) {
       return {
         data: null,
-        error: `Template "${validated.templateName}" not found`
+        error: `Template "${validated.templateName}" not found`,
       }
     }
 
@@ -93,7 +94,7 @@ export async function sendEmailBroadcast(
     if (recipients.length === 0) {
       return {
         data: { success: true, sent: 0, failed: 0 },
-        error: 'No recipients found'
+        error: 'No recipients found',
       }
     }
 
@@ -114,7 +115,7 @@ export async function sendEmailBroadcast(
       success: true,
       sent: 0,
       failed: 0,
-      errors: []
+      errors: [],
     }
 
     for (const [locale, emails] of Object.entries(recipientsByLocale)) {
@@ -123,7 +124,7 @@ export async function sendEmailBroadcast(
           template,
           locale: locale as Locale,
           recipients: emails,
-          variables: validated.variables
+          variables: validated.variables,
         })
 
         results.sent += result.successCount
@@ -135,7 +136,7 @@ export async function sendEmailBroadcast(
         emails.forEach((email) => {
           results.errors?.push({
             email,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           })
         })
       }
@@ -146,7 +147,7 @@ export async function sendEmailBroadcast(
     logger.info('EMAIL', 'Broadcast complete', {
       template: validated.templateName,
       sent: results.sent,
-      failed: results.failed
+      failed: results.failed,
     })
 
     return { data: results }
@@ -158,7 +159,7 @@ export async function sendEmailBroadcast(
     logger.errorWithStack('EMAIL', 'Broadcast error', error)
     return {
       data: null,
-      error: error instanceof Error ? error.message : 'Failed to send broadcast'
+      error: error instanceof Error ? error.message : 'Failed to send broadcast',
     }
   }
 }
@@ -183,7 +184,7 @@ export async function getAvailableBroadcastTemplates(): Promise<{
       return {
         name: template?.name || t.name,
         fileName: t.fileName,
-        projectId: template?.projectId
+        projectId: template?.projectId,
       }
     })
 
@@ -192,7 +193,7 @@ export async function getAvailableBroadcastTemplates(): Promise<{
     logger.errorWithStack('EMAIL', 'Error fetching broadcast templates', error)
     return {
       data: null,
-      error: error instanceof Error ? error.message : 'Failed to fetch templates'
+      error: error instanceof Error ? error.message : 'Failed to fetch templates',
     }
   }
 }
@@ -216,9 +217,8 @@ export async function previewEmailTemplate(
     }
 
     // Load template content
-    const { getCompleteEmailTemplate, replaceTemplateVariables } = await import(
-      '@/lib/email/templates'
-    )
+    const { getCompleteEmailTemplate, replaceTemplateVariables } =
+      await import('@/lib/email/templates')
 
     const result = getCompleteEmailTemplate(templateName)
     if (!result) {
@@ -237,14 +237,14 @@ export async function previewEmailTemplate(
     return {
       data: {
         subject: result.template.subject[locale],
-        html: processedHtml
-      }
+        html: processedHtml,
+      },
     }
   } catch (error) {
     logger.errorWithStack('EMAIL', 'Template preview error', error)
     return {
       data: null,
-      error: error instanceof Error ? error.message : 'Failed to preview template'
+      error: error instanceof Error ? error.message : 'Failed to preview template',
     }
   }
 }

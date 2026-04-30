@@ -1,14 +1,20 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import type { Database } from '@/types/database'
-import DonationEditModal from './DonationEditModal'
-import BatchDonationEditModal from './BatchDonationEditModal'
-import PrintLabelsModal from './PrintLabelsModal'
+import { useCallback, useMemo, useState } from 'react'
+
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
-import { canBatchEdit, requiresFileUploadToTransition, type DonationStatus } from '@/lib/donation-status'
+import {
+  canBatchEdit,
+  type DonationStatus,
+  requiresFileUploadToTransition,
+} from '@/lib/donation-status'
 import { formatDate, formatDateTime } from '@/lib/i18n-utils'
 import type { I18nText } from '@/types'
+import type { Database } from '@/types/database'
+
+import BatchDonationEditModal from './BatchDonationEditModal'
+import DonationEditModal from './DonationEditModal'
+import PrintLabelsModal from './PrintLabelsModal'
 
 type Donation = Database['public']['Tables']['donations']['Row'] & {
   projects: { project_name: string; project_name_i18n: I18nText }
@@ -40,11 +46,15 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
     setEditingDonation(null)
   }
 
-  const handleBatchSaved = (updatedDonations: Database['public']['Tables']['donations']['Row'][]) => {
-    setDonations(donations.map((d) => {
-      const updated = updatedDonations.find((u) => u.id === d.id)
-      return updated ? { ...d, ...updated } : d
-    }))
+  const handleBatchSaved = (
+    updatedDonations: Database['public']['Tables']['donations']['Row'][]
+  ) => {
+    setDonations(
+      donations.map((d) => {
+        const updated = updatedDonations.find((u) => u.id === d.id)
+        return updated ? { ...d, ...updated } : d
+      })
+    )
     setSelectedIds(new Set())
     setShowBatchEdit(false)
   }
@@ -64,18 +74,21 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
   }, [donations, statusFilter, projectFilter])
 
   // 全选/取消全选 - P2 优化: useCallback 避免不必要的重渲染
-  const handleSelectAll = useCallback((checked: boolean) => {
-    if (checked) {
-      const newSelected = new Set(filteredDonations.map(d => d.id))
-      setSelectedIds(newSelected)
-    } else {
-      setSelectedIds(new Set())
-    }
-  }, [filteredDonations])
+  const handleSelectAll = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        const newSelected = new Set(filteredDonations.map((d) => d.id))
+        setSelectedIds(newSelected)
+      } else {
+        setSelectedIds(new Set())
+      }
+    },
+    [filteredDonations]
+  )
 
   // 单选 - P2 优化: useCallback + 函数式 setState
   const handleSelectOne = useCallback((id: number, checked: boolean) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const newSelected = new Set(prev)
       if (checked) {
         newSelected.add(id)
@@ -88,9 +101,9 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
 
   // 分组全选 - P2 优化: useCallback + 函数式 setState
   const handleSelectGroup = useCallback((groupDonations: Donation[], checked: boolean) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const newSelected = new Set(prev)
-      groupDonations.forEach(d => {
+      groupDonations.forEach((d) => {
         if (checked) {
           newSelected.add(d.id)
         } else {
@@ -116,18 +129,18 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
     return Array.from(groups.entries()).map(([orderRef, donations]) => ({
       orderReference: orderRef.startsWith('no-order-') ? null : orderRef,
       donations,
-      totalAmount: donations.reduce((sum, d) => sum + d.amount, 0)
+      totalAmount: donations.reduce((sum, d) => sum + d.amount, 0),
     }))
   }, [filteredDonations])
 
   // 判断全选状态
-  const isAllSelected = filteredDonations.length > 0 &&
-    filteredDonations.every(d => selectedIds.has(d.id))
-  const isSomeSelected = filteredDonations.some(d => selectedIds.has(d.id)) && !isAllSelected
+  const isAllSelected =
+    filteredDonations.length > 0 && filteredDonations.every((d) => selectedIds.has(d.id))
+  const isSomeSelected = filteredDonations.some((d) => selectedIds.has(d.id)) && !isAllSelected
 
   // 获取选中的捐赠
   const selectedDonations = useMemo(() => {
-    return donations.filter(d => selectedIds.has(d.id))
+    return donations.filter((d) => selectedIds.has(d.id))
   }, [donations, selectedIds])
 
   // 判断是否可以批量操作
@@ -135,7 +148,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
     if (selectedDonations.length === 0) return false
 
     // 检查所有选中的捐赠状态是否相同
-    const statuses = new Set(selectedDonations.map(d => d.donation_status))
+    const statuses = new Set(selectedDonations.map((d) => d.donation_status))
     if (statuses.size !== 1) return false
 
     const commonStatus = selectedDonations[0].donation_status as DonationStatus
@@ -145,28 +158,27 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
   }, [selectedDonations])
 
   // 获取选中捐赠的共同状态
-  const selectedCommonStatus = selectedDonations.length > 0
-    ? selectedDonations[0].donation_status
-    : null
+  const selectedCommonStatus =
+    selectedDonations.length > 0 ? selectedDonations[0].donation_status : null
 
   return (
-    <div className="bg-white shadow rounded-lg">
+    <div className="rounded-lg bg-white shadow">
       <div className="px-4 py-5 sm:p-6">
         {/* Filters */}
         <div className="mb-4 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3 sm:gap-4 items-start lg:items-center">
+          <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4 lg:flex lg:flex-wrap lg:items-center">
             <div className="min-w-0">
-              <label className="block text-sm font-medium text-gray-700 mb-1 lg:hidden">
+              <label className="mb-1 block text-sm font-medium text-gray-700 lg:hidden">
                 Status
               </label>
               <div className="flex items-center gap-2">
-                <label className="hidden lg:block text-sm font-medium text-gray-700 whitespace-nowrap">
+                <label className="hidden whitespace-nowrap text-sm font-medium text-gray-700 lg:block">
                   Status:
                 </label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full lg:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm lg:w-auto"
                 >
                   <option value="all">All</option>
                   <option value="pending">Pending</option>
@@ -188,17 +200,17 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
             </div>
 
             <div className="min-w-0">
-              <label className="block text-sm font-medium text-gray-700 mb-1 lg:hidden">
+              <label className="mb-1 block text-sm font-medium text-gray-700 lg:hidden">
                 Project
               </label>
               <div className="flex items-center gap-2">
-                <label className="hidden lg:block text-sm font-medium text-gray-700 whitespace-nowrap">
+                <label className="hidden whitespace-nowrap text-sm font-medium text-gray-700 lg:block">
                   Project:
                 </label>
                 <select
                   value={projectFilter}
                   onChange={(e) => setProjectFilter(e.target.value)}
-                  className="w-full lg:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm lg:w-auto"
                 >
                   <option value="all">All Projects</option>
                   {uniqueProjects.map((project) => (
@@ -211,12 +223,10 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 items-center">
-            <span className="text-sm text-gray-500">
-              Total: {filteredDonations.length}
-            </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm text-gray-500">Total: {filteredDonations.length}</span>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={isAllSelected}
@@ -226,7 +236,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                   }
                 }}
                 onChange={(e) => handleSelectAll(e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700">Select All</span>
             </label>
@@ -239,10 +249,11 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
           </div>
 
           {selectedIds.size > 0 && (
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap items-center gap-2">
               {!canBatchEditSelected && (
                 <span className="text-sm text-amber-600">
-                  {selectedDonations.length > 0 && new Set(selectedDonations.map(d => d.donation_status)).size > 1
+                  {selectedDonations.length > 0 &&
+                  new Set(selectedDonations.map((d) => d.donation_status)).size > 1
                     ? 'Selected donations have different statuses'
                     : requiresFileUploadToTransition(selectedCommonStatus as DonationStatus)
                       ? 'This status requires file upload (cannot batch edit)'
@@ -251,20 +262,20 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
               )}
               <button
                 onClick={() => setShowPrintLabels(true)}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm"
+                className="rounded-md bg-gray-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-gray-700 sm:px-4 sm:py-2"
               >
                 Print Labels ({selectedIds.size})
               </button>
               <button
                 onClick={() => setShowBatchEdit(true)}
                 disabled={!canBatchEditSelected}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
               >
                 Batch Edit ({selectedIds.size})
               </button>
               <button
                 onClick={() => setSelectedIds(new Set())}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 sm:px-4 sm:py-2"
               >
                 Clear
               </button>
@@ -274,15 +285,18 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
 
         <div className="space-y-6">
           {donationGroups.map((group) => (
-            <div key={group.orderReference || 'no-order'} className="border-2 border-gray-300 rounded-lg p-2 sm:p-4 bg-gray-50">
+            <div
+              key={group.orderReference || 'no-order'}
+              className="rounded-lg border-2 border-gray-300 bg-gray-50 p-2 sm:p-4"
+            >
               {/* Order header */}
               {group.orderReference && (
-                <div className="mb-3 pb-3 border-b border-gray-300">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <div className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                <div className="mb-3 border-b border-gray-300 pb-3">
+                  <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-center">
+                    <div className="truncate text-sm font-semibold text-gray-900 sm:text-base">
                       Order: {group.orderReference}
                     </div>
-                    <div className="text-xs sm:text-sm text-gray-600 flex-shrink-0">
+                    <div className="flex-shrink-0 text-xs text-gray-600 sm:text-sm">
                       {group.donations.length} donation(s) | Total: ₴{group.totalAmount.toFixed(2)}
                     </div>
                   </div>
@@ -290,51 +304,72 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
               )}
 
               {/* Group select */}
-              <div className="flex items-center gap-2 mb-2 sm:hidden">
+              <div className="mb-2 flex items-center gap-2 sm:hidden">
                 <input
                   type="checkbox"
-                  checked={group.donations.every(d => selectedIds.has(d.id))}
+                  checked={group.donations.every((d) => selectedIds.has(d.id))}
                   ref={(input) => {
                     if (input) {
-                      const allSelected = group.donations.every(d => selectedIds.has(d.id))
-                      const someSelected = group.donations.some(d => selectedIds.has(d.id)) && !allSelected
+                      const allSelected = group.donations.every((d) => selectedIds.has(d.id))
+                      const someSelected =
+                        group.donations.some((d) => selectedIds.has(d.id)) && !allSelected
                       input.indeterminate = someSelected
                     }
                   }}
                   onChange={(e) => handleSelectGroup(group.donations, e.target.checked)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-xs text-gray-500">Select group</span>
               </div>
 
               {/* Mobile card view */}
-              <div className="sm:hidden space-y-2">
+              <div className="space-y-2 sm:hidden">
                 {group.donations.map((donation) => (
                   <div
                     key={donation.id}
-                    className={`bg-white rounded-md border p-3 ${selectedIds.has(donation.id) ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}
+                    className={`rounded-md border bg-white p-3 ${selectedIds.has(donation.id) ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-2 min-w-0 flex-1" onClick={() => handleEdit(donation)}>
+                      <div
+                        className="flex min-w-0 flex-1 items-start gap-2"
+                        onClick={() => handleEdit(donation)}
+                      >
                         <input
                           type="checkbox"
                           checked={selectedIds.has(donation.id)}
-                          onChange={(e) => { e.stopPropagation(); handleSelectOne(donation.id, e.target.checked) }}
+                          onChange={(e) => {
+                            e.stopPropagation()
+                            handleSelectOne(donation.id, e.target.checked)
+                          }}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
+                          className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                         <div className="min-w-0">
-                          <div className="font-medium text-sm text-gray-900">{donation.donor_name}</div>
-                          <div className="text-xs text-gray-500 truncate">{donation.donor_email}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {donation.donor_name}
+                          </div>
+                          <div className="truncate text-xs text-gray-500">
+                            {donation.donor_email}
+                          </div>
                         </div>
                       </div>
                       <DonationStatusBadge status={donation.donation_status as DonationStatus} />
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500" onClick={() => handleEdit(donation)}>
-                      <span className="font-medium text-gray-900 text-sm">{donation.amount} {donation.currency || 'UAH'}</span>
-                      <span suppressHydrationWarning>#{donation.id} · {formatDate(donation.donated_at)}</span>
+                    <div
+                      className="mt-2 flex items-center justify-between text-xs text-gray-500"
+                      onClick={() => handleEdit(donation)}
+                    >
+                      <span className="text-sm font-medium text-gray-900">
+                        {donation.amount} {donation.currency || 'UAH'}
+                      </span>
+                      <span suppressHydrationWarning>
+                        #{donation.id} · {formatDate(donation.donated_at)}
+                      </span>
                     </div>
-                    <div className="mt-1 text-xs text-gray-400 truncate" onClick={() => handleEdit(donation)}>
+                    <div
+                      className="mt-1 truncate text-xs text-gray-400"
+                      onClick={() => handleEdit(donation)}
+                    >
                       {donation.projects.project_name}
                     </div>
                   </div>
@@ -342,46 +377,49 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
               </div>
 
               {/* Desktop table view */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 bg-white rounded-md overflow-hidden">
+              <div className="hidden overflow-x-auto sm:block">
+                <table className="min-w-full divide-y divide-gray-200 overflow-hidden rounded-md bg-white">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-3 py-3 text-left">
                         <input
                           type="checkbox"
-                          checked={group.donations.every(d => selectedIds.has(d.id))}
+                          checked={group.donations.every((d) => selectedIds.has(d.id))}
                           ref={(input) => {
                             if (input) {
-                              const allSelected = group.donations.every(d => selectedIds.has(d.id))
-                              const someSelected = group.donations.some(d => selectedIds.has(d.id)) && !allSelected
+                              const allSelected = group.donations.every((d) =>
+                                selectedIds.has(d.id)
+                              )
+                              const someSelected =
+                                group.donations.some((d) => selectedIds.has(d.id)) && !allSelected
                               input.indeterminate = someSelected
                             }
                           }}
                           onChange={(e) => handleSelectGroup(group.donations, e.target.checked)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">
                         ID
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">
                         Donor / Email
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">
                         Project
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">
                         Amount
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">
                         Status
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">
                         Date
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 bg-white">
                     {group.donations.map((donation) => (
                       <tr
                         key={donation.id}
@@ -392,50 +430,55 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                             type="checkbox"
                             checked={selectedIds.has(donation.id)}
                             onChange={(e) => handleSelectOne(donation.id, e.target.checked)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                         </td>
                         <td
-                          className="px-3 py-3 text-sm text-gray-900 cursor-pointer"
+                          className="cursor-pointer px-3 py-3 text-sm text-gray-900"
                           onClick={() => handleEdit(donation)}
                         >
                           <div className="font-medium">#{donation.id}</div>
                           <div className="text-xs text-gray-500">{donation.donation_public_id}</div>
                         </td>
                         <td
-                          className="px-3 py-3 text-sm cursor-pointer"
+                          className="cursor-pointer px-3 py-3 text-sm"
                           onClick={() => handleEdit(donation)}
                         >
                           <div className="font-medium text-gray-900">{donation.donor_name}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[150px]">
+                          <div className="max-w-[150px] truncate text-xs text-gray-500">
                             {donation.donor_email}
                           </div>
                         </td>
                         <td
-                          className="px-3 py-3 text-sm text-gray-500 max-w-[150px] cursor-pointer"
+                          className="max-w-[150px] cursor-pointer px-3 py-3 text-sm text-gray-500"
                           onClick={() => handleEdit(donation)}
                         >
                           <div className="truncate">{donation.projects.project_name}</div>
                         </td>
                         <td
-                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 cursor-pointer"
+                          className="cursor-pointer whitespace-nowrap px-3 py-3 text-sm text-gray-900"
                           onClick={() => handleEdit(donation)}
                         >
                           {donation.amount} {donation.currency || 'UAH'}
                         </td>
                         <td
-                          className="px-3 py-3 whitespace-nowrap cursor-pointer"
+                          className="cursor-pointer whitespace-nowrap px-3 py-3"
                           onClick={() => handleEdit(donation)}
                         >
-                          <DonationStatusBadge status={donation.donation_status as DonationStatus} />
+                          <DonationStatusBadge
+                            status={donation.donation_status as DonationStatus}
+                          />
                         </td>
                         <td
-                          className="px-3 py-3 text-sm text-gray-500 cursor-pointer"
+                          className="cursor-pointer px-3 py-3 text-sm text-gray-500"
                           onClick={() => handleEdit(donation)}
                         >
                           <div suppressHydrationWarning>{formatDate(donation.donated_at)}</div>
                           <div className="text-xs text-gray-400" suppressHydrationWarning>
-                            {formatDateTime(donation.donated_at, 'en', { hour: '2-digit', minute: '2-digit' })}
+                            {formatDateTime(donation.donated_at, 'en', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
                           </div>
                         </td>
                       </tr>
@@ -451,7 +494,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
       {editingDonation && (
         <DonationEditModal
           donation={editingDonation}
-          statusHistory={statusHistory.filter(h => h.donation_id === editingDonation.id)}
+          statusHistory={statusHistory.filter((h) => h.donation_id === editingDonation.id)}
           onClose={() => setEditingDonation(null)}
           onSaved={handleSaved}
         />
@@ -466,10 +509,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
       )}
 
       {showPrintLabels && (
-        <PrintLabelsModal
-          donations={selectedDonations}
-          onClose={() => setShowPrintLabels(false)}
-        />
+        <PrintLabelsModal donations={selectedDonations} onClose={() => setShowPrintLabels(false)} />
       )}
     </div>
   )

@@ -1,16 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import PageHeader from './PageHeader'
-import StatusBanner from './StatusBanner'
+import { useEffect, useState } from 'react'
+
+import { type DonationStatus, getStatusGroup, type StatusGroup } from '@/lib/donation-status'
+import { clientLogger } from '@/lib/logger-client'
+import type { I18nText } from '@/types'
+
 import DonationIdsList from './DonationIdsList'
+import EmptyState from './EmptyState'
 import InfoCard from './InfoCard'
 import LoadingState from './LoadingState'
-import EmptyState from './EmptyState'
-import type { I18nText } from '@/types'
-import { getStatusGroup, type DonationStatus, type StatusGroup } from '@/lib/donation-status'
-import { clientLogger } from '@/lib/logger-client'
+import PageHeader from './PageHeader'
+import StatusBanner from './StatusBanner'
 
 type Donation = {
   id: number
@@ -55,7 +57,10 @@ export default function DonationDetails({ orderReference, locale }: Props) {
           }
         }
       } catch (error) {
-        clientLogger.error('API', 'Error fetching order donations', { orderReference, error: error instanceof Error ? error.message : String(error) })
+        clientLogger.error('API', 'Error fetching order donations', {
+          orderReference,
+          error: error instanceof Error ? error.message : String(error),
+        })
       } finally {
         if (isMounted) {
           setLoading(false)
@@ -71,13 +76,7 @@ export default function DonationDetails({ orderReference, locale }: Props) {
   }, [orderReference])
 
   if (loading) {
-    return (
-      <LoadingState
-        title={t('title')}
-        subtitle={t('thankYou')}
-        message={t('loading')}
-      />
-    )
+    return <LoadingState title={t('title')} subtitle={t('thankYou')} message={t('loading')} />
   }
 
   if (donations.length === 0) {
@@ -129,7 +128,7 @@ export default function DonationDetails({ orderReference, locale }: Props) {
 
   if (statusGroup === 'processing') {
     const emailIcon = (
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
       </svg>
@@ -166,7 +165,7 @@ export default function DonationDetails({ orderReference, locale }: Props) {
 
   // Success group
   const emailIcon = (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
       <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
       <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
     </svg>

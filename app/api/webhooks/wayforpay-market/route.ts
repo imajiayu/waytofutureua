@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
-import {
-  verifyWayForPaySignature,
-  generateWebhookResponseSignature,
-} from '@/lib/market/wayforpay'
+
+import { logger } from '@/lib/logger'
+import { generateWebhookResponseSignature, verifyWayForPaySignature } from '@/lib/market/wayforpay'
 import { WAYFORPAY_STATUS } from '@/lib/payment/wayforpay/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/logger'
 import type { MarketOrderStatus } from '@/types/market'
 
 /**
@@ -27,7 +25,9 @@ export async function POST(req: Request) {
 
     // 验证 orderReference 命名空间（防止捐赠回调误入义卖端点）
     if (!orderReference || !String(orderReference).startsWith('MKT-')) {
-      logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'Non-market orderReference rejected', { orderReference })
+      logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'Non-market orderReference rejected', {
+        orderReference,
+      })
       return NextResponse.json({ error: 'Invalid order reference' }, { status: 400 })
     }
 
@@ -104,13 +104,17 @@ export async function POST(req: Request) {
     if (newStatus === 'paid') {
       const callbackAmount = parseFloat(String(body.amount ?? ''))
       if (isNaN(callbackAmount)) {
-        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Missing or invalid amount for paid callback', { orderReference })
+        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Missing or invalid amount for paid callback', {
+          orderReference,
+        })
         return respondWithAccept(orderReference)
       }
       const expectedAmount = Number(order.total_amount)
       if (Math.abs(callbackAmount - expectedAmount) > 0.01) {
         logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Amount mismatch', {
-          orderReference, expected: expectedAmount, received: callbackAmount,
+          orderReference,
+          expected: expectedAmount,
+          received: callbackAmount,
         })
         return respondWithAccept(orderReference)
       }
@@ -134,7 +138,9 @@ export async function POST(req: Request) {
       let actualPreviousStatus: MarketOrderStatus | null = null
 
       // 辅助：CAS 更新状态
-      async function casUpdate(fromStatus: MarketOrderStatus): Promise<{ matched: boolean; error?: string }> {
+      async function casUpdate(
+        fromStatus: MarketOrderStatus
+      ): Promise<{ matched: boolean; error?: string }> {
         const { data, error } = await service
           .from('market_orders')
           .update({ status: newStatus! })
@@ -148,7 +154,10 @@ export async function POST(req: Request) {
       // 尝试 1: 从 pending 转换（库存在下单时已扣减，无需额外操作）
       const r1 = await casUpdate('pending')
       if (r1.error) {
-        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from pending failed', { orderReference, error: r1.error })
+        logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from pending failed', {
+          orderReference,
+          error: r1.error,
+        })
         return respondWithAccept(orderReference)
       }
 
@@ -158,31 +167,55 @@ export async function POST(req: Request) {
         // 尝试 2: 从 widget_load_failed 转换
         if (newStatus === 'paid') {
           // 恢复路径：先扣库存再改状态
-          const { data: decremented, error: dErr } = await service
-            .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+          const { data: decremented, error: dErr } = await service.rpc('decrement_stock', {
+            p_item_id: order.item_id,
+            p_quantity: order.quantity,
+          })
           if (dErr || !decremented) {
-            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock failed for widget_load_failed recovery — order stays widget_load_failed', {
-              orderReference, itemId: order.item_id, error: dErr?.message,
-            })
+            logger.error(
+              'WEBHOOK:WAYFORPAY-MARKET',
+              'Re-decrement stock failed for widget_load_failed recovery — order stays widget_load_failed',
+              {
+                orderReference,
+                itemId: order.item_id,
+                error: dErr?.message,
+              }
+            )
             // 扣库存失败 → 不改状态，由管理员人工处理
           } else {
             const r2 = await casUpdate('widget_load_failed')
             if (r2.error || !r2.matched) {
               // CAS 失败（已被其他 Webhook 处理） → 回滚刚扣的库存
-              await service.rpc('restore_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
-              logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'widget_load_failed CAS failed after stock decrement — stock restored', { orderReference })
+              await service.rpc('restore_stock', {
+                p_item_id: order.item_id,
+                p_quantity: order.quantity,
+              })
+              logger.warn(
+                'WEBHOOK:WAYFORPAY-MARKET',
+                'widget_load_failed CAS failed after stock decrement — stock restored',
+                { orderReference }
+              )
             } else {
               actualPreviousStatus = 'widget_load_failed'
-              logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented + status recovered from widget_load_failed', {
-                orderReference, itemId: order.item_id, quantity: order.quantity,
-              })
+              logger.info(
+                'WEBHOOK:WAYFORPAY-MARKET',
+                'Stock re-decremented + status recovered from widget_load_failed',
+                {
+                  orderReference,
+                  itemId: order.item_id,
+                  quantity: order.quantity,
+                }
+              )
             }
           }
         } else {
           // 非 paid（expired/declined）→ 无需库存操作，直接改状态
           const r2 = await casUpdate('widget_load_failed')
           if (r2.error) {
-            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from widget_load_failed failed', { orderReference, error: r2.error })
+            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Update from widget_load_failed failed', {
+              orderReference,
+              error: r2.error,
+            })
             return respondWithAccept(orderReference)
           }
           if (r2.matched) actualPreviousStatus = 'widget_load_failed'
@@ -190,31 +223,56 @@ export async function POST(req: Request) {
 
         // 尝试 3: 从 expired 恢复（仅 paid）
         if (!actualPreviousStatus && newStatus === 'paid') {
-          const { data: decremented, error: dErr } = await service
-            .rpc('decrement_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
+          const { data: decremented, error: dErr } = await service.rpc('decrement_stock', {
+            p_item_id: order.item_id,
+            p_quantity: order.quantity,
+          })
           if (dErr || !decremented) {
-            logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Re-decrement stock failed for expired recovery — order stays expired', {
-              orderReference, itemId: order.item_id, error: dErr?.message,
-            })
+            logger.error(
+              'WEBHOOK:WAYFORPAY-MARKET',
+              'Re-decrement stock failed for expired recovery — order stays expired',
+              {
+                orderReference,
+                itemId: order.item_id,
+                error: dErr?.message,
+              }
+            )
           } else {
             const r3 = await casUpdate('expired')
             if (r3.error || !r3.matched) {
-              await service.rpc('restore_stock', { p_item_id: order.item_id, p_quantity: order.quantity })
-              logger.warn('WEBHOOK:WAYFORPAY-MARKET', 'expired CAS failed after stock decrement — stock restored', { orderReference })
+              await service.rpc('restore_stock', {
+                p_item_id: order.item_id,
+                p_quantity: order.quantity,
+              })
+              logger.warn(
+                'WEBHOOK:WAYFORPAY-MARKET',
+                'expired CAS failed after stock decrement — stock restored',
+                { orderReference }
+              )
             } else {
               actualPreviousStatus = 'expired'
-              logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock re-decremented + status recovered from expired', {
-                orderReference, itemId: order.item_id, quantity: order.quantity,
-              })
+              logger.info(
+                'WEBHOOK:WAYFORPAY-MARKET',
+                'Stock re-decremented + status recovered from expired',
+                {
+                  orderReference,
+                  itemId: order.item_id,
+                  quantity: order.quantity,
+                }
+              )
             }
           }
         }
       }
 
       if (!actualPreviousStatus) {
-        logger.debug('WEBHOOK:WAYFORPAY-MARKET', 'No order in transitionable state (already processed)', {
-          orderReference,
-        })
+        logger.debug(
+          'WEBHOOK:WAYFORPAY-MARKET',
+          'No order in transitionable state (already processed)',
+          {
+            orderReference,
+          }
+        )
         return respondWithAccept(orderReference)
       }
 
@@ -231,12 +289,21 @@ export async function POST(req: Request) {
           p_quantity: order.quantity,
         })
         if (rollbackError) {
-          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Stock rollback FAILED — manual intervention needed', {
-            orderReference, itemId: order.item_id, quantity: order.quantity, error: rollbackError.message,
-          })
+          logger.error(
+            'WEBHOOK:WAYFORPAY-MARKET',
+            'Stock rollback FAILED — manual intervention needed',
+            {
+              orderReference,
+              itemId: order.item_id,
+              quantity: order.quantity,
+              error: rollbackError.message,
+            }
+          )
         } else {
           logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Stock rolled back', {
-            orderReference, itemId: order.item_id, quantity: order.quantity,
+            orderReference,
+            itemId: order.item_id,
+            quantity: order.quantity,
           })
         }
       }
@@ -246,7 +313,9 @@ export async function POST(req: Request) {
         try {
           const { data: fullOrder } = await service
             .from('market_orders')
-            .select('order_reference, buyer_email, shipping_name, shipping_city, shipping_country, quantity, unit_price, total_amount, currency, locale, market_items(title_i18n)')
+            .select(
+              'order_reference, buyer_email, shipping_name, shipping_city, shipping_country, quantity, unit_price, total_amount, currency, locale, market_items(title_i18n)'
+            )
             .eq('order_reference', orderReference)
             .single()
 
@@ -257,7 +326,11 @@ export async function POST(req: Request) {
               locale: (fullOrder.locale || 'en') as 'en' | 'zh' | 'ua',
               shippingName: fullOrder.shipping_name,
               orderReference: fullOrder.order_reference,
-              itemTitleI18n: (fullOrder.market_items as any)?.title_i18n || { en: '', zh: '', ua: '' },
+              itemTitleI18n: (fullOrder.market_items as any)?.title_i18n || {
+                en: '',
+                zh: '',
+                ua: '',
+              },
               quantity: fullOrder.quantity,
               unitPrice: Number(fullOrder.unit_price),
               totalAmount: Number(fullOrder.total_amount),
@@ -265,13 +338,19 @@ export async function POST(req: Request) {
               shippingCity: fullOrder.shipping_city,
               shippingCountry: fullOrder.shipping_country,
             })
-            logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Payment confirmed email sent', { orderReference })
+            logger.info('WEBHOOK:WAYFORPAY-MARKET', 'Payment confirmed email sent', {
+              orderReference,
+            })
           }
         } catch (emailError) {
-          logger.error('WEBHOOK:WAYFORPAY-MARKET', 'Failed to send payment confirmed email (non-blocking)', {
-            orderReference,
-            error: emailError instanceof Error ? emailError.message : String(emailError),
-          })
+          logger.error(
+            'WEBHOOK:WAYFORPAY-MARKET',
+            'Failed to send payment confirmed email (non-blocking)',
+            {
+              orderReference,
+              error: emailError instanceof Error ? emailError.message : String(emailError),
+            }
+          )
         }
       }
     }

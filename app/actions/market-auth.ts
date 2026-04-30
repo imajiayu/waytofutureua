@@ -1,9 +1,10 @@
 'use server'
 
 import { headers } from 'next/headers'
-import { createServerClient } from '@/lib/supabase/server'
-import { checkRateLimit } from '@/lib/rate-limit'
+
 import { logger } from '@/lib/logger'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { createServerClient } from '@/lib/supabase/server'
 
 // ============================================
 // Market 模块 — 邮箱 OTP 认证
@@ -11,9 +12,9 @@ import { logger } from '@/lib/logger'
 // ============================================
 
 // 速率限制配置
-const SEND_LIMIT_PER_EMAIL  = { max: 10, window: 60 * 60 * 1000 } // 每 email 每小时 10 次
-const SEND_LIMIT_PER_IP     = { max: 30, window: 60 * 60 * 1000 } // 每 IP 每小时 30 次
-const VERIFY_LIMIT          = { max: 5,  window: 15 * 60 * 1000 } // 每 (email+IP) 15 分钟 5 次
+const SEND_LIMIT_PER_EMAIL = { max: 10, window: 60 * 60 * 1000 } // 每 email 每小时 10 次
+const SEND_LIMIT_PER_IP = { max: 30, window: 60 * 60 * 1000 } // 每 IP 每小时 30 次
+const VERIFY_LIMIT = { max: 5, window: 15 * 60 * 1000 } // 每 (email+IP) 15 分钟 5 次
 
 async function getClientIP(): Promise<string> {
   const h = await headers()
@@ -28,7 +29,13 @@ export async function sendOTP(email: string): Promise<{ success: boolean; error?
 
   // 速率限制检查
   const ip = await getClientIP()
-  if (!checkRateLimit(`otp-send:email:${trimmed}`, SEND_LIMIT_PER_EMAIL.max, SEND_LIMIT_PER_EMAIL.window)) {
+  if (
+    !checkRateLimit(
+      `otp-send:email:${trimmed}`,
+      SEND_LIMIT_PER_EMAIL.max,
+      SEND_LIMIT_PER_EMAIL.window
+    )
+  ) {
     logger.warn('MARKET:AUTH', 'OTP send rate limited (email)', { email: trimmed })
     return { success: false, error: 'rate_limited' }
   }
@@ -50,7 +57,11 @@ export async function sendOTP(email: string): Promise<{ success: boolean; error?
       logger.warn('MARKET:AUTH', 'OTP send failed', { email: trimmed, error: error.message })
 
       // Supabase 内建 60s 冷却期（错误信息格式不固定）
-      if (error.message.includes('rate') || error.message.includes('security purposes') || error.message.includes('seconds')) {
+      if (
+        error.message.includes('rate') ||
+        error.message.includes('security purposes') ||
+        error.message.includes('seconds')
+      ) {
         return { success: false, error: 'rate_limited' }
       }
       return { success: false, error: 'send_failed' }
@@ -59,7 +70,9 @@ export async function sendOTP(email: string): Promise<{ success: boolean; error?
     logger.info('MARKET:AUTH', 'OTP sent', { email: trimmed })
     return { success: true }
   } catch (err) {
-    logger.error('MARKET:AUTH', 'OTP send error', { error: err instanceof Error ? err.message : String(err) })
+    logger.error('MARKET:AUTH', 'OTP send error', {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return { success: false, error: 'send_failed' }
   }
 }
@@ -113,7 +126,9 @@ export async function verifyOTP(
 
     return { success: true }
   } catch (err) {
-    logger.error('MARKET:AUTH', 'OTP verify error', { error: err instanceof Error ? err.message : String(err) })
+    logger.error('MARKET:AUTH', 'OTP verify error', {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return { success: false, error: 'verify_failed' }
   }
 }
@@ -125,7 +140,10 @@ export async function getMarketSession(): Promise<{
 }> {
   try {
     const supabase = await createServerClient()
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
 
     if (error || !user) {
       return { authenticated: false }

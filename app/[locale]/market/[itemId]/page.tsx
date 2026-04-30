@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
-import { BASE_URL, getAlternates } from '@/lib/constants'
+
 import { getMarketItemById } from '@/app/actions/market-items'
-import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
 import MarketItemDetail from '@/components/market/MarketItemDetail'
+import { BASE_URL, getAlternates } from '@/lib/constants'
+import { getTranslatedText, type SupportedLocale } from '@/lib/i18n-utils'
 
 type Props = {
   params: Promise<{ locale: string; itemId: string }>
@@ -38,7 +39,7 @@ export default async function MarketItemPage({ params }: Props) {
   if (!item || error === 'not_found') notFound()
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <MarketItemDetail item={item} locale={locale} />
     </main>
   )

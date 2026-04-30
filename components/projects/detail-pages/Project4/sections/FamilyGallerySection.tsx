@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+
 import type { SectionProps } from '../types'
 
 interface FamilyGallerySectionProps extends SectionProps {
@@ -23,16 +24,21 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
   return (
     <section>
       {/* Masonry-style grid with varied sizes based on priority */}
-      <div className="grid grid-cols-4 md:grid-cols-6 gap-2 auto-rows-[80px] md:auto-rows-[100px]">
+      <div className="grid auto-rows-[80px] grid-cols-4 gap-2 md:auto-rows-[100px] md:grid-cols-6">
         {/* High priority - large, spans 2 cols and 2 rows */}
         {highPriority.map((img) => (
           <div
             key={img.url}
             role="button"
             tabIndex={0}
-            className="col-span-2 row-span-2 relative rounded-xl overflow-hidden cursor-pointer group"
+            className="group relative col-span-2 row-span-2 cursor-pointer overflow-hidden rounded-xl"
             onClick={() => onImageClick(getOriginalIndex(img.url))}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(getOriginalIndex(img.url)) } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onImageClick(getOriginalIndex(img.url))
+              }
+            }}
           >
             <Image
               src={img.url}
@@ -41,7 +47,7 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
               sizes="(max-width: 768px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+            <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
           </div>
         ))}
 
@@ -51,9 +57,14 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
             key={img.url}
             role="button"
             tabIndex={0}
-            className="col-span-2 row-span-2 relative rounded-xl overflow-hidden cursor-pointer group"
+            className="group relative col-span-2 row-span-2 cursor-pointer overflow-hidden rounded-xl"
             onClick={() => onImageClick(getOriginalIndex(img.url))}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(getOriginalIndex(img.url)) } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onImageClick(getOriginalIndex(img.url))
+              }
+            }}
           >
             <Image
               src={img.url}
@@ -62,7 +73,7 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
               sizes="(max-width: 768px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+            <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
           </div>
         ))}
 
@@ -72,11 +83,16 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
             key={img.url}
             role="button"
             tabIndex={0}
-            className={`relative rounded-xl overflow-hidden cursor-pointer group ${
+            className={`group relative cursor-pointer overflow-hidden rounded-xl ${
               idx === 0 ? 'col-span-2 row-span-1' : 'col-span-1 row-span-1'
             }`}
             onClick={() => onImageClick(getOriginalIndex(img.url))}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(getOriginalIndex(img.url)) } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onImageClick(getOriginalIndex(img.url))
+              }
+            }}
           >
             <Image
               src={img.url}
@@ -85,7 +101,7 @@ export default function FamilyGallerySection({ content, onImageClick }: FamilyGa
               sizes="(max-width: 768px) 25vw, 16vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+            <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
           </div>
         ))}
       </div>

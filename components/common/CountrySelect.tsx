@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { createPortal } from 'react-dom'
-import { useLocale } from 'next-intl'
 import countries from 'i18n-iso-countries'
-
 // Register only the 3 locales we support
 import enLocale from 'i18n-iso-countries/langs/en.json'
-import zhLocale from 'i18n-iso-countries/langs/zh.json'
 import ukLocale from 'i18n-iso-countries/langs/uk.json'
+import zhLocale from 'i18n-iso-countries/langs/zh.json'
+import { useLocale } from 'next-intl'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 countries.registerLocale(enLocale)
 countries.registerLocale(zhLocale)
@@ -20,7 +19,7 @@ function flagEmoji(code: string): string {
   return code
     .toUpperCase()
     .split('')
-    .map(c => String.fromCodePoint(0x1f1e6 - 65 + c.charCodeAt(0)))
+    .map((c) => String.fromCodePoint(0x1f1e6 - 65 + c.charCodeAt(0)))
     .join('')
 }
 
@@ -116,16 +115,15 @@ export default function CountrySelect({
     if (!search.trim()) return allCountries
     const q = search.trim().toLowerCase()
     return allCountries.filter(
-      c => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
+      (c) => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
     )
   }, [search, allCountries])
 
-  const selected = useMemo(
-    () => allCountries.find(c => c.code === value),
-    [allCountries, value]
-  )
+  const selected = useMemo(() => allCountries.find((c) => c.code === value), [allCountries, value])
 
-  useEffect(() => { setHighlightIndex(0) }, [filtered.length])
+  useEffect(() => {
+    setHighlightIndex(0)
+  }, [filtered.length])
 
   useEffect(() => {
     if (!isOpen || !listRef.current) return
@@ -149,10 +147,7 @@ export default function CountrySelect({
     if (!isOpen) return
     const handleClick = (e: MouseEvent) => {
       const target = e.target as Node
-      if (
-        triggerRef.current?.contains(target) ||
-        dropdownRef.current?.contains(target)
-      ) return
+      if (triggerRef.current?.contains(target) || dropdownRef.current?.contains(target)) return
       setIsOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
@@ -189,11 +184,14 @@ export default function CountrySelect({
     requestAnimationFrame(() => inputRef.current?.focus())
   }, [disabled, updatePosition])
 
-  const select = useCallback((code: string) => {
-    onChange(code)
-    setIsOpen(false)
-    setSearch('')
-  }, [onChange])
+  const select = useCallback(
+    (code: string) => {
+      onChange(code)
+      setIsOpen(false)
+      setSearch('')
+    },
+    [onChange]
+  )
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
@@ -207,11 +205,11 @@ export default function CountrySelect({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setHighlightIndex(i => Math.min(i + 1, filtered.length - 1))
+        setHighlightIndex((i) => Math.min(i + 1, filtered.length - 1))
         break
       case 'ArrowUp':
         e.preventDefault()
-        setHighlightIndex(i => Math.max(i - 1, 0))
+        setHighlightIndex((i) => Math.max(i - 1, 0))
         break
       case 'Enter':
         e.preventDefault()
@@ -226,80 +224,87 @@ export default function CountrySelect({
 
   const pinnedCount = useMemo(() => {
     if (search.trim()) return 0
-    return filtered.filter(c => c.pinned).length
+    return filtered.filter((c) => c.pinned).length
   }, [filtered, search])
 
   // Portal dropdown rendered at document.body level
-  const dropdown = isOpen && typeof window !== 'undefined' && createPortal(
-    <div
-      ref={dropdownRef}
-      className="fixed bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden mkt-fade-in"
-      style={{
-        top: dropdownPos.top,
-        left: dropdownPos.left,
-        width: dropdownPos.width,
-        zIndex: 9999,
-      }}
-    >
-      {/* Search input */}
-      <div className="p-2.5 border-b border-gray-100">
-        <div className="relative">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300"
-            fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-          </svg>
-          <input
-            ref={inputRef}
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg
-                     placeholder:text-gray-300
-                     focus:bg-white focus:ring-1 focus:ring-ukraine-blue-500/20 focus:border-ukraine-blue-400
-                     outline-none transition-all"
-          />
-        </div>
-      </div>
-
-      {/* Country list */}
-      <ul
-        ref={listRef}
-        role="listbox"
-        className="max-h-56 overflow-y-auto overscroll-contain py-1"
+  const dropdown =
+    isOpen &&
+    typeof window !== 'undefined' &&
+    createPortal(
+      <div
+        ref={dropdownRef}
+        className="mkt-fade-in fixed overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl"
+        style={{
+          top: dropdownPos.top,
+          left: dropdownPos.left,
+          width: dropdownPos.width,
+          zIndex: 9999,
+        }}
       >
-        {filtered.length === 0 ? (
-          <li className="px-4 py-3 text-sm text-gray-400 text-center">—</li>
-        ) : (
-          filtered.map((country, i) => (
-            <li key={country.code}>
-              {pinnedCount > 0 && i === pinnedCount && (
-                <div className="mx-3 my-1 border-t border-gray-100" />
-              )}
-              <button
-                type="button"
-                role="option"
-                aria-selected={country.code === value}
-                onClick={() => select(country.code)}
-                onMouseEnter={() => setHighlightIndex(i)}
-                className={`w-full flex items-center gap-2.5 px-4 py-2 text-left text-sm transition-colors
-                  ${i === highlightIndex ? 'bg-ukraine-blue-50 text-ukraine-blue-700' : 'text-gray-700'}
-                  ${country.code === value ? 'font-medium' : ''}`}
-              >
-                <span className="text-base leading-none">{country.flag}</span>
-                <span className="truncate">{country.name}</span>
-                <span className="text-[11px] text-gray-300 ml-auto font-data">{country.code}</span>
-              </button>
-            </li>
-          ))
-        )}
-      </ul>
-    </div>,
-    document.body
-  )
+        {/* Search input */}
+        <div className="border-b border-gray-100 p-2.5">
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+              />
+            </svg>
+            <input
+              ref={inputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm outline-none transition-all placeholder:text-gray-300 focus:border-ukraine-blue-400 focus:bg-white focus:ring-1 focus:ring-ukraine-blue-500/20"
+            />
+          </div>
+        </div>
+
+        {/* Country list */}
+        <ul
+          ref={listRef}
+          role="listbox"
+          className="max-h-56 overflow-y-auto overscroll-contain py-1"
+        >
+          {filtered.length === 0 ? (
+            <li className="px-4 py-3 text-center text-sm text-gray-400">—</li>
+          ) : (
+            filtered.map((country, i) => (
+              <li key={country.code}>
+                {pinnedCount > 0 && i === pinnedCount && (
+                  <div className="mx-3 my-1 border-t border-gray-100" />
+                )}
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={country.code === value}
+                  onClick={() => select(country.code)}
+                  onMouseEnter={() => setHighlightIndex(i)}
+                  className={`flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm transition-colors ${i === highlightIndex ? 'bg-ukraine-blue-50 text-ukraine-blue-700' : 'text-gray-700'} ${country.code === value ? 'font-medium' : ''}`}
+                >
+                  <span className="text-base leading-none">{country.flag}</span>
+                  <span className="truncate">{country.name}</span>
+                  <span className="ml-auto font-data text-[11px] text-gray-300">
+                    {country.code}
+                  </span>
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>,
+      document.body
+    )
 
   return (
     <div className={className}>
@@ -307,27 +312,25 @@ export default function CountrySelect({
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => isOpen ? setIsOpen(false) : open()}
+        onClick={() => (isOpen ? setIsOpen(false) : open())}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        className={`w-full flex items-center gap-2.5 px-4 py-3 bg-gray-50/80 border rounded-xl text-[15px] text-left
-                   transition-all duration-200
-                   focus:bg-white focus:ring-2 focus:ring-ukraine-blue-500/20 focus:border-ukraine-blue-400
-                   disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
-                   ${error ? 'border-warm-400 bg-warm-50/30' : 'border-gray-200'}
-                   ${isOpen ? 'bg-white ring-2 ring-ukraine-blue-500/20 border-ukraine-blue-400' : ''}`}
+        className={`flex w-full items-center gap-2.5 rounded-xl border bg-gray-50/80 px-4 py-3 text-left text-[15px] transition-all duration-200 focus:border-ukraine-blue-400 focus:bg-white focus:ring-2 focus:ring-ukraine-blue-500/20 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 ${error ? 'border-warm-400 bg-warm-50/30' : 'border-gray-200'} ${isOpen ? 'border-ukraine-blue-400 bg-white ring-2 ring-ukraine-blue-500/20' : ''}`}
       >
         {selected ? (
           <>
             <span className="text-lg leading-none">{selected.flag}</span>
-            <span className="text-gray-900 truncate">{selected.name}</span>
+            <span className="truncate text-gray-900">{selected.name}</span>
           </>
         ) : (
           <span className="text-gray-300">{placeholder}</span>
         )}
         <svg
-          className={`w-4 h-4 text-gray-400 ml-auto shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
+          className={`ml-auto h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>

@@ -35,6 +35,7 @@
 - **订单状态**（7 种）：追踪订单从创建到完成的全流程
 
 与捐赠模块的关键区别：
+
 - 没有退款流程（7 个状态 vs 捐赠的 14 个）
 - 买家需要 Email OTP 认证（非匿名）
 - 管理员状态转换需要文件上传凭证
@@ -78,24 +79,24 @@
 
 ```typescript
 export const MARKET_ITEM_STATUSES = ['draft', 'on_sale', 'off_shelf'] as const
-export type MarketItemStatus = typeof MARKET_ITEM_STATUSES[number]
+export type MarketItemStatus = (typeof MARKET_ITEM_STATUSES)[number]
 ```
 
 ### 2.2 状态说明
 
-| 状态 | 说明 | 可删除 | 公开可见 | 可购买 |
-|------|------|--------|---------|--------|
-| `draft` | 草稿，准备中 | ✅ | ❌ | ❌ |
-| `on_sale` | 在售 | ❌ | ✅ | ✅（需有库存） |
-| `off_shelf` | 已下架 | ❌ | ✅ | ❌ |
+| 状态        | 说明         | 可删除 | 公开可见 | 可购买         |
+| ----------- | ------------ | ------ | -------- | -------------- |
+| `draft`     | 草稿，准备中 | ✅     | ❌       | ❌             |
+| `on_sale`   | 在售         | ❌     | ✅       | ✅（需有库存） |
+| `off_shelf` | 已下架       | ❌     | ✅       | ❌             |
 
 ### 2.3 状态转换
 
 ```typescript
 export const ITEM_ADMIN_TRANSITIONS: Partial<Record<MarketItemStatus, MarketItemStatus[]>> = {
-  draft:     ['on_sale'],
-  on_sale:   ['off_shelf'],
-  off_shelf: ['on_sale'],    // 可重新上架
+  draft: ['on_sale'],
+  on_sale: ['off_shelf'],
+  off_shelf: ['on_sale'], // 可重新上架
 }
 ```
 
@@ -114,23 +115,28 @@ export const ITEM_ADMIN_TRANSITIONS: Partial<Record<MarketItemStatus, MarketItem
 
 ```typescript
 export const MARKET_ORDER_STATUSES = [
-  'pending', 'widget_load_failed', 'paid', 'shipped', 'completed',
-  'expired', 'declined',
+  'pending',
+  'widget_load_failed',
+  'paid',
+  'shipped',
+  'completed',
+  'expired',
+  'declined',
 ] as const
-export type MarketOrderStatus = typeof MARKET_ORDER_STATUSES[number]
+export type MarketOrderStatus = (typeof MARKET_ORDER_STATUSES)[number]
 ```
 
 ### 3.2 状态分类表
 
-| 分类 | 状态 | 说明 |
-|------|------|------|
-| **支付前** | `pending` | 订单已创建，待支付（库存已扣减） |
-| | `widget_load_failed` | 支付窗口加载失败（库存已恢复） |
-| **已支付** | `paid` | 支付成功，等待发货 |
-| | `shipped` | 已发货，附带快递单号和发货凭证 |
-| | `completed` | 已完成，附带资金用途凭证 |
-| **失败** | `expired` | 支付超时（库存已恢复） |
-| | `declined` | 银行拒绝支付（库存已恢复） |
+| 分类       | 状态                 | 说明                             |
+| ---------- | -------------------- | -------------------------------- |
+| **支付前** | `pending`            | 订单已创建，待支付（库存已扣减） |
+|            | `widget_load_failed` | 支付窗口加载失败（库存已恢复）   |
+| **已支付** | `paid`               | 支付成功，等待发货               |
+|            | `shipped`            | 已发货，附带快递单号和发货凭证   |
+|            | `completed`          | 已完成，附带资金用途凭证         |
+| **失败**   | `expired`            | 支付超时（库存已恢复）           |
+|            | `declined`           | 银行拒绝支付（库存已恢复）       |
 
 ### 3.3 状态分组
 
@@ -143,16 +149,16 @@ const SUCCESS_ORDER_STATUSES: MarketOrderStatus[] = ['paid', 'shipped', 'complet
 export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup {
   if (FAILED_ORDER_STATUSES.includes(status)) return 'failed'
   if (SUCCESS_ORDER_STATUSES.includes(status)) return 'success'
-  return 'processing'  // pending, widget_load_failed
+  return 'processing' // pending, widget_load_failed
 }
 ```
 
 ### 3.4 公开可见性
 
-| 可见范围 | 状态列表 |
-|---------|---------|
+| 可见范围             | 状态列表                       |
+| -------------------- | ------------------------------ |
 | **公开购买记录可见** | `paid`, `shipped`, `completed` |
-| **仅买家本人可见** | 全部 7 种状态 |
+| **仅买家本人可见**   | 全部 7 种状态                  |
 
 ---
 
@@ -214,45 +220,45 @@ export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup
 
 ### 5.1 约束层级说明
 
-| 层级 | 约束类型 | 适用范围 | 强度 |
-|------|----------|----------|------|
-| **数据库层** | CHECK 约束 | 状态有效值（7种） | 强制 |
-| **数据库层** | RLS 策略 | 买家仅可 pending → widget_load_failed | 强制 |
-| **数据库层** | 不可变字段触发器 | 9 个财务关键字段 | 强制 |
-| **应用层** | 状态机验证 | 管理员转换合法性 | Server Action |
-| **应用层** | Webhook 过滤 | Webhook 源状态校验 | 软约束 |
+| 层级         | 约束类型         | 适用范围                              | 强度          |
+| ------------ | ---------------- | ------------------------------------- | ------------- |
+| **数据库层** | CHECK 约束       | 状态有效值（7种）                     | 强制          |
+| **数据库层** | RLS 策略         | 买家仅可 pending → widget_load_failed | 强制          |
+| **数据库层** | 不可变字段触发器 | 9 个财务关键字段                      | 强制          |
+| **应用层**   | 状态机验证       | 管理员转换合法性                      | Server Action |
+| **应用层**   | Webhook 过滤     | Webhook 源状态校验                    | 软约束        |
 
 ### 5.2 管理员可执行的转换
 
-| 来源状态 | 目标状态 | 操作说明 | 前提条件 |
-|---------|---------|---------|---------|
-| `paid` | `shipped` | 发货 | 快递单号（必填）+ 至少 1 张发货凭证图片 |
-| `shipped` | `completed` | 完成 | 至少 1 张资金用途凭证图片 |
+| 来源状态  | 目标状态    | 操作说明 | 前提条件                                |
+| --------- | ----------- | -------- | --------------------------------------- |
+| `paid`    | `shipped`   | 发货     | 快递单号（必填）+ 至少 1 张发货凭证图片 |
+| `shipped` | `completed` | 完成     | 至少 1 张资金用途凭证图片               |
 
 ### 5.3 Webhook 可执行的转换（Service Role）
 
-| 当前状态 | → paid | → expired | → declined |
-|----------|--------|-----------|------------|
-| pending | ✅ | ✅ (恢复库存) | ✅ (恢复库存) |
+| 当前状态           | → paid            | → expired     | → declined    |
+| ------------------ | ----------------- | ------------- | ------------- |
+| pending            | ✅                | ✅ (恢复库存) | ✅ (恢复库存) |
 | widget_load_failed | ✅ (重新扣减库存) | ✅ (无需恢复) | ✅ (无需恢复) |
-| expired | ✅ (重新扣减库存) | - | - |
+| expired            | ✅ (重新扣减库存) | -             | -             |
 
 > **expired → paid 恢复路径**: 当 Cron 将超时订单标记为 expired 后，若 WayForPay 延迟发来 `Approved` 回调，Webhook 会将订单从 expired 恢复为 paid 并重新扣减库存。
 
 ### 5.4 买家可执行的转换
 
 | 当前状态 | → widget_load_failed |
-|----------|----------------------|
-| pending | ✅ (恢复库存) |
+| -------- | -------------------- |
+| pending  | ✅ (恢复库存)        |
 
 ### 5.5 状态变化来源汇总
 
-| 变化来源 | 说明 | 约束层级 |
-|----------|------|----------|
-| **买家下单** | 创建 `pending` 订单 | RLS INSERT 策略 |
-| **客户端** | `pending` → `widget_load_failed` | RLS UPDATE 策略 |
-| **WayForPay Webhook** | 支付结果状态 | 应用层过滤 + 乐观锁 |
-| **管理员** | `paid→shipped→completed` | 应用层状态机验证 |
+| 变化来源              | 说明                             | 约束层级            |
+| --------------------- | -------------------------------- | ------------------- |
+| **买家下单**          | 创建 `pending` 订单              | RLS INSERT 策略     |
+| **客户端**            | `pending` → `widget_load_failed` | RLS UPDATE 策略     |
+| **WayForPay Webhook** | 支付结果状态                     | 应用层过滤 + 乐观锁 |
+| **管理员**            | `paid→shipped→completed`         | 应用层状态机验证    |
 
 ---
 
@@ -262,12 +268,12 @@ export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup
 
 **文件**: `app/api/webhooks/wayforpay-market/route.ts`
 
-| WayForPay 状态 | 系统状态 | 说明 |
-|---------------|---------|------|
-| `Approved` | `paid` | 支付成功 |
-| `WaitingAuthComplete` | `paid` | 3DS 验证完成 |
-| `Expired` | `expired` | 支付超时 |
-| `Declined` | `declined` | 银行拒绝 |
+| WayForPay 状态        | 系统状态   | 说明         |
+| --------------------- | ---------- | ------------ |
+| `Approved`            | `paid`     | 支付成功     |
+| `WaitingAuthComplete` | `paid`     | 3DS 验证完成 |
+| `Expired`             | `expired`  | 支付超时     |
+| `Declined`            | `declined` | 银行拒绝     |
 
 > **注意**: 与捐赠模块不同，义卖市场不处理 `inProcessing`、`Pending`（反欺诈）和退款类状态（`RefundInProcessing`、`Refunded`、`Voided`）。
 
@@ -283,18 +289,18 @@ Webhook 收到支付回调时，验证实际支付金额与订单金额一致（
 
 库存操作与状态转换紧密绑定，以下是完整的库存变化矩阵：
 
-| 事件 | 前状态 | 后状态 | 库存操作 |
-|------|--------|--------|---------|
-| 买家下单 | - | pending | `decrement_stock` |
-| 支付窗口失败 | pending | widget_load_failed | `restore_stock` |
-| Webhook: 支付成功 | pending | paid | 无（pending 时已扣减） |
-| Webhook: 支付成功 | widget_load_failed | paid | `decrement_stock`（重新扣减） |
-| Webhook: 支付超时 | pending | expired | `restore_stock` |
-| Webhook: 支付被拒 | pending | declined | `restore_stock` |
-| Webhook: 支付超时 | widget_load_failed | expired | 无（widget_load_failed 时已恢复） |
-| Webhook: 支付被拒 | widget_load_failed | declined | 无（widget_load_failed 时已恢复） |
-| pg_cron: 超时清理 | pending | expired | `restore_stock` |
-| Webhook: 支付成功 | expired (pg_cron清理) | paid | `decrement_stock`（重新扣减） |
+| 事件              | 前状态                | 后状态             | 库存操作                          |
+| ----------------- | --------------------- | ------------------ | --------------------------------- |
+| 买家下单          | -                     | pending            | `decrement_stock`                 |
+| 支付窗口失败      | pending               | widget_load_failed | `restore_stock`                   |
+| Webhook: 支付成功 | pending               | paid               | 无（pending 时已扣减）            |
+| Webhook: 支付成功 | widget_load_failed    | paid               | `decrement_stock`（重新扣减）     |
+| Webhook: 支付超时 | pending               | expired            | `restore_stock`                   |
+| Webhook: 支付被拒 | pending               | declined           | `restore_stock`                   |
+| Webhook: 支付超时 | widget_load_failed    | expired            | 无（widget_load_failed 时已恢复） |
+| Webhook: 支付被拒 | widget_load_failed    | declined           | 无（widget_load_failed 时已恢复） |
+| pg_cron: 超时清理 | pending               | expired            | `restore_stock`                   |
+| Webhook: 支付成功 | expired (pg_cron清理) | paid               | `decrement_stock`（重新扣减）     |
 
 ### 7.2 RPC 函数
 
@@ -308,6 +314,7 @@ CREATE FUNCTION restore_stock(p_item_id BIGINT, p_quantity INT) RETURNS VOID
 ```
 
 **安全特性**:
+
 - 均为 `SECURITY DEFINER`，仅 `service_role` 可调用
 - `decrement_stock` 附加条件: `stock_quantity >= p_quantity AND status = 'on_sale'`
 - 两个函数都校验 `p_quantity > 0`
@@ -322,7 +329,7 @@ const { count } = await supabase
   .from('market_orders')
   .update({ status: newStatus })
   .eq('order_reference', orderReference)
-  .eq('status', 'pending')  // 乐观锁
+  .eq('status', 'pending') // 乐观锁
 
 // 若 count === 0，再尝试从 widget_load_failed 转换
 ```
@@ -433,7 +440,10 @@ export function getNextItemStatuses(status: MarketItemStatus): MarketItemStatus[
 export function isValidItemTransition(from: MarketItemStatus, to: MarketItemStatus): boolean
 export function needsTrackingNumber(from: MarketOrderStatus, to: MarketOrderStatus): boolean
 export function needsFileUpload(from: MarketOrderStatus, to: MarketOrderStatus): boolean
-export function getFileCategory(from: MarketOrderStatus, to: MarketOrderStatus): MarketOrderFileCategory | null
+export function getFileCategory(
+  from: MarketOrderStatus,
+  to: MarketOrderStatus
+): MarketOrderFileCategory | null
 export function canManageOrderFiles(status: MarketOrderStatus): boolean
 export function getOrderStatusGroup(status: MarketOrderStatus): OrderStatusGroup
 
@@ -444,13 +454,13 @@ export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: 
 
 ### 10.2 Server Actions
 
-| Action | 文件 | 状态操作 |
-|--------|------|---------|
-| `createSaleOrder()` | `app/actions/market-sale.ts` | 创建 `pending` 订单 + 扣减库存 |
-| `markMarketOrderWidgetFailed()` | `app/actions/market-sale.ts` | `pending` → `widget_load_failed` + 恢复库存 |
-| `updateMarketOrderStatus()` | `app/actions/market-admin.ts` | 管理员状态转换（含凭证验证） |
-| `updateMarketItem()` | `app/actions/market-admin.ts` | 商品状态转换（含状态机验证） |
-| `deleteMarketItem()` | `app/actions/market-admin.ts` | 删除 `draft` 商品 |
+| Action                          | 文件                          | 状态操作                                    |
+| ------------------------------- | ----------------------------- | ------------------------------------------- |
+| `createSaleOrder()`             | `app/actions/market-sale.ts`  | 创建 `pending` 订单 + 扣减库存              |
+| `markMarketOrderWidgetFailed()` | `app/actions/market-sale.ts`  | `pending` → `widget_load_failed` + 恢复库存 |
+| `updateMarketOrderStatus()`     | `app/actions/market-admin.ts` | 管理员状态转换（含凭证验证）                |
+| `updateMarketItem()`            | `app/actions/market-admin.ts` | 商品状态转换（含状态机验证）                |
+| `deleteMarketItem()`            | `app/actions/market-admin.ts` | 删除 `draft` 商品                           |
 
 ### 10.3 Webhook 处理
 
@@ -459,11 +469,13 @@ export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: 
 ```typescript
 // Webhook 可更新的源状态
 export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
-  'pending', 'widget_load_failed'
+  'pending',
+  'widget_load_failed',
 ]
 ```
 
 处理流程：
+
 1. 验证签名（HMAC-MD5）
 2. 查询订单并验证金额（1% 容差）
 3. 映射 WayForPay 状态 → 系统状态
@@ -489,31 +501,31 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ### 11.1 订单状态颜色
 
-| 状态 | 背景色 | 文字色 |
-|------|--------|--------|
-| `pending` | `bg-ukraine-gold-100` | `text-ukraine-gold-800` |
-| `widget_load_failed` | `bg-warm-100` | `text-warm-800` |
-| `paid` | `bg-life-100` | `text-life-800` |
-| `shipped` | `bg-ukraine-blue-100` | `text-ukraine-blue-700` |
-| `completed` | `bg-life-100` | `text-life-800` |
-| `expired` | `bg-gray-100` | `text-gray-600` |
-| `declined` | `bg-warm-100` | `text-warm-800` |
+| 状态                 | 背景色                | 文字色                  |
+| -------------------- | --------------------- | ----------------------- |
+| `pending`            | `bg-ukraine-gold-100` | `text-ukraine-gold-800` |
+| `widget_load_failed` | `bg-warm-100`         | `text-warm-800`         |
+| `paid`               | `bg-life-100`         | `text-life-800`         |
+| `shipped`            | `bg-ukraine-blue-100` | `text-ukraine-blue-700` |
+| `completed`          | `bg-life-100`         | `text-life-800`         |
+| `expired`            | `bg-gray-100`         | `text-gray-600`         |
+| `declined`           | `bg-warm-100`         | `text-warm-800`         |
 
 ### 11.2 商品状态颜色
 
-| 状态 | 背景色 | 文字色 |
-|------|--------|--------|
-| `draft` | `bg-gray-100` | `text-gray-600` |
-| `on_sale` | `bg-life-100` | `text-life-800` |
+| 状态        | 背景色        | 文字色          |
+| ----------- | ------------- | --------------- |
+| `draft`     | `bg-gray-100` | `text-gray-600` |
+| `on_sale`   | `bg-life-100` | `text-life-800` |
 | `off_shelf` | `bg-gray-100` | `text-gray-600` |
 
 ### 11.3 管理员组件
 
-| 组件 | 文件 | 功能 |
-|------|------|------|
-| MarketItemsTable | `components/admin/MarketItemsTable.tsx` | 商品管理表格，含状态转换按钮和删除 |
-| MarketOrdersTable | `components/admin/MarketOrdersTable.tsx` | 订单管理表格，含状态筛选和转换入口 |
-| MarketOrderEditModal | `components/admin/MarketOrderEditModal.tsx` | 订单状态编辑弹窗，含文件上传 |
+| 组件                 | 文件                                        | 功能                               |
+| -------------------- | ------------------------------------------- | ---------------------------------- |
+| MarketItemsTable     | `components/admin/MarketItemsTable.tsx`     | 商品管理表格，含状态转换按钮和删除 |
+| MarketOrdersTable    | `components/admin/MarketOrdersTable.tsx`    | 订单管理表格，含状态筛选和转换入口 |
+| MarketOrderEditModal | `components/admin/MarketOrderEditModal.tsx` | 订单状态编辑弹窗，含文件上传       |
 
 #### MarketOrderEditModal 功能
 
@@ -526,21 +538,21 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ### 11.4 买家组件
 
-| 组件 | 文件 | 功能 |
-|------|------|------|
-| MarketItemCard | `components/market/MarketItemCard.tsx` | 商品卡片（图片、标题、价格、库存指示） |
-| MarketItemDetail | `components/market/MarketItemDetail.tsx` | 商品详情页 |
-| MarketOrderList | `components/market/MarketOrderList.tsx` | 公开购买记录（邮箱脱敏） |
+| 组件             | 文件                                     | 功能                                   |
+| ---------------- | ---------------------------------------- | -------------------------------------- |
+| MarketItemCard   | `components/market/MarketItemCard.tsx`   | 商品卡片（图片、标题、价格、库存指示） |
+| MarketItemDetail | `components/market/MarketItemDetail.tsx` | 商品详情页                             |
+| MarketOrderList  | `components/market/MarketOrderList.tsx`  | 公开购买记录（邮箱脱敏）               |
 
 ### 11.5 UI 功能状态依赖
 
-| 功能 | 条件 | 组件 |
-|------|------|------|
-| 购买按钮 | `canPurchase(status)` 且 `stock_quantity > 0` | MarketItemCard |
-| 管理员状态推进 | `getNextOrderStatuses(status).length > 0` | MarketOrdersTable |
-| 文件管理按钮 | `canManageOrderFiles(status)` | MarketOrdersTable |
-| 管理员删除商品 | `status === 'draft'` | MarketItemsTable |
-| 管理员上/下架 | `getNextItemStatuses(status).length > 0` | MarketItemsTable |
+| 功能           | 条件                                          | 组件              |
+| -------------- | --------------------------------------------- | ----------------- |
+| 购买按钮       | `canPurchase(status)` 且 `stock_quantity > 0` | MarketItemCard    |
+| 管理员状态推进 | `getNextOrderStatuses(status).length > 0`     | MarketOrdersTable |
+| 文件管理按钮   | `canManageOrderFiles(status)`                 | MarketOrdersTable |
+| 管理员删除商品 | `status === 'draft'`                          | MarketItemsTable  |
+| 管理员上/下架  | `getNextItemStatuses(status).length > 0`      | MarketItemsTable  |
 
 ---
 
@@ -548,9 +560,9 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ### 12.1 文件分类
 
-| 分类 | 代码常量 | 触发时机 | 用途 |
-|------|---------|---------|------|
-| 发货凭证 | `shipping` | paid → shipped | 证明商品已发货 |
+| 分类         | 代码常量     | 触发时机            | 用途                   |
+| ------------ | ------------ | ------------------- | ---------------------- |
+| 发货凭证     | `shipping`   | paid → shipped      | 证明商品已发货         |
 | 资金用途凭证 | `completion` | shipped → completed | 证明资金已用于公益用途 |
 
 ### 12.2 文件要求
@@ -562,13 +574,13 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ### 12.3 Server Actions
 
-| Action | 文件 | 说明 |
-|--------|------|------|
-| `uploadMarketOrderFile()` | `app/actions/market-order-files.ts` | FormData 图片上传 |
-| `createMarketOrderSignedUploadUrl()` | `app/actions/market-order-files.ts` | 视频直传签名 URL |
-| `getMarketOrderFiles()` | `app/actions/market-order-files.ts` | 获取文件列表（可按分类） |
-| `deleteMarketOrderFile()` | `app/actions/market-order-files.ts` | 删除文件（含路径校验） |
-| `getOrderProofFiles()` | `app/actions/market-order-files.ts` | 买家查看凭证（RLS 保护） |
+| Action                               | 文件                                | 说明                     |
+| ------------------------------------ | ----------------------------------- | ------------------------ |
+| `uploadMarketOrderFile()`            | `app/actions/market-order-files.ts` | FormData 图片上传        |
+| `createMarketOrderSignedUploadUrl()` | `app/actions/market-order-files.ts` | 视频直传签名 URL         |
+| `getMarketOrderFiles()`              | `app/actions/market-order-files.ts` | 获取文件列表（可按分类） |
+| `deleteMarketOrderFile()`            | `app/actions/market-order-files.ts` | 删除文件（含路径校验）   |
+| `getOrderProofFiles()`               | `app/actions/market-order-files.ts` | 买家查看凭证（RLS 保护） |
 
 ---
 
@@ -578,14 +590,14 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 **路径**: `market.orderStatus.*` / `market.itemStatus.*`
 
-| 状态 | 英文 | 中文 | 乌克兰语 |
-|------|------|------|---------|
-| `pending` | Pending Payment | 等待支付 | Очікує оплати |
-| `paid` | Paid | 已支付 | Оплачено |
-| `shipped` | Shipped | 已发货 | Відправлено |
-| `completed` | Completed | 已完成 | Завершено |
-| `expired` | Expired | 已过期 | Термін дії минув |
-| `declined` | Declined | 已拒绝 | Відхилено |
+| 状态        | 英文            | 中文     | 乌克兰语         |
+| ----------- | --------------- | -------- | ---------------- |
+| `pending`   | Pending Payment | 等待支付 | Очікує оплати    |
+| `paid`      | Paid            | 已支付   | Оплачено         |
+| `shipped`   | Shipped         | 已发货   | Відправлено      |
+| `completed` | Completed       | 已完成   | Завершено        |
+| `expired`   | Expired         | 已过期   | Термін дії минув |
+| `declined`  | Declined        | 已拒绝   | Відхилено        |
 
 ---
 
@@ -593,26 +605,26 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ### 14.1 约束强度分析
 
-| 约束类型 | 数据库强制 | 应用层验证 | 绕过风险 |
-|----------|------------|------------|----------|
-| 管理员订单状态转换 | ❌ 无约束 | ✅ market-admin.ts | 中（依赖应用层） |
-| Webhook 状态转换 | ❌ 无约束 | ✅ 乐观锁 + 软过滤 | 中 |
-| 买家创建 pending | ✅ RLS | ✅ market-sale.ts | 低 |
-| 买家 → widget_load_failed | ✅ RLS | ✅ market-sale.ts | 低 |
-| 不可变字段保护 | ✅ 触发器 | - | 低 |
-| 库存操作权限 | ✅ REVOKE/GRANT | ✅ service client | 低 |
+| 约束类型                  | 数据库强制      | 应用层验证         | 绕过风险         |
+| ------------------------- | --------------- | ------------------ | ---------------- |
+| 管理员订单状态转换        | ❌ 无约束       | ✅ market-admin.ts | 中（依赖应用层） |
+| Webhook 状态转换          | ❌ 无约束       | ✅ 乐观锁 + 软过滤 | 中               |
+| 买家创建 pending          | ✅ RLS          | ✅ market-sale.ts  | 低               |
+| 买家 → widget_load_failed | ✅ RLS          | ✅ market-sale.ts  | 低               |
+| 不可变字段保护            | ✅ 触发器       | -                  | 低               |
+| 库存操作权限              | ✅ REVOKE/GRANT | ✅ service client  | 低               |
 
 > **与捐赠模块的差异**: 捐赠模块的管理员状态转换由数据库触发器 `prevent_donation_immutable_fields` 强制。义卖模块的管理员状态转换**仅在应用层验证**，数据库不强制。
 
 ### 14.2 一致性确认
 
-| 检查项 | 状态 |
-|--------|------|
-| 类型定义 vs 数据库 CHECK 约束 | ✅ 一致（订单 7 种，商品 3 种） |
-| 翻译文件覆盖 | ✅ 完整（3 语言 × 7+3 状态） |
-| UI 组件颜色覆盖 | ✅ 完整（ORDER_STATUS_COLORS + ITEM_STATUS_COLORS） |
-| 库存操作一致性 | ✅ 所有路径均正确恢复/扣减 |
-| Webhook 幂等性 | ✅ 乐观锁保证（.eq('status', X)） |
+| 检查项                        | 状态                                                |
+| ----------------------------- | --------------------------------------------------- |
+| 类型定义 vs 数据库 CHECK 约束 | ✅ 一致（订单 7 种，商品 3 种）                     |
+| 翻译文件覆盖                  | ✅ 完整（3 语言 × 7+3 状态）                        |
+| UI 组件颜色覆盖               | ✅ 完整（ORDER_STATUS_COLORS + ITEM_STATUS_COLORS） |
+| 库存操作一致性                | ✅ 所有路径均正确恢复/扣减                          |
+| Webhook 幂等性                | ✅ 乐观锁保证（.eq('status', X)）                   |
 
 ### 14.3 设计注意事项
 
@@ -645,39 +657,39 @@ export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
 
 ### 15.1 核心文件
 
-| 文件路径 | 作用 |
-|---------|------|
-| `types/market.ts` | 类型定义（状态枚举、接口） |
-| `lib/market/market-status.ts` | 状态工具库（转换规则、判断函数、颜色） |
-| `lib/market/market-validations.ts` | Zod 验证 schemas |
-| `lib/market/market-utils.ts` | 工具函数（价格格式化等） |
-| `lib/market/wayforpay.ts` | WayForPay 支付参数生成 |
-| `app/api/webhooks/wayforpay-market/route.ts` | Webhook 处理和状态映射 |
-| `app/actions/market-sale.ts` | 买家下单和支付窗口失败处理 |
-| `app/actions/market-admin.ts` | 管理员商品/订单操作 |
-| `app/actions/market-items.ts` | 公开数据查询 |
-| `app/actions/market-order.ts` | 买家订单查询 |
-| `app/actions/market-order-files.ts` | 凭证文件管理 |
-| `supabase/migrations/20260330500000_market_expire_pending_cron.sql` | pg_cron: 清理超时 pending 订单 |
+| 文件路径                                                            | 作用                                   |
+| ------------------------------------------------------------------- | -------------------------------------- |
+| `types/market.ts`                                                   | 类型定义（状态枚举、接口）             |
+| `lib/market/market-status.ts`                                       | 状态工具库（转换规则、判断函数、颜色） |
+| `lib/market/market-validations.ts`                                  | Zod 验证 schemas                       |
+| `lib/market/market-utils.ts`                                        | 工具函数（价格格式化等）               |
+| `lib/market/wayforpay.ts`                                           | WayForPay 支付参数生成                 |
+| `app/api/webhooks/wayforpay-market/route.ts`                        | Webhook 处理和状态映射                 |
+| `app/actions/market-sale.ts`                                        | 买家下单和支付窗口失败处理             |
+| `app/actions/market-admin.ts`                                       | 管理员商品/订单操作                    |
+| `app/actions/market-items.ts`                                       | 公开数据查询                           |
+| `app/actions/market-order.ts`                                       | 买家订单查询                           |
+| `app/actions/market-order-files.ts`                                 | 凭证文件管理                           |
+| `supabase/migrations/20260330500000_market_expire_pending_cron.sql` | pg_cron: 清理超时 pending 订单         |
 
 ### 15.2 UI 组件
 
-| 文件路径 | 作用 |
-|---------|------|
-| `components/admin/MarketItemsTable.tsx` | 管理员商品表格 |
-| `components/admin/MarketOrdersTable.tsx` | 管理员订单表格 |
+| 文件路径                                    | 作用                       |
+| ------------------------------------------- | -------------------------- |
+| `components/admin/MarketItemsTable.tsx`     | 管理员商品表格             |
+| `components/admin/MarketOrdersTable.tsx`    | 管理员订单表格             |
 | `components/admin/MarketOrderEditModal.tsx` | 订单编辑弹窗（含文件上传） |
-| `components/market/MarketItemCard.tsx` | 商品卡片 |
-| `components/market/MarketItemDetail.tsx` | 商品详情页 |
-| `components/market/MarketOrderList.tsx` | 公开购买记录 |
+| `components/market/MarketItemCard.tsx`      | 商品卡片                   |
+| `components/market/MarketItemDetail.tsx`    | 商品详情页                 |
+| `components/market/MarketOrderList.tsx`     | 公开购买记录               |
 
 ### 15.3 数据库相关
 
-| 内容 | 位置 |
-|------|------|
+| 内容     | 位置                                                   |
+| -------- | ------------------------------------------------------ |
 | 模块基线 | `supabase/migrations/20260328000000_market_module.sql` |
-| 增量迁移 | `supabase/migrations/20260329*.sql` + `20260330*.sql` |
-| 架构文档 | `docs/MARKET_DATABASE_SCHEMA.md` |
+| 增量迁移 | `supabase/migrations/20260329*.sql` + `20260330*.sql`  |
+| 架构文档 | `docs/MARKET_DATABASE_SCHEMA.md`                       |
 
 ---
 

@@ -9,45 +9,45 @@
  */
 export const NOWPAYMENTS_STATUS = {
   // Initial
-  WAITING: 'waiting',              // Waiting for customer to send payment
+  WAITING: 'waiting', // Waiting for customer to send payment
 
   // Processing (blockchain)
-  CONFIRMING: 'confirming',        // Transaction being processed on blockchain
-  CONFIRMED: 'confirmed',          // Blockchain confirmed, waiting to send to wallet
-  SENDING: 'sending',              // Funds being sent to merchant wallet
+  CONFIRMING: 'confirming', // Transaction being processed on blockchain
+  CONFIRMED: 'confirmed', // Blockchain confirmed, waiting to send to wallet
+  SENDING: 'sending', // Funds being sent to merchant wallet
 
   // Completed
-  FINISHED: 'finished',            // Payment completed, funds received
+  FINISHED: 'finished', // Payment completed, funds received
   PARTIALLY_PAID: 'partially_paid', // User paid less than required (funds received)
 
   // Failed
-  FAILED: 'failed',                // Payment failed
-  EXPIRED: 'expired',              // 7 days passed without payment
-  REFUNDED: 'refunded',            // Funds refunded
+  FAILED: 'failed', // Payment failed
+  EXPIRED: 'expired', // 7 days passed without payment
+  REFUNDED: 'refunded', // Funds refunded
 
   // Special cases
   WRONG_ASSET_CONFIRMED: 'wrong_asset_confirmed', // Wrong coin/network sent
-  CANCELLED: 'cancelled',          // Manually cancelled
+  CANCELLED: 'cancelled', // Manually cancelled
 } as const
 
-export type NowPaymentsStatus = typeof NOWPAYMENTS_STATUS[keyof typeof NOWPAYMENTS_STATUS]
+export type NowPaymentsStatus = (typeof NOWPAYMENTS_STATUS)[keyof typeof NOWPAYMENTS_STATUS]
 
 /**
  * Create Payment Request
  * POST https://api.nowpayments.io/v1/payment
  */
 export interface CreatePaymentRequest {
-  price_amount: number           // Amount in price_currency
-  price_currency: string         // e.g., 'usd'
-  pay_currency?: string          // e.g., 'usdttrc20' (optional, user can choose)
-  ipn_callback_url: string       // Webhook URL
-  order_id: string               // Our order reference
-  order_description?: string     // Description
-  success_url?: string           // Redirect after success
-  cancel_url?: string            // Redirect after cancel
-  partially_paid_url?: string    // Redirect after partial payment
-  is_fixed_rate?: boolean        // Lock exchange rate
-  is_fee_paid_by_user?: boolean  // User pays network fee
+  price_amount: number // Amount in price_currency
+  price_currency: string // e.g., 'usd'
+  pay_currency?: string // e.g., 'usdttrc20' (optional, user can choose)
+  ipn_callback_url: string // Webhook URL
+  order_id: string // Our order reference
+  order_description?: string // Description
+  success_url?: string // Redirect after success
+  cancel_url?: string // Redirect after cancel
+  partially_paid_url?: string // Redirect after partial payment
+  is_fixed_rate?: boolean // Lock exchange rate
+  is_fee_paid_by_user?: boolean // User pays network fee
 }
 
 /**
@@ -56,10 +56,10 @@ export interface CreatePaymentRequest {
 export interface CreatePaymentResponse {
   payment_id: string
   payment_status: NowPaymentsStatus
-  pay_address: string            // Wallet address to send crypto
+  pay_address: string // Wallet address to send crypto
   price_amount: number
   price_currency: string
-  pay_amount: number             // Amount in crypto
+  pay_amount: number // Amount in crypto
   amount_received: number
   pay_currency: string
   order_id: string
@@ -93,10 +93,10 @@ export interface NowPaymentsWebhookBody {
   price_amount: number
   price_currency: string
   pay_amount: number
-  actually_paid: number          // Actual amount received
+  actually_paid: number // Actual amount received
   actually_paid_at_fiat?: number // Actual amount in fiat
   pay_currency: string
-  order_id: string               // Our order reference
+  order_id: string // Our order reference
   order_description?: string
   purchase_id: string
   outcome_amount?: number
@@ -115,22 +115,21 @@ export interface NowPaymentsWebhookBody {
   }
 }
 
-
 /**
  * Full Currency Info
  * GET https://api.nowpayments.io/v1/full-currencies
  */
 export interface FullCurrencyInfo {
   id: number
-  code: string              // e.g., "USDTTRC20"
-  name: string              // e.g., "Tether (TRC20)"
-  logo_url: string          // e.g., "/images/coins/usdttrc20.svg"
-  network: string           // e.g., "trx", "eth", "bsc"
+  code: string // e.g., "USDTTRC20"
+  name: string // e.g., "Tether (TRC20)"
+  logo_url: string // e.g., "/images/coins/usdttrc20.svg"
+  network: string // e.g., "trx", "eth", "bsc"
   is_popular: boolean
   is_stable: boolean
   available_for_payment: boolean
   available_for_payout: boolean
-  ticker: string            // e.g., "usdt"
+  ticker: string // e.g., "usdt"
   precision: number
 }
 
@@ -141,7 +140,6 @@ export interface FullCurrencyInfo {
 export interface FullCurrenciesResponse {
   currencies: FullCurrencyInfo[]
 }
-
 
 /**
  * API Error Response

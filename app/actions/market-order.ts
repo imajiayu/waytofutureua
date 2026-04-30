@@ -1,9 +1,9 @@
 'use server'
 
-import { createServerClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import type { MarketOrder } from '@/types/market'
+import { createServerClient } from '@/lib/supabase/server'
 import type { I18nText } from '@/types'
+import type { MarketOrder } from '@/types/market'
 
 /** 买家订单（含商品标题 join） */
 export type BuyerMarketOrder = MarketOrder & {
@@ -16,7 +16,10 @@ export async function getMyOrders(): Promise<{
   error?: string
 }> {
   const supabase = await createServerClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
 
   if (authError || !user) {
     return { orders: [], error: 'not_authenticated' }
@@ -41,7 +44,10 @@ export async function getOrderDetail(
   orderReference: string
 ): Promise<{ order: MarketOrder | null; error?: string }> {
   const supabase = await createServerClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
 
   if (authError || !user) {
     return { order: null, error: 'not_authenticated' }

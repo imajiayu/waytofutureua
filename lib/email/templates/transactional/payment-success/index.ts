@@ -5,31 +5,25 @@
  * Design emphasizes trust (Ukraine blue) and gratitude (Life green for success).
  */
 
-import { PaymentSuccessEmailParams, EmailContent } from '../../../types'
-import { getLocalizedText, formatCurrency, getTrackingUrl } from '../../../utils'
-import { createEmailLayout } from '../../base/layout'
+import { EmailContent, PaymentSuccessEmailParams } from '../../../types'
+import { formatCurrency, getLocalizedText, getTrackingUrl } from '../../../utils'
+import { escapeHtml } from '../../../utils'
 import {
-  createInfoBox,
   createActionBox,
   createButton,
-  createSignature,
   createDonationItemCard,
-  createOrderTotal
+  createInfoBox,
+  createOrderTotal,
+  createSignature,
 } from '../../base/components'
+import { createEmailLayout } from '../../base/layout'
 import { paymentSuccessContent } from './content'
-import { escapeHtml } from '../../../utils'
 
 /**
  * Generate payment success email content
  */
 export function generatePaymentSuccessEmail(params: PaymentSuccessEmailParams): EmailContent {
-  const {
-    locale,
-    donorName,
-    donations,
-    totalAmount,
-    currency
-  } = params
+  const { locale, donorName, donations, totalAmount, currency } = params
 
   const t = paymentSuccessContent[locale]
   const trackingUrl = getTrackingUrl(locale)
@@ -38,27 +32,29 @@ export function generatePaymentSuccessEmail(params: PaymentSuccessEmailParams): 
   const badgeText = {
     en: 'Payment Confirmed',
     zh: '支付已确认',
-    ua: 'Платіж підтверджено'
+    ua: 'Платіж підтверджено',
   }[locale]
 
   // Build donation items HTML
-  const donationItemsHTML = donations.map((donation, index) => {
-    const projectName = getLocalizedText(donation.projectNameI18n, locale)
-    const location = getLocalizedText(donation.locationI18n, locale)
-    const unitName = getLocalizedText(donation.unitNameI18n, locale)
+  const donationItemsHTML = donations
+    .map((donation, index) => {
+      const projectName = getLocalizedText(donation.projectNameI18n, locale)
+      const location = getLocalizedText(donation.locationI18n, locale)
+      const unitName = getLocalizedText(donation.unitNameI18n, locale)
 
-    // For unit mode: show "1 unit_name", for aggregate mode: empty string
-    const quantityText = donation.isAggregate ? '' : t.quantityUnit(escapeHtml(unitName))
+      // For unit mode: show "1 unit_name", for aggregate mode: empty string
+      const quantityText = donation.isAggregate ? '' : t.quantityUnit(escapeHtml(unitName))
 
-    return createDonationItemCard(
-      index + 1,
-      donation.donationPublicId,
-      escapeHtml(projectName),
-      escapeHtml(location),
-      quantityText,
-      formatCurrency(donation.amount, currency)
-    )
-  }).join('')
+      return createDonationItemCard(
+        index + 1,
+        donation.donationPublicId,
+        escapeHtml(projectName),
+        escapeHtml(location),
+        quantityText,
+        formatCurrency(donation.amount, currency)
+      )
+    })
+    .join('')
 
   // Build email content with Ukraine theme
   const contentHTML = `
@@ -84,12 +80,15 @@ export function generatePaymentSuccessEmail(params: PaymentSuccessEmailParams): 
 
     ${createInfoBox(t.donationIdsNote)}
 
-    ${createActionBox(t.trackingTitle, `
+    ${createActionBox(
+      t.trackingTitle,
+      `
       <p style="margin: 0 0 16px;">${t.trackingContent}</p>
       <div style="text-align: center;">
         ${createButton(t.trackingButton, trackingUrl, 'gold')}
       </div>
-    `)}
+    `
+    )}
 
     ${createActionBox(t.nextStepsTitle, `<p style="margin: 0;">${t.nextStepsContent}</p>`)}
 
@@ -104,21 +103,23 @@ export function generatePaymentSuccessEmail(params: PaymentSuccessEmailParams): 
     title: t.title,
     content: contentHTML,
     locale,
-    badge: badgeText
+    badge: badgeText,
   })
 
   // Plain text version
-  const donationItemsText = donations.map((donation, index) => {
-    const projectName = getLocalizedText(donation.projectNameI18n, locale)
-    const location = getLocalizedText(donation.locationI18n, locale)
-    const unitName = getLocalizedText(donation.unitNameI18n, locale)
-    const quantityText = donation.isAggregate ? '' : ` (${t.quantityUnit(unitName)})`
+  const donationItemsText = donations
+    .map((donation, index) => {
+      const projectName = getLocalizedText(donation.projectNameI18n, locale)
+      const location = getLocalizedText(donation.locationI18n, locale)
+      const unitName = getLocalizedText(donation.unitNameI18n, locale)
+      const quantityText = donation.isAggregate ? '' : ` (${t.quantityUnit(unitName)})`
 
-    return `${index + 1}. ${donation.donationPublicId}
+      return `${index + 1}. ${donation.donationPublicId}
    ${projectName}
    ${location}${quantityText}
    ${t.amountLabel} ${formatCurrency(donation.amount, currency)}`
-  }).join('\n\n')
+    })
+    .join('\n\n')
 
   const text = `
 ${t.greeting(donorName)}
@@ -147,6 +148,6 @@ ${t.contact}
   return {
     subject: t.subject,
     html,
-    text
+    text,
   }
 }

@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useEffect, useRef, useState } from 'react'
+
 import { markDonationWidgetFailed } from '@/app/actions/donation'
-import { clientLogger } from '@/lib/logger-client'
 import { SpinnerIcon } from '@/components/icons'
+import { clientLogger } from '@/lib/logger-client'
 
 interface PaymentParams {
   orderReference: string
@@ -31,7 +32,8 @@ declare global {
 const isMobile = () => {
   if (typeof navigator === 'undefined') return false
   // Detect iOS devices
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   // Detect Android and other mobile devices
   const isAndroid = /Android/.test(navigator.userAgent)
@@ -80,7 +82,11 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
       if (event.message && event.message.includes('wayforpay')) {
         clientLogger.error('WIDGET:WAYFORPAY', 'Window error detected', { message: event.message })
         // Only mark as failed if widget was never detected (true load failure)
-        if (!widgetOpenedRef.current && !hasRedirectedRef.current && !widgetEverDetectedRef.current) {
+        if (
+          !widgetOpenedRef.current &&
+          !hasRedirectedRef.current &&
+          !widgetEverDetectedRef.current
+        ) {
           setError(t('errors.paymentLoadFailed'))
           setIsLoading(false)
           setIsRedirecting(false)
@@ -93,7 +99,9 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
     const checkWidgetOpened = () => {
       // WayForPay creates elements with specific classes/ids when widget opens
       const wfpFrame = document.querySelector('iframe[src*="wayforpay"]')
-      const wfpOverlay = document.querySelector('.wfp-overlay, .wayforpay-overlay, [class*="wfp-"], [id*="wayforpay"]')
+      const wfpOverlay = document.querySelector(
+        '.wfp-overlay, .wayforpay-overlay, [class*="wfp-"], [id*="wayforpay"]'
+      )
       const wfpPopup = document.querySelector('[class*="wayforpay"], [class*="wfp"]')
       const isOpen = !!(wfpFrame || wfpOverlay || wfpPopup)
       // Once detected, remember it permanently (widget may be closed later by user)
@@ -293,7 +301,9 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
               // Mark as failed if widget never opened (popup likely blocked)
               if (!widgetOpenedRef.current && !widgetEverDetectedRef.current) {
                 const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
-                markAsFailed(`Mobile: Redirect timeout after 10s - popup likely blocked (UA: ${userAgent.substring(0, 50)})`)
+                markAsFailed(
+                  `Mobile: Redirect timeout after 10s - popup likely blocked (UA: ${userAgent.substring(0, 50)})`
+                )
               }
             }
           }, 10000)
@@ -308,7 +318,9 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
         setIsLoading(false)
         setIsRedirecting(false)
         // Mark as failed - widget initialization threw an error
-        markAsFailed(`Widget initialization error: ${err instanceof Error ? err.message : 'Unknown error'}`)
+        markAsFailed(
+          `Widget initialization error: ${err instanceof Error ? err.message : 'Unknown error'}`
+        )
       }
     }
 
@@ -327,25 +339,22 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
         clearInterval(earlyDetectionIntervalRef.current)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 故意只依赖 paymentParams：error 仅做幂等读取，加入会让 widget 重复初始化
   }, [paymentParams, t, tWidget])
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2 font-display">{t('payment.title')}</h2>
-        <p className="text-sm text-gray-600">
-          {tWidget('windowOpening')}
-        </p>
+        <h2 className="mb-2 font-display text-xl font-bold text-gray-900">{t('payment.title')}</h2>
+        <p className="text-sm text-gray-600">{tWidget('windowOpening')}</p>
       </div>
 
       {/* Amount Display */}
-      <div className="p-4 bg-ukraine-blue-50 rounded-lg border border-ukraine-blue-200">
+      <div className="rounded-lg border border-ukraine-blue-200 bg-ukraine-blue-50 p-4">
         <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">
-            {t('payment.total')}
-          </p>
-          <p className="text-3xl font-bold text-ukraine-blue-500 font-data">
+          <p className="mb-1 text-sm text-gray-600">{t('payment.total')}</p>
+          <p className="font-data text-3xl font-bold text-ukraine-blue-500">
             ${amount.toFixed(2)} {paymentParams.currency}
           </p>
         </div>
@@ -353,23 +362,26 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
 
       {/* Redirecting State - Mobile devices */}
       {isRedirecting && !error && (
-        <div className="p-5 bg-ukraine-blue-50 border-2 border-ukraine-blue-200 rounded-lg">
-          <div className="flex gap-3 items-start">
-            <SpinnerIcon className="animate-spin h-6 w-6 text-ukraine-blue-500 flex-shrink-0" />
+        <div className="rounded-lg border-2 border-ukraine-blue-200 bg-ukraine-blue-50 p-5">
+          <div className="flex items-start gap-3">
+            <SpinnerIcon className="h-6 w-6 flex-shrink-0 animate-spin text-ukraine-blue-500" />
             <div className="flex-1">
-              <p className="text-base font-bold text-ukraine-blue-800 mb-2">
+              <p className="mb-2 text-base font-bold text-ukraine-blue-800">
                 {tWidget('redirecting.title')}
               </p>
-              <p className="text-sm text-ukraine-blue-600 mb-3">
+              <p className="mb-3 text-sm text-ukraine-blue-600">
                 {tWidget('redirecting.description')}
               </p>
               <div className="flex items-center gap-2 text-xs text-ukraine-blue-500">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
-                <span>
-                  {tWidget('redirecting.popupHint')}
-                </span>
+                <span>{tWidget('redirecting.popupHint')}</span>
               </div>
             </div>
           </div>
@@ -377,19 +389,27 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
       )}
 
       {error && (
-        <div className="p-5 bg-warm-50 border-2 border-warm-200 rounded-lg">
-          <div className="flex gap-3 mb-4">
-            <svg className="w-6 h-6 text-warm-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="rounded-lg border-2 border-warm-200 bg-warm-50 p-5">
+          <div className="mb-4 flex gap-3">
+            <svg
+              className="h-6 w-6 flex-shrink-0 text-warm-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <div className="flex-1">
-              <p className="text-base font-bold text-warm-800 mb-2">
+              <p className="mb-2 text-base font-bold text-warm-800">
                 {tWidget('paymentFailed.title')}
               </p>
-              <p className="text-sm text-warm-700 mb-3">{error}</p>
-              <p className="text-xs text-warm-600">
-                {tWidget('paymentFailed.message')}
-              </p>
+              <p className="mb-3 text-sm text-warm-700">{error}</p>
+              <p className="text-xs text-warm-600">{tWidget('paymentFailed.message')}</p>
             </div>
           </div>
         </div>
@@ -397,12 +417,10 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
 
       {/* Loading State */}
       {isLoading && (
-        <div className="py-12 flex flex-col items-center justify-center space-y-4">
-          <SpinnerIcon className="animate-spin h-12 w-12 text-ukraine-blue-500" />
-          <p className="text-gray-600 font-medium">{t('payment.loading')}</p>
-          <p className="text-sm text-gray-500">
-            {tWidget('preparing')}
-          </p>
+        <div className="flex flex-col items-center justify-center space-y-4 py-12">
+          <SpinnerIcon className="h-12 w-12 animate-spin text-ukraine-blue-500" />
+          <p className="font-medium text-gray-600">{t('payment.loading')}</p>
+          <p className="text-sm text-gray-500">{tWidget('preparing')}</p>
         </div>
       )}
 
@@ -411,30 +429,39 @@ export default function WayForPayWidget({ paymentParams, amount, locale, onBack 
         <button
           type="button"
           onClick={onBack}
-          className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2 shadow-sm"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-400 hover:bg-gray-50"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
-          <span>
-            {tWidget('backToEdit')}
-          </span>
+          <span>{tWidget('backToEdit')}</span>
         </button>
       )}
 
       {/* Security Notice */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
         <div className="flex gap-3">
-          <svg className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <svg
+            className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
           </svg>
           <div className="text-sm text-gray-700">
-            <p className="font-medium mb-1">
-              {tWidget('securePayment.title')}
-            </p>
-            <p className="text-gray-600">
-              {tWidget('securePayment.description')}
-            </p>
+            <p className="mb-1 font-medium">{tWidget('securePayment.title')}</p>
+            <p className="text-gray-600">{tWidget('securePayment.description')}</p>
           </div>
         </div>
       </div>

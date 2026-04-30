@@ -1,28 +1,29 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+import DonationFormCard, { type DonorInfo } from '@/components/donate-form/DonationFormCard'
 import { ChevronDownIcon, ChevronUpIcon } from '@/components/icons'
-import type { ProjectStats } from '@/types'
-import ProjectsGallery from '@/components/projects/ProjectsGallery'
 import {
   Project0DetailContent,
   Project3DetailContent,
   Project4DetailContent,
   Project5DetailContent,
 } from '@/components/projects/detail-pages'
-import DonationFormCard, { type DonorInfo } from '@/components/donate-form/DonationFormCard'
+import ProjectsGallery from '@/components/projects/ProjectsGallery'
+import type { ProjectStats } from '@/types'
 // P2 优化: 动态加载折叠区域组件（默认折叠，用户点击后才显示）
 const DonationStatusFlow = dynamic(
   () => import('@/components/donation-display/DonationStatusFlow'),
-  { ssr: true, loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded-lg" /> }
+  { ssr: true, loading: () => <div className="h-24 animate-pulse rounded-lg bg-gray-100" /> }
 )
 
 // P2 优化: 动态加载页面底部组件（滚动后才可见）
 const ProjectDonationList = dynamic(
   () => import('@/components/donation-display/ProjectDonationList'),
-  { ssr: true, loading: () => <div className="h-32 animate-pulse bg-gray-100 rounded-lg" /> }
+  { ssr: true, loading: () => <div className="h-32 animate-pulse rounded-lg bg-gray-100" /> }
 )
 
 import { getProjectName, type SupportedLocale } from '@/lib/i18n-utils'
@@ -62,10 +63,8 @@ function renderProjectDetail(
     default:
       // Fallback for projects without dedicated detail pages
       return (
-        <div className="bg-white rounded-xl border-2 border-gray-200 shadow-sm overflow-hidden p-8 text-center">
-          <p className="text-gray-600">
-            {t('detailsComingSoon')}
-          </p>
+        <div className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-gray-600">{t('detailsComingSoon')}</p>
         </div>
       )
   }
@@ -80,13 +79,11 @@ interface DonatePageClientProps {
 export default function DonatePageClient({
   projects: initialProjects,
   locale,
-  initialProjectId
+  initialProjectId,
 }: DonatePageClientProps) {
   const t = useTranslations('donate')
   const [projects, setProjects] = useState<ProjectStats[]>(initialProjects)
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
-    initialProjectId
-  )
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(initialProjectId)
   const [isFlowExpanded, setIsFlowExpanded] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(true) // Default open on mobile
   const [hideSheetAtBottom, setHideSheetAtBottom] = useState(false)
@@ -103,7 +100,7 @@ export default function DonatePageClient({
     subscribeToNewsletter: true,
   })
   const updateDonorInfo = useCallback(<K extends keyof DonorInfo>(key: K, value: DonorInfo[K]) => {
-    setDonorInfo(prev => ({ ...prev, [key]: value }))
+    setDonorInfo((prev) => ({ ...prev, [key]: value }))
   }, [])
 
   // Constants
@@ -113,7 +110,7 @@ export default function DonatePageClient({
   const NAV_HEIGHT = 96 // top-24 = 6rem = 96px
   const BOTTOM_PADDING = 40 // padding from viewport bottom
 
-  const selectedProject = projects.find(p => p.id === selectedProjectId) || null
+  const selectedProject = projects.find((p) => p.id === selectedProjectId) || null
 
   // Refs for bidirectional sticky sidebar
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -205,7 +202,7 @@ export default function DonatePageClient({
   useEffect(() => {
     const handleOpenDonationForm = () => {
       if (selectedProjectId !== null) {
-        setExpandSheetTrigger(prev => prev + 1)
+        setExpandSheetTrigger((prev) => prev + 1)
       }
     }
 
@@ -289,30 +286,29 @@ export default function DonatePageClient({
       />
 
       {/* Main Content Area */}
-      <div id="donation-content" className="max-w-7xl mx-auto px-4 md:px-6 pt-2 pb-6 md:pt-4 md:pb-10">
+      <div
+        id="donation-content"
+        className="mx-auto max-w-7xl px-4 pb-6 pt-2 md:px-6 md:pb-10 md:pt-4"
+      >
         {selectedProject && selectedProjectId !== null ? (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-5">
               {/* Left Side: Project Detail Content (60%) */}
-              <div className="lg:col-span-3 space-y-3 md:space-y-4">
+              <div className="space-y-3 md:space-y-4 lg:col-span-3">
                 {/* Render project-specific detail component */}
                 {renderProjectDetail(selectedProjectId, selectedProject, locale, t)}
               </div>
 
               {/* Right Side: Donation Form (40%) - Desktop Only */}
-              <div ref={sidebarRef} className="hidden lg:block lg:col-span-2" id="donation-form">
-                <div
-                  ref={sidebarInnerRef}
-                  className="lg:sticky"
-                  style={{ top: stickyTop }}
-                >
-                <DonationFormCard
-                  project={selectedProject}
-                  locale={locale}
-                  onProjectsUpdate={handleProjectsUpdate}
-                  donorInfo={donorInfo}
-                  updateDonorInfo={updateDonorInfo}
-                />
+              <div ref={sidebarRef} className="hidden lg:col-span-2 lg:block" id="donation-form">
+                <div ref={sidebarInnerRef} className="lg:sticky" style={{ top: stickyTop }}>
+                  <DonationFormCard
+                    project={selectedProject}
+                    locale={locale}
+                    onProjectsUpdate={handleProjectsUpdate}
+                    donorInfo={donorInfo}
+                    updateDonorInfo={updateDonorInfo}
+                  />
                 </div>
               </div>
             </div>
@@ -327,15 +323,15 @@ export default function DonatePageClient({
                 hideWhenMinimized={hideSheetAtBottom}
                 expandTrigger={expandSheetTrigger}
               >
-              <div className="px-4 pt-1 pb-4">
-                <DonationFormCard
-                  project={selectedProject}
-                  locale={locale}
-                  onProjectsUpdate={handleProjectsUpdate}
-                  donorInfo={donorInfo}
-                  updateDonorInfo={updateDonorInfo}
-                />
-              </div>
+                <div className="px-4 pb-4 pt-1">
+                  <DonationFormCard
+                    project={selectedProject}
+                    locale={locale}
+                    onProjectsUpdate={handleProjectsUpdate}
+                    donorInfo={donorInfo}
+                    updateDonorInfo={updateDonorInfo}
+                  />
+                </div>
               </BottomSheet>
             </div>
           </>
@@ -344,29 +340,29 @@ export default function DonatePageClient({
         )}
 
         {/* Full Width: Donation Process Flow */}
-        <div className="mt-8 pt-8 md:mt-16 md:pt-16 border-t-2 border-gray-200">
-          <div className="text-center mb-6 md:mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 font-display">
+        <div className="mt-8 border-t-2 border-gray-200 pt-8 md:mt-16 md:pt-16">
+          <div className="mb-6 text-center md:mb-8">
+            <h2 className="mb-4 font-display text-3xl font-bold text-gray-900 sm:text-4xl">
               {t('trackDonationTitle')}
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+            <p className="mx-auto mb-6 max-w-2xl text-lg text-gray-600">
               {t('trackDonationDescription')}
             </p>
 
             {/* Toggle Button */}
             <button
               onClick={() => setIsFlowExpanded(!isFlowExpanded)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-ukraine-blue-500 text-ukraine-blue-500 rounded-lg hover:bg-ukraine-blue-50 transition-colors font-medium"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-ukraine-blue-500 bg-white px-6 py-3 font-medium text-ukraine-blue-500 transition-colors hover:bg-ukraine-blue-50"
             >
               {isFlowExpanded ? (
                 <>
                   {t('hideDetails')}
-                  <ChevronUpIcon className="w-5 h-5" />
+                  <ChevronUpIcon className="h-5 w-5" />
                 </>
               ) : (
                 <>
                   {t('showDetails')}
-                  <ChevronDownIcon className="w-5 h-5" />
+                  <ChevronDownIcon className="h-5 w-5" />
                 </>
               )}
             </button>
@@ -405,25 +401,34 @@ function EmptyState({ locale }: { locale: string }) {
   const t = useTranslations('donate.emptyState')
 
   return (
-    <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
-      <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-ukraine-blue-100 to-ukraine-gold-100 flex items-center justify-center">
-        <svg className="w-10 h-10 text-ukraine-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+    <div className="flex min-h-[400px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white p-12 text-center">
+      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-ukraine-blue-100 to-ukraine-gold-100">
+        <svg
+          className="h-10 w-10 text-ukraine-blue-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M7 11l5-5m0 0l5 5m-5-5v12"
+          />
         </svg>
       </div>
-      <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">
-        {t('title')}
-      </h3>
-      <p className="text-gray-600 max-w-md">
-        {t('description')}
-      </p>
+      <h3 className="mb-3 font-display text-2xl font-bold text-gray-900">{t('title')}</h3>
+      <p className="max-w-md text-gray-600">{t('description')}</p>
       <div className="mt-6 flex items-center gap-2 text-sm text-gray-500">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+          />
         </svg>
-        <span>
-          {t('scrollHint')}
-        </span>
+        <span>{t('scrollHint')}</span>
       </div>
     </div>
   )

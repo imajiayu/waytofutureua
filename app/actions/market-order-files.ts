@@ -1,8 +1,8 @@
 'use server'
 
+import { logger } from '@/lib/logger'
 import { getAdminClient, getInternalClient } from '@/lib/supabase/action-clients'
 import { createServerClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/logger'
 import type { MarketOrderFile, MarketOrderFileCategory, MarketOrderStatus } from '@/types/market'
 
 const BUCKET = 'market-order-results'
@@ -21,12 +21,15 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 // P3-1: Magic bytes 验证 — 防止 MIME 类型伪造
 const MAGIC_BYTES: Record<string, number[][]> = {
-  'image/jpeg': [[0xFF, 0xD8, 0xFF]],
-  'image/png':  [[0x89, 0x50, 0x4E, 0x47]],
-  'image/gif':  [[0x47, 0x49, 0x46, 0x38]],                   // GIF8
-  'image/webp': [[0x52, 0x49, 0x46, 0x46]],                   // RIFF (+ WEBP at offset 8)
-  'video/mp4':  [[0x00, 0x00, 0x00], [0x66, 0x74, 0x79, 0x70]], // ftyp at offset 4
-  'video/quicktime': [[0x00, 0x00, 0x00]],                     // same box header
+  'image/jpeg': [[0xff, 0xd8, 0xff]],
+  'image/png': [[0x89, 0x50, 0x4e, 0x47]],
+  'image/gif': [[0x47, 0x49, 0x46, 0x38]], // GIF8
+  'image/webp': [[0x52, 0x49, 0x46, 0x46]], // RIFF (+ WEBP at offset 8)
+  'video/mp4': [
+    [0x00, 0x00, 0x00],
+    [0x66, 0x74, 0x79, 0x70],
+  ], // ftyp at offset 4
+  'video/quicktime': [[0x00, 0x00, 0x00]], // same box header
 }
 
 function verifyMagicBytes(buffer: ArrayBuffer, mimeType: string): boolean {
@@ -46,9 +49,7 @@ function verifyMagicBytes(buffer: ArrayBuffer, mimeType: string): boolean {
   }
 
   // For images, check starting bytes
-  return signatures.some(sig =>
-    sig.every((byte, i) => bytes[i] === byte)
-  )
+  return signatures.some((sig) => sig.every((byte, i) => bytes[i] === byte))
 }
 
 // ============================================
@@ -119,13 +120,11 @@ export async function uploadMarketOrderFile(formData: FormData): Promise<{
 
   const buffer = Buffer.from(arrayBuffer)
 
-  const { error: uploadError } = await client.storage
-    .from(BUCKET)
-    .upload(filePath, buffer, {
-      contentType: file.type,
-      cacheControl: '3600',
-      upsert: false,
-    })
+  const { error: uploadError } = await client.storage.from(BUCKET).upload(filePath, buffer, {
+    contentType: file.type,
+    cacheControl: '3600',
+    upsert: false,
+  })
 
   if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
 
@@ -136,9 +135,9 @@ export async function uploadMarketOrderFile(formData: FormData): Promise<{
     size: file.size,
   })
 
-  const { data: { publicUrl } } = client.storage
-    .from(BUCKET)
-    .getPublicUrl(filePath)
+  const {
+    data: { publicUrl },
+  } = client.storage.from(BUCKET).getPublicUrl(filePath)
 
   return { publicUrl, filePath, orderReference }
 }
@@ -165,9 +164,7 @@ export async function createMarketOrderSignedUploadUrl(
   const fileName = `${timestamp}.${fileExt}`
   const filePath = `${orderReference}/${category}/${fileName}`
 
-  const { data, error } = await client.storage
-    .from(BUCKET)
-    .createSignedUploadUrl(filePath)
+  const { data, error } = await client.storage.from(BUCKET).createSignedUploadUrl(filePath)
 
   if (error || !data) {
     throw new Error(`Failed to create upload URL: ${error?.message}`)
@@ -193,11 +190,9 @@ export async function getMarketOrderFiles(
   for (const cat of categoriesToList) {
     const folderPath = `${orderReference}/${cat}`
 
-    const { data: files, error } = await client.storage
-      .from(BUCKET)
-      .list(folderPath, {
-        sortBy: { column: 'created_at', order: 'desc' },
-      })
+    const { data: files, error } = await client.storage.from(BUCKET).list(folderPath, {
+      sortBy: { column: 'created_at', order: 'desc' },
+    })
 
     if (error) {
       logger.error('MARKET:FILES', `Failed to list ${cat} files`, {
@@ -207,15 +202,13 @@ export async function getMarketOrderFiles(
       continue
     }
 
-    const actualFiles = (files || []).filter(
-      (f) => f.name && !f.name.startsWith('.') && f.id
-    )
+    const actualFiles = (files || []).filter((f) => f.name && !f.name.startsWith('.') && f.id)
 
     for (const file of actualFiles) {
       const path = `${folderPath}/${file.name}`
-      const { data: { publicUrl } } = client.storage
-        .from(BUCKET)
-        .getPublicUrl(path)
+      const {
+        data: { publicUrl },
+      } = client.storage.from(BUCKET).getPublicUrl(path)
 
       allFiles.push({
         name: file.name,
@@ -267,7 +260,9 @@ export async function getOrderProofFiles(
   const supabase = await createServerClient()
 
   // 验证认证身份
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return { files: [], error: 'Not authenticated' }
 
   // 验证订单属于当前用户
@@ -299,21 +294,17 @@ export async function getOrderProofFiles(
   for (const cat of categoriesToShow) {
     const folderPath = `${order.order_reference}/${cat}`
 
-    const { data: files } = await adminClient.storage
-      .from(BUCKET)
-      .list(folderPath, {
-        sortBy: { column: 'created_at', order: 'desc' },
-      })
+    const { data: files } = await adminClient.storage.from(BUCKET).list(folderPath, {
+      sortBy: { column: 'created_at', order: 'desc' },
+    })
 
-    const actualFiles = (files || []).filter(
-      (f) => f.name && !f.name.startsWith('.') && f.id
-    )
+    const actualFiles = (files || []).filter((f) => f.name && !f.name.startsWith('.') && f.id)
 
     for (const file of actualFiles) {
       const path = `${folderPath}/${file.name}`
-      const { data: { publicUrl } } = adminClient.storage
-        .from(BUCKET)
-        .getPublicUrl(path)
+      const {
+        data: { publicUrl },
+      } = adminClient.storage.from(BUCKET).getPublicUrl(path)
 
       allFiles.push({
         name: file.name,
@@ -365,21 +356,17 @@ export async function getPublicOrderProofFiles(
   for (const cat of categoriesToShow) {
     const folderPath = `${orderReference}/${cat}`
 
-    const { data: files } = await supabase.storage
-      .from(BUCKET)
-      .list(folderPath, {
-        sortBy: { column: 'created_at', order: 'desc' },
-      })
+    const { data: files } = await supabase.storage.from(BUCKET).list(folderPath, {
+      sortBy: { column: 'created_at', order: 'desc' },
+    })
 
-    const actualFiles = (files || []).filter(
-      (f) => f.name && !f.name.startsWith('.') && f.id
-    )
+    const actualFiles = (files || []).filter((f) => f.name && !f.name.startsWith('.') && f.id)
 
     for (const file of actualFiles) {
       const path = `${folderPath}/${file.name}`
-      const { data: { publicUrl } } = supabase.storage
-        .from(BUCKET)
-        .getPublicUrl(path)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(BUCKET).getPublicUrl(path)
 
       allFiles.push({
         name: file.name,

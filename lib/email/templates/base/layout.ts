@@ -9,25 +9,32 @@
  * Uses inline styles for maximum email client compatibility
  */
 
-import { createHeader, createFooter } from './components'
 import { Locale } from '../../types'
+import { createFooter, createHeader } from './components'
 
 interface EmailLayoutParams {
   title: string
   content: string
   locale: Locale
-  badge?: string  // Optional badge text above title
-  subtitle?: string  // Optional subtitle below title
+  badge?: string // Optional badge text above title
+  subtitle?: string // Optional subtitle below title
 }
 
 /**
  * Create complete email HTML with base layout
  * Uses table-based layout with inline styles for email client compatibility
  */
-export function createEmailLayout({ title, content, locale, badge, subtitle }: EmailLayoutParams): string {
-  const fontFamily = locale === 'zh'
-    ? "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
-    : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+export function createEmailLayout({
+  title,
+  content,
+  locale,
+  badge,
+  subtitle,
+}: EmailLayoutParams): string {
+  const fontFamily =
+    locale === 'zh'
+      ? "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+      : "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 
   return `
 <!DOCTYPE html>

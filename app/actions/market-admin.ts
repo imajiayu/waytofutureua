@@ -1,14 +1,24 @@
 'use server'
 
-import { getAdminClient } from '@/lib/supabase/action-clients'
-import { createMarketItemSchema, updateOrderStatusSchema } from '@/lib/market/market-validations'
-import type { CreateMarketItemInput } from '@/lib/market/market-validations'
-import { isValidOrderTransition, isValidItemTransition, needsTrackingNumber, needsFileUpload, getFileCategory } from '@/lib/market/market-status'
 import { getMarketOrderFiles } from '@/app/actions/market-order-files'
 import { logger } from '@/lib/logger'
+import {
+  getFileCategory,
+  isValidItemTransition,
+  isValidOrderTransition,
+  needsFileUpload,
+  needsTrackingNumber,
+} from '@/lib/market/market-status'
+import type { CreateMarketItemInput } from '@/lib/market/market-validations'
+import { createMarketItemSchema, updateOrderStatusSchema } from '@/lib/market/market-validations'
+import { getAdminClient } from '@/lib/supabase/action-clients'
 import type {
-  MarketItem, MarketItemStatus, MarketItemFilters,
-  AdminMarketOrder, MarketOrderFilters, MarketOrderStatus,
+  AdminMarketOrder,
+  MarketItem,
+  MarketItemFilters,
+  MarketItemStatus,
+  MarketOrderFilters,
+  MarketOrderStatus,
 } from '@/types/market'
 
 // ============================================
@@ -20,10 +30,7 @@ export async function getAdminMarketItems(
 ): Promise<{ items: MarketItem[]; error?: string }> {
   try {
     const client = await getAdminClient()
-    let query = client
-      .from('market_items')
-      .select('*')
-      .order('created_at', { ascending: false })
+    let query = client.from('market_items').select('*').order('created_at', { ascending: false })
 
     if (filters?.status) query = query.eq('status', filters.status)
 
@@ -62,7 +69,11 @@ export async function createMarketItem(
 }
 
 const ALLOWED_ITEM_UPDATE_FIELDS = [
-  'title_i18n', 'fixed_price', 'currency', 'stock_quantity', 'status',
+  'title_i18n',
+  'fixed_price',
+  'currency',
+  'stock_quantity',
+  'status',
 ] as const
 
 export async function updateMarketItem(
@@ -110,7 +121,10 @@ export async function updateMarketItem(
 
     if (error) return { success: false, error: error.message }
     if (currentStatus && (!data || data.length === 0)) {
-      return { success: false, error: 'Item status has changed (concurrent modification). Please refresh and retry.' }
+      return {
+        success: false,
+        error: 'Item status has changed (concurrent modification). Please refresh and retry.',
+      }
     }
 
     logger.info('MARKET:ADMIN', 'Item updated', { id })
@@ -120,9 +134,7 @@ export async function updateMarketItem(
   }
 }
 
-export async function deleteMarketItem(
-  id: number
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteMarketItem(id: number): Promise<{ success: boolean; error?: string }> {
   try {
     const client = await getAdminClient()
 
@@ -215,10 +227,13 @@ export async function updateMarketOrderStatus(
       const category = getFileCategory(currentStatus, newStatus)
       if (category) {
         const files = await getMarketOrderFiles(orderId, category)
-        const imageFiles = files.filter(f => f.contentType.startsWith('image/'))
+        const imageFiles = files.filter((f) => f.contentType.startsWith('image/'))
         if (imageFiles.length === 0) {
           const label = category === 'shipping' ? 'shipping proof' : 'fund usage proof'
-          return { success: false, error: `At least one image is required as ${label} before this transition` }
+          return {
+            success: false,
+            error: `At least one image is required as ${label} before this transition`,
+          }
         }
       }
     }
@@ -238,7 +253,10 @@ export async function updateMarketOrderStatus(
 
     if (error) return { success: false, error: error.message }
     if (!data || data.length === 0) {
-      return { success: false, error: 'Order status has changed (concurrent modification). Please refresh and retry.' }
+      return {
+        success: false,
+        error: 'Order status has changed (concurrent modification). Please refresh and retry.',
+      }
     }
 
     logger.info('MARKET:ADMIN', 'Order status updated', {
@@ -252,19 +270,25 @@ export async function updateMarketOrderStatus(
       try {
         const { data: fullOrder } = await client
           .from('market_orders')
-          .select('order_reference, buyer_email, shipping_name, shipping_city, shipping_country, quantity, total_amount, currency, locale, tracking_number, tracking_carrier, market_items(title_i18n)')
+          .select(
+            'order_reference, buyer_email, shipping_name, shipping_city, shipping_country, quantity, total_amount, currency, locale, tracking_number, tracking_carrier, market_items(title_i18n)'
+          )
           .eq('id', orderId)
           .single()
 
         if (fullOrder && fullOrder.buyer_email) {
           const locale = (fullOrder.locale || 'en') as import('@/lib/email/types').Locale
-          const itemTitleI18n = (fullOrder.market_items as any)?.title_i18n || { en: '', zh: '', ua: '' }
+          const itemTitleI18n = (fullOrder.market_items as any)?.title_i18n || {
+            en: '',
+            zh: '',
+            ua: '',
+          }
 
           if (newStatus === 'shipped') {
             const shippingFiles = await getMarketOrderFiles(orderId, 'shipping')
             const proofImageUrls = shippingFiles
-              .filter(f => f.contentType.startsWith('image/'))
-              .map(f => f.publicUrl)
+              .filter((f) => f.contentType.startsWith('image/'))
+              .map((f) => f.publicUrl)
 
             const { sendMarketOrderShippedEmail } = await import('@/lib/email')
             await sendMarketOrderShippedEmail({
@@ -285,8 +309,8 @@ export async function updateMarketOrderStatus(
           } else {
             const completionFiles = await getMarketOrderFiles(orderId, 'completion')
             const proofImageUrls = completionFiles
-              .filter(f => f.contentType.startsWith('image/'))
-              .map(f => f.publicUrl)
+              .filter((f) => f.contentType.startsWith('image/'))
+              .map((f) => f.publicUrl)
 
             const { sendMarketOrderCompletedEmail } = await import('@/lib/email')
             await sendMarketOrderCompletedEmail({

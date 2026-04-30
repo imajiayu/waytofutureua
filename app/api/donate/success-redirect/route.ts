@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { logger } from '@/lib/logger'
 
 /**
@@ -17,9 +18,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url)
 
     // Extract order reference from query parameters
-    const orderReference =
-      url.searchParams.get('orderReference') ||
-      url.searchParams.get('order')
+    const orderReference = url.searchParams.get('orderReference') || url.searchParams.get('order')
 
     // Extract locale from query params or default to 'en'
     const rawLocale = url.searchParams.get('locale') || 'en'
@@ -30,9 +29,7 @@ export async function GET(request: NextRequest) {
     if (!orderReference) {
       logger.warn('REDIRECT', 'No order reference found in GET')
       // Redirect to success page without order
-      return NextResponse.redirect(
-        new URL(`/${locale}/donate/success`, request.url)
-      )
+      return NextResponse.redirect(new URL(`/${locale}/donate/success`, request.url))
     }
 
     // Build success page URL with order reference
@@ -46,10 +43,7 @@ export async function GET(request: NextRequest) {
     logger.errorWithStack('REDIRECT', 'Error handling GET', error)
 
     // Fallback to success page without parameters
-    return NextResponse.redirect(
-      new URL('/en/donate/success', request.url),
-      303
-    )
+    return NextResponse.redirect(new URL('/en/donate/success', request.url), 303)
   }
 }
 
@@ -66,10 +60,7 @@ export async function POST(request: NextRequest) {
       url.searchParams.get('orderReference')
 
     // Extract locale from query params or default to 'en'
-    const rawLocale =
-      url.searchParams.get('locale') ||
-      (formData.get('locale') as string) ||
-      'en'
+    const rawLocale = url.searchParams.get('locale') || (formData.get('locale') as string) || 'en'
     const locale = ['en', 'zh', 'ua'].includes(rawLocale) ? rawLocale : 'en'
 
     logger.debug('REDIRECT', 'POST received', { orderReference, locale })
@@ -77,9 +68,7 @@ export async function POST(request: NextRequest) {
     if (!orderReference) {
       logger.warn('REDIRECT', 'No order reference found in POST')
       // Redirect to success page without order
-      return NextResponse.redirect(
-        new URL(`/${locale}/donate/success`, request.url)
-      )
+      return NextResponse.redirect(new URL(`/${locale}/donate/success`, request.url))
     }
 
     // Build success page URL with order reference
@@ -93,9 +82,6 @@ export async function POST(request: NextRequest) {
     logger.errorWithStack('REDIRECT', 'Error handling POST', error)
 
     // Fallback to success page without parameters
-    return NextResponse.redirect(
-      new URL('/en/donate/success', request.url),
-      303
-    )
+    return NextResponse.redirect(new URL('/en/donate/success', request.url), 303)
   }
 }

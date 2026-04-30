@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ChevronUpIcon, ChevronDownIcon } from '@/components/icons'
+
+import { ChevronDownIcon, ChevronUpIcon } from '@/components/icons'
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 
 interface BottomSheetProps {
@@ -77,7 +78,7 @@ export default function BottomSheet({
 
   // Toggle between minimized and expanded
   const toggleSheet = useCallback(() => {
-    setCurrentSnap(prev => (prev === 0 ? 1 : 0))
+    setCurrentSnap((prev) => (prev === 0 ? 1 : 0))
   }, [])
 
   // External expand trigger
@@ -174,7 +175,7 @@ export default function BottomSheet({
       {isMinimized && !shouldHide && (
         <button
           type="button"
-          className="fixed left-0 right-0 z-40 cursor-pointer select-none bg-transparent border-none p-0"
+          className="fixed left-0 right-0 z-40 cursor-pointer select-none border-none bg-transparent p-0"
           onClick={toggleSheet}
           style={{
             // iOS 26 Liquid Glass 地址栏比 safe-area 更高
@@ -182,14 +183,10 @@ export default function BottomSheet({
             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)',
           }}
         >
-          <div
-            className="flex items-center justify-center gap-3 py-4 px-6 bg-ukraine-gold-500 rounded-3xl mx-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.2)]"
-          >
-            <ChevronUpIcon className="w-6 h-6 text-ukraine-blue-900" />
-            <span className="text-ukraine-blue-900 font-bold text-lg">
-              {minimizedHint}
-            </span>
-            <ChevronUpIcon className="w-6 h-6 text-ukraine-blue-900" />
+          <div className="mx-4 flex items-center justify-center gap-3 rounded-3xl bg-ukraine-gold-500 px-6 py-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.2)]">
+            <ChevronUpIcon className="h-6 w-6 text-ukraine-blue-900" />
+            <span className="text-lg font-bold text-ukraine-blue-900">{minimizedHint}</span>
+            <ChevronUpIcon className="h-6 w-6 text-ukraine-blue-900" />
           </div>
         </button>
       )}
@@ -201,7 +198,7 @@ export default function BottomSheet({
         aria-modal={isExpanded || undefined}
         aria-hidden={isMinimized}
         tabIndex={-1}
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 outline-none"
+        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl bg-white outline-none"
         style={{
           height: `${currentHeight}px`,
           maxHeight: '95vh',
@@ -211,9 +208,7 @@ export default function BottomSheet({
             : isMinimized
               ? 'translateY(100%)'
               : 'translateY(0)',
-          transition: isDragging
-            ? 'none'
-            : `transform 400ms ${springTransition}`,
+          transition: isDragging ? 'none' : `transform 400ms ${springTransition}`,
           boxShadow: isExpanded
             ? '0 -8px 40px -12px rgba(0, 0, 0, 0.25), 0 -4px 16px -8px rgba(0, 0, 0, 0.1)'
             : 'none',
@@ -226,16 +221,13 @@ export default function BottomSheet({
           onTouchStart={handleTouchStart}
           onClick={toggleSheet}
         >
-          <div className="pt-2 pb-1 flex items-center justify-center">
-            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+          <div className="flex items-center justify-center pb-1 pt-2">
+            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
           </div>
         </div>
 
         {/* Content */}
-        <div
-          className="overflow-y-auto bg-white"
-          style={{ height: 'calc(100% - 28px)' }}
-        >
+        <div className="overflow-y-auto bg-white" style={{ height: 'calc(100% - 28px)' }}>
           {children}
         </div>
       </div>

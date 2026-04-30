@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import ProjectResultsMasonry from './ProjectResultsMasonry'
+import { useMemo, useState } from 'react'
+
 import type { LightboxImage } from '@/components/common/ImageLightbox'
 import type { ProjectResult } from '@/types'
+
+import ProjectResultsMasonry from './ProjectResultsMasonry'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
@@ -73,10 +75,7 @@ export default function UnifiedResultsSection({
     [images]
   )
 
-  const rows = useMemo(
-    () => (useMasonry ? [] : packIntoRows(images)),
-    [images, useMasonry]
-  )
+  const rows = useMemo(() => (useMasonry ? [] : packIntoRows(images)), [images, useMasonry])
 
   const masonryResults = useMemo<ProjectResult[]>(
     () =>
@@ -99,15 +98,15 @@ export default function UnifiedResultsSection({
 
   return (
     <>
-      <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:rounded-3xl">
         {/* Header */}
-        <div className={`relative bg-gradient-to-r ${gradient} px-3 md:px-4 py-2.5 md:py-3 overflow-hidden`}>
+        <div
+          className={`relative bg-gradient-to-r ${gradient} overflow-hidden px-3 py-2.5 md:px-4 md:py-3`}
+        >
           {headerDecoration}
           <div className="relative z-10 flex items-center gap-2">
             {icon}
-            <h2 className="text-lg md:text-xl font-bold font-display text-white">
-              {title}
-            </h2>
+            <h2 className="font-display text-lg font-bold text-white md:text-xl">{title}</h2>
           </div>
         </div>
 
@@ -118,7 +117,7 @@ export default function UnifiedResultsSection({
           ) : (
             <div className="space-y-2.5 md:space-y-3">
               {rows.map((rowIndices, rowIdx) => (
-                <div key={rowIdx} className="flex flex-col sm:flex-row gap-2.5 md:gap-3">
+                <div key={rowIdx} className="flex flex-col gap-2.5 sm:flex-row md:gap-3">
                   {rowIndices.map((idx) => {
                     const item = images[idx]
                     const ratio = getItemRatio(item)
@@ -128,7 +127,7 @@ export default function UnifiedResultsSection({
                         key={idx}
                         role="button"
                         tabIndex={0}
-                        className="group relative rounded-xl overflow-hidden cursor-pointer min-w-0"
+                        className="group relative min-w-0 cursor-pointer overflow-hidden rounded-xl"
                         style={{ flex: `${Math.round(ratio * 100)} 1 0%` }}
                         onClick={() => openLightbox(idx)}
                         onKeyDown={(e) => {
@@ -143,7 +142,7 @@ export default function UnifiedResultsSection({
                           alt={getAltText(idx)}
                           width={800}
                           height={Math.round(800 / ratio)}
-                          className="w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
+                          className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
                         />
                       </div>
                     )

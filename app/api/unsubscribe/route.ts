@@ -4,9 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
 import { z } from 'zod'
+
 import { logger } from '@/lib/logger'
+import { createServerClient } from '@/lib/supabase/server'
 import { unsubscribeSchema } from '@/lib/validations'
 
 // ==================== GET Handler (Email Links) ====================
@@ -28,15 +29,13 @@ export async function GET(request: NextRequest) {
 
     // Call database function to unsubscribe
     const { error } = await supabase.rpc('unsubscribe_email', {
-      p_email: validated.email
+      p_email: validated.email,
     })
 
     if (error) {
       logger.error('SUBSCRIPTION', 'Unsubscribe failed', { error: error.message })
       // Redirect to error page
-      return NextResponse.redirect(
-        new URL(`/${locale}/unsubscribed?error=true`, request.url)
-      )
+      return NextResponse.redirect(new URL(`/${locale}/unsubscribed?error=true`, request.url))
     }
 
     // Redirect to unsubscribed page
@@ -45,9 +44,7 @@ export async function GET(request: NextRequest) {
     logger.errorWithStack('SUBSCRIPTION', 'Unsubscribe GET error', error)
     const rawLocale = request.nextUrl.searchParams.get('locale') || 'en'
     const locale = ['en', 'zh', 'ua'].includes(rawLocale) ? rawLocale : 'en'
-    return NextResponse.redirect(
-      new URL(`/${locale}/unsubscribed?error=true`, request.url)
-    )
+    return NextResponse.redirect(new URL(`/${locale}/unsubscribed?error=true`, request.url))
   }
 }
 
@@ -68,30 +65,21 @@ export async function POST(request: NextRequest) {
 
     // Call database function to unsubscribe
     const { error } = await supabase.rpc('unsubscribe_email', {
-      p_email: validated.email
+      p_email: validated.email,
     })
 
     if (error) {
       logger.error('SUBSCRIPTION', 'Unsubscribe failed', { error: error.message })
-      return NextResponse.json(
-        { success: false, error: 'Failed to unsubscribe' },
-        { status: 500 }
-      )
+      return NextResponse.json({ success: false, error: 'Failed to unsubscribe' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: error.errors[0].message },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: error.errors[0].message }, { status: 400 })
     }
 
     logger.errorWithStack('SUBSCRIPTION', 'Unsubscribe POST error', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to unsubscribe' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Failed to unsubscribe' }, { status: 500 })
   }
 }

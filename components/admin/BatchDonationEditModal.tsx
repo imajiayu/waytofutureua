@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import type { Database } from '@/types/database'
+
 import { batchUpdateDonationStatus } from '@/app/actions/admin'
+import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
+import { type DonationStatus, getNextAllowedStatuses } from '@/lib/donation-status'
+import type { Database } from '@/types/database'
+
 import AdminBaseModal from './AdminBaseModal'
 import DonationStatusProgress from './DonationStatusProgress'
-import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
-import { getNextAllowedStatuses, type DonationStatus } from '@/lib/donation-status'
 
 type Donation = Database['public']['Tables']['donations']['Row']
 
@@ -35,7 +37,7 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
     setLoading(true)
 
     try {
-      const donationIds = donations.map(d => d.id)
+      const donationIds = donations.map((d) => d.id)
       const updated = await batchUpdateDonationStatus(donationIds, newStatus)
       onSaved(updated)
     } catch (err: unknown) {
@@ -46,127 +48,137 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
   }
 
   return (
-    <AdminBaseModal title={`Batch Edit Donations (${donations.length} selected)`} onClose={onClose} error={error} maxWidth="3xl">
+    <AdminBaseModal
+      title={`Batch Edit Donations (${donations.length} selected)`}
+      onClose={onClose}
+      error={error}
+      maxWidth="3xl"
+    >
       <form onSubmit={handleSubmit}>
+        {/* Status Progress Visualization */}
+        <div className="mb-6">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <h3 className="mb-3 font-body text-sm font-semibold text-gray-700">
+              Donation Status Flow
+            </h3>
+            <DonationStatusProgress
+              currentStatus={currentStatus}
+              selectedStatus={canUpdate ? newStatus : undefined}
+              onStatusSelect={canUpdate ? setNewStatus : undefined}
+            />
 
-          {/* Status Progress Visualization */}
-          <div className="mb-6">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 font-body">Donation Status Flow</h3>
-              <DonationStatusProgress
-                currentStatus={currentStatus}
-                selectedStatus={canUpdate ? newStatus : undefined}
-                onStatusSelect={canUpdate ? setNewStatus : undefined}
-              />
-
-              {/* Info Banner */}
-              <div className="mt-4 p-3 bg-blue-50 text-blue-700 rounded text-sm">
-                <div className="font-semibold mb-1">Batch Update Info:</div>
-                <ul className="list-disc list-inside space-y-1 text-xs">
-                  <li>All {donations.length} selected donations have status: <strong>{currentStatus}</strong></li>
-                  <li>They will all be updated to the same new status</li>
-                  <li>This action cannot be undone</li>
-                </ul>
-              </div>
-
-              {/* Action Buttons */}
-              {canUpdate && (
-                <div className="mt-4 pt-4 border-t border-gray-300">
-                  {!newStatus && (
-                    <div className="mb-3 p-3 bg-blue-50 text-blue-700 rounded text-sm">
-                      👆 Click the next status in the progress bar above to continue
-                    </div>
-                  )}
-
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                      disabled={loading}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading || !newStatus}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {loading
-                        ? 'Updating...'
-                        : `Update ${donations.length} Donations`}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {!canUpdate && (
-                <div className="mt-4 pt-4 border-t border-gray-300">
-                  <div className="mb-3 p-3 bg-yellow-50 text-yellow-800 rounded text-sm">
-                    These donations cannot be updated. Current status: <strong>{currentStatus}</strong>
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              )}
+            {/* Info Banner */}
+            <div className="mt-4 rounded bg-blue-50 p-3 text-sm text-blue-700">
+              <div className="mb-1 font-semibold">Batch Update Info:</div>
+              <ul className="list-inside list-disc space-y-1 text-xs">
+                <li>
+                  All {donations.length} selected donations have status:{' '}
+                  <strong>{currentStatus}</strong>
+                </li>
+                <li>They will all be updated to the same new status</li>
+                <li>This action cannot be undone</li>
+              </ul>
             </div>
-          </div>
 
-          {/* Selected Donations List */}
-          <div className="mb-6">
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 font-body">Selected Donations</h3>
-              <div className="max-h-64 overflow-y-auto overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-gray-50 sticky top-0">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        ID
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Donor
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Amount
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Status
-                      </th>
+            {/* Action Buttons */}
+            {canUpdate && (
+              <div className="mt-4 border-t border-gray-300 pt-4">
+                {!newStatus && (
+                  <div className="mb-3 rounded bg-blue-50 p-3 text-sm text-blue-700">
+                    👆 Click the next status in the progress bar above to continue
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || !newStatus}
+                    className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loading ? 'Updating...' : `Update ${donations.length} Donations`}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!canUpdate && (
+              <div className="mt-4 border-t border-gray-300 pt-4">
+                <div className="mb-3 rounded bg-yellow-50 p-3 text-sm text-yellow-800">
+                  These donations cannot be updated. Current status:{' '}
+                  <strong>{currentStatus}</strong>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Selected Donations List */}
+        <div className="mb-6">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <h3 className="mb-3 font-body text-sm font-semibold text-gray-700">
+              Selected Donations
+            </h3>
+            <div className="max-h-64 overflow-x-auto overflow-y-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="sticky top-0 bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                      ID
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                      Donor
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                      Amount
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {donations.map((donation) => (
+                    <tr key={donation.id} className="hover:bg-gray-50">
+                      <td className="px-3 py-2 text-gray-900">
+                        <div className="text-xs font-medium">#{donation.id}</div>
+                        <div className="text-xs text-gray-500">{donation.donation_public_id}</div>
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="font-medium text-gray-900">{donation.donor_name}</div>
+                        <div className="max-w-[150px] truncate text-xs text-gray-500">
+                          {donation.donor_email}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2 text-gray-900">
+                        {donation.amount} {donation.currency || 'UAH'}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2">
+                        <DonationStatusBadge status={donation.donation_status as DonationStatus} />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {donations.map((donation) => (
-                      <tr key={donation.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-2 text-gray-900">
-                          <div className="font-medium text-xs">#{donation.id}</div>
-                          <div className="text-xs text-gray-500">{donation.donation_public_id}</div>
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="font-medium text-gray-900">{donation.donor_name}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[150px]">
-                            {donation.donor_email}
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-gray-900">
-                          {donation.amount} {donation.currency || 'UAH'}
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap">
-                          <DonationStatusBadge status={donation.donation_status as DonationStatus} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
+        </div>
       </form>
     </AdminBaseModal>
   )

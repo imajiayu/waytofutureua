@@ -1,12 +1,13 @@
-import { createServerClient } from './server'
 import type {
-  Project,
   Donation,
-  ProjectStats,
-  ProjectFilters,
   DonationFilters,
   DonationStatus,
+  Project,
+  ProjectFilters,
+  ProjectStats,
 } from '@/types'
+
+import { createServerClient } from './server'
 
 // ============= PROJECT QUERIES =============
 
@@ -38,11 +39,7 @@ export async function getProjects(filters?: ProjectFilters) {
 
 export async function getProjectById(id: number) {
   const supabase = await createServerClient()
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const { data, error } = await supabase.from('projects').select('*').eq('id', id).single()
 
   if (error) throw error
   return data as Project
@@ -71,7 +68,9 @@ export async function getProjectStats(projectId?: number) {
   const { data, error } = await query
 
   if (error) throw error
-  return (projectId !== undefined && projectId !== null) ? (data[0] as ProjectStats) : (data as ProjectStats[])
+  return projectId !== undefined && projectId !== null
+    ? (data[0] as ProjectStats)
+    : (data as ProjectStats[])
 }
 
 export async function getAllProjectsWithStats(filters?: ProjectFilters) {
@@ -100,7 +99,7 @@ export async function getAllProjectsWithStats(filters?: ProjectFilters) {
       active: 0,
       paused: 1,
       planned: 2,
-      completed: 3
+      completed: 3,
     }
 
     const aOrder = statusOrder[a.status ?? 'paused'] ?? 999
@@ -122,7 +121,11 @@ export async function getAllProjectsWithStats(filters?: ProjectFilters) {
 
 export async function getDonations(filters?: DonationFilters) {
   const supabase = await createServerClient()
-  let query = supabase.from('donations').select('*, projects(id, project_name, project_name_i18n, location, location_i18n, unit_name, unit_name_i18n)')
+  let query = supabase
+    .from('donations')
+    .select(
+      '*, projects(id, project_name, project_name_i18n, location, location_i18n, unit_name, unit_name_i18n)'
+    )
 
   if (filters?.project_id) {
     query = query.eq('project_id', filters.project_id)
@@ -187,11 +190,7 @@ export async function createDonation(donationData: {
   locale?: 'en' | 'zh' | 'ua'
 }) {
   const supabase = await createServerClient()
-  const { data, error } = await supabase
-    .from('donations')
-    .insert(donationData)
-    .select()
-    .single()
+  const { data, error } = await supabase.from('donations').insert(donationData).select().single()
 
   if (error) throw error
   return data as Donation
@@ -199,10 +198,7 @@ export async function createDonation(donationData: {
 
 // ============= UPDATE OPERATIONS =============
 
-export async function updateProject(
-  projectId: number,
-  updates: Partial<Project>
-) {
+export async function updateProject(projectId: number, updates: Partial<Project>) {
   const supabase = await createServerClient()
   const { data, error } = await supabase
     .from('projects')
@@ -215,10 +211,7 @@ export async function updateProject(
   return data as Project
 }
 
-export async function updateDonationStatus(
-  donationId: number,
-  status: DonationStatus
-) {
+export async function updateDonationStatus(donationId: number, status: DonationStatus) {
   const supabase = await createServerClient()
   const { data, error } = await supabase
     .from('donations')
@@ -230,4 +223,3 @@ export async function updateDonationStatus(
   if (error) throw error
   return data as Donation
 }
-

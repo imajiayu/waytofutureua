@@ -1,8 +1,10 @@
 import { getLocale } from 'next-intl/server'
+
 import { getPublicMarketItems } from '@/app/actions/market-items'
-import { loadMarketItemContents } from '@/lib/market/market-content'
-import HomeMarketCards from './HomeMarketCards'
 import { logger } from '@/lib/logger'
+import { loadMarketItemContents } from '@/lib/market/market-content'
+
+import HomeMarketCards from './HomeMarketCards'
 
 export default async function HomeMarketGrid() {
   const locale = await getLocale()
@@ -17,12 +19,15 @@ export default async function HomeMarketGrid() {
 
   if (items.length === 0) return null
 
-  const contentMap = await loadMarketItemContents(items.map(i => i.id), locale)
+  const contentMap = await loadMarketItemContents(
+    items.map((i) => i.id),
+    locale
+  )
 
   return (
-    <div className="w-full mt-1 md:mt-2">
+    <div className="mt-1 w-full md:mt-2">
       {/* Horizontal Scrolling Container */}
-      <div className="overflow-x-auto pb-4 pt-2 scrollbar-hide">
+      <div className="scrollbar-hide overflow-x-auto pb-4 pt-2">
         <HomeMarketCards items={items} contentMap={contentMap} />
       </div>
     </div>

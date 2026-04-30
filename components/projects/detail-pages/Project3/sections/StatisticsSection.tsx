@@ -1,8 +1,10 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { UsersIcon, DollarSignIcon, GiftIcon } from '@/components/icons'
+
+import { DollarSignIcon, GiftIcon, UsersIcon } from '@/components/icons'
 import { SectionHeader } from '@/components/projects/shared'
+
 import { StatCard } from '../components'
 import type { SectionProps } from '../types'
 
@@ -15,7 +17,11 @@ export default function StatisticsSection({ content }: Pick<SectionProps, 'conte
 
   return (
     <section>
-      <SectionHeader title={t('project3.programImpact')} gradientClassName="from-christmas-gold to-amber-500" size="sm" />
+      <SectionHeader
+        title={t('project3.programImpact')}
+        gradientClassName="from-christmas-gold to-amber-500"
+        size="sm"
+      />
       <div className="grid grid-cols-3 gap-2 md:gap-3">
         <StatCard
           icon={UsersIcon}

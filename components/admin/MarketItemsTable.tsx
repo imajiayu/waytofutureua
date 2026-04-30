@@ -1,15 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+
+import { deleteMarketItem, getAdminMarketItems, updateMarketItem } from '@/app/actions/market-admin'
 import { getTranslatedText } from '@/lib/i18n-utils'
-import { ITEM_STATUS_COLORS, getNextItemStatuses } from '@/lib/market/market-status'
+import { getNextItemStatuses, ITEM_STATUS_COLORS } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
-import {
-  getAdminMarketItems,
-  updateMarketItem,
-  deleteMarketItem,
-} from '@/app/actions/market-admin'
 import type { MarketItem } from '@/types/market'
+
 import MarketItemCreateModal from './MarketItemCreateModal'
 import MarketItemEditModal from './MarketItemEditModal'
 
@@ -42,7 +40,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
     if (error) {
       alert(error)
     } else {
-      setItems(items.filter(i => i.id !== id))
+      setItems(items.filter((i) => i.id !== id))
     }
     setActionLoading(null)
   }
@@ -53,7 +51,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
   }
 
   const handleSaved = (updated: MarketItem) => {
-    setItems(items.map(i => i.id === updated.id ? updated : i))
+    setItems(items.map((i) => (i.id === updated.id ? updated : i)))
     setEditingItem(null)
   }
 
@@ -62,48 +60,50 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
       <div className="mb-4">
         <button
           onClick={() => setIsCreating(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           Create New Item
         </button>
       </div>
 
       {/* Mobile card view */}
-      <div className="sm:hidden space-y-3">
-        {items.map(item => {
+      <div className="space-y-3 sm:hidden">
+        {items.map((item) => {
           const colors = ITEM_STATUS_COLORS[item.status]
           const nextStatuses = getNextItemStatuses(item.status)
           return (
-            <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-3">
+            <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-sm text-gray-900 truncate">
+                  <div className="truncate text-sm font-medium text-gray-900">
                     {getTranslatedText(item.title_i18n, null, 'en') || '—'}
                   </div>
-                  <div className="text-xs text-gray-500 mt-0.5 font-mono">#{item.id}</div>
+                  <div className="mt-0.5 font-mono text-xs text-gray-500">#{item.id}</div>
                 </div>
                 {colors && (
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${colors.bg} ${colors.text}`}>
+                  <span
+                    className={`flex-shrink-0 rounded px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}
+                  >
                     {item.status}
                   </span>
                 )}
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <span className="text-sm font-data font-medium">
+                <span className="font-data text-sm font-medium">
                   {formatMarketPrice(item.fixed_price || 0, item.currency)}
                 </span>
                 {item.stock_quantity !== null && (
                   <span className="text-xs text-gray-400">{item.stock_quantity} in stock</span>
                 )}
               </div>
-              <div className="mt-2 pt-2 border-t border-gray-100 flex flex-wrap gap-3 text-sm">
+              <div className="mt-2 flex flex-wrap gap-3 border-t border-gray-100 pt-2 text-sm">
                 <button
                   onClick={() => setEditingItem(item)}
                   className="text-gray-600 hover:text-gray-800"
                 >
                   Edit
                 </button>
-                {nextStatuses.map(status => (
+                {nextStatuses.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusChange(item.id, status)}
@@ -126,56 +126,64 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
             </div>
           )
         })}
-        {items.length === 0 && (
-          <div className="text-center py-8 text-gray-400">No items found</div>
-        )}
+        {items.length === 0 && <div className="py-8 text-center text-gray-400">No items found</div>}
       </div>
 
       {/* Desktop table view */}
-      <div className="hidden sm:block overflow-x-auto">
+      <div className="hidden overflow-x-auto sm:block">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                ID
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Title
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Price
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {items.map(item => {
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {items.map((item) => {
               const colors = ITEM_STATUS_COLORS[item.status]
               const nextStatuses = getNextItemStatuses(item.status)
               return (
                 <tr key={item.id}>
-                  <td className="px-4 py-3 text-sm text-gray-500 font-mono">{item.id}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900 font-medium max-w-[200px] truncate">
+                  <td className="px-4 py-3 font-mono text-sm text-gray-500">{item.id}</td>
+                  <td className="max-w-[200px] truncate px-4 py-3 text-sm font-medium text-gray-900">
                     {getTranslatedText(item.title_i18n, null, 'en') || '—'}
                   </td>
-                  <td className="px-4 py-3 text-sm font-data">
+                  <td className="px-4 py-3 font-data text-sm">
                     {formatMarketPrice(item.fixed_price || 0, item.currency)}
                     {item.stock_quantity !== null && (
-                      <span className="text-gray-400 ml-2">
-                        ({item.stock_quantity} in stock)
-                      </span>
+                      <span className="ml-2 text-gray-400">({item.stock_quantity} in stock)</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {colors && (
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors.bg} ${colors.text}`}>
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}
+                      >
                         {item.status}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm space-x-2">
+                  <td className="space-x-2 px-4 py-3 text-sm">
                     <button
                       onClick={() => setEditingItem(item)}
                       className="text-gray-600 hover:text-gray-800"
                     >
                       Edit
                     </button>
-                    {nextStatuses.map(status => (
+                    {nextStatuses.map((status) => (
                       <button
                         key={status}
                         onClick={() => handleStatusChange(item.id, status)}
@@ -203,14 +211,11 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
       </div>
 
       {items.length === 0 && (
-        <div className="hidden sm:block text-center py-8 text-gray-400">No items found</div>
+        <div className="hidden py-8 text-center text-gray-400 sm:block">No items found</div>
       )}
 
       {isCreating && (
-        <MarketItemCreateModal
-          onClose={() => setIsCreating(false)}
-          onCreated={handleCreated}
-        />
+        <MarketItemCreateModal onClose={() => setIsCreating(false)} onCreated={handleCreated} />
       )}
 
       {editingItem && (

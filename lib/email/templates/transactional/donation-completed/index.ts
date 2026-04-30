@@ -6,19 +6,19 @@
  */
 
 import { DonationCompletedEmailParams, EmailContent } from '../../../types'
-import { getLocalizedText, formatCurrency, getTrackingUrl } from '../../../utils'
-import { createEmailLayout } from '../../base/layout'
+import { formatCurrency, getLocalizedText, getTrackingUrl } from '../../../utils'
+import { escapeHtml } from '../../../utils'
 import {
+  createButton,
   createDetailBox,
   createDetailRow,
   createDonationIdsList,
-  createSuccessBox,
   createImage,
-  createButton,
-  createSignature
+  createSignature,
+  createSuccessBox,
 } from '../../base/components'
+import { createEmailLayout } from '../../base/layout'
 import { donationCompletedContent } from './content'
-import { escapeHtml } from '../../../utils'
 
 /**
  * Generate donation completed email content
@@ -34,7 +34,7 @@ export function generateDonationCompletedEmail(params: DonationCompletedEmailPar
     quantity,
     totalAmount,
     currency,
-    resultImageUrl
+    resultImageUrl,
   } = params
 
   const t = donationCompletedContent[locale]
@@ -47,7 +47,7 @@ export function generateDonationCompletedEmail(params: DonationCompletedEmailPar
   const badgeText = {
     en: 'Mission Complete',
     zh: '使命达成',
-    ua: 'Місію виконано'
+    ua: 'Місію виконано',
   }[locale]
 
   // Build email content with Ukraine theme - celebratory style
@@ -76,7 +76,9 @@ export function generateDonationCompletedEmail(params: DonationCompletedEmailPar
       ${createDonationIdsList(donationIds)}
     `)}
 
-    ${resultImageUrl ? `
+    ${
+      resultImageUrl
+        ? `
       <!-- Result Image -->
       <table width="100%" cellpadding="0" cellspacing="0" style="margin: 28px 0;">
         <tr>
@@ -87,7 +89,9 @@ export function generateDonationCompletedEmail(params: DonationCompletedEmailPar
           </td>
         </tr>
       </table>
-    ` : ''}
+    `
+        : ''
+    }
 
     <!-- CTA Button - Green for success/completion -->
     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 28px 0;">
@@ -116,7 +120,7 @@ export function generateDonationCompletedEmail(params: DonationCompletedEmailPar
     title: t.title,
     content: contentHTML,
     locale,
-    badge: badgeText
+    badge: badgeText,
   })
 
   // Plain text version
@@ -134,7 +138,7 @@ ${t.quantityLabel} ${quantity} ${unitName}
 ${t.totalAmountLabel} ${formatCurrency(totalAmount, currency)}
 
 ${t.donationIdsLabel}
-${donationIds.map(id => `- ${id}`).join('\n')}
+${donationIds.map((id) => `- ${id}`).join('\n')}
 
 ${resultImageUrl ? `${t.resultTitle}\n${t.resultDescription}\n${resultImageUrl}\n` : ''}
 
@@ -149,6 +153,6 @@ ${t.contact}
   return {
     subject: t.subject,
     html,
-    text
+    text,
   }
 }

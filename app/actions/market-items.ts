@@ -1,8 +1,13 @@
 'use server'
 
-import { createAnonClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import type { MarketItem, PublicMarketItem, PublicMarketOrderRecord, MarketItemFilters } from '@/types/market'
+import { createAnonClient } from '@/lib/supabase/server'
+import type {
+  MarketItem,
+  MarketItemFilters,
+  PublicMarketItem,
+  PublicMarketOrderRecord,
+} from '@/types/market'
 
 // ============================================
 // 公开数据获取（无需认证）
@@ -35,16 +40,22 @@ export async function getPublicMarketItems(
     // 排序：on_sale 有货 → on_sale 售罄 → off_shelf，同组按创建时间倒序
     const sorted = ((data || []) as PublicMarketItem[]).sort((a, b) => {
       const priority = (item: PublicMarketItem) => {
-        if (item.status === 'on_sale' && item.stock_quantity !== null && item.stock_quantity > 0) return 0
+        if (item.status === 'on_sale' && item.stock_quantity !== null && item.stock_quantity > 0)
+          return 0
         if (item.status === 'on_sale') return 1
         return 2 // off_shelf
       }
-      return priority(a) - priority(b) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      return (
+        priority(a) - priority(b) ||
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
     })
 
     return { items: sorted }
   } catch (err) {
-    logger.error('MARKET:ITEMS', 'Unexpected error', { error: err instanceof Error ? err.message : String(err) })
+    logger.error('MARKET:ITEMS', 'Unexpected error', {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return { items: [], error: 'Failed to load items' }
   }
 }
@@ -73,7 +84,9 @@ export async function getMarketItemById(
 
     return { item: data as PublicMarketItem }
   } catch (err) {
-    logger.error('MARKET:ITEMS', 'Unexpected error', { error: err instanceof Error ? err.message : String(err) })
+    logger.error('MARKET:ITEMS', 'Unexpected error', {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return { item: null, error: 'Failed to load item' }
   }
 }
@@ -92,7 +105,10 @@ export async function getPublicMarketOrders(
       .order('created_at', { ascending: false })
 
     if (error) {
-      logger.error('MARKET:ITEMS', 'Failed to fetch public orders', { itemId, error: error.message })
+      logger.error('MARKET:ITEMS', 'Failed to fetch public orders', {
+        itemId,
+        error: error.message,
+      })
       return { orders: [], error: error.message }
     }
 
@@ -111,7 +127,9 @@ export async function getPublicMarketOrders(
 
     return { orders }
   } catch (err) {
-    logger.error('MARKET:ITEMS', 'Unexpected error fetching orders', { error: err instanceof Error ? err.message : String(err) })
+    logger.error('MARKET:ITEMS', 'Unexpected error fetching orders', {
+      error: err instanceof Error ? err.message : String(err),
+    })
     return { orders: [], error: 'Failed to load purchase records' }
   }
 }

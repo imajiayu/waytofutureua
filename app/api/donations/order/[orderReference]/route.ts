@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createAnonClient } from '@/lib/supabase/server'
+
 import { logger } from '@/lib/logger'
+import { createAnonClient } from '@/lib/supabase/server'
 
 // Disable Next.js caching for this API route
 export const dynamic = 'force-dynamic'
@@ -15,15 +16,15 @@ export const revalidate = 0
  * - Email is obfuscated (j***e@e***.com)
  * - Donor name excluded for privacy
  */
-export async function GET(request: Request, props: { params: Promise<{ orderReference: string }> }) {
-  const params = await props.params;
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ orderReference: string }> }
+) {
+  const params = await props.params
   const { orderReference } = params
 
   if (!orderReference) {
-    return NextResponse.json(
-      { error: 'Order reference is required' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Order reference is required' }, { status: 400 })
   }
 
   try {
@@ -39,7 +40,10 @@ export async function GET(request: Request, props: { params: Promise<{ orderRefe
       .order('id', { ascending: true })
 
     if (error) {
-      logger.error('API', 'Error fetching order donations', { orderReference, error: error.message })
+      logger.error('API', 'Error fetching order donations', {
+        orderReference,
+        error: error.message,
+      })
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 
@@ -67,16 +71,13 @@ export async function GET(request: Request, props: { params: Promise<{ orderRefe
       {
         headers: {
           'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+          Pragma: 'no-cache',
+          Expires: '0',
         },
       }
     )
   } catch (error) {
     logger.errorWithStack('API', 'Unexpected error in order donations', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

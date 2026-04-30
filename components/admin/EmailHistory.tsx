@@ -8,14 +8,15 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { clientLogger } from '@/lib/logger-client'
-import { formatDateTime } from '@/lib/i18n-utils'
-import { SpinnerIcon } from '@/components/icons'
+
 import {
-  listEmailHistory,
   type EmailHistoryItem,
   type EmailLastEvent,
+  listEmailHistory,
 } from '@/app/actions/email-history'
+import { SpinnerIcon } from '@/components/icons'
+import { formatDateTime } from '@/lib/i18n-utils'
+import { clientLogger } from '@/lib/logger-client'
 
 interface EmailHistoryProps {
   /** Bump this value to force a re-fetch (e.g. after sending a broadcast) */
@@ -39,14 +40,16 @@ const STATUS_STYLES: Record<EmailLastEvent, string> = {
 function StatusBadge({ event }: { event: EmailLastEvent | null }) {
   if (!event) {
     return (
-      <span className="inline-flex px-2 py-0.5 rounded-full border text-xs font-medium bg-gray-50 text-gray-500 border-gray-200">
+      <span className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-500">
         unknown
       </span>
     )
   }
   const className = STATUS_STYLES[event] ?? 'bg-gray-50 text-gray-700 border-gray-200'
   return (
-    <span className={`inline-flex px-2 py-0.5 rounded-full border text-xs font-medium ${className}`}>
+    <span
+      className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${className}`}
+    >
       {event.replace(/_/g, ' ')}
     </span>
   )
@@ -62,7 +65,10 @@ function RecipientsList({ item }: { item: EmailHistoryItem }) {
   const primary = all[0]
   const rest = all.length - 1
   return (
-    <div className="text-xs text-gray-700 max-w-xs truncate" title={all.map((r) => `${r.kind}: ${r.addr}`).join('\n')}>
+    <div
+      className="max-w-xs truncate text-xs text-gray-700"
+      title={all.map((r) => `${r.kind}: ${r.addr}`).join('\n')}
+    >
       <span className="text-gray-400">{primary.kind}:</span> {primary.addr}
       {rest > 0 && <span className="ml-1 text-gray-400">(+{rest} more)</span>}
     </div>
@@ -102,12 +108,12 @@ export default function EmailHistory({ refreshKey = 0 }: EmailHistoryProps) {
   }, [load, refreshKey])
 
   return (
-    <section className="bg-white rounded-lg shadow border border-gray-200">
+    <section className="rounded-lg border border-gray-200 bg-white shadow">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-200">
+      <div className="flex flex-col justify-between gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Email History</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="mt-0.5 text-xs text-gray-500">
             Latest {items.length} emails from Resend
             {hasMore && ' · more available on the Resend dashboard'}
             {lastFetchedAt && ` · fetched ${formatDateTime(lastFetchedAt.toISOString())}`}
@@ -116,11 +122,11 @@ export default function EmailHistory({ refreshKey = 0 }: EmailHistoryProps) {
         <button
           onClick={load}
           disabled={isLoading}
-          className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? (
             <>
-              <SpinnerIcon className="animate-spin h-4 w-4" />
+              <SpinnerIcon className="h-4 w-4 animate-spin" />
               Refreshing…
             </>
           ) : (
@@ -131,42 +137,52 @@ export default function EmailHistory({ refreshKey = 0 }: EmailHistoryProps) {
 
       {/* Error */}
       {error && (
-        <div className="px-4 sm:px-6 py-3 bg-red-50 border-b border-red-200 text-sm text-red-700">
+        <div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:px-6">
           {error}
         </div>
       )}
 
       {/* Body */}
       {isLoading && items.length === 0 ? (
-        <div className="px-4 sm:px-6 py-12 text-center text-sm text-gray-500">
-          <SpinnerIcon className="animate-spin h-5 w-5 inline-block mr-2" />
+        <div className="px-4 py-12 text-center text-sm text-gray-500 sm:px-6">
+          <SpinnerIcon className="mr-2 inline-block h-5 w-5 animate-spin" />
           Loading email history…
         </div>
       ) : items.length === 0 ? (
-        <div className="px-4 sm:px-6 py-12 text-center text-sm text-gray-500">
+        <div className="px-4 py-12 text-center text-sm text-gray-500 sm:px-6">
           No emails sent yet.
         </div>
       ) : (
         <>
           {/* Desktop: table */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipient</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Sent
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Subject
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Recipient
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    From
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Status
+                  </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {items.map((item) => (
                   <tr key={item.id}>
-                    <td className="px-4 py-2 text-xs text-gray-600 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-600">
                       {formatDateTime(item.createdAt)}
                     </td>
-                    <td className="px-4 py-2 text-sm text-gray-900 max-w-sm">
+                    <td className="max-w-sm px-4 py-2 text-sm text-gray-900">
                       <div className="truncate" title={item.subject}>
                         {item.subject || <span className="text-gray-400">(no subject)</span>}
                       </div>
@@ -174,7 +190,10 @@ export default function EmailHistory({ refreshKey = 0 }: EmailHistoryProps) {
                     <td className="px-4 py-2">
                       <RecipientsList item={item} />
                     </td>
-                    <td className="px-4 py-2 text-xs text-gray-600 max-w-xs truncate" title={item.from}>
+                    <td
+                      className="max-w-xs truncate px-4 py-2 text-xs text-gray-600"
+                      title={item.from}
+                    >
                       {item.from}
                     </td>
                     <td className="px-4 py-2">
@@ -187,11 +206,11 @@ export default function EmailHistory({ refreshKey = 0 }: EmailHistoryProps) {
           </div>
 
           {/* Mobile: cards */}
-          <ul className="md:hidden divide-y divide-gray-100">
+          <ul className="divide-y divide-gray-100 md:hidden">
             {items.map((item) => (
-              <li key={item.id} className="px-4 py-3 space-y-1.5">
+              <li key={item.id} className="space-y-1.5 px-4 py-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="text-sm font-medium text-gray-900 truncate">
+                  <div className="truncate text-sm font-medium text-gray-900">
                     {item.subject || <span className="text-gray-400">(no subject)</span>}
                   </div>
                   <StatusBadge event={item.lastEvent} />

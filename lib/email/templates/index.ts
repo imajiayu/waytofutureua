@@ -27,29 +27,29 @@ export interface TemplateContent {
 // 5. 将内容添加到 TEMPLATE_CONTENTS 映射
 
 // 模板定义
+import { logger } from '@/lib/logger'
+
 import project0Ongoing from './broadcast/project0-ongoing'
 import project3Completed from './broadcast/project3-completed'
-import project4Ongoing from './broadcast/project4-ongoing'
 import project4Completed from './broadcast/project4-completed'
+import project4Ongoing from './broadcast/project4-ongoing'
 import project5Ongoing from './broadcast/project5-ongoing'
-
 // HTML 内容（通过 webpack asset/source 导入）
 import project0OngoingEn from './content/project0-ongoing/en.html'
-import project0OngoingZh from './content/project0-ongoing/zh.html'
 import project0OngoingUa from './content/project0-ongoing/ua.html'
+import project0OngoingZh from './content/project0-ongoing/zh.html'
 import project3CompletedEn from './content/project3-completed/en.html'
-import project3CompletedZh from './content/project3-completed/zh.html'
 import project3CompletedUa from './content/project3-completed/ua.html'
-import project4OngoingEn from './content/project4-ongoing/en.html'
-import project4OngoingZh from './content/project4-ongoing/zh.html'
-import project4OngoingUa from './content/project4-ongoing/ua.html'
+import project3CompletedZh from './content/project3-completed/zh.html'
 import project4CompletedEn from './content/project4-completed/en.html'
-import project4CompletedZh from './content/project4-completed/zh.html'
 import project4CompletedUa from './content/project4-completed/ua.html'
+import project4CompletedZh from './content/project4-completed/zh.html'
+import project4OngoingEn from './content/project4-ongoing/en.html'
+import project4OngoingUa from './content/project4-ongoing/ua.html'
+import project4OngoingZh from './content/project4-ongoing/zh.html'
 import project5OngoingEn from './content/project5-ongoing/en.html'
-import project5OngoingZh from './content/project5-ongoing/zh.html'
 import project5OngoingUa from './content/project5-ongoing/ua.html'
-import { logger } from '@/lib/logger'
+import project5OngoingZh from './content/project5-ongoing/zh.html'
 
 const REGISTERED_TEMPLATES: EmailTemplate[] = [
   project0Ongoing,

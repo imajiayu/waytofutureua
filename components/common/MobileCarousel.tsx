@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 interface MobileCarouselProps {
   children: ReactNode[]
@@ -20,7 +20,7 @@ interface MobileCarouselProps {
 export default function MobileCarousel({
   children,
   className = '',
-  indicatorTheme = 'dark'
+  indicatorTheme = 'dark',
 }: MobileCarouselProps) {
   const t = useTranslations('common.carousel')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -53,7 +53,7 @@ export default function MobileCarousel({
     const gap = 12
     container.scrollTo({
       left: index * (itemWidth + gap),
-      behavior: 'smooth'
+      behavior: 'smooth',
     })
   }
 
@@ -62,41 +62,38 @@ export default function MobileCarousel({
       {/* 轮播容器 - py-4 为 hover:scale/translate 效果预留空间 */}
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 py-4 -my-4"
+        className="scrollbar-hide -my-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 py-4"
         style={{
           scrollPaddingLeft: '16px',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         {children.map((child, index) => (
-          <div
-            key={index}
-            className="flex-shrink-0 snap-center w-[78%]"
-          >
+          <div key={index} className="w-[78%] flex-shrink-0 snap-center">
             {child}
           </div>
         ))}
         {/* 右侧填充，确保最后一张卡片可以居中 */}
-        <div className="flex-shrink-0 w-4" aria-hidden="true" />
+        <div className="w-4 flex-shrink-0" aria-hidden="true" />
       </div>
 
       {/* 分页指示器 */}
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="mt-4 flex justify-center gap-2">
         {Array.from({ length: itemCount }).map((_, index) => {
           const isActive = index === activeIndex
-          const activeClass = indicatorTheme === 'dark'
-            ? 'w-6 h-2 bg-white'
-            : 'w-6 h-2 bg-ukraine-blue-600'
-          const inactiveClass = indicatorTheme === 'dark'
-            ? 'w-2 h-2 bg-white/40 hover:bg-white/60'
-            : 'w-2 h-2 bg-gray-400/50 hover:bg-gray-500/70'
+          const activeClass =
+            indicatorTheme === 'dark' ? 'w-6 h-2 bg-white' : 'w-6 h-2 bg-ukraine-blue-600'
+          const inactiveClass =
+            indicatorTheme === 'dark'
+              ? 'w-2 h-2 bg-white/40 hover:bg-white/60'
+              : 'w-2 h-2 bg-gray-400/50 hover:bg-gray-500/70'
 
           return (
             <button
               key={index}
               onClick={() => scrollToIndex(index)}
               aria-label={t('goToSlide', { number: index + 1 })}
-              className={`transition-all duration-300 rounded-full ${isActive ? activeClass : inactiveClass}`}
+              className={`rounded-full transition-all duration-300 ${isActive ? activeClass : inactiveClass}`}
             />
           )
         })}

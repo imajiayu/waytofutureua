@@ -1,5 +1,5 @@
-export { default as HeroSection } from './HeroSection'
-export { default as StatisticsSection } from './StatisticsSection'
-export { default as SheltersSection } from './SheltersSection'
 export { default as GiftsListSection } from './GiftsListSection'
+export { default as HeroSection } from './HeroSection'
+export { default as SheltersSection } from './SheltersSection'
+export { default as StatisticsSection } from './StatisticsSection'
 export { default as SuppliesSection } from './SuppliesSection'

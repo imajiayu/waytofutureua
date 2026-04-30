@@ -5,16 +5,17 @@
 
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { clientLogger } from '@/lib/logger-client'
+import { useEffect, useMemo, useState } from 'react'
+
 import {
-  sendEmailBroadcast,
+  BroadcastRecipient,
   getAvailableBroadcastTemplates,
   previewEmailTemplate,
-  BroadcastRecipient
+  sendEmailBroadcast,
 } from '@/app/actions/email-broadcast'
-import type { DonationLocale } from '@/types'
 import { SpinnerIcon } from '@/components/icons'
+import { clientLogger } from '@/lib/logger-client'
+import type { DonationLocale } from '@/types'
 
 export interface Subscriber {
   email: string
@@ -35,23 +36,22 @@ type PreviewLocale = DonationLocale
 const LOCALE_LABELS: Record<PreviewLocale, string> = {
   en: 'English',
   zh: 'Chinese',
-  ua: 'Українська'
+  ua: 'Українська',
 }
 
 export default function BroadcastModal({
   isOpen,
   onClose,
   subscribers,
-  onSent
+  onSent,
 }: BroadcastModalProps) {
   // Filter to only active subscribers
-  const activeSubscribers = useMemo(
-    () => subscribers.filter((s) => s.is_subscribed),
-    [subscribers]
-  )
+  const activeSubscribers = useMemo(() => subscribers.filter((s) => s.is_subscribed), [subscribers])
 
   // State
-  const [templates, setTemplates] = useState<Array<{ name: string; fileName: string; projectId?: string }>>([])
+  const [templates, setTemplates] = useState<
+    Array<{ name: string; fileName: string; projectId?: string }>
+  >([])
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
   const [previewLocale, setPreviewLocale] = useState<PreviewLocale>('en')
   const [previewHtml, setPreviewHtml] = useState<string | null>(null)
@@ -89,19 +89,23 @@ export default function BroadcastModal({
         if (response.data) {
           setTemplates(response.data)
           if (response.data.length > 0) {
-            setSelectedTemplate(prev => prev || response.data![0].fileName)
+            setSelectedTemplate((prev) => prev || response.data![0].fileName)
           }
         }
       } catch (err) {
         if (!cancelled) {
-          clientLogger.error('API', 'Failed to load email templates', { error: err instanceof Error ? err.message : String(err) })
+          clientLogger.error('API', 'Failed to load email templates', {
+            error: err instanceof Error ? err.message : String(err),
+          })
         }
       } finally {
         if (!cancelled) setIsLoadingTemplates(false)
       }
     }
     load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [isOpen, templates.length])
 
   // Selection handlers
@@ -157,7 +161,7 @@ export default function BroadcastModal({
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
       const response = await previewEmailTemplate(selectedTemplate, previewLocale, {
         project_url: buildProjectUrl(previewLocale),
-        unsubscribe_url: `${baseUrl}/api/unsubscribe?token=PREVIEW_TOKEN`
+        unsubscribe_url: `${baseUrl}/api/unsubscribe?token=PREVIEW_TOKEN`,
       })
 
       if (response.error) {
@@ -188,7 +192,7 @@ export default function BroadcastModal({
     try {
       const response = await sendEmailBroadcast({
         templateName: selectedTemplate,
-        recipients
+        recipients,
         // project_url is automatically built from template.projectId in broadcast.ts
       })
 
@@ -198,7 +202,7 @@ export default function BroadcastModal({
         setResult({
           success: response.data.success,
           sent: response.data.sent,
-          failed: response.data.failed
+          failed: response.data.failed,
         })
         if (response.data.sent > 0 || response.data.failed > 0) {
           onSent?.()
@@ -232,7 +236,7 @@ export default function BroadcastModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-end sm:items-center justify-center sm:p-4">
+      <div className="flex min-h-screen items-end justify-center sm:items-center sm:p-4">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
@@ -241,19 +245,19 @@ export default function BroadcastModal({
 
         {/* Modal */}
         <div
-          className={`relative bg-white rounded-t-xl sm:rounded-lg shadow-xl ${showPreview ? 'max-w-4xl' : 'max-w-lg'} w-full p-4 sm:p-6 space-y-4 transition-all duration-300 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto`}
+          className={`relative rounded-t-xl bg-white shadow-xl sm:rounded-lg ${showPreview ? 'max-w-4xl' : 'max-w-lg'} max-h-[95vh] w-full space-y-4 overflow-y-auto p-4 transition-all duration-300 sm:max-h-[90vh] sm:p-6`}
         >
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 font-body">
+            <h2 className="font-body text-lg font-bold text-gray-900 sm:text-xl">
               {showPreview ? 'Email Preview' : 'Send Newsletter Broadcast'}
             </h2>
             <button
               onClick={handleClose}
               disabled={isSending}
-              className="text-gray-400 hover:text-gray-600 disabled:opacity-50 p-1 -m-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="-m-1 flex min-h-[44px] min-w-[44px] items-center justify-center p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -269,26 +273,26 @@ export default function BroadcastModal({
             // Preview View
             <div className="space-y-4">
               {/* Subject Line */}
-              <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                 <span className="text-sm text-gray-500">Subject: </span>
                 <span className="font-medium text-gray-900">{previewSubject}</span>
               </div>
 
               {/* Email Preview */}
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-2">
+              <div className="overflow-hidden rounded-lg border border-gray-200">
+                <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-100 px-4 py-2">
                   <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    <div className="h-3 w-3 rounded-full bg-red-400"></div>
+                    <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
+                    <div className="h-3 w-3 rounded-full bg-green-400"></div>
                   </div>
-                  <span className="text-xs text-gray-500 ml-2">
+                  <span className="ml-2 text-xs text-gray-500">
                     Preview ({LOCALE_LABELS[previewLocale]})
                   </span>
                 </div>
                 <iframe
                   srcDoc={previewHtml || ''}
-                  className="w-full h-[300px] sm:h-[500px] bg-white"
+                  className="h-[300px] w-full bg-white sm:h-[500px]"
                   title="Email Preview"
                 />
               </div>
@@ -297,7 +301,7 @@ export default function BroadcastModal({
               <div className="flex gap-3">
                 <button
                   onClick={handleBackFromPreview}
-                  className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                 >
                   Back
                 </button>
@@ -307,11 +311,11 @@ export default function BroadcastModal({
             // Success/Result View
             <div className="space-y-4">
               <div
-                className={`p-4 rounded-lg ${result.success ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}
+                className={`rounded-lg p-4 ${result.success ? 'border border-green-200 bg-green-50' : 'border border-yellow-200 bg-yellow-50'}`}
               >
                 <div className="flex items-start gap-3">
                   <svg
-                    className={`w-6 h-6 flex-shrink-0 ${result.success ? 'text-green-600' : 'text-yellow-600'}`}
+                    className={`h-6 w-6 flex-shrink-0 ${result.success ? 'text-green-600' : 'text-yellow-600'}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -341,7 +345,7 @@ export default function BroadcastModal({
 
               <button
                 onClick={handleClose}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
               >
                 Close
               </button>
@@ -351,10 +355,8 @@ export default function BroadcastModal({
             <>
               <div className="space-y-3">
                 {/* Template Selector */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <label className="block text-sm font-medium text-blue-900 mb-2">
-                    Template
-                  </label>
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <label className="mb-2 block text-sm font-medium text-blue-900">Template</label>
                   {isLoadingTemplates ? (
                     <div className="text-sm text-blue-700">Loading templates...</div>
                   ) : templates.length === 0 ? (
@@ -363,7 +365,7 @@ export default function BroadcastModal({
                     <select
                       value={selectedTemplate}
                       onChange={(e) => setSelectedTemplate(e.target.value)}
-                      className="w-full px-3 py-2 border border-blue-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     >
                       {templates.map((template) => (
                         <option key={template.fileName} value={template.fileName}>
@@ -375,8 +377,8 @@ export default function BroadcastModal({
                 </div>
 
                 {/* Preview Language Selector */}
-                <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     Preview Language
                   </label>
                   <div className="flex gap-2">
@@ -384,10 +386,10 @@ export default function BroadcastModal({
                       <button
                         key={locale}
                         onClick={() => setPreviewLocale(locale)}
-                        className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
+                        className={`flex-1 rounded-lg border px-3 py-2 text-sm transition-colors ${
                           previewLocale === locale
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            ? 'border-blue-600 bg-blue-600 text-white'
+                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                         }`}
                       >
                         {LOCALE_LABELS[locale]}
@@ -397,11 +399,11 @@ export default function BroadcastModal({
                   <button
                     onClick={handlePreview}
                     disabled={isLoadingPreview || !selectedTemplate}
-                    className="mt-3 w-full px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                    className="mt-3 w-full rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-400"
                   >
                     {isLoadingPreview ? (
                       <span className="flex items-center justify-center gap-2">
-                        <SpinnerIcon className="animate-spin h-4 w-4" />
+                        <SpinnerIcon className="h-4 w-4 animate-spin" />
                         Loading...
                       </span>
                     ) : (
@@ -411,8 +413,8 @@ export default function BroadcastModal({
                 </div>
 
                 {/* Recipients Selector */}
-                <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <div className="mb-3 flex items-center justify-between">
                     <label className="text-sm font-medium text-gray-700">
                       Recipients ({selectedEmails.size} of {activeSubscribers.length} selected)
                     </label>
@@ -420,7 +422,7 @@ export default function BroadcastModal({
                       <button
                         onClick={handleSelectAll}
                         disabled={isAllSelected}
-                        className="text-xs px-2 py-1 text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 disabled:cursor-not-allowed disabled:text-gray-400"
                       >
                         Select All
                       </button>
@@ -428,7 +430,7 @@ export default function BroadcastModal({
                       <button
                         onClick={handleDeselectAll}
                         disabled={isNoneSelected}
-                        className="text-xs px-2 py-1 text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 disabled:cursor-not-allowed disabled:text-gray-400"
                       >
                         Deselect All
                       </button>
@@ -436,26 +438,26 @@ export default function BroadcastModal({
                   </div>
 
                   {/* Subscriber List */}
-                  <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg bg-white">
+                  <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white">
                     {activeSubscribers.length === 0 ? (
-                      <div className="p-4 text-sm text-gray-500 text-center">
+                      <div className="p-4 text-center text-sm text-gray-500">
                         No active subscribers
                       </div>
                     ) : (
                       <ul className="divide-y divide-gray-100">
                         {activeSubscribers.map((subscriber) => (
                           <li key={subscriber.email}>
-                            <label className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                            <label className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-gray-50">
                               <input
                                 type="checkbox"
                                 checked={selectedEmails.has(subscriber.email)}
                                 onChange={() => handleToggleEmail(subscriber.email)}
-                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500"
                               />
-                              <span className="flex-1 text-sm text-gray-900 truncate">
+                              <span className="flex-1 truncate text-sm text-gray-900">
                                 {subscriber.email}
                               </span>
-                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
                                 {LOCALE_LABELS[subscriber.locale]}
                               </span>
                             </label>
@@ -468,7 +470,7 @@ export default function BroadcastModal({
 
                 {/* Error Message */}
                 {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                     <p className="text-sm text-red-700">{error}</p>
                   </div>
                 )}
@@ -479,18 +481,18 @@ export default function BroadcastModal({
                 <button
                   onClick={handleClose}
                   disabled={isSending}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSend}
                   disabled={isSending || selectedEmails.size === 0 || !selectedTemplate}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                 >
                   {isSending ? (
                     <span className="flex items-center justify-center gap-2">
-                      <SpinnerIcon className="animate-spin h-4 w-4" />
+                      <SpinnerIcon className="h-4 w-4 animate-spin" />
                       Sending...
                     </span>
                   ) : (

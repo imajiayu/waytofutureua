@@ -1,13 +1,15 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+
 import { GiftIcon } from '@/components/icons'
 import ProjectStatusBadge from '@/components/projects/ProjectStatusBadge'
 import ProjectHeroBase from '@/components/projects/shared/ProjectHeroBase'
-import { Snowfall } from '../components'
 import TwinklingStars from '@/components/projects/shared/TwinklingStars'
-import type { Project3Content } from '../types'
 import type { ProjectStats } from '@/types'
+
+import { Snowfall } from '../components'
+import type { Project3Content } from '../types'
 
 interface HeroSectionProps {
   content: Project3Content | null
@@ -28,7 +30,7 @@ export default function HeroSection({ content, project, locale }: HeroSectionPro
         'bg-gradient-to-b from-black/20 to-transparent',
       ]}
       glowEffects={
-        <div className="absolute top-1/4 right-1/4 w-48 h-48 bg-christmas-gold/20 rounded-full blur-3xl" />
+        <div className="absolute right-1/4 top-1/4 h-48 w-48 rounded-full bg-christmas-gold/20 blur-3xl" />
       }
       overlayEffects={
         <>
@@ -37,19 +39,19 @@ export default function HeroSection({ content, project, locale }: HeroSectionPro
         </>
       }
     >
-      <div className="flex items-center gap-1.5 mb-2">
-        <div className="flex items-center gap-1 px-2 py-1 bg-christmas-gold/90 backdrop-blur-md rounded-full shadow-lg">
-          <GiftIcon className="w-3 h-3 text-white" />
-          <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-wider">
+      <div className="mb-2 flex items-center gap-1.5">
+        <div className="flex items-center gap-1 rounded-full bg-christmas-gold/90 px-2 py-1 shadow-lg backdrop-blur-md">
+          <GiftIcon className="h-3 w-3 text-white" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-white md:text-xs">
             {t('project3.christmasYear')}
           </span>
         </div>
         <ProjectStatusBadge status={project.status} />
       </div>
-      <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-1 leading-[1.1] tracking-tight drop-shadow-lg">
+      <h1 className="mb-1 font-display text-2xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-lg md:text-4xl">
         {content?.title || t('project3.defaultTitle')}
       </h1>
-      <p className="text-sm md:text-base text-white/90 max-w-2xl font-light">
+      <p className="max-w-2xl text-sm font-light text-white/90 md:text-base">
         {content?.subtitle || ''}
       </p>
     </ProjectHeroBase>

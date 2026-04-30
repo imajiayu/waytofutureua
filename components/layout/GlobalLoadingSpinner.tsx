@@ -9,7 +9,10 @@ interface GlobalLoadingSpinnerProps {
   loadingText?: string // Optional custom loading text
 }
 
-export default function GlobalLoadingSpinner({ isLoading, loadingText }: GlobalLoadingSpinnerProps) {
+export default function GlobalLoadingSpinner({
+  isLoading,
+  loadingText,
+}: GlobalLoadingSpinnerProps) {
   const [mounted, setMounted] = useState(false)
 
   // Try to use translations if available, otherwise use custom text or default fallback
@@ -57,15 +60,13 @@ export default function GlobalLoadingSpinner({ isLoading, loadingText }: GlobalL
   const spinnerContent = (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
       {/* Spinning loader */}
-      <div className="relative w-16 h-16 mb-4">
-        <div className="absolute inset-0 border-4 border-white/30 rounded-full"></div>
-        <div className="absolute inset-0 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
+      <div className="relative mb-4 h-16 w-16">
+        <div className="absolute inset-0 rounded-full border-4 border-white/30"></div>
+        <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-white"></div>
       </div>
 
       {/* Loading text */}
-      <p className="text-lg font-medium text-white">
-        {displayText}
-      </p>
+      <p className="text-lg font-medium text-white">{displayText}</p>
     </div>
   )
 

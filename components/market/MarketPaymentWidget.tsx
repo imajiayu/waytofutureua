@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { markMarketOrderWidgetFailed, cancelMarketOrder } from '@/app/actions/market-sale'
-import { formatMarketPrice } from '@/lib/market/market-utils'
-import { clientLogger } from '@/lib/logger-client'
+import { useEffect, useRef, useState } from 'react'
+
+import { cancelMarketOrder, markMarketOrderWidgetFailed } from '@/app/actions/market-sale'
 import { SpinnerIcon } from '@/components/icons'
+import { clientLogger } from '@/lib/logger-client'
+import { formatMarketPrice } from '@/lib/market/market-utils'
 
 interface PaymentParams {
   orderReference: string
@@ -29,7 +30,8 @@ declare global {
 
 const isMobile = () => {
   if (typeof navigator === 'undefined') return false
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   const isAndroid = /Android/.test(navigator.userAgent)
   const isMobileUA = /Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -57,7 +59,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
   const markedAsFailedRef = useRef(false)
 
   // P2-4: keep errorRef in sync for setTimeout closures
-  useEffect(() => { errorRef.current = error }, [error])
+  useEffect(() => {
+    errorRef.current = error
+  }, [error])
 
   useEffect(() => {
     const markAsFailed = async (reason: string) => {
@@ -76,7 +80,11 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
     const handleWindowError = (event: ErrorEvent) => {
       if (event.message && event.message.includes('wayforpay')) {
         clientLogger.error('WIDGET:MARKET', 'Window error detected', { message: event.message })
-        if (!widgetOpenedRef.current && !hasRedirectedRef.current && !widgetEverDetectedRef.current) {
+        if (
+          !widgetOpenedRef.current &&
+          !hasRedirectedRef.current &&
+          !widgetEverDetectedRef.current
+        ) {
           setError(t('errors.paymentLoadFailed'))
           setIsLoading(false)
           setIsRedirecting(false)
@@ -87,7 +95,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
 
     const checkWidgetOpened = () => {
       const wfpFrame = document.querySelector('iframe[src*="wayforpay"]')
-      const wfpOverlay = document.querySelector('.wfp-overlay, .wayforpay-overlay, [class*="wfp-"], [id*="wayforpay"]')
+      const wfpOverlay = document.querySelector(
+        '.wfp-overlay, .wayforpay-overlay, [class*="wfp-"], [id*="wayforpay"]'
+      )
       const wfpPopup = document.querySelector('[class*="wayforpay"], [class*="wfp"]')
       const isOpen = !!(wfpFrame || wfpOverlay || wfpPopup)
       if (isOpen) widgetEverDetectedRef.current = true
@@ -97,7 +107,10 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
     window.addEventListener('error', handleWindowError, true)
 
     const loadWayForPayScript = () => {
-      if (scriptLoadedRef.current) { initializeWidget(); return }
+      if (scriptLoadedRef.current) {
+        initializeWidget()
+        return
+      }
       if (!navigator.onLine) {
         setError(tWidget('networkError'))
         setIsLoading(false)
@@ -185,7 +198,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
 
         setTimeout(() => doEarlyCheck(), 50)
         setTimeout(() => doEarlyCheck(), 150)
-        earlyDetectionIntervalRef.current = setInterval(() => { if (doEarlyCheck()) return }, 100)
+        earlyDetectionIntervalRef.current = setInterval(() => {
+          if (doEarlyCheck()) return
+        }, 100)
         setTimeout(() => {
           if (earlyDetectionIntervalRef.current) {
             clearInterval(earlyDetectionIntervalRef.current)
@@ -228,7 +243,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
               setError(tWidget('popupBlocked'))
               if (!widgetOpenedRef.current && !widgetEverDetectedRef.current) {
                 const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
-                markAsFailed(`Mobile: Redirect timeout after 10s - popup likely blocked (UA: ${userAgent.substring(0, 50)})`)
+                markAsFailed(
+                  `Mobile: Redirect timeout after 10s - popup likely blocked (UA: ${userAgent.substring(0, 50)})`
+                )
               }
             }
           }, 10000)
@@ -242,7 +259,9 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
         setError(t('errors.paymentLoadFailed'))
         setIsLoading(false)
         setIsRedirecting(false)
-        markAsFailed(`Widget initialization error: ${err instanceof Error ? err.message : 'Unknown error'}`)
+        markAsFailed(
+          `Widget initialization error: ${err instanceof Error ? err.message : 'Unknown error'}`
+        )
       }
     }
 
@@ -257,47 +276,54 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
   }, [paymentParams, t, tWidget])
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* ── Header + Amount ── */}
-      <div className="px-5 pt-6 pb-5 text-center border-b border-gray-100
-                     bg-gradient-to-b from-ukraine-blue-50/60 to-transparent">
-        <h2 className="text-lg font-bold text-gray-900 font-display">
+      <div className="border-b border-gray-100 bg-gradient-to-b from-ukraine-blue-50/60 to-transparent px-5 pb-5 pt-6 text-center">
+        <h2 className="font-display text-lg font-bold text-gray-900">
           {t('checkout.paymentTitle')}
         </h2>
-        <p className="text-sm text-gray-500 mt-1 mb-4">
-          {tWidget('windowOpening')}
-        </p>
+        <p className="mb-4 mt-1 text-sm text-gray-500">{tWidget('windowOpening')}</p>
         <div className="inline-flex items-baseline gap-1.5">
-          <span className="text-3xl font-bold text-ukraine-blue-600 font-data">
+          <span className="font-data text-3xl font-bold text-ukraine-blue-600">
             {formatMarketPrice(amount, paymentParams.currency)}
           </span>
         </div>
       </div>
 
-      <div className="px-5 py-5 space-y-4">
+      <div className="space-y-4 px-5 py-5">
         {/* ── Loading ── */}
         {isLoading && (
-          <div className="py-8 flex flex-col items-center justify-center space-y-3">
-            <div className="w-12 h-12 border-[3px] border-gray-200 border-t-ukraine-blue-500 rounded-full animate-spin" />
+          <div className="flex flex-col items-center justify-center space-y-3 py-8">
+            <div className="h-12 w-12 animate-spin rounded-full border-[3px] border-gray-200 border-t-ukraine-blue-500" />
             <p className="text-sm text-gray-500">{tWidget('preparing')}</p>
           </div>
         )}
 
         {/* ── Mobile redirecting ── */}
         {isRedirecting && !error && (
-          <div className="p-4 bg-ukraine-blue-50 border border-ukraine-blue-200 rounded-xl">
-            <div className="flex gap-3 items-start">
-              <SpinnerIcon className="animate-spin h-5 w-5 text-ukraine-blue-500 shrink-0 mt-0.5" />
+          <div className="rounded-xl border border-ukraine-blue-200 bg-ukraine-blue-50 p-4">
+            <div className="flex items-start gap-3">
+              <SpinnerIcon className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-ukraine-blue-500" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-ukraine-blue-800 mb-1">
+                <p className="mb-1 text-sm font-semibold text-ukraine-blue-800">
                   {tWidget('redirecting.title')}
                 </p>
-                <p className="text-[13px] text-ukraine-blue-600 leading-relaxed">
+                <p className="text-[13px] leading-relaxed text-ukraine-blue-600">
                   {tWidget('redirecting.description')}
                 </p>
-                <p className="text-xs text-ukraine-blue-400 mt-2 flex items-center gap-1.5">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-ukraine-blue-400">
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   {tWidget('redirecting.popupHint')}
                 </p>
@@ -308,19 +334,27 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
 
         {/* ── Error ── */}
         {error && (
-          <div className="p-4 bg-warm-50 border border-warm-200 rounded-xl">
-            <div className="flex gap-3 items-start">
-              <svg className="w-5 h-5 text-warm-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+          <div className="rounded-xl border border-warm-200 bg-warm-50 p-4">
+            <div className="flex items-start gap-3">
+              <svg
+                className="mt-0.5 h-5 w-5 shrink-0 text-warm-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-warm-800 mb-1">
+                <p className="mb-1 text-sm font-semibold text-warm-800">
                   {tWidget('paymentFailed.title')}
                 </p>
-                <p className="text-[13px] text-warm-700 leading-relaxed">{error}</p>
-                <p className="text-xs text-warm-600 mt-1.5">
-                  {tWidget('paymentFailed.message')}
-                </p>
+                <p className="text-[13px] leading-relaxed text-warm-700">{error}</p>
+                <p className="mt-1.5 text-xs text-warm-600">{tWidget('paymentFailed.message')}</p>
               </div>
             </div>
           </div>
@@ -328,12 +362,22 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
 
         {/* ── VPN / Firewall hint ── */}
         {!isLoading && !isRedirecting && !error && (
-          <div className="p-3.5 bg-amber-50/60 border border-amber-200/60 rounded-xl">
-            <div className="flex gap-2.5 items-start">
-              <svg className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126Z" />
+          <div className="rounded-xl border border-amber-200/60 bg-amber-50/60 p-3.5">
+            <div className="flex items-start gap-2.5">
+              <svg
+                className="mt-0.5 h-4 w-4 shrink-0 text-amber-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126Z"
+                />
               </svg>
-              <p className="text-[13px] text-amber-700 leading-relaxed">
+              <p className="text-[13px] leading-relaxed text-amber-700">
                 {tDonate('networkNotice')}
               </p>
             </div>
@@ -342,16 +386,26 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
 
         {/* ── Cancel error — order already processed ── */}
         {cancelError && (
-          <div className="p-4 bg-ukraine-blue-50 border border-ukraine-blue-200 rounded-xl">
-            <div className="flex gap-3 items-start">
-              <svg className="w-5 h-5 text-ukraine-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+          <div className="rounded-xl border border-ukraine-blue-200 bg-ukraine-blue-50 p-4">
+            <div className="flex items-start gap-3">
+              <svg
+                className="mt-0.5 h-5 w-5 shrink-0 text-ukraine-blue-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-ukraine-blue-800 mb-1">
+                <p className="mb-1 text-sm font-semibold text-ukraine-blue-800">
                   {t('checkout.orderAlreadyProcessed')}
                 </p>
-                <p className="text-[13px] text-ukraine-blue-600 leading-relaxed">
+                <p className="text-[13px] leading-relaxed text-ukraine-blue-600">
                   {t('checkout.orderAlreadyProcessedHint')}
                 </p>
               </div>
@@ -380,15 +434,23 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
                 setIsCancelling(false)
               }
             }}
-            className="w-full py-3 border border-gray-200 text-gray-600 rounded-xl font-medium text-sm
-                     hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-all flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 text-sm font-medium text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isCancelling ? (
-              <SpinnerIcon className="animate-spin h-4 w-4" />
+              <SpinnerIcon className="h-4 w-4 animate-spin" />
             ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"
+                />
               </svg>
             )}
             {t('checkout.modifyAndRetry')}
@@ -397,10 +459,20 @@ export default function MarketPaymentWidget({ paymentParams, amount, locale, onB
 
         {/* ── Security notice ── */}
         <div className="flex items-start gap-2.5 pt-1">
-          <svg className="w-4 h-4 text-gray-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <svg
+            className="mt-0.5 h-4 w-4 shrink-0 text-gray-300"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
           </svg>
-          <p className="text-xs text-gray-400 leading-relaxed">
+          <p className="text-xs leading-relaxed text-gray-400">
             {tWidget('securePayment.description')}
           </p>
         </div>

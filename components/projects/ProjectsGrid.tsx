@@ -1,8 +1,9 @@
 import { getLocale, getTranslations } from 'next-intl/server'
-import { getAllProjectsWithStats } from '@/lib/supabase/queries'
+
 import ProjectCard from '@/components/projects/ProjectCard'
-import type { ProjectStats } from '@/types'
 import { logger } from '@/lib/logger'
+import { getAllProjectsWithStats } from '@/lib/supabase/queries'
+import type { ProjectStats } from '@/types'
 
 export default async function ProjectsGrid() {
   const t = await getTranslations('home')
@@ -20,14 +21,14 @@ export default async function ProjectsGrid() {
   return (
     <div className="w-full">
       {projects.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-gray-500">{t('noProjects')}</p>
         </div>
       ) : (
         <div className="relative">
           {/* Horizontal Scrolling Container */}
-          <div className="overflow-x-auto pb-4 pt-2 scrollbar-hide">
-            <div className="flex gap-6 min-w-min px-6">
+          <div className="scrollbar-hide overflow-x-auto pb-4 pt-2">
+            <div className="flex min-w-min gap-6 px-6">
               {projects.map((project) => (
                 <ProjectCard
                   key={project.id}
@@ -38,7 +39,6 @@ export default async function ProjectsGrid() {
               ))}
             </div>
           </div>
-
         </div>
       )}
     </div>

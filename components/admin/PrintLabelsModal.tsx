@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+
 import type { Database } from '@/types/database'
+
 import AdminBaseModal from './AdminBaseModal'
 
 type Donation = Database['public']['Tables']['donations']['Row']
@@ -98,29 +100,27 @@ export default function PrintLabelsModal({ donations, onClose }: Props) {
       <div className="space-y-4">
         {/* Date input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Date (optional)
-          </label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Date (optional)</label>
           <input
             type="text"
             value={dateText}
             onChange={(e) => setDateText(e.target.value)}
             placeholder="e.g. 2025-12-25"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
 
         {/* Preview table */}
         <div>
-          <h4 className="text-xs font-medium text-gray-600 mb-2 uppercase">
-            Selected Donations
-          </h4>
-          <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-md">
+          <h4 className="mb-2 text-xs font-medium uppercase text-gray-600">Selected Donations</h4>
+          <div className="max-h-64 overflow-y-auto rounded-md border border-gray-200">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 sticky top-0">
+              <thead className="sticky top-0 bg-gray-50">
                 <tr>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">#</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Public ID</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">
+                    Public ID
+                  </th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Donor</th>
                 </tr>
               </thead>
@@ -138,18 +138,18 @@ export default function PrintLabelsModal({ donations, onClose }: Props) {
         </div>
 
         {/* Action buttons */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-200">
+        <div className="flex justify-end gap-3 border-t border-gray-200 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handlePrint}
-            className="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition-colors"
+            className="rounded-md bg-gray-700 px-4 py-2 text-white transition-colors hover:bg-gray-800"
           >
             Print ({donations.length})
           </button>

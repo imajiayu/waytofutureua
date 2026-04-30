@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 const BG_SRCS = [
   '/images/track-donation/bg-1.webp',
@@ -50,36 +50,22 @@ export default function HeroBackground() {
 
       {/* Desktop: Three photos side by side */}
       <div
-        className="hidden md:flex absolute inset-0 transition-opacity duration-700"
+        className="absolute inset-0 hidden transition-opacity duration-700 md:flex"
         style={{ opacity: ready ? 1 : 0 }}
       >
         {BG_SRCS.map((src) => (
-          <div key={src} className="relative w-1/3 h-full">
-            <Image
-              src={src}
-              alt=""
-              fill
-              className="object-cover"
-              quality={85}
-              priority
-            />
+          <div key={src} className="relative h-full w-1/3">
+            <Image src={src} alt="" fill className="object-cover" quality={85} priority />
           </div>
         ))}
       </div>
 
       {/* Mobile: Single first photo */}
       <div
-        className="md:hidden absolute inset-0 transition-opacity duration-700"
+        className="absolute inset-0 transition-opacity duration-700 md:hidden"
         style={{ opacity: ready ? 1 : 0 }}
       >
-        <Image
-          src={BG_SRCS[0]}
-          alt=""
-          fill
-          className="object-cover"
-          quality={85}
-          priority
-        />
+        <Image src={BG_SRCS[0]} alt="" fill className="object-cover" quality={85} priority />
       </div>
 
       {/* Dark overlay */}

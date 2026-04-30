@@ -43,8 +43,9 @@ export const marketOrderShippedContent: Record<Locale, MarketOrderShippedContent
     shippingProofTitle: 'Shipping Confirmation',
     shippingProofDescription: 'Here is the shipping proof for your order:',
     viewOrderButton: 'View My Orders',
-    deliveryNote: 'Delivery times may vary depending on your location. Please allow a few days for the package to arrive.',
-    contact: 'If you have any questions about your shipment, please don\'t hesitate to contact us.'
+    deliveryNote:
+      'Delivery times may vary depending on your location. Please allow a few days for the package to arrive.',
+    contact: "If you have any questions about your shipment, please don't hesitate to contact us.",
   },
   zh: {
     subject: (orderRef: string) => `您的订单 ${orderRef} 已发货`,
@@ -64,7 +65,7 @@ export const marketOrderShippedContent: Record<Locale, MarketOrderShippedContent
     shippingProofDescription: '以下是您订单的发货凭证：',
     viewOrderButton: '查看我的订单',
     deliveryNote: '配送时间因地区而异，请耐心等待包裹到达。',
-    contact: '如对物流有任何疑问，请随时联系我们。'
+    contact: '如对物流有任何疑问，请随时联系我们。',
   },
   ua: {
     subject: (orderRef: string) => `Ваше замовлення ${orderRef} відправлено`,
@@ -83,7 +84,8 @@ export const marketOrderShippedContent: Record<Locale, MarketOrderShippedContent
     shippingProofTitle: 'Підтвердження відправки',
     shippingProofDescription: 'Ось підтвердження відправки вашого замовлення:',
     viewOrderButton: 'Переглянути мої замовлення',
-    deliveryNote: 'Термін доставки може відрізнятися залежно від вашого місцезнаходження. Будь ласка, зачекайте кілька днів на прибуття посилки.',
-    contact: 'Якщо у вас виникнуть запитання щодо доставки, будь ласка, зв\'яжіться з нами.'
-  }
+    deliveryNote:
+      'Термін доставки може відрізнятися залежно від вашого місцезнаходження. Будь ласка, зачекайте кілька днів на прибуття посилки.',
+    contact: "Якщо у вас виникнуть запитання щодо доставки, будь ласка, зв'яжіться з нами.",
+  },
 }

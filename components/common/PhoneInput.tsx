@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { defaultCountries, parseCountry, usePhoneInput } from 'react-international-phone'
 
@@ -9,7 +9,7 @@ function flagEmoji(iso2: string): string {
   return iso2
     .toUpperCase()
     .split('')
-    .map(c => String.fromCodePoint(0x1f1e6 - 65 + c.charCodeAt(0)))
+    .map((c) => String.fromCodePoint(0x1f1e6 - 65 + c.charCodeAt(0)))
     .join('')
 }
 
@@ -85,16 +85,18 @@ export default function PhoneInput({
     if (!search.trim()) return allCountries
     const q = search.trim().toLowerCase()
     return allCountries.filter(
-      c => c.name.toLowerCase().includes(q) || c.dialCode.includes(q) || c.iso2.includes(q)
+      (c) => c.name.toLowerCase().includes(q) || c.dialCode.includes(q) || c.iso2.includes(q)
     )
   }, [search, allCountries])
 
   const currentCountry = useMemo(
-    () => allCountries.find(c => c.iso2 === country?.iso2),
+    () => allCountries.find((c) => c.iso2 === country?.iso2),
     [allCountries, country]
   )
 
-  useEffect(() => { setHighlightIndex(0) }, [filtered.length])
+  useEffect(() => {
+    setHighlightIndex(0)
+  }, [filtered.length])
 
   // Position dropdown
   const updatePosition = useCallback(() => {
@@ -144,22 +146,25 @@ export default function PhoneInput({
     requestAnimationFrame(() => searchInputRef.current?.focus())
   }, [disabled, updatePosition])
 
-  const selectCountry = useCallback((iso2: string) => {
-    setCountry(iso2)
-    setSelectorOpen(false)
-    setSearch('')
-    requestAnimationFrame(() => inputRef.current?.focus())
-  }, [setCountry, inputRef])
+  const selectCountry = useCallback(
+    (iso2: string) => {
+      setCountry(iso2)
+      setSelectorOpen(false)
+      setSearch('')
+      requestAnimationFrame(() => inputRef.current?.focus())
+    },
+    [setCountry, inputRef]
+  )
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setHighlightIndex(i => Math.min(i + 1, filtered.length - 1))
+        setHighlightIndex((i) => Math.min(i + 1, filtered.length - 1))
         break
       case 'ArrowUp':
         e.preventDefault()
-        setHighlightIndex(i => Math.max(i - 1, 0))
+        setHighlightIndex((i) => Math.max(i - 1, 0))
         break
       case 'Enter':
         e.preventDefault()
@@ -174,87 +179,100 @@ export default function PhoneInput({
 
   const pinnedCount = useMemo(() => {
     if (search.trim()) return 0
-    return filtered.filter(c => c.pinned).length
+    return filtered.filter((c) => c.pinned).length
   }, [filtered, search])
 
   // Portal dropdown
-  const dropdown = selectorOpen && typeof window !== 'undefined' && createPortal(
-    <div
-      ref={dropdownRef}
-      className="fixed bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden mkt-fade-in"
-      style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 9999 }}
-    >
-      <div className="p-2.5 border-b border-gray-100">
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-          </svg>
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg
-                     placeholder:text-gray-300
-                     focus:bg-white focus:ring-1 focus:ring-ukraine-blue-500/20 focus:border-ukraine-blue-400
-                     outline-none transition-all"
-          />
-        </div>
-      </div>
-
-      <ul role="listbox" className="max-h-56 overflow-y-auto overscroll-contain py-1">
-        {filtered.length === 0 ? (
-          <li className="px-4 py-3 text-sm text-gray-400 text-center">—</li>
-        ) : filtered.map((c, i) => (
-          <li key={c.iso2}>
-            {pinnedCount > 0 && i === pinnedCount && (
-              <div className="mx-3 my-1 border-t border-gray-100" />
-            )}
-            <button
-              type="button"
-              role="option"
-              aria-selected={c.iso2 === country?.iso2}
-              onClick={() => selectCountry(c.iso2)}
-              onMouseEnter={() => setHighlightIndex(i)}
-              className={`w-full flex items-center gap-2.5 px-4 py-2 text-left text-sm transition-colors
-                ${i === highlightIndex ? 'bg-ukraine-blue-50 text-ukraine-blue-700' : 'text-gray-700'}
-                ${c.iso2 === country?.iso2 ? 'font-medium' : ''}`}
+  const dropdown =
+    selectorOpen &&
+    typeof window !== 'undefined' &&
+    createPortal(
+      <div
+        ref={dropdownRef}
+        className="mkt-fade-in fixed overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl"
+        style={{
+          top: dropdownPos.top,
+          left: dropdownPos.left,
+          width: dropdownPos.width,
+          zIndex: 9999,
+        }}
+      >
+        <div className="border-b border-gray-100 p-2.5">
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              viewBox="0 0 24 24"
             >
-              <span className="text-base leading-none">{c.flag}</span>
-              <span className="truncate">{c.name}</span>
-              <span className="text-[11px] text-gray-300 ml-auto font-data">+{c.dialCode}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>,
-    document.body
-  )
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+              />
+            </svg>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm outline-none transition-all placeholder:text-gray-300 focus:border-ukraine-blue-400 focus:bg-white focus:ring-1 focus:ring-ukraine-blue-500/20"
+            />
+          </div>
+        </div>
+
+        <ul role="listbox" className="max-h-56 overflow-y-auto overscroll-contain py-1">
+          {filtered.length === 0 ? (
+            <li className="px-4 py-3 text-center text-sm text-gray-400">—</li>
+          ) : (
+            filtered.map((c, i) => (
+              <li key={c.iso2}>
+                {pinnedCount > 0 && i === pinnedCount && (
+                  <div className="mx-3 my-1 border-t border-gray-100" />
+                )}
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={c.iso2 === country?.iso2}
+                  onClick={() => selectCountry(c.iso2)}
+                  onMouseEnter={() => setHighlightIndex(i)}
+                  className={`flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm transition-colors ${i === highlightIndex ? 'bg-ukraine-blue-50 text-ukraine-blue-700' : 'text-gray-700'} ${c.iso2 === country?.iso2 ? 'font-medium' : ''}`}
+                >
+                  <span className="text-base leading-none">{c.flag}</span>
+                  <span className="truncate">{c.name}</span>
+                  <span className="ml-auto font-data text-[11px] text-gray-300">+{c.dialCode}</span>
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>,
+      document.body
+    )
 
   return (
     <div className={className}>
-      <div className={`flex border rounded-xl overflow-hidden transition-all duration-200
-                      focus-within:ring-2 focus-within:ring-ukraine-blue-500/20 focus-within:border-ukraine-blue-400
-                      ${disabled ? 'bg-gray-100' : 'bg-gray-50/80'}
-                      ${error ? 'border-warm-400' : 'border-gray-200'}`}>
+      <div
+        className={`flex overflow-hidden rounded-xl border transition-all duration-200 focus-within:border-ukraine-blue-400 focus-within:ring-2 focus-within:ring-ukraine-blue-500/20 ${disabled ? 'bg-gray-100' : 'bg-gray-50/80'} ${error ? 'border-warm-400' : 'border-gray-200'}`}
+      >
         {/* Country code trigger */}
         <button
           ref={triggerRef}
           type="button"
-          onClick={() => selectorOpen ? setSelectorOpen(false) : openSelector()}
+          onClick={() => (selectorOpen ? setSelectorOpen(false) : openSelector())}
           disabled={disabled}
-          className="flex items-center gap-1.5 pl-3 pr-2 border-r border-gray-200
-                   text-sm text-gray-600 hover:bg-gray-100 transition-colors shrink-0
-                   disabled:cursor-not-allowed disabled:text-gray-400"
+          className="flex shrink-0 items-center gap-1.5 border-r border-gray-200 pl-3 pr-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
         >
-          {currentCountry && (
-            <span className="text-base leading-none">{currentCountry.flag}</span>
-          )}
+          {currentCountry && <span className="text-base leading-none">{currentCountry.flag}</span>}
           <svg
-            className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${selectorOpen ? 'rotate-180' : ''}`}
-            fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
+            className={`h-3 w-3 text-gray-400 transition-transform duration-200 ${selectorOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
           </svg>
@@ -268,9 +286,7 @@ export default function PhoneInput({
           onChange={handlePhoneValueChange}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 px-3 py-3 bg-transparent text-gray-900 text-[15px]
-                   placeholder:text-gray-300 outline-none
-                   disabled:text-gray-400"
+          className="flex-1 bg-transparent px-3 py-3 text-[15px] text-gray-900 outline-none placeholder:text-gray-300 disabled:text-gray-400"
         />
       </div>
 

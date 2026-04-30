@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
+import { useCallback, useEffect, useState } from 'react'
+
 import { clientLogger } from '@/lib/logger-client'
+import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
 
 interface Props {
   paymentData: CreatePaymentResponse
@@ -24,26 +25,33 @@ function CopyButton({ text, label }: { text: string; label: string }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      clientLogger.error('CLIPBOARD', 'Failed to copy', { error: err instanceof Error ? err.message : String(err) })
+      clientLogger.error('CLIPBOARD', 'Failed to copy', {
+        error: err instanceof Error ? err.message : String(err),
+      })
     }
   }
 
   return (
     <button
       onClick={handleCopy}
-      className="px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors flex items-center gap-1.5"
+      className="flex items-center gap-1.5 rounded-lg bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-200"
     >
       {copied ? (
         <>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           {t('addressCopied')}
         </>
       ) : (
         <>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+            />
           </svg>
           {label}
         </>
@@ -70,8 +78,18 @@ function StatusIndicator({ status }: { status: string }) {
       color: 'text-amber-700',
       bgColor: 'bg-amber-50 border-amber-200',
       icon: (
-        <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          className="h-5 w-5 animate-pulse"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
       ),
     },
@@ -79,9 +97,20 @@ function StatusIndicator({ status }: { status: string }) {
       color: 'text-ukraine-blue-600',
       bgColor: 'bg-ukraine-blue-50 border-ukraine-blue-200',
       icon: (
-        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
         </svg>
       ),
     },
@@ -89,8 +118,13 @@ function StatusIndicator({ status }: { status: string }) {
       color: 'text-ukraine-blue-600',
       bgColor: 'bg-ukraine-blue-50 border-ukraine-blue-200',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
       ),
     },
@@ -98,8 +132,18 @@ function StatusIndicator({ status }: { status: string }) {
       color: 'text-ukraine-gold-700',
       bgColor: 'bg-ukraine-gold-50 border-ukraine-gold-200',
       icon: (
-        <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <svg
+          className="h-5 w-5 animate-pulse"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
         </svg>
       ),
     },
@@ -107,7 +151,7 @@ function StatusIndicator({ status }: { status: string }) {
       color: 'text-life-700',
       bgColor: 'bg-life-50 border-life-200',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
       ),
@@ -118,12 +162,10 @@ function StatusIndicator({ status }: { status: string }) {
   const statusKey = status as keyof typeof statusConfig
 
   return (
-    <div className={`p-4 rounded-lg border ${config.bgColor}`}>
+    <div className={`rounded-lg border p-4 ${config.bgColor}`}>
       <div className={`flex items-center gap-3 ${config.color}`}>
         {config.icon}
-        <span className="font-medium">
-          {t(`status.${statusKey}` as any)}
-        </span>
+        <span className="font-medium">{t(`status.${statusKey}` as any)}</span>
       </div>
     </div>
   )
@@ -162,7 +204,7 @@ export default function NowPaymentsWidget({
     if (countdown === null || countdown <= 0) return
 
     const timer = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev === null || prev <= 1) {
           setIsExpired(true)
           return 0
@@ -187,14 +229,24 @@ export default function NowPaymentsWidget({
   // Show expired state
   if (isExpired) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warm-100 flex items-center justify-center">
-            <svg className="w-8 h-8 text-warm-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warm-100">
+            <svg
+              className="h-8 w-8 text-warm-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2 font-display">{t('expired')}</h2>
+          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">{t('expired')}</h2>
           <p className="text-sm text-gray-600">{t('expiredMessage')}</p>
         </div>
 
@@ -202,10 +254,15 @@ export default function NowPaymentsWidget({
           <button
             type="button"
             onClick={onBack}
-            className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             {t('backToEdit')}
           </button>
@@ -215,31 +272,29 @@ export default function NowPaymentsWidget({
   }
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="space-y-5 p-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-1 font-display">{t('title')}</h2>
+        <h2 className="mb-1 font-display text-xl font-bold text-gray-900">{t('title')}</h2>
         <p className="text-sm text-gray-600">{t('subtitle')}</p>
       </div>
 
       {/* Amount Display */}
-      <div className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
-        <div className="text-center space-y-2">
+      <div className="rounded-lg border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-4">
+        <div className="space-y-2 text-center">
           <p className="text-sm text-gray-600">{t('sendExactAmount')}</p>
-          <p className="text-2xl font-bold text-emerald-600 font-data">
+          <p className="font-data text-2xl font-bold text-emerald-600">
             {paymentData.pay_amount} {paymentData.pay_currency.toUpperCase()}
           </p>
-          <p className="text-sm text-gray-500">
-            ≈ ${amount.toFixed(2)} USD
-          </p>
+          <p className="text-sm text-gray-500">≈ ${amount.toFixed(2)} USD</p>
         </div>
       </div>
 
       {/* Wallet Address */}
       <div className="space-y-2">
         <p className="text-sm font-medium text-gray-700">{t('toAddress')}</p>
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-sm font-data break-all text-gray-800 mb-2">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <p className="mb-2 break-all font-data text-sm text-gray-800">
             {paymentData.pay_address}
           </p>
           <CopyButton text={paymentData.pay_address} label={t('copyAddress')} />
@@ -247,16 +302,11 @@ export default function NowPaymentsWidget({
       </div>
 
       {/* QR Code */}
-      <div className="text-center space-y-2">
+      <div className="space-y-2 text-center">
         <p className="text-sm font-medium text-gray-700">{t('scanQrCode')}</p>
-        <div className="inline-block p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
-          <img
-            src={qrCodeUrl}
-            alt={t('qrCodeAlt')}
-            width={160}
-            height={160}
-            className="mx-auto"
-          />
+        <div className="inline-block rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element -- QR 码来自第三方支付服务，无 next/image 优化收益 */}
+          <img src={qrCodeUrl} alt={t('qrCodeAlt')} width={160} height={160} className="mx-auto" />
         </div>
       </div>
 
@@ -265,28 +315,34 @@ export default function NowPaymentsWidget({
 
       {/* Countdown Timer */}
       {countdown !== null && countdown > 0 && (
-        <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-xs text-gray-500 mb-1">{t('expiresIn')}</p>
-          <p className="text-lg font-data font-bold text-gray-700">
-            {formatCountdown(countdown)}
-          </p>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+          <p className="mb-1 text-xs text-gray-500">{t('expiresIn')}</p>
+          <p className="font-data text-lg font-bold text-gray-700">{formatCountdown(countdown)}</p>
         </div>
       )}
 
       {/* Estimated Time */}
-      <p className="text-center text-sm text-gray-500">
-        {t('estimatedTime')}
-      </p>
+      <p className="text-center text-sm text-gray-500">{t('estimatedTime')}</p>
 
       {/* Warning Box */}
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
         <div className="flex gap-3">
-          <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
           <div className="text-sm text-amber-800">
-            <p className="font-medium mb-1">{t('warning.title')}</p>
-            <ul className="list-disc list-inside space-y-0.5 text-amber-700">
+            <p className="mb-1 font-medium">{t('warning.title')}</p>
+            <ul className="list-inside list-disc space-y-0.5 text-amber-700">
               <li>{t('warning.exactAmount')}</li>
               <li>{t('warning.singleTransaction')}</li>
               <li>{t('warning.correctNetwork')}</li>
@@ -301,23 +357,38 @@ export default function NowPaymentsWidget({
         <button
           type="button"
           onClick={onBack}
-          className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           {t('backToEdit')}
         </button>
       )}
 
       {/* Security Notice */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
         <div className="flex gap-3">
-          <svg className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <svg
+            className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
           </svg>
           <div className="text-sm text-gray-700">
-            <p className="font-medium mb-1">{t('securePayment.title')}</p>
+            <p className="mb-1 font-medium">{t('securePayment.title')}</p>
             <p className="text-gray-600">{t('securePayment.description')}</p>
           </div>
         </div>

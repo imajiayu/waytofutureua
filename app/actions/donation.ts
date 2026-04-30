@@ -1,32 +1,76 @@
 'use server'
 
-import { createWayForPayPayment, type WayForPayPaymentParams } from '@/lib/payment/wayforpay/server'
-import {
-  createNowPaymentsPayment,
-  fetchAvailableCurrencies,
-  getMinimumPaymentAmountInUsd,
-  type CreatePaymentResponse,
-  type FullCurrencyInfo
-} from '@/lib/payment/nowpayments/server'
-import { getProjectStats } from '@/lib/supabase/queries'
-import { donationFormSchema } from '@/lib/validations'
-import { getPublicClient } from '@/lib/supabase/action-clients'
-import type { DonationStatus, ProjectStats } from '@/types'
 import { getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
+import {
+  createNowPaymentsPayment,
+  type CreatePaymentResponse,
+  fetchAvailableCurrencies,
+  type FullCurrencyInfo,
+  getMinimumPaymentAmountInUsd,
+} from '@/lib/payment/nowpayments/server'
+import { createWayForPayPayment, type WayForPayPaymentParams } from '@/lib/payment/wayforpay/server'
+import { getPublicClient } from '@/lib/supabase/action-clients'
+import { getProjectStats } from '@/lib/supabase/queries'
+import { donationFormSchema } from '@/lib/validations'
+import type { DonationStatus, ProjectStats } from '@/types'
 
 type WayForPayPaymentResult =
-  | { success: true; paymentParams: WayForPayPaymentParams & Record<string, unknown>; amount: number; orderReference: string; allProjectsStats: ProjectStats[] }
-  | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: ProjectStats[] }
-  | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: ProjectStats[] }
-  | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: ProjectStats[] }
+  | {
+      success: true
+      paymentParams: WayForPayPaymentParams & Record<string, unknown>
+      amount: number
+      orderReference: string
+      allProjectsStats: ProjectStats[]
+    }
+  | {
+      success: false
+      error: 'quantity_exceeded'
+      remainingUnits: number
+      unitName: string
+      allProjectsStats: ProjectStats[]
+    }
+  | {
+      success: false
+      error: 'amount_limit_exceeded'
+      maxQuantity: number
+      unitName: string
+      allProjectsStats: ProjectStats[]
+    }
+  | {
+      success: false
+      error: 'project_not_found' | 'project_not_active' | 'server_error'
+      allProjectsStats?: ProjectStats[]
+    }
 
 type NowPaymentsResult =
-  | { success: true; paymentData: CreatePaymentResponse; amount: number; orderReference: string; allProjectsStats: ProjectStats[] }
-  | { success: false; error: 'quantity_exceeded'; remainingUnits: number; unitName: string; allProjectsStats: ProjectStats[] }
-  | { success: false; error: 'amount_limit_exceeded'; maxQuantity: number; unitName: string; allProjectsStats: ProjectStats[] }
+  | {
+      success: true
+      paymentData: CreatePaymentResponse
+      amount: number
+      orderReference: string
+      allProjectsStats: ProjectStats[]
+    }
+  | {
+      success: false
+      error: 'quantity_exceeded'
+      remainingUnits: number
+      unitName: string
+      allProjectsStats: ProjectStats[]
+    }
+  | {
+      success: false
+      error: 'amount_limit_exceeded'
+      maxQuantity: number
+      unitName: string
+      allProjectsStats: ProjectStats[]
+    }
   | { success: false; error: 'api_error'; message: string; allProjectsStats: ProjectStats[] }
-  | { success: false; error: 'project_not_found' | 'project_not_active' | 'server_error'; allProjectsStats?: ProjectStats[] }
+  | {
+      success: false
+      error: 'project_not_found' | 'project_not_active' | 'server_error'
+      allProjectsStats?: ProjectStats[]
+    }
 
 /**
  * Helper function: Create quantity exceeded error
@@ -82,7 +126,7 @@ export async function createWayForPayDonation(data: {
     const validated = donationFormSchema.parse(data)
 
     // Get all projects stats (includes the specific project we need)
-    const allProjectsStats = await getProjectStats() as ProjectStats[]
+    const allProjectsStats = (await getProjectStats()) as ProjectStats[]
     const project = allProjectsStats.find((p) => p.id === validated.project_id)
 
     if (!project) {
@@ -185,7 +229,8 @@ export async function createWayForPayDonation(data: {
     // Determine language
     let language: 'UA' | 'EN' | 'RU' = 'UA'
     if (validated.locale === 'en') language = 'EN'
-    else if (validated.locale === 'zh') language = 'EN' // Use EN for Chinese users
+    else if (validated.locale === 'zh')
+      language = 'EN' // Use EN for Chinese users
     else if (validated.locale === 'ua') language = 'UA'
 
     // Prepare return and callback URLs
@@ -295,7 +340,9 @@ export async function createWayForPayDonation(data: {
       )
 
       if (tipIdError || !tipDonationId) {
-        logger.error('DONATION', 'Failed to generate tip donation ID', { error: tipIdError?.message })
+        logger.error('DONATION', 'Failed to generate tip donation ID', {
+          error: tipIdError?.message,
+        })
         throw tipIdError || new Error('Failed to generate tip donation ID')
       }
 
@@ -317,16 +364,17 @@ export async function createWayForPayDonation(data: {
     }
 
     // Batch insert all pending donation records
-    const { error: dbError } = await supabase
-      .from('donations')
-      .insert(donationRecords)
+    const { error: dbError } = await supabase.from('donations').insert(donationRecords)
 
     if (dbError) {
       logger.error('DONATION', 'Failed to create pending donations', { error: dbError.message })
       throw new Error(`Failed to create pending donations: ${dbError.message}`)
     }
 
-    logger.info('DONATION', 'Pending records created', { count: donationRecords.length, orderReference })
+    logger.info('DONATION', 'Pending records created', {
+      count: donationRecords.length,
+      orderReference,
+    })
 
     // Return payment parameters to client
     return {
@@ -396,12 +444,11 @@ export async function markDonationWidgetFailed(
 
     logger.info('DONATION', 'Marked donations as widget_load_failed', { orderReference })
     return { success: true }
-
   } catch (error) {
     logger.errorWithStack('DONATION', 'markDonationWidgetFailed failed', error, { orderReference })
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }
@@ -427,7 +474,7 @@ export async function createNowPaymentsDonation(data: {
     const validated = donationFormSchema.parse(data)
 
     // Get all projects stats (includes the specific project we need)
-    const allProjectsStats = await getProjectStats() as ProjectStats[]
+    const allProjectsStats = (await getProjectStats()) as ProjectStats[]
     const project = allProjectsStats.find((p) => p.id === validated.project_id)
 
     if (!project) {
@@ -636,7 +683,9 @@ export async function createNowPaymentsDonation(data: {
       )
 
       if (tipIdError || !tipDonationId) {
-        logger.error('DONATION', 'Failed to generate tip donation ID', { error: tipIdError?.message })
+        logger.error('DONATION', 'Failed to generate tip donation ID', {
+          error: tipIdError?.message,
+        })
         throw tipIdError || new Error('Failed to generate tip donation ID')
       }
 
@@ -658,16 +707,17 @@ export async function createNowPaymentsDonation(data: {
     }
 
     // Insert pending donation records
-    const { error: dbError } = await supabase
-      .from('donations')
-      .insert(donationRecords)
+    const { error: dbError } = await supabase.from('donations').insert(donationRecords)
 
     if (dbError) {
       logger.error('DONATION', 'Failed to create pending donations', { error: dbError.message })
       throw new Error(`Failed to create pending donations: ${dbError.message}`)
     }
 
-    logger.info('DONATION', 'Pending records created (NOWPayments)', { count: donationRecords.length, orderReference })
+    logger.info('DONATION', 'Pending records created (NOWPayments)', {
+      count: donationRecords.length,
+      orderReference,
+    })
 
     return {
       success: true,
@@ -725,7 +775,7 @@ export async function getNowPaymentsCurrencies(): Promise<{
     })
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch currencies'
+      error: error instanceof Error ? error.message : 'Failed to fetch currencies',
     }
   }
 }
@@ -734,9 +784,7 @@ export async function getNowPaymentsCurrencies(): Promise<{
  * Get minimum payment amount in USD for a specific pay currency
  * Queries the real minimum based on crypto -> outcome wallet conversion
  */
-export async function getNowPaymentsMinimum(
-  payCurrency: string
-): Promise<{
+export async function getNowPaymentsMinimum(payCurrency: string): Promise<{
   success: boolean
   minAmount?: number
   error?: string
@@ -753,7 +801,7 @@ export async function getNowPaymentsMinimum(
     })
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch minimum amount'
+      error: error instanceof Error ? error.message : 'Failed to fetch minimum amount',
     }
   }
 }

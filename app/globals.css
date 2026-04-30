@@ -14,15 +14,17 @@ body {
 @layer base {
   /* 标题使用 Fraunces 展示字体 */
   h1 {
-    @apply text-4xl font-bold font-display;
+    @apply font-display text-4xl font-bold;
   }
   h2 {
-    @apply text-3xl font-semibold font-display;
+    @apply font-display text-3xl font-semibold;
   }
   h3 {
-    @apply text-2xl font-semibold font-display;
+    @apply font-display text-2xl font-semibold;
   }
-  h4, h5, h6 {
+  h4,
+  h5,
+  h6 {
     @apply font-display;
   }
 
@@ -45,15 +47,21 @@ main.min-h-screen:has(> [data-compact-page]) {
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 }
 
 /* ─── Market item detail: staggered entrance ─── */
 @keyframes mkt-rise {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .mkt-rise {
   animation: mkt-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -61,18 +69,27 @@ main.min-h-screen:has(> [data-compact-page]) {
 
 /* ─── Market checkout: step transition ─── */
 @keyframes mkt-step-in {
-  from { opacity: 0; transform: translateX(12px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 .mkt-step-in {
   animation: mkt-step-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes mkt-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .mkt-fade-in {
   animation: mkt-fade-in 0.25s ease-out both;
 }
-

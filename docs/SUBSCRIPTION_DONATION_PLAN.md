@@ -26,12 +26,14 @@
 ### 1.1 用户故事
 
 **捐赠者**：
+
 - 我希望设置每月/每季度自动捐赠，无需重复操作
 - 我希望随时查看自己的订阅状态和扣款历史
 - 我希望随时取消或暂停定期捐赠
 - 我希望每次扣款成功后收到邮件确认
 
 **管理员**：
+
 - 我希望查看所有活跃的定期捐赠订阅
 - 我希望查看每个订阅的扣款历史
 - 我希望必要时暂停/恢复/取消用户的订阅
@@ -39,14 +41,14 @@
 
 ### 1.2 核心功能
 
-| 功能 | 说明 |
-|------|------|
-| 创建定期捐赠 | 在现有捐赠表单上增加「定期捐赠」选项 |
-| 自动扣款 | WayForPay 自动按周期从用户卡中扣款 |
-| 订阅管理 | 捐赠者查看/暂停/取消自己的订阅 |
-| 扣款记录 | 每次扣款产生独立的 donation 记录，复用现有捐赠流程 |
-| 管理员管理 | 管理员查看/暂停/恢复/取消订阅 |
-| 邮件通知 | 创建、扣款成功、扣款失败、取消等关键事件发送邮件 |
+| 功能         | 说明                                               |
+| ------------ | -------------------------------------------------- |
+| 创建定期捐赠 | 在现有捐赠表单上增加「定期捐赠」选项               |
+| 自动扣款     | WayForPay 自动按周期从用户卡中扣款                 |
+| 订阅管理     | 捐赠者查看/暂停/取消自己的订阅                     |
+| 扣款记录     | 每次扣款产生独立的 donation 记录，复用现有捐赠流程 |
+| 管理员管理   | 管理员查看/暂停/恢复/取消订阅                      |
+| 邮件通知     | 创建、扣款成功、扣款失败、取消等关键事件发送邮件   |
 
 ### 1.3 与现有系统的关系
 
@@ -86,26 +88,26 @@
 
 #### 定期支付专用参数
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `regularMode` | string | 是 | 扣款频率: `monthly`, `quarterly`, `yearly` 等 |
-| `regularAmount` | decimal | 否 | 每期扣款金额（不传则使用 `amount`） |
-| `regularOn` | integer | 否 | `1` = 支付页面默认勾选「定期支付」，锁定金额不可编辑 |
-| `regularBehavior` | string | 否 | `"preset"` = 用户不可修改定期参数 |
-| `dateNext` | string | 否 | 首次定期扣款日期 (DD.MM.YYYY)，须晚于当天 |
-| `dateEnd` | string | 否 | 结束日期（与 `regularCount` 二选一） |
-| `regularCount` | integer | 否 | 总扣款次数（与 `dateEnd` 二选一） |
+| 参数              | 类型    | 必填 | 说明                                                 |
+| ----------------- | ------- | ---- | ---------------------------------------------------- |
+| `regularMode`     | string  | 是   | 扣款频率: `monthly`, `quarterly`, `yearly` 等        |
+| `regularAmount`   | decimal | 否   | 每期扣款金额（不传则使用 `amount`）                  |
+| `regularOn`       | integer | 否   | `1` = 支付页面默认勾选「定期支付」，锁定金额不可编辑 |
+| `regularBehavior` | string  | 否   | `"preset"` = 用户不可修改定期参数                    |
+| `dateNext`        | string  | 否   | 首次定期扣款日期 (DD.MM.YYYY)，须晚于当天            |
+| `dateEnd`         | string  | 否   | 结束日期（与 `regularCount` 二选一）                 |
+| `regularCount`    | integer | 否   | 总扣款次数（与 `dateEnd` 二选一）                    |
 
 #### regularMode 可选值
 
-| 值 | 说明 | 本项目使用 |
-|----|------|-----------|
-| `monthly` | 每月 | ✅ 主推 |
-| `quarterly` | 每季度 | ✅ |
-| `yearly` | 每年 | ✅ |
-| `weekly` | 每周 | ❌ 不提供 |
-| `daily` | 每天 | ❌ 不提供 |
-| `client` | 用户自选 | ❌ 不使用（我们自己做 UI） |
+| 值          | 说明     | 本项目使用                 |
+| ----------- | -------- | -------------------------- |
+| `monthly`   | 每月     | ✅ 主推                    |
+| `quarterly` | 每季度   | ✅                         |
+| `yearly`    | 每年     | ✅                         |
+| `weekly`    | 每周     | ❌ 不提供                  |
+| `daily`     | 每天     | ❌ 不提供                  |
+| `client`    | 用户自选 | ❌ 不使用（我们自己做 UI） |
 
 ### 2.2 管理 API
 
@@ -113,13 +115,13 @@
 
 > **重要**：管理 API 使用 `merchantPassword`（商户密码），与签名用的 `secretKey` 是不同的凭证。需要新增环境变量 `WAYFORPAY_MERCHANT_PASSWORD`。
 
-| 操作 | requestType | 说明 |
-|------|-------------|------|
-| 查询状态 | `STATUS` | 查询订阅当前状态 |
-| 暂停 | `SUSPEND` | 暂停定期扣款 |
-| 恢复 | `RESUME` | 恢复已暂停的扣款 |
-| 取消 | `REMOVE` | 永久取消（不可恢复） |
-| 修改 | `CHANGE` | 修改金额/频率/日期 |
+| 操作     | requestType | 说明                 |
+| -------- | ----------- | -------------------- |
+| 查询状态 | `STATUS`    | 查询订阅当前状态     |
+| 暂停     | `SUSPEND`   | 暂停定期扣款         |
+| 恢复     | `RESUME`    | 恢复已暂停的扣款     |
+| 取消     | `REMOVE`    | 永久取消（不可恢复） |
+| 修改     | `CHANGE`    | 修改金额/频率/日期   |
 
 #### 请求格式示例（STATUS）
 
@@ -134,12 +136,12 @@
 
 #### 订阅状态值
 
-| 状态 | 说明 |
-|------|------|
-| `Active` | 活跃，正在按计划扣款 |
-| `Suspended` | 已暂停 |
-| `Created` | 已创建，尚未激活 |
-| `Removed` | 已取消 |
+| 状态        | 说明                             |
+| ----------- | -------------------------------- |
+| `Active`    | 活跃，正在按计划扣款             |
+| `Suspended` | 已暂停                           |
+| `Created`   | 已创建，尚未激活                 |
+| `Removed`   | 已取消                           |
 | `Completed` | 已完成（达到结束日期或次数上限） |
 
 ### 2.3 Webhook 通知
@@ -147,6 +149,7 @@
 每次定期扣款执行后，WayForPay 向创建时指定的 `serviceUrl` 发送 POST 通知。**通知格式与一次性支付回调完全相同**，签名验证逻辑不变。
 
 关键点：
+
 - 扣款成功：`transactionStatus: "Approved"`
 - 扣款失败：`transactionStatus: "Declined"`（余额不足等），次日自动重试
 - WayForPay 自动发送扣款前通知邮件给用户
@@ -154,14 +157,14 @@
 
 ### 2.4 与现有代码的兼容性
 
-| 组件 | 是否需要修改 | 说明 |
-|------|------------|------|
-| `generateSignature()` | ❌ 不需要 | 定期参数不参与签名 |
-| `verifyWayForPaySignature()` | ❌ 不需要 | 定期扣款通知签名格式相同 |
-| `generateWebhookResponseSignature()` | ❌ 不需要 | 响应格式相同 |
-| `WayForPayPaymentParams` 接口 | ✅ 扩展 | 添加可选的定期支付字段 |
-| `createWayForPayPayment()` | ✅ 扩展 | 传入定期参数 |
-| Webhook handler | ✅ 扩展 | 区分首次支付和定期扣款，关联订阅记录 |
+| 组件                                 | 是否需要修改 | 说明                                 |
+| ------------------------------------ | ------------ | ------------------------------------ |
+| `generateSignature()`                | ❌ 不需要    | 定期参数不参与签名                   |
+| `verifyWayForPaySignature()`         | ❌ 不需要    | 定期扣款通知签名格式相同             |
+| `generateWebhookResponseSignature()` | ❌ 不需要    | 响应格式相同                         |
+| `WayForPayPaymentParams` 接口        | ✅ 扩展      | 添加可选的定期支付字段               |
+| `createWayForPayPayment()`           | ✅ 扩展      | 传入定期参数                         |
+| Webhook handler                      | ✅ 扩展      | 区分首次支付和定期扣款，关联订阅记录 |
 
 ---
 
@@ -379,12 +382,12 @@ WAYFORPAY_MERCHANT_PASSWORD=
 // 新增：定期支付参数接口
 export interface WayForPayRegularParams {
   regularMode: 'monthly' | 'quarterly' | 'yearly'
-  regularAmount?: number    // 不传则使用 amount
-  regularOn?: 1             // 锁定定期支付选项
-  regularBehavior?: 'preset'  // 用户不可修改
-  dateNext?: string         // DD.MM.YYYY 格式
-  dateEnd?: string          // DD.MM.YYYY（与 regularCount 二选一）
-  regularCount?: number     // 总次数（与 dateEnd 二选一）
+  regularAmount?: number // 不传则使用 amount
+  regularOn?: 1 // 锁定定期支付选项
+  regularBehavior?: 'preset' // 用户不可修改
+  dateNext?: string // DD.MM.YYYY 格式
+  dateEnd?: string // DD.MM.YYYY（与 regularCount 二选一）
+  regularCount?: number // 总次数（与 dateEnd 二选一）
 }
 
 // 扩展现有接口
@@ -403,13 +406,15 @@ export interface WayForPayPaymentParams {
 // 扩展 createWayForPayPayment 函数，接受可选的 regular 参数
 export function createWayForPayPayment({
   // ... 现有参数 ...
-  regular,  // 新增
+  regular, // 新增
 }: {
   // ... 现有类型 ...
   regular?: WayForPayRegularParams
 }): WayForPayPaymentParams {
   // 签名计算不变（定期参数不参与签名）
-  const params = { /* 现有逻辑 */ }
+  const params = {
+    /* 现有逻辑 */
+  }
 
   // 合入定期支付参数
   if (regular) {
@@ -437,8 +442,7 @@ const REGULAR_API_URL = 'https://api.wayforpay.com/regularApi'
 const MERCHANT_ACCOUNT = process.env.WAYFORPAY_MERCHANT_ACCOUNT!
 const MERCHANT_PASSWORD = process.env.WAYFORPAY_MERCHANT_PASSWORD!
 
-export type RegularApiRequestType =
-  | 'STATUS' | 'SUSPEND' | 'RESUME' | 'REMOVE' | 'CHANGE'
+export type RegularApiRequestType = 'STATUS' | 'SUSPEND' | 'RESUME' | 'REMOVE' | 'CHANGE'
 
 export interface RegularStatusResponse {
   reasonCode: number
@@ -457,9 +461,7 @@ export interface RegularStatusResponse {
 }
 
 /** 查询定期支付状态 */
-export async function getRegularStatus(
-  orderReference: string
-): Promise<RegularStatusResponse> {
+export async function getRegularStatus(orderReference: string): Promise<RegularStatusResponse> {
   return callRegularApi('STATUS', { orderReference })
 }
 
@@ -526,14 +528,14 @@ async function callRegularApi(
 
 #### 核心 Actions
 
-| Action | 说明 |
-|--------|------|
-| `createRecurringDonation()` | 创建定期捐赠（含首次支付） |
-| `getMyRecurringDonations()` | 捐赠者查看自己的订阅列表 |
-| `cancelRecurringDonation()` | 捐赠者取消订阅 |
-| `pauseRecurringDonation()` | 捐赠者暂停订阅 |
-| `resumeRecurringDonation()` | 捐赠者恢复订阅 |
-| `getRecurringDonationCharges()` | 查看某订阅的扣款历史 |
+| Action                          | 说明                       |
+| ------------------------------- | -------------------------- |
+| `createRecurringDonation()`     | 创建定期捐赠（含首次支付） |
+| `getMyRecurringDonations()`     | 捐赠者查看自己的订阅列表   |
+| `cancelRecurringDonation()`     | 捐赠者取消订阅             |
+| `pauseRecurringDonation()`      | 捐赠者暂停订阅             |
+| `resumeRecurringDonation()`     | 捐赠者恢复订阅             |
+| `getRecurringDonationCharges()` | 查看某订阅的扣款历史       |
 
 #### 创建流程伪代码
 
@@ -622,7 +624,8 @@ export async function cancelRecurringDonation(
   // 3. 调用 WayForPay REMOVE API
   await removeRegular(subscription.initial_order_reference)
   // 4. 更新数据库状态
-  await supabase.from('recurring_donations')
+  await supabase
+    .from('recurring_donations')
     .update({ status: 'cancelled', cancelled_at: new Date().toISOString() })
     .eq('id', recurringId)
 }
@@ -632,13 +635,13 @@ export async function cancelRecurringDonation(
 
 **文件**: `app/actions/admin.ts`（扩展）或新建 `app/actions/admin-recurring.ts`
 
-| Action | 说明 |
-|--------|------|
-| `getAdminRecurringDonations()` | 管理员获取所有订阅列表 |
-| `adminSuspendRecurring()` | 管理员暂停订阅 |
-| `adminResumeRecurring()` | 管理员恢复订阅 |
-| `adminCancelRecurring()` | 管理员取消订阅 |
-| `syncRecurringStatus()` | 从 WayForPay 同步订阅状态 |
+| Action                         | 说明                      |
+| ------------------------------ | ------------------------- |
+| `getAdminRecurringDonations()` | 管理员获取所有订阅列表    |
+| `adminSuspendRecurring()`      | 管理员暂停订阅            |
+| `adminResumeRecurring()`       | 管理员恢复订阅            |
+| `adminCancelRecurring()`       | 管理员取消订阅            |
+| `syncRecurringStatus()`        | 从 WayForPay 同步订阅状态 |
 
 ### 4.6 定期捐赠状态工具
 
@@ -646,34 +649,34 @@ export async function cancelRecurringDonation(
 
 ```typescript
 export const RECURRING_STATUSES = [
-  'pending',     // 首次支付未完成
-  'active',      // 正在定期扣款
-  'suspended',   // 已暂停
-  'cancelled',   // 已取消（不可恢复）
-  'completed',   // 达到结束条件
-  'failed',      // 连续失败
+  'pending', // 首次支付未完成
+  'active', // 正在定期扣款
+  'suspended', // 已暂停
+  'cancelled', // 已取消（不可恢复）
+  'completed', // 达到结束条件
+  'failed', // 连续失败
 ] as const
 
-export type RecurringDonationStatus = typeof RECURRING_STATUSES[number]
+export type RecurringDonationStatus = (typeof RECURRING_STATUSES)[number]
 
 // 状态转换规则
 export const RECURRING_STATUS_TRANSITIONS: Record<
   RecurringDonationStatus,
   RecurringDonationStatus[]
 > = {
-  pending:    ['active', 'cancelled'],          // 首次支付成功 → active; 支付失败 → cancelled
-  active:     ['suspended', 'cancelled', 'completed', 'failed'],
-  suspended:  ['active', 'cancelled'],          // 恢复 or 取消
-  cancelled:  [],                                // 终态
-  completed:  [],                                // 终态
-  failed:     ['active', 'cancelled'],          // 重试成功 or 放弃
+  pending: ['active', 'cancelled'], // 首次支付成功 → active; 支付失败 → cancelled
+  active: ['suspended', 'cancelled', 'completed', 'failed'],
+  suspended: ['active', 'cancelled'], // 恢复 or 取消
+  cancelled: [], // 终态
+  completed: [], // 终态
+  failed: ['active', 'cancelled'], // 重试成功 or 放弃
 }
 
 // WayForPay 状态映射
 export const WAYFORPAY_TO_RECURRING_STATUS: Record<string, RecurringDonationStatus> = {
-  Active:    'active',
+  Active: 'active',
   Suspended: 'suspended',
-  Removed:   'cancelled',
+  Removed: 'cancelled',
   Completed: 'completed',
 }
 
@@ -702,12 +705,12 @@ export const RECURRING_STATUS_COLORS: Record<
   RecurringDonationStatus,
   { bg: string; text: string }
 > = {
-  pending:    { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },
-  active:     { bg: 'bg-life-200',         text: 'text-life-800' },
-  suspended:  { bg: 'bg-amber-100',        text: 'text-amber-700' },
-  cancelled:  { bg: 'bg-slate-100',        text: 'text-slate-600' },
-  completed:  { bg: 'bg-emerald-100',      text: 'text-emerald-700' },
-  failed:     { bg: 'bg-rose-100',         text: 'text-rose-700' },
+  pending: { bg: 'bg-ukraine-gold-100', text: 'text-ukraine-gold-800' },
+  active: { bg: 'bg-life-200', text: 'text-life-800' },
+  suspended: { bg: 'bg-amber-100', text: 'text-amber-700' },
+  cancelled: { bg: 'bg-slate-100', text: 'text-slate-600' },
+  completed: { bg: 'bg-emerald-100', text: 'text-emerald-700' },
+  failed: { bg: 'bg-rose-100', text: 'text-rose-700' },
 }
 ```
 
@@ -815,14 +818,14 @@ export const RECURRING_STATUS_COLORS: Record<
 
 ### 5.3 新增组件
 
-| 组件 | 路径 | 说明 |
-|------|------|------|
-| `RecurringDonationToggle` | `components/donate-form/` | 一次性/定期切换 |
-| `RecurringOptions` | `components/donate-form/` | 频率、持续时间选择 |
-| `RecurringDonationCard` | `components/recurring/` | 订阅卡片（状态、操作按钮） |
-| `RecurringDonationList` | `components/recurring/` | 订阅列表 |
-| `RecurringStatusBadge` | `components/recurring/` | 订阅状态徽章 |
-| `RecurringChargeHistory` | `components/recurring/` | 扣款历史列表 |
+| 组件                      | 路径                      | 说明                       |
+| ------------------------- | ------------------------- | -------------------------- |
+| `RecurringDonationToggle` | `components/donate-form/` | 一次性/定期切换            |
+| `RecurringOptions`        | `components/donate-form/` | 频率、持续时间选择         |
+| `RecurringDonationCard`   | `components/recurring/`   | 订阅卡片（状态、操作按钮） |
+| `RecurringDonationList`   | `components/recurring/`   | 订阅列表                   |
+| `RecurringStatusBadge`    | `components/recurring/`   | 订阅状态徽章               |
+| `RecurringChargeHistory`  | `components/recurring/`   | 扣款历史列表               |
 
 ---
 
@@ -869,10 +872,7 @@ export async function POST(request: Request) {
 ### 6.2 定期捐赠 Webhook 处理
 
 ```typescript
-async function handleRecurringWebhook(
-  data: WayForPayWebhookData,
-  recurring: RecurringDonation
-) {
+async function handleRecurringWebhook(data: WayForPayWebhookData, recurring: RecurringDonation) {
   const isFirstPayment = recurring.status === 'pending'
 
   if (isFirstPayment) {
@@ -882,7 +882,8 @@ async function handleRecurringWebhook(
       await updateDonationStatus(data.orderReference, 'paid')
 
       // 2. 激活订阅
-      await supabase.from('recurring_donations')
+      await supabase
+        .from('recurring_donations')
         .update({
           status: 'active',
           wayforpay_status: 'Active',
@@ -897,7 +898,8 @@ async function handleRecurringWebhook(
     } else {
       // 首次支付失败 → 取消订阅
       await updateDonationStatus(data.orderReference, mapStatus(data))
-      await supabase.from('recurring_donations')
+      await supabase
+        .from('recurring_donations')
         .update({ status: 'cancelled' })
         .eq('id', recurring.id)
     }
@@ -909,10 +911,11 @@ async function handleRecurringWebhook(
       const newDonation = await createRecurringChargeDonation(recurring, data)
 
       // 2. 更新订阅统计
-      await supabase.from('recurring_donations')
+      await supabase
+        .from('recurring_donations')
         .update({
           completed_charges: recurring.completed_charges + 1,
-          failed_charges: 0,  // 重置连续失败计数
+          failed_charges: 0, // 重置连续失败计数
           total_donated: recurring.total_donated + recurring.amount,
           last_charge_at: new Date().toISOString(),
         })
@@ -933,9 +936,7 @@ async function handleRecurringWebhook(
         await sendRecurringChargeFailedEmail(recurring, newFailedCount)
       }
 
-      await supabase.from('recurring_donations')
-        .update(updates)
-        .eq('id', recurring.id)
+      await supabase.from('recurring_donations').update(updates).eq('id', recurring.id)
     }
   }
 }
@@ -963,13 +964,10 @@ async function createRecurringChargeDonation(
     locale: recurring.locale,
     recurringDonationId: recurring.id,
     isRecurringCharge: true,
-    status: 'paid',  // 直接 paid（Webhook 已确认）
+    status: 'paid', // 直接 paid（Webhook 已确认）
   })
 
-  const { data } = await supabase
-    .from('donations')
-    .insert(records)
-    .select()
+  const { data } = await supabase.from('donations').insert(records).select()
 
   return data
 }
@@ -985,19 +983,19 @@ async function createRecurringChargeDonation(
 
 **路径**: `/admin/recurring`
 
-| 功能 | 说明 |
-|------|------|
-| 订阅列表 | 表格展示所有订阅，可筛选状态/项目/邮箱 |
-| 订阅详情 | 查看订阅元数据 + 所有扣款记录 |
-| 暂停/恢复 | 调用 WayForPay SUSPEND/RESUME API |
-| 取消 | 调用 WayForPay REMOVE API |
-| 状态同步 | 从 WayForPay 拉取最新状态并更新本地 |
+| 功能      | 说明                                   |
+| --------- | -------------------------------------- |
+| 订阅列表  | 表格展示所有订阅，可筛选状态/项目/邮箱 |
+| 订阅详情  | 查看订阅元数据 + 所有扣款记录          |
+| 暂停/恢复 | 调用 WayForPay SUSPEND/RESUME API      |
+| 取消      | 调用 WayForPay REMOVE API              |
+| 状态同步  | 从 WayForPay 拉取最新状态并更新本地    |
 
 ### 7.2 管理员组件
 
-| 组件 | 路径 | 说明 |
-|------|------|------|
-| `RecurringDonationsTable` | `components/admin/` | 订阅表格 |
+| 组件                           | 路径                | 说明         |
+| ------------------------------ | ------------------- | ------------ |
+| `RecurringDonationsTable`      | `components/admin/` | 订阅表格     |
 | `RecurringDonationDetailModal` | `components/admin/` | 订阅详情弹窗 |
 
 ### 7.3 管理导航扩展
@@ -1016,26 +1014,28 @@ async function createRecurringChargeDonation(
 
 ### 8.1 新增邮件模板
 
-| 事件 | 模板 | 发送时机 |
-|------|------|----------|
-| 订阅创建成功 | `recurring-created` | 首次支付成功，订阅激活 |
-| 定期扣款成功 | `recurring-charge-success` | 每次自动扣款成功 |
-| 定期扣款失败 | `recurring-charge-failed` | 扣款失败（含重试提醒） |
-| 订阅连续失败 | `recurring-failed` | 连续 3 次扣款失败，订阅停用 |
-| 订阅暂停 | `recurring-suspended` | 用户或管理员暂停 |
-| 订阅恢复 | `recurring-resumed` | 用户或管理员恢复 |
-| 订阅取消 | `recurring-cancelled` | 用户或管理员取消 |
-| 订阅完成 | `recurring-completed` | 达到预设次数/结束日期 |
+| 事件         | 模板                       | 发送时机                    |
+| ------------ | -------------------------- | --------------------------- |
+| 订阅创建成功 | `recurring-created`        | 首次支付成功，订阅激活      |
+| 定期扣款成功 | `recurring-charge-success` | 每次自动扣款成功            |
+| 定期扣款失败 | `recurring-charge-failed`  | 扣款失败（含重试提醒）      |
+| 订阅连续失败 | `recurring-failed`         | 连续 3 次扣款失败，订阅停用 |
+| 订阅暂停     | `recurring-suspended`      | 用户或管理员暂停            |
+| 订阅恢复     | `recurring-resumed`        | 用户或管理员恢复            |
+| 订阅取消     | `recurring-cancelled`      | 用户或管理员取消            |
+| 订阅完成     | `recurring-completed`      | 达到预设次数/结束日期       |
 
 ### 8.2 邮件内容要点
 
 **订阅创建成功**：
+
 - 项目名称、捐赠金额、扣款频率
 - 下次扣款日期
 - 管理订阅的链接（跳转到 `/recurring-donations`）
 - 取消订阅的说明
 
 **定期扣款成功**：
+
 - 本次扣款金额和日期
 - 累计捐赠总额和次数
 - 项目进度更新
@@ -1099,25 +1099,25 @@ async function createRecurringChargeDonation(
 
 ### 10.1 安全措施
 
-| 措施 | 说明 |
-|------|------|
-| 身份验证 | 捐赠者操作订阅需通过邮箱 OTP 验证（复用 `market-auth` 或 `track-donation` 机制） |
-| RLS 策略 | 订阅表启用 RLS，匿名用户仅能创建 pending 记录 |
-| 不可变字段保护 | 触发器保护 `id`, `initial_order_reference`, `project_id`, `donor_email` |
-| Webhook 签名验证 | 复用现有 HMAC-MD5 验证逻辑 |
-| merchantPassword 保密 | 仅存在服务端环境变量，不暴露给客户端 |
-| 乐观锁 | 管理员操作使用 `.eq('status', currentStatus)` 防止并发冲突 |
-| 速率限制 | 取消/暂停/恢复操作添加速率限制，防止滥用 |
+| 措施                  | 说明                                                                             |
+| --------------------- | -------------------------------------------------------------------------------- |
+| 身份验证              | 捐赠者操作订阅需通过邮箱 OTP 验证（复用 `market-auth` 或 `track-donation` 机制） |
+| RLS 策略              | 订阅表启用 RLS，匿名用户仅能创建 pending 记录                                    |
+| 不可变字段保护        | 触发器保护 `id`, `initial_order_reference`, `project_id`, `donor_email`          |
+| Webhook 签名验证      | 复用现有 HMAC-MD5 验证逻辑                                                       |
+| merchantPassword 保密 | 仅存在服务端环境变量，不暴露给客户端                                             |
+| 乐观锁                | 管理员操作使用 `.eq('status', currentStatus)` 防止并发冲突                       |
+| 速率限制              | 取消/暂停/恢复操作添加速率限制，防止滥用                                         |
 
 ### 10.2 合规要求
 
-| 要求 | 实现 |
-|------|------|
+| 要求         | 实现                                               |
+| ------------ | -------------------------------------------------- |
 | 用户知情同意 | 表单中明确说明「将自动按周期扣款」，需用户主动勾选 |
-| 随时可取消 | 提供自助取消功能，不设取消障碍 |
-| 扣款通知 | WayForPay 自动发送扣款前通知 + 我方发送扣款后确认 |
-| 隐私保护 | 邮箱在公开视图中混淆，复用现有脱敏逻辑 |
-| 数据保留 | 取消后保留历史记录，仅标记状态为 cancelled |
+| 随时可取消   | 提供自助取消功能，不设取消障碍                     |
+| 扣款通知     | WayForPay 自动发送扣款前通知 + 我方发送扣款后确认  |
+| 隐私保护     | 邮箱在公开视图中混淆，复用现有脱敏逻辑             |
+| 数据保留     | 取消后保留历史记录，仅标记状态为 cancelled         |
 
 ---
 
@@ -1178,26 +1178,26 @@ async function createRecurringChargeDonation(
 
 ### 12.1 待决策
 
-| 项目 | 选项 | 建议 |
-|------|------|------|
-| **长期项目限制** | 定期捐赠是否仅限长期项目（`is_long_term = true`）？ | 建议 YES — 固定期限项目可能在订阅期间结束 |
-| **项目满额处理** | 非长期项目达到目标后，正在进行的订阅怎么办？ | 自动暂停 + 通知用户，或只允许长期项目 |
-| **金额修改** | 是否允许用户自行修改扣款金额/频率？ | 初版不做，后续迭代 |
-| **NOWPayments** | 加密货币是否支持定期扣款？ | 不支持 — 加密货币无法自动扣款 |
-| **捐赠者身份验证** | 用邮箱 OTP（复用 market-auth）还是捐赠追踪验证？ | 复用 market-auth 的 OTP 机制更安全 |
-| **连续失败阈值** | 多少次连续失败后停止订阅？ | 建议 3 次 |
-| **regularMode 选项** | 提供哪些频率选项？ | 初版：monthly / quarterly / yearly |
-| **merchantPassword** | 是否已有此凭证？需要向 WayForPay 申请？ | 需确认 |
+| 项目                 | 选项                                                | 建议                                      |
+| -------------------- | --------------------------------------------------- | ----------------------------------------- |
+| **长期项目限制**     | 定期捐赠是否仅限长期项目（`is_long_term = true`）？ | 建议 YES — 固定期限项目可能在订阅期间结束 |
+| **项目满额处理**     | 非长期项目达到目标后，正在进行的订阅怎么办？        | 自动暂停 + 通知用户，或只允许长期项目     |
+| **金额修改**         | 是否允许用户自行修改扣款金额/频率？                 | 初版不做，后续迭代                        |
+| **NOWPayments**      | 加密货币是否支持定期扣款？                          | 不支持 — 加密货币无法自动扣款             |
+| **捐赠者身份验证**   | 用邮箱 OTP（复用 market-auth）还是捐赠追踪验证？    | 复用 market-auth 的 OTP 机制更安全        |
+| **连续失败阈值**     | 多少次连续失败后停止订阅？                          | 建议 3 次                                 |
+| **regularMode 选项** | 提供哪些频率选项？                                  | 初版：monthly / quarterly / yearly        |
+| **merchantPassword** | 是否已有此凭证？需要向 WayForPay 申请？             | 需确认                                    |
 
 ### 12.2 风险
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|----------|
-| `merchantPassword` 与 `secretKey` 是不同凭证 | 无法调用 Regular API | 提前确认凭证获取方式 |
-| WayForPay 测试环境对 Regular API 的支持程度 | 无法充分测试 | 使用小额真实支付测试 |
-| 后续扣款的 Webhook orderReference 格式 | 不确定 WayForPay 是复用原始 orderRef 还是生成新的 | 需要实测确认，handler 需兼容两种情况 |
-| 时区问题 | `dateNext` 使用 DD.MM.YYYY，WayForPay 服务器在乌克兰（EET/EEST） | 日期计算时考虑时区偏移 |
-| 用户取消与 WayForPay 状态不同步 | 本地取消了但 WayForPay 继续扣款 | 始终先调用 WayForPay API，成功后才更新本地状态 |
+| 风险                                         | 影响                                                             | 缓解措施                                       |
+| -------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------- |
+| `merchantPassword` 与 `secretKey` 是不同凭证 | 无法调用 Regular API                                             | 提前确认凭证获取方式                           |
+| WayForPay 测试环境对 Regular API 的支持程度  | 无法充分测试                                                     | 使用小额真实支付测试                           |
+| 后续扣款的 Webhook orderReference 格式       | 不确定 WayForPay 是复用原始 orderRef 还是生成新的                | 需要实测确认，handler 需兼容两种情况           |
+| 时区问题                                     | `dateNext` 使用 DD.MM.YYYY，WayForPay 服务器在乌克兰（EET/EEST） | 日期计算时考虑时区偏移                         |
+| 用户取消与 WayForPay 状态不同步              | 本地取消了但 WayForPay 继续扣款                                  | 始终先调用 WayForPay API，成功后才更新本地状态 |
 
 ### 12.3 后续迭代方向
 
@@ -1214,43 +1214,43 @@ async function createRecurringChargeDonation(
 
 ### 新建文件
 
-| 文件 | 说明 |
-|------|------|
-| `supabase/migrations/2026XXXX_recurring_donations.sql` | 数据库迁移 |
-| `lib/payment/wayforpay/regular-api.ts` | Regular API 客户端 |
-| `lib/recurring-donation-status.ts` | 订阅状态工具库 |
-| `app/actions/recurring-donation.ts` | 捐赠者订阅 Actions |
-| `app/actions/admin-recurring.ts` | 管理员订阅 Actions |
-| `app/[locale]/recurring-donations/page.tsx` | 订阅管理页 |
-| `app/admin/recurring/page.tsx` | 管理员订阅页 |
-| `components/donate-form/RecurringDonationToggle.tsx` | 切换组件 |
-| `components/donate-form/RecurringOptions.tsx` | 选项组件 |
-| `components/recurring/RecurringDonationCard.tsx` | 订阅卡片 |
-| `components/recurring/RecurringDonationList.tsx` | 订阅列表 |
-| `components/recurring/RecurringStatusBadge.tsx` | 状态徽章 |
-| `components/recurring/RecurringChargeHistory.tsx` | 扣款历史 |
-| `components/admin/RecurringDonationsTable.tsx` | 管理表格 |
-| `components/admin/RecurringDonationDetailModal.tsx` | 管理详情 |
-| `lib/email/templates/recurring-*.tsx` | 8 种邮件模板 |
+| 文件                                                   | 说明               |
+| ------------------------------------------------------ | ------------------ |
+| `supabase/migrations/2026XXXX_recurring_donations.sql` | 数据库迁移         |
+| `lib/payment/wayforpay/regular-api.ts`                 | Regular API 客户端 |
+| `lib/recurring-donation-status.ts`                     | 订阅状态工具库     |
+| `app/actions/recurring-donation.ts`                    | 捐赠者订阅 Actions |
+| `app/actions/admin-recurring.ts`                       | 管理员订阅 Actions |
+| `app/[locale]/recurring-donations/page.tsx`            | 订阅管理页         |
+| `app/admin/recurring/page.tsx`                         | 管理员订阅页       |
+| `components/donate-form/RecurringDonationToggle.tsx`   | 切换组件           |
+| `components/donate-form/RecurringOptions.tsx`          | 选项组件           |
+| `components/recurring/RecurringDonationCard.tsx`       | 订阅卡片           |
+| `components/recurring/RecurringDonationList.tsx`       | 订阅列表           |
+| `components/recurring/RecurringStatusBadge.tsx`        | 状态徽章           |
+| `components/recurring/RecurringChargeHistory.tsx`      | 扣款历史           |
+| `components/admin/RecurringDonationsTable.tsx`         | 管理表格           |
+| `components/admin/RecurringDonationDetailModal.tsx`    | 管理详情           |
+| `lib/email/templates/recurring-*.tsx`                  | 8 种邮件模板       |
 
 ### 修改文件
 
-| 文件 | 修改内容 |
-|------|----------|
-| `lib/payment/wayforpay/server.ts` | 扩展支付参数接口和创建函数 |
-| `app/api/webhooks/wayforpay/route.ts` | 添加定期捐赠 Webhook 处理 |
-| `components/donate-form/DonationFormCard.tsx` | 集成定期捐赠选项 |
-| `components/admin/AdminNav.tsx` | 新增导航项 |
-| `components/admin/DonationsTable.tsx` | 显示订阅关联标识 |
-| `lib/validations.ts` | 新增验证 schemas |
-| `types/index.ts` | 新增类型导出 |
-| `messages/en.json` | 新增翻译键 |
-| `messages/zh.json` | 新增翻译键 |
-| `messages/ua.json` | 新增翻译键 |
-| `.env.example` | 新增 WAYFORPAY_MERCHANT_PASSWORD |
-| `CLAUDE.md` | 更新项目文档 |
-| `docs/DONATION_DATABASE_SCHEMA.md` | 更新数据库文档 |
-| `docs/DONATION_STATUS.md` | 更新状态文档 |
+| 文件                                          | 修改内容                         |
+| --------------------------------------------- | -------------------------------- |
+| `lib/payment/wayforpay/server.ts`             | 扩展支付参数接口和创建函数       |
+| `app/api/webhooks/wayforpay/route.ts`         | 添加定期捐赠 Webhook 处理        |
+| `components/donate-form/DonationFormCard.tsx` | 集成定期捐赠选项                 |
+| `components/admin/AdminNav.tsx`               | 新增导航项                       |
+| `components/admin/DonationsTable.tsx`         | 显示订阅关联标识                 |
+| `lib/validations.ts`                          | 新增验证 schemas                 |
+| `types/index.ts`                              | 新增类型导出                     |
+| `messages/en.json`                            | 新增翻译键                       |
+| `messages/zh.json`                            | 新增翻译键                       |
+| `messages/ua.json`                            | 新增翻译键                       |
+| `.env.example`                                | 新增 WAYFORPAY_MERCHANT_PASSWORD |
+| `CLAUDE.md`                                   | 更新项目文档                     |
+| `docs/DONATION_DATABASE_SCHEMA.md`            | 更新数据库文档                   |
+| `docs/DONATION_STATUS.md`                     | 更新状态文档                     |
 
 ---
 

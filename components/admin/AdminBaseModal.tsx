@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 
 interface AdminBaseModalProps {
@@ -23,28 +24,26 @@ export default function AdminBaseModal({
   const maxWidthClass = maxWidth === '3xl' ? 'max-w-3xl' : 'max-w-4xl'
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 sm:p-4">
-      <div className={`bg-white sm:rounded-lg rounded-t-xl ${maxWidthClass} w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto`}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50 sm:items-center sm:p-4">
+      <div
+        className={`rounded-t-xl bg-white sm:rounded-lg ${maxWidthClass} max-h-[95vh] w-full overflow-y-auto sm:max-h-[90vh]`}
+      >
         {/* Mobile drag handle */}
-        <div className="sm:hidden flex justify-center pt-2 pb-1">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+        <div className="flex justify-center pb-1 pt-2 sm:hidden">
+          <div className="h-1 w-10 rounded-full bg-gray-300" />
         </div>
         <div className="p-4 sm:p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg sm:text-xl font-bold font-body">{title}</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-body text-lg font-bold sm:text-xl">{title}</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl p-1 -m-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="-m-1 flex min-h-[44px] min-w-[44px] items-center justify-center p-1 text-2xl text-gray-400 hover:text-gray-600"
             >
               ✕
             </button>
           </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-800 rounded">
-              {error}
-            </div>
-          )}
+          {error && <div className="mb-4 rounded bg-red-50 p-3 text-red-800">{error}</div>}
 
           {children}
         </div>

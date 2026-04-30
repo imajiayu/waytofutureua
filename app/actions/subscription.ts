@@ -4,11 +4,12 @@
 
 'use server'
 
-import { getUserClient } from '@/lib/supabase/action-clients'
 import { z } from 'zod'
-import type { DonationLocale } from '@/types'
+
 import { logger } from '@/lib/logger'
+import { getUserClient } from '@/lib/supabase/action-clients'
 import { createSubscriptionSchema } from '@/lib/validations'
+import type { DonationLocale } from '@/types'
 
 type Locale = DonationLocale
 
@@ -47,7 +48,7 @@ export async function createEmailSubscription(
     // Call database function for idempotent upsert
     const { data, error } = await supabase.rpc('upsert_email_subscription', {
       p_email: validated.email,
-      p_locale: validated.locale
+      p_locale: validated.locale,
     })
 
     if (error) {
@@ -77,7 +78,7 @@ export async function getSubscriptions(
 
     // Check admin permission
     const {
-      data: { user }
+      data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) {

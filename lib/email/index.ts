@@ -10,44 +10,43 @@
 
 // Export types
 export type {
-  Locale,
-  I18nText,
   BaseEmailParams,
-  DonationItem,
-  PaymentSuccessEmailParams,
   DonationCompletedEmailParams,
-  RefundSuccessEmailParams,
+  DonationItem,
+  EmailContent,
+  I18nText,
+  Locale,
+  MarketOrderCompletedEmailParams,
   MarketOrderPaidEmailParams,
   MarketOrderShippedEmailParams,
-  MarketOrderCompletedEmailParams,
-  EmailContent,
-  OrgBranding
+  OrgBranding,
+  PaymentSuccessEmailParams,
+  RefundSuccessEmailParams,
 } from './types'
 
 // Export client
-export { resend, getFromEmail } from './client'
+export { getFromEmail, resend } from './client'
 
 // Export configuration
-export { ORG_BRANDING, EMAIL_COLORS } from './config'
+export { EMAIL_COLORS, ORG_BRANDING } from './config'
 
 // Export utilities
-export {
-  getLocalizedText,
-  formatCurrency,
-  escapeHtml,
-  getTrackingUrl
-} from './utils'
+export { escapeHtml, formatCurrency, getLocalizedText, getTrackingUrl } from './utils'
 
 // Export email senders (main API)
-export { sendPaymentSuccessEmail } from './senders/payment-success'
 export { sendDonationCompletedEmail } from './senders/donation-completed'
+export {
+  sendMarketOrderCompletedEmail,
+  sendMarketOrderPaidEmail,
+  sendMarketOrderShippedEmail,
+} from './senders/market'
+export { sendPaymentSuccessEmail } from './senders/payment-success'
 export { sendRefundSuccessEmail } from './senders/refund-success'
-export { sendMarketOrderPaidEmail, sendMarketOrderShippedEmail, sendMarketOrderCompletedEmail } from './senders/market'
 
 // Export template generators (for advanced usage)
-export { generatePaymentSuccessEmail } from './templates/transactional/payment-success'
 export { generateDonationCompletedEmail } from './templates/transactional/donation-completed'
-export { generateRefundSuccessEmail } from './templates/transactional/refund-success'
+export { generateMarketOrderCompletedEmail } from './templates/transactional/market-order-completed'
 export { generateMarketOrderPaidEmail } from './templates/transactional/market-order-paid'
 export { generateMarketOrderShippedEmail } from './templates/transactional/market-order-shipped'
-export { generateMarketOrderCompletedEmail } from './templates/transactional/market-order-completed'
+export { generatePaymentSuccessEmail } from './templates/transactional/payment-success'
+export { generateRefundSuccessEmail } from './templates/transactional/refund-success'

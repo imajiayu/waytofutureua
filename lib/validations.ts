@@ -10,41 +10,51 @@ const localeSchema = z.enum(['en', 'zh', 'ua'])
 // ============================================
 // Project Schemas
 // ============================================
-export const createProjectSchema = z.object({
-  project_name: z.string().min(3, 'Project name must be at least 3 characters').max(255),
-  location: z.string().min(2, 'Location is required').max(255),
-  start_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Invalid date format',
-  }),
-  end_date: z.string().optional().nullable().refine(
-    (date) => !date || !isNaN(Date.parse(date)),
-    { message: 'Invalid date format' }
-  ),
-  is_long_term: z.boolean().optional().default(false),
-  target_units: z.number().int().min(0),
-  unit_name: z.string().max(50).optional().default('kit'),
-  status: z.enum(['planned', 'active']).optional().default('planned'),
-}).passthrough().refine(
-  (data) => data.is_long_term || data.target_units >= 1,
-  { message: 'Fixed-term projects require target_units >= 1', path: ['target_units'] }
-)
+export const createProjectSchema = z
+  .object({
+    project_name: z.string().min(3, 'Project name must be at least 3 characters').max(255),
+    location: z.string().min(2, 'Location is required').max(255),
+    start_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: 'Invalid date format',
+    }),
+    end_date: z
+      .string()
+      .optional()
+      .nullable()
+      .refine((date) => !date || !isNaN(Date.parse(date)), { message: 'Invalid date format' }),
+    is_long_term: z.boolean().optional().default(false),
+    target_units: z.number().int().min(0),
+    unit_name: z.string().max(50).optional().default('kit'),
+    status: z.enum(['planned', 'active']).optional().default('planned'),
+  })
+  .passthrough()
+  .refine((data) => data.is_long_term || data.target_units >= 1, {
+    message: 'Fixed-term projects require target_units >= 1',
+    path: ['target_units'],
+  })
 
-export const updateProjectSchema = z.object({
-  project_name: z.string().min(3).max(255).optional(),
-  location: z.string().min(2).max(255).optional(),
-  start_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Invalid date format',
-  }).optional(),
-  end_date: z.string().nullable().refine(
-    (date) => !date || !isNaN(Date.parse(date)),
-    { message: 'Invalid date format' }
-  ).optional(),
-  is_long_term: z.boolean().optional(),
-  target_units: z.number().int().min(0).optional(),
-  current_units: z.number().int().min(0).optional(),
-  unit_name: z.string().max(50).optional(),
-  status: z.enum(['planned', 'active', 'completed', 'paused']).optional(),
-}).passthrough()
+export const updateProjectSchema = z
+  .object({
+    project_name: z.string().min(3).max(255).optional(),
+    location: z.string().min(2).max(255).optional(),
+    start_date: z
+      .string()
+      .refine((date) => !isNaN(Date.parse(date)), {
+        message: 'Invalid date format',
+      })
+      .optional(),
+    end_date: z
+      .string()
+      .nullable()
+      .refine((date) => !date || !isNaN(Date.parse(date)), { message: 'Invalid date format' })
+      .optional(),
+    is_long_term: z.boolean().optional(),
+    target_units: z.number().int().min(0).optional(),
+    current_units: z.number().int().min(0).optional(),
+    unit_name: z.string().max(50).optional(),
+    status: z.enum(['planned', 'active', 'completed', 'paused']).optional(),
+  })
+  .passthrough()
 
 // ============================================
 // Donation Schemas
@@ -79,12 +89,12 @@ export const donationFormSchema = z.object({
 
 export const createSubscriptionSchema = z.object({
   email: emailSchema,
-  locale: localeSchema
+  locale: localeSchema,
 })
 
 export const unsubscribeSchema = z.object({
   email: emailSchema,
-  locale: localeSchema.optional()
+  locale: localeSchema.optional(),
 })
 
 // ============================================
@@ -107,7 +117,7 @@ export const requestRefundSchema = z.object({
 
 export const sendBroadcastSchema = z.object({
   templateName: z.string().min(1, 'Template name is required'),
-  variables: z.record(z.string()).optional()
+  variables: z.record(z.string()).optional(),
 })
 
 // ============================================

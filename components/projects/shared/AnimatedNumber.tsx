@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface AnimatedNumberProps {
   value: number
@@ -44,9 +44,8 @@ export default function AnimatedNumber({
     return () => observer.disconnect()
   }, [value, duration, hasAnimated])
 
-  const displayValue = formatLargeNumber && count >= 1000
-    ? `${(count / 1000).toFixed(1)}K`
-    : count.toLocaleString()
+  const displayValue =
+    formatLargeNumber && count >= 1000 ? `${(count / 1000).toFixed(1)}K` : count.toLocaleString()
 
   return (
     <span ref={ref}>

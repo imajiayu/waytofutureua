@@ -21,11 +21,11 @@ export default function Snowfall() {
   )
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {snowflakes.map((flake, i) => (
         <div
           key={i}
-          className="absolute text-white/20 animate-snowfall"
+          className="absolute animate-snowfall text-white/20"
           style={{
             left: `${flake.left}%`,
             animationDelay: `${flake.delay}s`,

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
 import { sendOTP, verifyOTP } from '@/app/actions/market-auth'
 import { SpinnerIcon } from '@/components/icons'
 
@@ -21,28 +22,36 @@ const COOLDOWN_SECONDS = 60
 // ── 主题样式 ──────────────────────────────────────
 const LIGHT = {
   label: 'block text-sm font-medium text-gray-700 mb-1',
-  input: 'w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400',
-  codeInput: 'w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-[0.5em] font-mono text-gray-900 focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400',
-  button: 'w-full py-3 bg-ukraine-gold-500 text-ukraine-blue-900 rounded-lg font-bold hover:bg-ukraine-gold-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-ukraine-gold-500/20 flex items-center justify-center gap-2',
+  input:
+    'w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400',
+  codeInput:
+    'w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-[0.5em] font-mono text-gray-900 focus:ring-2 focus:ring-ukraine-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400',
+  button:
+    'w-full py-3 bg-ukraine-gold-500 text-ukraine-blue-900 rounded-lg font-bold hover:bg-ukraine-gold-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-ukraine-gold-500/20 flex items-center justify-center gap-2',
   link: 'text-ukraine-blue-500 hover:text-ukraine-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors',
   muted: 'text-gray-500 hover:text-gray-700 transition-colors',
   hint: 'text-sm text-gray-600',
   cancel: 'w-full py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors',
-  emailBadge: 'flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg',
+  emailBadge:
+    'flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg',
   emailText: 'text-sm text-gray-700 font-medium truncate',
   divider: 'border-t border-gray-100',
 }
 
 const DARK = {
   label: 'block text-sm font-medium text-white/80 mb-1',
-  input: 'w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:ring-2 focus:ring-ukraine-gold-400/50 focus:border-transparent disabled:opacity-50',
-  codeInput: 'w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-center text-2xl tracking-[0.5em] font-mono text-white placeholder:text-white/40 focus:ring-2 focus:ring-ukraine-gold-400/50 focus:border-transparent disabled:opacity-50',
-  button: 'w-full py-3 bg-ukraine-gold-500 text-ukraine-blue-900 rounded-lg font-bold hover:bg-ukraine-gold-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-ukraine-gold-500/20 flex items-center justify-center gap-2',
+  input:
+    'w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:ring-2 focus:ring-ukraine-gold-400/50 focus:border-transparent disabled:opacity-50',
+  codeInput:
+    'w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-center text-2xl tracking-[0.5em] font-mono text-white placeholder:text-white/40 focus:ring-2 focus:ring-ukraine-gold-400/50 focus:border-transparent disabled:opacity-50',
+  button:
+    'w-full py-3 bg-ukraine-gold-500 text-ukraine-blue-900 rounded-lg font-bold hover:bg-ukraine-gold-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-ukraine-gold-500/20 flex items-center justify-center gap-2',
   link: 'text-ukraine-gold-300/80 hover:text-ukraine-gold-200 disabled:text-white/30 disabled:cursor-not-allowed transition-colors',
   muted: 'text-white/50 hover:text-white/70 transition-colors',
   hint: 'text-sm text-white/60',
   cancel: 'w-full py-2 text-sm text-white/40 hover:text-white/70 transition-colors',
-  emailBadge: 'flex items-center justify-between gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg',
+  emailBadge:
+    'flex items-center justify-between gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg',
   emailText: 'text-sm text-white/80 font-medium truncate',
   divider: 'border-t border-white/10',
 }
@@ -64,7 +73,7 @@ export default function EmailOTPForm({
   const [cooldown, setCooldown] = useState(0)
 
   // 渐进式流程状态
-  const [sentEmail, setSentEmail] = useState('')       // 已发送验证码的邮箱
+  const [sentEmail, setSentEmail] = useState('') // 已发送验证码的邮箱
   const [isEditingEmail, setIsEditingEmail] = useState(false)
 
   const codeInputRef = useRef<HTMLInputElement>(null)
@@ -78,7 +87,7 @@ export default function EmailOTPForm({
     setCooldown(COOLDOWN_SECONDS)
     if (cooldownRef.current) clearInterval(cooldownRef.current)
     cooldownRef.current = setInterval(() => {
-      setCooldown(prev => {
+      setCooldown((prev) => {
         if (prev <= 1) {
           if (cooldownRef.current) clearInterval(cooldownRef.current)
           return 0
@@ -181,19 +190,18 @@ export default function EmailOTPForm({
   return (
     <div className={containerClass}>
       {!compact && (
-        <div className="text-center mb-2">
-          <h3 className="text-lg font-bold text-gray-900 font-display">
-            {t('title')}
-          </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {t('subtitle')}
-          </p>
+        <div className="mb-2 text-center">
+          <h3 className="font-display text-lg font-bold text-gray-900">{t('title')}</h3>
+          <p className="mt-1 text-sm text-gray-500">{t('subtitle')}</p>
         </div>
       )}
 
       {/* 错误提示 */}
       {error && (
-        <div role="alert" className="p-3 bg-warm-50 border border-warm-200 rounded-lg text-sm text-warm-700">
+        <div
+          role="alert"
+          className="rounded-lg border border-warm-200 bg-warm-50 p-3 text-sm text-warm-700"
+        >
           {error}
         </div>
       )}
@@ -209,8 +217,8 @@ export default function EmailOTPForm({
               id="otp-email"
               type="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSendCode()}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendCode()}
               placeholder="email@example.com"
               disabled={isLoading}
               className={s.input}
@@ -223,7 +231,7 @@ export default function EmailOTPForm({
             disabled={isLoading || !email.trim()}
             className={s.button}
           >
-            {isLoading && <SpinnerIcon className="animate-spin h-4 w-4" />}
+            {isLoading && <SpinnerIcon className="h-4 w-4 animate-spin" />}
             {t('sendCode')}
           </button>
         </div>
@@ -242,8 +250,8 @@ export default function EmailOTPForm({
                   id="otp-email-edit"
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && !emailMatchesSent && handleSendCode()}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !emailMatchesSent && handleSendCode()}
                   placeholder="email@example.com"
                   disabled={isLoading}
                   className={s.input}
@@ -261,7 +269,7 @@ export default function EmailOTPForm({
                   disabled={isLoading || !email.trim()}
                   className={s.button}
                 >
-                  {isLoading && <SpinnerIcon className="animate-spin h-4 w-4" />}
+                  {isLoading && <SpinnerIcon className="h-4 w-4 animate-spin" />}
                   {t('sendCode')}
                 </button>
               )}
@@ -269,16 +277,29 @@ export default function EmailOTPForm({
           ) : (
             /* 紧凑展示模式 */
             <div className={s.emailBadge}>
-              <div className="flex items-center gap-2 min-w-0">
-                <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              <div className="flex min-w-0 items-center gap-2">
+                <svg
+                  className="h-4 w-4 flex-shrink-0 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                  />
                 </svg>
                 <span className={s.emailText}>{sentEmail}</span>
               </div>
               <button
-                onClick={() => { setIsEditingEmail(true); setError(null) }}
+                onClick={() => {
+                  setIsEditingEmail(true)
+                  setError(null)
+                }}
                 disabled={isLoading}
-                className={`text-sm flex-shrink-0 ${s.muted}`}
+                className={`flex-shrink-0 text-sm ${s.muted}`}
               >
                 {t('changeEmail')}
               </button>
@@ -301,8 +322,8 @@ export default function EmailOTPForm({
                   inputMode="numeric"
                   maxLength={6}
                   value={code}
-                  onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
-                  onKeyDown={e => e.key === 'Enter' && handleVerifyCode()}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleVerifyCode()}
                   placeholder="000000"
                   disabled={isLoading}
                   className={s.codeInput}
@@ -315,7 +336,7 @@ export default function EmailOTPForm({
                 disabled={isLoading || code.trim().length !== 6}
                 className={s.button}
               >
-                {isLoading && <SpinnerIcon className="animate-spin h-4 w-4" />}
+                {isLoading && <SpinnerIcon className="h-4 w-4 animate-spin" />}
                 {t('verify')}
               </button>
 
@@ -336,10 +357,7 @@ export default function EmailOTPForm({
 
       {/* 取消按钮 */}
       {onCancel && (
-        <button
-          onClick={onCancel}
-          className={s.cancel}
-        >
+        <button onClick={onCancel} className={s.cancel}>
           {t('cancel')}
         </button>
       )}

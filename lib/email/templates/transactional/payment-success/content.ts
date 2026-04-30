@@ -14,7 +14,7 @@ export interface PaymentSuccessContent {
   projectLabel: string
   locationLabel: string
   amountLabel: string
-  quantityUnit: (unitName: string) => string  // For unit mode: "1 {unitName}"
+  quantityUnit: (unitName: string) => string // For unit mode: "1 {unitName}"
   totalAmountLabel: string
   donationIdsLabel: string
   donationIdsNote: string
@@ -40,13 +40,16 @@ export const paymentSuccessContent: Record<Locale, PaymentSuccessContent> = {
     quantityUnit: (unitName: string) => `1 ${unitName}`,
     totalAmountLabel: 'Total Amount:',
     donationIdsLabel: 'Your Donation IDs:',
-    donationIdsNote: '⚠️ Please save these IDs for your records. You can use them to track your donation status at any time.',
+    donationIdsNote:
+      '⚠️ Please save these IDs for your records. You can use them to track your donation status at any time.',
     trackingTitle: 'Track Your Donation',
-    trackingContent: 'You can track the status of your donation at any time using your donation IDs.',
+    trackingContent:
+      'You can track the status of your donation at any time using your donation IDs.',
     trackingButton: 'Track My Donation',
     nextStepsTitle: 'What happens next?',
-    nextStepsContent: 'We will confirm your donation and begin processing it. You will receive updates as your donation progresses through confirmation, delivery, and completion stages.',
-    contact: 'If you have any questions, please don\'t hesitate to contact us.'
+    nextStepsContent:
+      'We will confirm your donation and begin processing it. You will receive updates as your donation progresses through confirmation, delivery, and completion stages.',
+    contact: "If you have any questions, please don't hesitate to contact us.",
   },
   zh: {
     subject: '感谢您的捐赠 - 支付已确认',
@@ -66,8 +69,9 @@ export const paymentSuccessContent: Record<Locale, PaymentSuccessContent> = {
     trackingContent: '您可以随时使用您的捐赠编号追踪捐赠状态。',
     trackingButton: '追踪我的捐赠',
     nextStepsTitle: '后续流程',
-    nextStepsContent: '我们将确认您的捐赠并开始处理。随着捐赠进展经过确认、配送和完成等阶段，您将收到更新通知。',
-    contact: '如有任何疑问，请随时联系我们。'
+    nextStepsContent:
+      '我们将确认您的捐赠并开始处理。随着捐赠进展经过确认、配送和完成等阶段，您将收到更新通知。',
+    contact: '如有任何疑问，请随时联系我们。',
   },
   ua: {
     subject: 'Дякуємо за ваше пожертвування - Платіж отримано',
@@ -82,12 +86,15 @@ export const paymentSuccessContent: Record<Locale, PaymentSuccessContent> = {
     quantityUnit: (unitName: string) => `1 ${unitName}`,
     totalAmountLabel: 'Загальна сума:',
     donationIdsLabel: 'Ваші ID пожертвувань:',
-    donationIdsNote: '⚠️ Будь ласка, збережіть ці ідентифікатори для ваших записів. Ви можете використовувати їх для відстеження статусу вашого пожертвування в будь-який час.',
+    donationIdsNote:
+      '⚠️ Будь ласка, збережіть ці ідентифікатори для ваших записів. Ви можете використовувати їх для відстеження статусу вашого пожертвування в будь-який час.',
     trackingTitle: 'Відстежуйте своє пожертвування',
-    trackingContent: 'Ви можете відстежувати статус вашого пожертвування в будь-який час, використовуючи ваші ID пожертвувань.',
+    trackingContent:
+      'Ви можете відстежувати статус вашого пожертвування в будь-який час, використовуючи ваші ID пожертвувань.',
     trackingButton: 'Відстежити моє пожертвування',
     nextStepsTitle: 'Що далі?',
-    nextStepsContent: 'Ми підтвердимо ваше пожертвування та почнемо його обробку. Ви отримуватимете оновлення про статус на етапах підтвердження, доставки та завершення.',
-    contact: 'Якщо у вас виникнуть запитання, будь ласка, не соромтеся звертатися до нас.'
-  }
+    nextStepsContent:
+      'Ми підтвердимо ваше пожертвування та почнемо його обробку. Ви отримуватимете оновлення про статус на етапах підтвердження, доставки та завершення.',
+    contact: 'Якщо у вас виникнуть запитання, будь ласка, не соромтеся звертатися до нас.',
+  },
 }

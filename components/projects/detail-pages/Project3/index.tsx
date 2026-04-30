@@ -1,34 +1,38 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { FadeInSection, SectionNav, UnifiedResultsSection } from '@/components/projects/shared'
-import type { ResultImage } from '@/components/projects/shared'
-import { SparklesIcon } from '@/components/icons'
-import { Snowfall } from './components'
-import { useActiveSection } from '@/lib/hooks/useActiveSection'
-import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useTranslations } from 'next-intl'
-import { useProjectContents } from '@/lib/hooks/useProjectContent'
-import { useLightbox } from '@/lib/hooks/useLightbox'
-import type { LightboxImage } from '@/components/common/ImageLightbox'
-import type { Project3Content, SuppliesData, Project3DetailContentProps } from './types'
+import { useCallback, useMemo, useState } from 'react'
 
+import type { LightboxImage } from '@/components/common/ImageLightbox'
+import { SparklesIcon } from '@/components/icons'
+import type { ResultImage } from '@/components/projects/shared'
+import { FadeInSection, SectionNav, UnifiedResultsSection } from '@/components/projects/shared'
+import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
+import { useActiveSection } from '@/lib/hooks/useActiveSection'
+import { useLightbox } from '@/lib/hooks/useLightbox'
+import { useProjectContents } from '@/lib/hooks/useProjectContent'
+
+import { Snowfall } from './components'
 // Sections
 import {
-  HeroSection,
-  StatisticsSection,
-  SheltersSection,
   GiftsListSection,
+  HeroSection,
+  SheltersSection,
+  StatisticsSection,
   SuppliesSection,
 } from './sections'
+import type { Project3Content, Project3DetailContentProps, SuppliesData } from './types'
 
 const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project3DetailContent({ project, locale }: Project3DetailContentProps) {
   const t = useTranslations('projects')
-  const { data: [content, suppliesData], loading } = useProjectContents<[Project3Content, SuppliesData]>([
+  const {
+    data: [content, suppliesData],
+    loading,
+  } = useProjectContents<[Project3Content, SuppliesData]>([
     { url: `/content/projects/project-3-${locale}.json`, projectId: 3 },
     { url: `/content/projects/project-3-supplies-${locale}.json`, projectId: 3 },
   ])
@@ -53,9 +57,11 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
   )
   const receiptLightboxImages = useMemo<LightboxImage[]>(
     () =>
-      suppliesData?.receipts?.images?.map((url, idx) => ({ url, caption: t('receiptImageAlt', { index: idx + 1 }) })) ||
-      [],
-    [suppliesData]
+      suppliesData?.receipts?.images?.map((url, idx) => ({
+        url,
+        caption: t('receiptImageAlt', { index: idx + 1 }),
+      })) || [],
+    [suppliesData, t]
   )
 
   // Section navigation
@@ -74,19 +80,19 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="relative h-[40vh] min-h-[280px] rounded-xl overflow-hidden bg-gradient-to-br from-christmas-berry/20 to-christmas-pine/20 animate-pulse">
+        <div className="relative h-[40vh] min-h-[280px] animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-christmas-berry/20 to-christmas-pine/20">
           <div className="absolute inset-0 flex items-end p-4">
-            <div className="space-y-2 w-full max-w-xl">
-              <div className="h-7 bg-white/30 rounded w-3/4" />
-              <div className="h-4 bg-white/20 rounded w-1/2" />
+            <div className="w-full max-w-xl space-y-2">
+              <div className="h-7 w-3/4 rounded bg-white/30" />
+              <div className="h-4 w-1/2 rounded bg-white/20" />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-4 space-y-3">
-          <div className="h-4 bg-gray-200 rounded animate-pulse" />
+        <div className="space-y-3 rounded-xl bg-white p-4">
+          <div className="h-4 animate-pulse rounded bg-gray-200" />
           <div className="grid grid-cols-3 gap-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />
+              <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-100" />
             ))}
           </div>
         </div>
@@ -96,8 +102,8 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
 
   if (!content) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
-        <p className="text-gray-600 text-center">{t('contentNotAvailable')}</p>
+      <div className="overflow-hidden rounded-2xl bg-white p-8 shadow-sm">
+        <p className="text-center text-gray-600">{t('contentNotAvailable')}</p>
       </div>
     )
   }
@@ -111,17 +117,20 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
       <SectionNav sections={sections} activeSectionId={activeSectionId} />
 
       {/* Main Content */}
-      <article id="p3-introduction" className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 md:p-6 space-y-5 md:space-y-6">
+      <article
+        id="p3-introduction"
+        className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm md:rounded-3xl"
+      >
+        <div className="space-y-5 p-4 md:space-y-6 md:p-6">
           {/* Introduction */}
           {content?.introduction && (
             <FadeInSection>
               <section className="max-w-3xl">
-                <div className="text-christmas-gold/30 text-5xl md:text-6xl font-serif leading-none mb-1 select-none">
-                  "
+                <div className="mb-1 select-none font-serif text-5xl leading-none text-christmas-gold/30 md:text-6xl">
+                  &ldquo;
                 </div>
                 {content.introduction.map((p, idx) => (
-                  <p key={idx} className="text-sm md:text-base text-gray-700 leading-relaxed">
+                  <p key={idx} className="text-sm leading-relaxed text-gray-700 md:text-base">
                     {p}
                   </p>
                 ))}
@@ -135,7 +144,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
               <section>
                 <div className="grid grid-cols-12 gap-2 md:gap-3">
                   <div
-                    className="col-span-8 row-span-2 relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
+                    className="group relative col-span-8 row-span-2 aspect-[4/3] cursor-pointer overflow-hidden rounded-xl md:rounded-2xl"
                     onClick={() => detailLightbox.open(0)}
                   >
                     <Image
@@ -145,12 +154,12 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                       sizes="(max-width: 768px) 66vw, 50vw"
                       className="object-cover transition-all duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
                   {content.images.slice(1, 3).map((img, idx) => (
                     <div
                       key={idx}
-                      className="col-span-4 relative aspect-square rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
+                      className="group relative col-span-4 aspect-square cursor-pointer overflow-hidden rounded-xl md:rounded-2xl"
                       onClick={() => detailLightbox.open(idx + 1)}
                     >
                       <Image
@@ -165,7 +174,7 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
                   {content.images.slice(3, 6).map((img, idx) => (
                     <div
                       key={idx}
-                      className="col-span-4 relative aspect-[4/3] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group"
+                      className="group relative col-span-4 aspect-[4/3] cursor-pointer overflow-hidden rounded-xl md:rounded-2xl"
                       onClick={() => detailLightbox.open(idx + 3)}
                     >
                       <Image
@@ -231,16 +240,18 @@ export default function Project3DetailContent({ project, locale }: Project3Detai
           <UnifiedResultsSection
             title={t('project3.momentsOfJoy')}
             icon={
-              <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <SparklesIcon className="w-5 h-5 text-white" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                <SparklesIcon className="h-5 w-5 text-white" />
               </div>
             }
             gradient="from-christmas-berry via-rose-600 to-christmas-gold"
-            images={content.results.map((r): ResultImage => ({
-              imageUrl: r.imageUrl,
-              caption: r.caption,
-              priority: r.priority,
-            }))}
+            images={content.results.map(
+              (r): ResultImage => ({
+                imageUrl: r.imageUrl,
+                caption: r.caption,
+                priority: r.priority,
+              })
+            )}
             getAltText={(i) => t('project3.resultAlt', { index: i + 1 })}
             headerDecoration={<Snowfall />}
           />

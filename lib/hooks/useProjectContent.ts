@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
 import { clientLogger } from '@/lib/logger-client'
 
 interface UseProjectContentResult<T> {
@@ -11,10 +12,7 @@ interface UseProjectContentResult<T> {
 /**
  * Load a single project content JSON file
  */
-export function useProjectContent<T>(
-  url: string,
-  projectId: number
-): UseProjectContentResult<T> {
+export function useProjectContent<T>(url: string, projectId: number): UseProjectContentResult<T> {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -55,7 +53,7 @@ export function useProjectContents<T extends unknown[]>(
 
   const configsRef = useRef(configs)
   configsRef.current = configs
-  const configKey = configs.map(c => c.url).join('|')
+  const configKey = configs.map((c) => c.url).join('|')
 
   useEffect(() => {
     const currentConfigs = configsRef.current
@@ -71,7 +69,9 @@ export function useProjectContents<T extends unknown[]>(
               if (response.ok) {
                 return await response.json()
               }
-              clientLogger.warn('UI', `No content found for project-${config.projectId}`, { url: config.url })
+              clientLogger.warn('UI', `No content found for project-${config.projectId}`, {
+                url: config.url,
+              })
               return null
             } catch (error) {
               clientLogger.error('UI', 'Error loading project content', {
@@ -88,7 +88,9 @@ export function useProjectContents<T extends unknown[]>(
       }
     }
     load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [configKey])
 
   return { data: data as { [K in keyof T]: T[K] | null }, loading }

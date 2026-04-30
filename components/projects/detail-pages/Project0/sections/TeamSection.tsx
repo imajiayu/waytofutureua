@@ -1,9 +1,11 @@
 'use client'
 
-import { useRef } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { UsersIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
+import { useRef } from 'react'
+
+import { ChevronLeftIcon, ChevronRightIcon, UsersIcon } from '@/components/icons'
+
 import type { SectionProps } from '../types'
 
 interface TeamSectionProps extends Pick<SectionProps, 'content'> {
@@ -32,41 +34,41 @@ export default function TeamSection({ content, employerImages, onImageClick }: T
   return (
     <section>
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-gradient-to-br from-ukraine-gold-400 to-ukraine-gold-600 flex items-center justify-center shadow-md">
-            <UsersIcon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-ukraine-gold-400 to-ukraine-gold-600 shadow-md md:h-9 md:w-9">
+            <UsersIcon className="h-4 w-4 text-white md:h-5 md:w-5" />
           </div>
           <div>
-            <h2 className="font-display text-lg md:text-xl font-bold text-gray-900">
+            <h2 className="font-display text-lg font-bold text-gray-900 md:text-xl">
               {content.team.title}
             </h2>
             <p className="text-xs text-gray-500">{content.team.description}</p>
           </div>
         </div>
         {/* Carousel Controls */}
-        <div className="hidden md:flex gap-1.5">
+        <div className="hidden gap-1.5 md:flex">
           <button
             onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200"
           >
-            <ChevronLeftIcon className="w-4 h-4 text-gray-600" />
+            <ChevronLeftIcon className="h-4 w-4 text-gray-600" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200"
           >
-            <ChevronRightIcon className="w-4 h-4 text-gray-600" />
+            <ChevronRightIcon className="h-4 w-4 text-gray-600" />
           </button>
         </div>
       </div>
 
       {/* Team Roles - Flowing Tags */}
-      <div className="flex flex-wrap gap-1.5 mb-3">
+      <div className="mb-3 flex flex-wrap gap-1.5">
         {content.team.members.map((member, idx) => (
           <span
             key={idx}
-            className="px-3 py-1.5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full text-xs md:text-sm text-gray-700 font-medium border border-slate-200 hover:border-ukraine-blue-300 hover:bg-ukraine-blue-50 transition-colors cursor-default"
+            className="cursor-default rounded-full border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-ukraine-blue-300 hover:bg-ukraine-blue-50 md:text-sm"
           >
             {member}
           </span>
@@ -75,21 +77,26 @@ export default function TeamSection({ content, employerImages, onImageClick }: T
 
       {/* Team Photos Carousel */}
       {employerImages.length > 0 && (
-        <div className="relative group">
+        <div className="group relative">
           <div
             ref={scrollRef}
-            className="flex gap-2 md:gap-3 overflow-x-auto scroll-smooth pb-2 scrollbar-hide snap-x snap-mandatory"
+            className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth pb-2 md:gap-3"
           >
             {employerImages.map((image, index) => (
               <div
                 key={index}
                 role="button"
                 tabIndex={0}
-                className="flex-shrink-0 w-28 md:w-36 snap-start cursor-pointer group/card"
+                className="group/card w-28 flex-shrink-0 cursor-pointer snap-start md:w-36"
                 onClick={() => onImageClick(index)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageClick(index) } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onImageClick(index)
+                  }
+                }}
               >
-                <div className="relative aspect-[3/4] rounded-lg md:rounded-xl overflow-hidden shadow-sm group-hover/card:shadow-md transition-shadow">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-sm transition-shadow group-hover/card:shadow-md md:rounded-xl">
                   <Image
                     src={image}
                     alt={t('project0.teamMemberAlt', { number: index + 1 })}
@@ -102,8 +109,8 @@ export default function TeamSection({ content, employerImages, onImageClick }: T
             ))}
           </div>
           {/* Mobile scroll hint */}
-          <div className="md:hidden flex items-center justify-center gap-1.5 mt-2 text-gray-400">
-            <ChevronRightIcon className="w-3 h-3 animate-pulse" />
+          <div className="mt-2 flex items-center justify-center gap-1.5 text-gray-400 md:hidden">
+            <ChevronRightIcon className="h-3 w-3 animate-pulse" />
             <span className="text-[10px]">{t('scrollToViewMore')}</span>
           </div>
         </div>

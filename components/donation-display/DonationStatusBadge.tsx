@@ -1,7 +1,8 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { STATUS_COLORS, type DonationStatus } from '@/lib/donation-status'
+
+import { type DonationStatus, STATUS_COLORS } from '@/lib/donation-status'
 
 interface Props {
   status: DonationStatus
@@ -29,9 +30,5 @@ export default function DonationStatusBadge({ status }: Props) {
     return `${baseClasses} ${colors.bg} ${colors.text}`
   }
 
-  return (
-    <span className={getStatusClasses(status)}>
-      {t(`donationStatus.${status}`)}
-    </span>
-  )
+  return <span className={getStatusClasses(status)}>{t(`donationStatus.${status}`)}</span>
 }

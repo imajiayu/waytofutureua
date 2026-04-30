@@ -1,10 +1,8 @@
 import crypto from 'crypto'
-import type {
-  CreatePaymentRequest,
-  CreatePaymentResponse,
-  NowPaymentsError,
-} from './types'
+
 import { logger } from '@/lib/logger'
+
+import type { CreatePaymentRequest, CreatePaymentResponse, NowPaymentsError } from './types'
 
 // Validate environment variables
 if (!process.env.NOWPAYMENTS_API_KEY) {
@@ -107,7 +105,7 @@ export async function createNowPaymentsPayment(
   })
 
   if (!response.ok) {
-    const errorData = await response.json() as NowPaymentsError
+    const errorData = (await response.json()) as NowPaymentsError
     logger.error('PAYMENT:NOWPAYMENTS', 'Create payment error', {
       status: response.status,
       code: errorData.code,
@@ -116,7 +114,7 @@ export async function createNowPaymentsPayment(
     throw new Error(`NOWPayments API error: ${errorData.message || response.statusText}`)
   }
 
-  const data = await response.json() as CreatePaymentResponse
+  const data = (await response.json()) as CreatePaymentResponse
 
   logger.info('PAYMENT:NOWPAYMENTS', 'Payment created', {
     paymentId: data.payment_id,

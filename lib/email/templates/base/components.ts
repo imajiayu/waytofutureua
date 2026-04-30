@@ -15,19 +15,26 @@
  * All components use inline styles for maximum email client compatibility
  */
 
-import { ORG_BRANDING, EMAIL_COLORS } from '../../config'
+import { EMAIL_COLORS, ORG_BRANDING } from '../../config'
 import { Locale } from '../../types'
 import { getLocalizedText } from '../../utils'
 
 /**
  * Email header with glassmorphism style - Ukraine themed
  */
-export function createHeader(title: string, locale: Locale, badge?: string, subtitle?: string): string {
-  const badgeText = badge || {
-    en: 'Way to Future UA',
-    zh: '乌克兰未来之路',
-    ua: 'Way to Future UA'
-  }[locale]
+export function createHeader(
+  title: string,
+  locale: Locale,
+  badge?: string,
+  subtitle?: string
+): string {
+  const badgeText =
+    badge ||
+    {
+      en: 'Way to Future UA',
+      zh: '乌克兰未来之路',
+      ua: 'Way to Future UA',
+    }[locale]
 
   return `
     <!-- Ukraine-themed Header with Gold Accent -->
@@ -62,20 +69,20 @@ export function createFooter(locale: Locale): string {
       automated: 'This is an automated email. Please do not reply to this message.',
       contact: 'If you have any questions, please contact us at',
       website: 'Visit our website',
-      copyright: `© ${new Date().getFullYear()} ${orgName}. All rights reserved.`
+      copyright: `© ${new Date().getFullYear()} ${orgName}. All rights reserved.`,
     },
     zh: {
       automated: '这是一封自动发送的邮件，请勿回复。',
       contact: '如有任何疑问，请联系我们：',
       website: '访问我们的网站',
-      copyright: `© ${new Date().getFullYear()} ${orgName}。保留所有权利。`
+      copyright: `© ${new Date().getFullYear()} ${orgName}。保留所有权利。`,
     },
     ua: {
       automated: 'Це автоматичний лист. Будь ласка, не відповідайте на це повідомлення.',
-      contact: 'Якщо у вас виникнуть запитання, зв\'яжіться з нами за адресою',
+      contact: "Якщо у вас виникнуть запитання, зв'яжіться з нами за адресою",
       website: 'Відвідайте наш сайт',
-      copyright: `© ${new Date().getFullYear()} ${orgName}. Всі права захищені.`
-    }
+      copyright: `© ${new Date().getFullYear()} ${orgName}. Всі права захищені.`,
+    },
   }
 
   const t = footerText[locale]
@@ -110,16 +117,16 @@ export function createSignature(locale: Locale): string {
   const signatureText = {
     en: {
       regards: 'With heartfelt gratitude,',
-      team: 'Team'
+      team: 'Team',
     },
     zh: {
       regards: '衷心感谢，',
-      team: '团队'
+      team: '团队',
     },
     ua: {
       regards: 'З щирою вдячністю,',
-      team: 'Команда'
-    }
+      team: 'Команда',
+    },
   }
 
   const t = signatureText[locale]
@@ -239,20 +246,24 @@ export function createErrorBox(title: string, content: string): string {
  * - 'blue': Secondary using Ukraine blue (trust, information)
  * - 'green': Success using Life green (completion)
  */
-export function createButton(text: string, url: string, color: 'blue' | 'green' | 'gold' = 'gold'): string {
+export function createButton(
+  text: string,
+  url: string,
+  color: 'blue' | 'green' | 'gold' = 'gold'
+): string {
   const styles = {
     gold: {
       gradient: 'linear-gradient(135deg, #F5B800 0%, #D19A00 100%)',
-      textColor: '#02263E'
+      textColor: '#02263E',
     },
     blue: {
       gradient: 'linear-gradient(135deg, #076CB3 0%, #065A96 100%)',
-      textColor: '#ffffff'
+      textColor: '#ffffff',
     },
     green: {
       gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-      textColor: '#ffffff'
-    }
+      textColor: '#ffffff',
+    },
   }
 
   const style = styles[color]
@@ -264,14 +275,18 @@ export function createButton(text: string, url: string, color: 'blue' | 'green' 
  * Donation IDs list component - with Ukraine gold accent
  */
 export function createDonationIdsList(donationIds: string[]): string {
-  const items = donationIds.map(id => `
+  const items = donationIds
+    .map(
+      (id) => `
     <tr>
       <td style="background: rgba(7,108,179,0.15); border-left: 3px solid #F5B800; padding: 10px 14px; margin: 0; border-radius: 0 8px 8px 0;">
         <code style="font-family: 'Courier New', monospace; font-size: 14px; color: rgba(255,255,255,0.9);">${id}</code>
       </td>
     </tr>
     <tr><td style="height: 8px;"></td></tr>
-  `).join('')
+  `
+    )
+    .join('')
 
   return `
     <table width="100%" cellpadding="0" cellspacing="0">
@@ -369,17 +384,21 @@ export function createOrderTotal(label: string, amount: string): string {
 /**
  * Stats card component - Ukraine themed for displaying key metrics
  */
-export function createStatsCard(value: string, label: string, color: 'blue' | 'green' | 'gold' = 'blue'): string {
+export function createStatsCard(
+  value: string,
+  label: string,
+  color: 'blue' | 'green' | 'gold' = 'blue'
+): string {
   const gradients = {
     blue: 'linear-gradient(135deg, #076CB3 0%, #065A96 100%)',
     green: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-    gold: 'linear-gradient(135deg, #F5B800 0%, #D19A00 100%)'
+    gold: 'linear-gradient(135deg, #F5B800 0%, #D19A00 100%)',
   }
 
   const textColors = {
     blue: '#ffffff',
     green: '#ffffff',
-    gold: '#02263E'
+    gold: '#02263E',
   }
 
   return `

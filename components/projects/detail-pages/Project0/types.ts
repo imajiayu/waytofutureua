@@ -1,4 +1,4 @@
-import type { ProjectStats, ProjectResult } from '@/types'
+import type { ProjectResult, ProjectStats } from '@/types'
 
 export interface Statistic {
   value: number

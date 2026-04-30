@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import type { ProjectStats } from '@/types'
+import { useEffect, useRef, useState } from 'react'
+
 import { isBodyScrollLocked } from '@/lib/hooks/useBodyScrollLock'
+import type { ProjectStats } from '@/types'
+
 import ProjectCard from './ProjectCard'
 
 interface ProjectsGalleryProps {
@@ -12,7 +14,7 @@ interface ProjectsGalleryProps {
   locale: string
 
   // Display mode
-  mode?: 'full' | 'compact'  // 'full' for home page, 'compact' for donate page
+  mode?: 'full' | 'compact' // 'full' for home page, 'compact' for donate page
 
   // Selection state (for compact mode)
   selectedProjectId?: number | null
@@ -73,36 +75,29 @@ export default function ProjectsGallery({
 
   if (projects.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-gray-500">{t('noProjects')}</p>
       </div>
     )
   }
 
   return (
-    <section className={`
-      ${mode === 'compact' ? 'pt-4 pb-2 md:pt-6 md:pb-3' : ''}
-    `}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+    <section className={` ${mode === 'compact' ? 'pb-2 pt-4 md:pb-3 md:pt-6' : ''} `}>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header - Only show when explicitly requested and not in compact mode */}
         {showHeader && mode !== 'compact' && (
-          <div className="text-center mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 font-display">
+          <div className="mb-8 text-center">
+            <h2 className="mb-3 font-display text-3xl font-bold text-gray-900 sm:text-4xl">
               {t('hero.projects.title')}
             </h2>
-            <p className="text-gray-600 text-lg">
-              {t('hero.projects.subtitle')}
-            </p>
+            <p className="text-lg text-gray-600">{t('hero.projects.subtitle')}</p>
           </div>
         )}
 
         {/* Horizontal Scrolling Container */}
         <div className="relative">
-          <div
-            ref={scrollContainerRef}
-            className="overflow-x-auto pb-4 pt-6 scrollbar-hide"
-          >
-            <div className="flex items-start gap-6 min-w-min px-2 py-2">
+          <div ref={scrollContainerRef} className="scrollbar-hide overflow-x-auto pb-4 pt-6">
+            <div className="flex min-w-min items-start gap-6 px-2 py-2">
               {projects.map((project) => (
                 <ProjectCard
                   key={project.id}
@@ -120,13 +115,23 @@ export default function ProjectsGallery({
 
           {/* Scroll Hint */}
           <div className={`text-center ${mode === 'compact' ? 'mt-2' : 'mt-4'}`}>
-            <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <p className="flex items-center justify-center gap-2 text-sm text-gray-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               {t('scrollToViewAll')}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </p>
           </div>

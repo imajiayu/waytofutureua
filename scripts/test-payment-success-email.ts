@@ -17,61 +17,61 @@ async function testPaymentSuccessEmail() {
       projectNameI18n: {
         en: 'Rehabilitation Center for War Victims',
         zh: '康复中心免费康复战争受害者',
-        ua: 'Реабілітаційний центр для постраждалих від війни'
+        ua: 'Реабілітаційний центр для постраждалих від війни',
       },
       locationI18n: {
         en: 'Dnipro, Ukraine',
         zh: '乌克兰 第聂伯罗',
-        ua: 'Дніпро, Україна'
+        ua: 'Дніпро, Україна',
       },
       unitNameI18n: {
         en: 'rehabilitation session',
         zh: '康复疗程',
-        ua: 'реабілітаційний сеанс'
+        ua: 'реабілітаційний сеанс',
       },
-      amount: 15.40,
-      isAggregate: false
+      amount: 15.4,
+      isAggregate: false,
     },
     {
       donationPublicId: 'DN-2026-TEST-002',
       projectNameI18n: {
         en: 'Rehabilitation Center for War Victims',
         zh: '康复中心免费康复战争受害者',
-        ua: 'Реабілітаційний центр для постраждалих від війни'
+        ua: 'Реабілітаційний центр для постраждалих від війни',
       },
       locationI18n: {
         en: 'Dnipro, Ukraine',
         zh: '乌克兰 第聂伯罗',
-        ua: 'Дніпро, Україна'
+        ua: 'Дніпро, Україна',
       },
       unitNameI18n: {
         en: 'rehabilitation session',
         zh: '康复疗程',
-        ua: 'реабілітаційний сеанс'
+        ua: 'реабілітаційний сеанс',
       },
-      amount: 15.40,
-      isAggregate: false
+      amount: 15.4,
+      isAggregate: false,
     },
     {
       donationPublicId: 'DN-2026-TEST-003',
       projectNameI18n: {
         en: 'Food Supply for Frontline Soldiers',
         zh: '前线士兵食品供应',
-        ua: 'Продовольче забезпечення для солдатів на передовій'
+        ua: 'Продовольче забезпечення для солдатів на передовій',
       },
       locationI18n: {
         en: 'Kharkiv, Ukraine',
         zh: '乌克兰 哈尔科夫',
-        ua: 'Харків, Україна'
+        ua: 'Харків, Україна',
       },
       unitNameI18n: {
         en: 'food package',
         zh: '食品包',
-        ua: 'продуктовий набір'
+        ua: 'продуктовий набір',
       },
-      amount: 15.40,
-      isAggregate: false
-    }
+      amount: 15.4,
+      isAggregate: false,
+    },
   ]
 
   // Mock 1个聚合项目（金额捐赠，100美元）
@@ -80,20 +80,20 @@ async function testPaymentSuccessEmail() {
     projectNameI18n: {
       en: 'General Support Fund',
       zh: '通用支持基金',
-      ua: 'Фонд загальної підтримки'
+      ua: 'Фонд загальної підтримки',
     },
     locationI18n: {
       en: 'Kyiv, Ukraine',
       zh: '乌克兰 基辅',
-      ua: 'Київ, Україна'
+      ua: 'Київ, Україна',
     },
     unitNameI18n: {
       en: 'donation',
       zh: '捐赠',
-      ua: 'пожертвування'
+      ua: 'пожертвування',
     },
-    amount: 100.00,
-    isAggregate: true  // 聚合模式，不显示单位名称
+    amount: 100.0,
+    isAggregate: true, // 聚合模式，不显示单位名称
   }
 
   // 组合所有捐赠
@@ -103,7 +103,7 @@ async function testPaymentSuccessEmail() {
   const totalAmount = allDonations.reduce((sum, d) => sum + d.amount, 0)
 
   console.log('📋 Test Data:')
-  console.log(`   - 3 unit donations @ $15.40 each = $${(15.40 * 3).toFixed(2)}`)
+  console.log(`   - 3 unit donations @ $15.40 each = $${(15.4 * 3).toFixed(2)}`)
   console.log(`   - 1 aggregate donation = $100.00`)
   console.log(`   - Total: $${totalAmount.toFixed(2)}`)
   console.log('')
@@ -113,18 +113,17 @@ async function testPaymentSuccessEmail() {
 
     const result = await sendPaymentSuccessEmail({
       to: 'majiayu110@gmail.com',
-      locale: 'zh',  // 使用中文
+      locale: 'zh', // 使用中文
       donorName: '测试用户',
       donations: allDonations,
       totalAmount: totalAmount,
-      currency: 'USD'
+      currency: 'USD',
     })
 
     console.log('✅ Email sent successfully!')
     console.log(`   Email ID: ${result?.id}`)
     console.log('')
     console.log('📬 Please check majiayu110@gmail.com for the test email.')
-
   } catch (error) {
     console.error('❌ Failed to send email:', error)
     process.exit(1)

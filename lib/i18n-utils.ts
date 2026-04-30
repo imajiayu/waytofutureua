@@ -88,7 +88,7 @@ function getJsLocale(locale: SupportedLocale): string {
   const localeMap: Record<SupportedLocale, string> = {
     en: 'en-US',
     zh: 'zh-CN',
-    ua: 'uk-UA' // Ukrainian locale code for JavaScript
+    ua: 'uk-UA', // Ukrainian locale code for JavaScript
   }
   return localeMap[locale] || 'en-US'
 }
@@ -107,7 +107,7 @@ export function formatDate(
   options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   }
 ): string {
   if (!dateString) return 'N/A'

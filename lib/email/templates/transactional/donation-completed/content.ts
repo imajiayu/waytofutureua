@@ -32,7 +32,8 @@ export const donationCompletedContent: Record<Locale, DonationCompletedContent> 
     title: 'Your Donation Has Been Delivered!',
     greeting: (name: string) => `Dear ${name},`,
     congratulations: '🎉 Congratulations!',
-    completed: 'We are excited to inform you that your donation has been successfully delivered and is now making a real difference!',
+    completed:
+      'We are excited to inform you that your donation has been successfully delivered and is now making a real difference!',
     impact: 'Your generosity has directly contributed to our mission and helped those in need.',
     projectLabel: 'Project:',
     locationLabel: 'Location:',
@@ -43,10 +44,13 @@ export const donationCompletedContent: Record<Locale, DonationCompletedContent> 
     resultDescription: 'Here is a photo confirming the successful delivery of your donation:',
     trackingButton: 'View Full Details',
     trackingHint: 'Click to view all your donation details, photos and videos',
-    gratitude: 'We are deeply grateful for your support. Your contribution is helping us build a better future.',
+    gratitude:
+      'We are deeply grateful for your support. Your contribution is helping us build a better future.',
     shareTitle: 'Share Your Impact',
-    shareContent: 'We encourage you to share your contribution with friends and family to inspire others to join our cause.',
-    contact: 'Thank you once again for your generous support. If you have any questions, please feel free to contact us.'
+    shareContent:
+      'We encourage you to share your contribution with friends and family to inspire others to join our cause.',
+    contact:
+      'Thank you once again for your generous support. If you have any questions, please feel free to contact us.',
   },
   zh: {
     subject: '您的捐赠已送达！',
@@ -67,14 +71,15 @@ export const donationCompletedContent: Record<Locale, DonationCompletedContent> 
     gratitude: '我们深深感谢您的支持。您的贡献正在帮助我们建设更美好的未来。',
     shareTitle: '分享您的影响',
     shareContent: '我们鼓励您与朋友和家人分享您的贡献，以激励其他人加入我们的事业。',
-    contact: '再次感谢您的慷慨支持。如有任何疑问，请随时与我们联系。'
+    contact: '再次感谢您的慷慨支持。如有任何疑问，请随时与我们联系。',
   },
   ua: {
     subject: 'Ваше пожертвування доставлено!',
     title: 'Ваше пожертвування доставлено!',
     greeting: (name: string) => `Шановний(а) ${name},`,
     congratulations: '🎉 Вітаємо!',
-    completed: 'Ми раді повідомити вам, що ваше пожертвування було успішно доставлено і тепер робить реальний внесок!',
+    completed:
+      'Ми раді повідомити вам, що ваше пожертвування було успішно доставлено і тепер робить реальний внесок!',
     impact: 'Ваша щедрість безпосередньо сприяла нашій місії та допомогла тим, хто потребує.',
     projectLabel: 'Проект:',
     locationLabel: 'Місцезнаходження:',
@@ -85,9 +90,12 @@ export const donationCompletedContent: Record<Locale, DonationCompletedContent> 
     resultDescription: 'Ось фотографія, що підтверджує успішну доставку вашого пожертвування:',
     trackingButton: 'Переглянути повну інформацію',
     trackingHint: 'Натисніть, щоб переглянути всі деталі вашого пожертвування, фотографії та відео',
-    gratitude: 'Ми глибоко вдячні за вашу підтримку. Ваш внесок допомагає нам будувати краще майбутнє.',
+    gratitude:
+      'Ми глибоко вдячні за вашу підтримку. Ваш внесок допомагає нам будувати краще майбутнє.',
     shareTitle: 'Поділіться своїм впливом',
-    shareContent: 'Ми заохочуємо вас поділитися своїм внеском з друзями та родиною, щоб надихнути інших приєднатися до нашої справи.',
-    contact: 'Ще раз дякуємо за вашу щедру підтримку. Якщо у вас виникнуть запитання, будь ласка, зв\'яжіться з нами.'
-  }
+    shareContent:
+      'Ми заохочуємо вас поділитися своїм внеском з друзями та родиною, щоб надихнути інших приєднатися до нашої справи.',
+    contact:
+      "Ще раз дякуємо за вашу щедру підтримку. Якщо у вас виникнуть запитання, будь ласка, зв'яжіться з нами.",
+  },
 }

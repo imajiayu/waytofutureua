@@ -2,10 +2,11 @@
  * Refund Success Email Sender
  */
 
-import { resend, getFromEmail } from '../client'
-import { RefundSuccessEmailParams } from '../types'
-import { generateRefundSuccessEmail } from '../templates/transactional/refund-success'
 import { logger } from '@/lib/logger'
+
+import { getFromEmail, resend } from '../client'
+import { generateRefundSuccessEmail } from '../templates/transactional/refund-success'
+import { RefundSuccessEmailParams } from '../types'
 
 /**
  * Send refund success notification email
@@ -19,7 +20,7 @@ export async function sendRefundSuccessEmail(params: RefundSuccessEmailParams) {
       to: params.to,
       subject: emailContent.subject,
       html: emailContent.html,
-      text: emailContent.text
+      text: emailContent.text,
     })
 
     if (error) {

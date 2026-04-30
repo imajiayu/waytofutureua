@@ -6,6 +6,7 @@
  */
 
 import { v2 as cloudinary } from 'cloudinary'
+
 import { logger } from '@/lib/logger'
 
 // 确保 Cloudinary 配置（延迟配置，确保环境变量已加载）

@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+
+import { createMarketItem } from '@/app/actions/market-admin'
+import type { CreateMarketItemInput } from '@/lib/market/market-validations'
 import type { I18nText } from '@/types'
 import type { MarketItem } from '@/types/market'
-import type { CreateMarketItemInput } from '@/lib/market/market-validations'
-import { createMarketItem } from '@/app/actions/market-admin'
+
 import AdminBaseModal from './AdminBaseModal'
 import I18nFieldGroup from './I18nFieldGroup'
 
@@ -52,16 +54,14 @@ export default function MarketItemCreateModal({ onClose, onCreated }: Props) {
           placeholders={{ en: 'Item name', zh: '商品名称', ua: 'Назва товару' }}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Price *
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Price *</label>
             <input
               type="number"
               value={formData.fixed_price || ''}
               onChange={(e) => setFormData({ ...formData, fixed_price: Number(e.target.value) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
               required
               min="0.01"
               step="0.01"
@@ -69,26 +69,22 @@ export default function MarketItemCreateModal({ onClose, onCreated }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Currency
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Currency</label>
             <input
               type="text"
               value={formData.currency}
               onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Stock Quantity *
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Stock Quantity *</label>
             <input
               type="number"
               value={formData.stock_quantity}
               onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
               required
               min="1"
               step="1"
@@ -96,18 +92,18 @@ export default function MarketItemCreateModal({ onClose, onCreated }: Props) {
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4 border-t">
+        <div className="flex justify-end space-x-3 border-t pt-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create Item'}
           </button>

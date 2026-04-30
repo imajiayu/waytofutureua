@@ -34,30 +34,25 @@ const VARIANT_STYLES = {
   },
 } as const
 
-export default function InfoCard({
-  variant,
-  title,
-  description,
-  icon
-}: InfoCardProps) {
+export default function InfoCard({ variant, title, description, icon }: InfoCardProps) {
   const styles = VARIANT_STYLES[variant]
   const borderClass = styles.borderStyle
 
   return (
-    <div className={`${styles.bg} ${borderClass} ${styles.border} rounded-lg p-${icon ? '6' : '5'}`}>
+    <div
+      className={`${styles.bg} ${borderClass} ${styles.border} rounded-lg p-${icon ? '6' : '5'}`}
+    >
       {icon ? (
         <div className="flex items-start gap-3">
-          <div className={`${styles.icon} flex-shrink-0 mt-0.5`}>
-            {icon}
-          </div>
+          <div className={`${styles.icon} mt-0.5 flex-shrink-0`}>{icon}</div>
           <div>
-            <h4 className={`font-semibold ${styles.title} font-display mb-1`}>{title}</h4>
+            <h4 className={`font-semibold ${styles.title} mb-1 font-display`}>{title}</h4>
             <div className={`text-sm ${styles.description}`}>{description}</div>
           </div>
         </div>
       ) : (
         <>
-          <h4 className={`font-semibold ${styles.title} font-display mb-2`}>{title}</h4>
+          <h4 className={`font-semibold ${styles.title} mb-2 font-display`}>{title}</h4>
           <div className={`text-sm ${styles.description}`}>{description}</div>
         </>
       )}

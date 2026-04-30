@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+
 import type { MarketItemContent } from '@/types/market'
 
 /**
@@ -11,7 +12,13 @@ export async function loadMarketItemContent(
   locale: string
 ): Promise<MarketItemContent | null> {
   try {
-    const filePath = join(process.cwd(), 'public', 'content', 'market', `item-${itemId}-${locale}.json`)
+    const filePath = join(
+      process.cwd(),
+      'public',
+      'content',
+      'market',
+      `item-${itemId}-${locale}.json`
+    )
     const raw = await readFile(filePath, 'utf-8')
     return JSON.parse(raw) as MarketItemContent
   } catch {

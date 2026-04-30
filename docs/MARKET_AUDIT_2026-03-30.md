@@ -8,12 +8,12 @@
 
 ## 修复进度总览
 
-| 优先级 | 总数 | 已完成 | 状态 |
-|--------|------|--------|------|
-| P0 - 立即修复 | 3 | 3 | :white_check_mark: |
-| P1 - 尽快修复 | 5 | 5 | :white_check_mark: |
-| P2 - 近期修复 | 13 | 13 | :white_check_mark: |
-| P3 - 酌情处理 | 10 | 10 | :white_check_mark: |
+| 优先级        | 总数 | 已完成 | 状态               |
+| ------------- | ---- | ------ | ------------------ |
+| P0 - 立即修复 | 3    | 3      | :white_check_mark: |
+| P1 - 尽快修复 | 5    | 5      | :white_check_mark: |
+| P2 - 近期修复 | 13   | 13     | :white_check_mark: |
+| P3 - 酌情处理 | 10   | 10     | :white_check_mark: |
 
 ---
 
@@ -378,7 +378,9 @@ logger.error('Operation failed', { error: error.message, context })
 
 ```typescript
 const errorRef = useRef(error)
-useEffect(() => { errorRef.current = error }, [error])
+useEffect(() => {
+  errorRef.current = error
+}, [error])
 // 在 setTimeout 中使用 errorRef.current 代替 error
 ```
 
@@ -400,8 +402,12 @@ const handleCheckout = async () => {
   if (submittingRef.current) return
   submittingRef.current = true
   setIsSubmitting(true)
-  try { /* ... */ }
-  finally { submittingRef.current = false; setIsSubmitting(false) }
+  try {
+    /* ... */
+  } finally {
+    submittingRef.current = false
+    setIsSubmitting(false)
+  }
 }
 ```
 
@@ -461,6 +467,7 @@ if (body.currency && body.currency !== order.currency) {
 **问题**: 共享同一签名密钥，义卖 Webhook 未验证 `orderReference` 以 `MKT-` 开头，配置错误时可能发生交叉回调。
 
 **修复**:
+
 - 义卖 Webhook 入口检查 `if (!orderReference?.startsWith('MKT-'))`
 - 捐赠 Webhook 入口检查 `if (orderReference?.startsWith('MKT-'))`
 

@@ -6,6 +6,7 @@
 'use client'
 
 import { useState } from 'react'
+
 import { EmailSubscription } from '@/app/actions/subscription'
 import { formatDateTime } from '@/lib/i18n-utils'
 
@@ -16,7 +17,7 @@ interface SubscriptionsTableProps {
 
 export default function SubscriptionsTable({
   subscriptions,
-  onSendBroadcast
+  onSendBroadcast,
 }: SubscriptionsTableProps) {
   const [filter, setFilter] = useState<'all' | 'subscribed' | 'unsubscribed'>('all')
   const [searchTerm, setSearchTerm] = useState('')
@@ -48,27 +49,27 @@ export default function SubscriptionsTable({
   const localeCounts = {
     en: subscriptions.filter((s) => s.locale === 'en' && s.is_subscribed).length,
     zh: subscriptions.filter((s) => s.locale === 'zh' && s.is_subscribed).length,
-    ua: subscriptions.filter((s) => s.locale === 'ua' && s.is_subscribed).length
+    ua: subscriptions.filter((s) => s.locale === 'ua' && s.is_subscribed).length,
   }
 
   return (
     <div className="space-y-6">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <div className="text-sm text-gray-500 mb-1">Total Subscribers</div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow">
+          <div className="mb-1 text-sm text-gray-500">Total Subscribers</div>
           <div className="text-2xl font-bold text-gray-900">{totalSubscriptions}</div>
         </div>
-        <div className="bg-green-50 p-4 rounded-lg shadow border border-green-200">
-          <div className="text-sm text-green-700 mb-1">Active</div>
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 shadow">
+          <div className="mb-1 text-sm text-green-700">Active</div>
           <div className="text-2xl font-bold text-green-900">{activeSubscriptions}</div>
         </div>
-        <div className="bg-red-50 p-4 rounded-lg shadow border border-red-200">
-          <div className="text-sm text-red-700 mb-1">Unsubscribed</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 shadow">
+          <div className="mb-1 text-sm text-red-700">Unsubscribed</div>
           <div className="text-2xl font-bold text-red-900">{unsubscribedCount}</div>
         </div>
-        <div className="bg-blue-50 p-4 rounded-lg shadow border border-blue-200">
-          <div className="text-sm text-blue-700 mb-1">By Language</div>
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 shadow">
+          <div className="mb-1 text-sm text-blue-700">By Language</div>
           <div className="text-sm font-medium text-blue-900">
             EN: {localeCounts.en} | ZH: {localeCounts.zh} | UA: {localeCounts.ua}
           </div>
@@ -76,10 +77,10 @@ export default function SubscriptionsTable({
       </div>
 
       {/* Broadcast Button */}
-      <div className="bg-ukraine-blue-50 p-4 sm:p-6 rounded-lg border border-ukraine-blue-200">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="rounded-lg border border-ukraine-blue-200 bg-ukraine-blue-50 p-4 sm:p-6">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 font-body">
+            <h3 className="mb-1 font-body text-base font-semibold text-gray-900 sm:text-lg">
               Send Newsletter Broadcast
             </h3>
             <p className="text-sm text-gray-600">
@@ -90,7 +91,7 @@ export default function SubscriptionsTable({
           <button
             onClick={onSendBroadcast}
             disabled={activeSubscriptions === 0}
-            className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base flex-shrink-0"
+            className="w-full flex-shrink-0 rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 sm:w-auto sm:text-base"
           >
             Send Broadcast
           </button>
@@ -98,29 +99,27 @@ export default function SubscriptionsTable({
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {/* Search */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Email
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Search Email</label>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by email..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
           {/* Status Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="all">All</option>
               <option value="subscribed">Subscribed</option>
@@ -130,11 +129,11 @@ export default function SubscriptionsTable({
 
           {/* Locale Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Language</label>
             <select
               value={localeFilter}
               onChange={(e) => setLocaleFilter(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="all">All Languages</option>
               <option value="en">English</option>
@@ -151,30 +150,30 @@ export default function SubscriptionsTable({
       </div>
 
       {/* Mobile card view */}
-      <div className="sm:hidden space-y-2">
+      <div className="space-y-2 sm:hidden">
         {filteredSubscriptions.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 bg-white rounded-lg border border-gray-200">
+          <div className="rounded-lg border border-gray-200 bg-white py-8 text-center text-gray-500">
             No subscriptions found
           </div>
         ) : (
           filteredSubscriptions.map((subscription) => (
-            <div key={subscription.id} className="bg-white border border-gray-200 rounded-lg p-3">
+            <div key={subscription.id} className="rounded-lg border border-gray-200 bg-white p-3">
               <div className="flex items-center justify-between gap-2">
-                <div className="text-sm text-gray-900 truncate min-w-0 flex-1">
+                <div className="min-w-0 flex-1 truncate text-sm text-gray-900">
                   {subscription.email}
                 </div>
                 {subscription.is_subscribed ? (
-                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800 flex-shrink-0">
+                  <span className="flex-shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                     Active
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 flex-shrink-0">
+                  <span className="flex-shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
                     Unsubscribed
                   </span>
                 )}
               </div>
               <div className="mt-1.5 flex items-center justify-between text-xs text-gray-500">
-                <span className="px-2 py-0.5 font-medium rounded-full bg-gray-100 text-gray-800">
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-800">
                   {subscription.locale.toUpperCase()}
                 </span>
                 <span suppressHydrationWarning>{formatDateTime(subscription.updated_at)}</span>
@@ -185,26 +184,26 @@ export default function SubscriptionsTable({
       </div>
 
       {/* Desktop table view */}
-      <div className="hidden sm:block bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+      <div className="hidden overflow-hidden rounded-lg border border-gray-200 bg-white shadow sm:block">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Language
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Last Updated
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {filteredSubscriptions.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
@@ -214,27 +213,29 @@ export default function SubscriptionsTable({
               ) : (
                 filteredSubscriptions.map((subscription) => (
                   <tr key={subscription.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                       {subscription.email}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                    <td className="whitespace-nowrap px-6 py-4">
+                      <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
                         {subscription.locale.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-6 py-4">
                       {subscription.is_subscribed ? (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                        <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
                           Unsubscribed
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span suppressHydrationWarning>{formatDateTime(subscription.updated_at)}</span>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      <span suppressHydrationWarning>
+                        {formatDateTime(subscription.updated_at)}
+                      </span>
                     </td>
                   </tr>
                 ))

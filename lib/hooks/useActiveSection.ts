@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * Tracks which section is currently visible in the viewport using IntersectionObserver.
@@ -16,7 +16,8 @@ export function useActiveSection(sectionIds: string[]): string | null {
   useEffect(() => {
     if (sectionIds.length === 0) return
 
-    visibleMap.current.clear()
+    const map = visibleMap.current
+    map.clear()
 
     // Top margin: exclude sticky nav (~120px mobile, ~72px desktop).
     // Using -160px covers SectionNav height on both breakpoints.
@@ -25,16 +26,16 @@ export function useActiveSection(sectionIds: string[]): string | null {
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            visibleMap.current.set(entry.target.id, entry)
+            map.set(entry.target.id, entry)
           } else {
-            visibleMap.current.delete(entry.target.id)
+            map.delete(entry.target.id)
           }
         }
 
         // Pick the topmost visible section
         let topmost: string | null = null
         let minTop = Infinity
-        for (const [id, entry] of visibleMap.current) {
+        for (const [id, entry] of map) {
           const top = entry.boundingClientRect.top
           if (top < minTop) {
             minTop = top
@@ -56,7 +57,7 @@ export function useActiveSection(sectionIds: string[]): string | null {
 
     return () => {
       observer.disconnect()
-      visibleMap.current.clear()
+      map.clear()
     }
   }, [JSON.stringify(sectionIds)]) // eslint-disable-line react-hooks/exhaustive-deps
 

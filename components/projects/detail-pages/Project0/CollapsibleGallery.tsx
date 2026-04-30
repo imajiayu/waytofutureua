@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
 import { ChevronDownIcon } from '@/components/icons'
 import ProjectResultsMasonry from '@/components/projects/shared/ProjectResultsMasonry'
 import type { ProjectResult } from '@/types'
@@ -15,10 +16,7 @@ interface CollapsibleGalleryProps {
 const COLLAPSED_HEIGHT_MOBILE = 160
 const COLLAPSED_HEIGHT_DESKTOP = 200
 
-export default function CollapsibleGallery({
-  results,
-  className = '',
-}: CollapsibleGalleryProps) {
+export default function CollapsibleGallery({ results, className = '' }: CollapsibleGalleryProps) {
   const t = useTranslations('projects')
   const [isExpanded, setIsExpanded] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
@@ -73,7 +71,7 @@ export default function CollapsibleGallery({
     setIsExpanded(false)
     window.scrollTo({
       top: targetScroll,
-      behavior: 'smooth'
+      behavior: 'smooth',
     })
 
     // Animation complete after the longer of the two animations
@@ -115,87 +113,43 @@ export default function CollapsibleGallery({
   return (
     <div ref={galleryRef} className={`relative ${className}`}>
       {/* Gallery Container with smooth height transition */}
-      <div
-        ref={contentRef}
-        className="relative overflow-hidden"
-        style={getContentStyle()}
-      >
-        <ProjectResultsMasonry
-          results={results}
-          allResultsForLightbox={results}
-        />
+      <div ref={contentRef} className="relative overflow-hidden" style={getContentStyle()}>
+        <ProjectResultsMasonry results={results} allResultsForLightbox={results} />
       </div>
 
       {/* Gradient Overlay with fade transition */}
       {hasMorePhotos && (
         <div
-          className={`
-            absolute -bottom-1 left-0 right-0 h-24 md:h-28
-            bg-gradient-to-t from-white via-white/95 to-transparent
-            pointer-events-none
-            transition-opacity duration-300 ease-out
-            ${isExpanded ? 'opacity-0' : 'opacity-100'}
-          `}
+          className={`pointer-events-none absolute -bottom-1 left-0 right-0 h-24 bg-gradient-to-t from-white via-white/95 to-transparent transition-opacity duration-300 ease-out md:h-28 ${isExpanded ? 'opacity-0' : 'opacity-100'} `}
         />
       )}
 
       {/* Toggle Button with micro-interactions */}
       {hasMorePhotos && (
-        <div className={`
-          flex justify-center
-          transition-all duration-300
-          ${isExpanded ? 'mt-4' : 'mt-1 relative -top-4'}
-        `}>
+        <div
+          className={`flex justify-center transition-all duration-300 ${isExpanded ? 'mt-4' : 'relative -top-4 mt-1'} `}
+        >
           <button
             onClick={toggleExpand}
             disabled={isAnimating}
-            className={`
-              group relative flex items-center gap-2.5
-              px-5 py-2.5
-              bg-white text-gray-700
-              rounded-full
-              border border-gray-200
-              shadow-sm hover:shadow-md
-              hover:border-ukraine-blue-400 hover:text-ukraine-blue-600
-              active:scale-95
-              transition-all duration-300 ease-out
-              text-xs md:text-sm
-              ${isAnimating ? 'cursor-wait opacity-80' : 'cursor-pointer'}
-            `}
+            className={`group relative flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-xs text-gray-700 shadow-sm transition-all duration-300 ease-out hover:border-ukraine-blue-400 hover:text-ukraine-blue-600 hover:shadow-md active:scale-95 md:text-sm ${isAnimating ? 'cursor-wait opacity-80' : 'cursor-pointer'} `}
           >
             {/* Photo count badge with scale animation */}
             <span
-              className={`
-                absolute -top-2 -right-2
-                w-6 h-6
-                bg-ukraine-blue-500 text-white
-                text-[10px] font-bold
-                rounded-full
-                flex items-center justify-center
-                shadow-sm
-                transition-all duration-300 ease-out
-                ${isExpanded
-                  ? 'opacity-0 scale-75'
-                  : 'opacity-100 scale-100'
-                }
-              `}
+              className={`absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ukraine-blue-500 text-[10px] font-bold text-white shadow-sm transition-all duration-300 ease-out ${
+                isExpanded ? 'scale-75 opacity-0' : 'scale-100 opacity-100'
+              } `}
             >
               +{photoCount}
             </span>
 
-            <span className="font-medium">
-              {isExpanded ? t('showLess') : t('viewAllPhotos')}
-            </span>
+            <span className="font-medium">{isExpanded ? t('showLess') : t('viewAllPhotos')}</span>
 
             {/* Animated arrow icon */}
             <span
-              className={`
-                inline-flex
-                transition-transform duration-300 ease-out
-                ${isExpanded ? 'rotate-180' : 'rotate-0'}
-              `}
+              className={`inline-flex transition-transform duration-300 ease-out ${isExpanded ? 'rotate-180' : 'rotate-0'} `}
             >
-              <ChevronDownIcon className="w-4 h-4" />
+              <ChevronDownIcon className="h-4 w-4" />
             </span>
           </button>
         </div>

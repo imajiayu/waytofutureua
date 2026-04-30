@@ -25,11 +25,11 @@ export default function TwinklingStars({ count = 6 }: TwinklingStarsProps) {
   )
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {stars.map((star, i) => (
         <div
           key={i}
-          className="absolute text-christmas-gold/40 animate-twinkle"
+          className="absolute animate-twinkle text-christmas-gold/40"
           style={{
             left: `${star.left}%`,
             top: `${star.top}%`,

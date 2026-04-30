@@ -1,7 +1,8 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
+
 import MobileCarousel from '@/components/common/MobileCarousel'
 
 export default function ApproachSection() {
@@ -17,7 +18,7 @@ export default function ApproachSection() {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       })
     }
   }
@@ -26,45 +27,68 @@ export default function ApproachSection() {
     {
       key: 'transparent',
       icon: (
-        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+          />
         </svg>
       ),
       gradient: 'from-ukraine-blue-500 to-ukraine-blue-400',
-      image: '/images/approach/transparent.webp'
+      image: '/images/approach/transparent.webp',
     },
     {
       key: 'efficient',
       icon: (
-        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
         </svg>
       ),
       gradient: 'from-ukraine-gold-500 to-ukraine-gold-400',
-      image: '/images/approach/efficient.webp'
+      image: '/images/approach/efficient.webp',
     },
     {
       key: 'direct',
       icon: (
-        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+          />
         </svg>
       ),
       gradient: 'from-warm-500 to-warm-400',
-      image: '/images/approach/direct.webp'
-    }
+      image: '/images/approach/direct.webp',
+    },
   ] as const
 
   // 单张卡片组件（移动端和桌面端复用）
-  const Card = ({ feature, isMobile = false }: {
-    feature: typeof features[number]
+  const Card = ({
+    feature,
+    isMobile = false,
+  }: {
+    feature: (typeof features)[number]
     isMobile?: boolean
   }) => {
     const { key, icon, gradient, image } = feature
     return (
       <div
-        className={`group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 ${
+        className={`group relative transform overflow-hidden rounded-3xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl ${
           isMobile ? 'h-[320px]' : 'h-[320px] md:h-[400px]'
         }`}
       >
@@ -78,20 +102,24 @@ export default function ApproachSection() {
         />
 
         {/* Gradient Overlay for better contrast */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-25 transition-all duration-500`} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/30 group-hover:from-black/70 group-hover:via-black/50 group-hover:to-black/40 transition-all duration-500" />
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-all duration-500 group-hover:opacity-25`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/30 transition-all duration-500 group-hover:from-black/70 group-hover:via-black/50 group-hover:to-black/40" />
 
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-between p-6 sm:p-8">
+        <div className="relative z-10 flex h-full flex-col justify-between p-6 sm:p-8">
           {/* Icon */}
-          <div className={`inline-flex p-4 bg-gradient-to-br ${gradient} rounded-2xl text-white shadow-xl self-start`}>
+          <div
+            className={`inline-flex bg-gradient-to-br p-4 ${gradient} self-start rounded-2xl text-white shadow-xl`}
+          >
             {icon}
           </div>
 
           {/* Content Container - Bottom */}
-          <div className="flex flex-col gap-4 mt-auto">
+          <div className="mt-auto flex flex-col gap-4">
             {/* Title with backdrop - auto width */}
-            <h3 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide inline-block px-3 py-2 bg-black/20 backdrop-blur-sm rounded-lg shadow-lg self-start font-display">
+            <h3 className="inline-block self-start rounded-lg bg-black/20 px-3 py-2 font-display text-xl font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm sm:text-2xl">
               {t(`${key}.title` as any)}
             </h3>
 
@@ -100,7 +128,7 @@ export default function ApproachSection() {
               {(t.raw(`${key}.items` as any) as string[]).map((item: string, index: number) => (
                 <li key={index} className="flex items-start">
                   <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5 text-life-400 mr-2 mt-0.5 flex-shrink-0 drop-shadow-lg"
+                    className="mr-2 mt-0.5 h-4 w-4 flex-shrink-0 text-life-400 drop-shadow-lg sm:h-5 sm:w-5"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -110,7 +138,7 @@ export default function ApproachSection() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-white text-sm sm:text-base leading-relaxed font-medium px-2 py-1 bg-black/15 backdrop-blur-sm rounded shadow-md inline-block">
+                  <span className="inline-block rounded bg-black/15 px-2 py-1 text-sm font-medium leading-relaxed text-white shadow-md backdrop-blur-sm sm:text-base">
                     {item}
                   </span>
                 </li>
@@ -123,7 +151,7 @@ export default function ApproachSection() {
   }
 
   return (
-    <section className="relative flex items-center justify-center bg-gradient-to-br from-ukraine-gold-50 via-warm-50 to-ukraine-gold-100 overflow-x-hidden py-12 md:py-16">
+    <section className="relative flex items-center justify-center overflow-x-hidden bg-gradient-to-br from-ukraine-gold-50 via-warm-50 to-ukraine-gold-100 py-12 md:py-16">
       {/* Background Image */}
       <div className="absolute inset-0 opacity-20">
         <Image
@@ -136,25 +164,35 @@ export default function ApproachSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-8 md:mb-10">
-          <span className="inline-block px-4 py-1.5 text-xs font-bold tracking-widest uppercase bg-ukraine-blue-100 text-ukraine-blue-600 rounded-full mb-3">
+        <div className="mb-8 text-center md:mb-10">
+          <span className="mb-3 inline-block rounded-full bg-ukraine-blue-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-ukraine-blue-600">
             {t('label')}
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 break-words font-display">
+          <h2 className="mb-4 break-words font-display text-4xl font-bold text-gray-900 sm:text-5xl lg:text-6xl">
             {t('title')}
           </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-5xl mx-auto">
-            <p className="text-lg sm:text-xl text-gray-600 text-center sm:text-left break-words">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            <p className="break-words text-center text-lg text-gray-600 sm:text-left sm:text-xl">
               {t('subtitle')}
             </p>
             <button
               onClick={handleScrollToCompliance}
-              className="inline-flex items-center px-4 py-2 bg-white border-2 border-ukraine-blue-500 text-ukraine-blue-500 font-semibold rounded-lg hover:bg-ukraine-blue-50 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0"
+              className="inline-flex flex-shrink-0 items-center rounded-lg border-2 border-ukraine-blue-500 bg-white px-4 py-2 font-semibold text-ukraine-blue-500 shadow-sm transition-all duration-200 hover:bg-ukraine-blue-50 hover:shadow-md"
             >
-              <svg className="w-4 h-4 mr-1.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="mr-1.5 h-4 w-4 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               <span className="whitespace-nowrap text-sm">{tCompliance('button')}</span>
             </button>
@@ -171,7 +209,7 @@ export default function ApproachSection() {
         </div>
 
         {/* Desktop: Grid Layout */}
-        <div className="hidden md:grid grid-cols-3 gap-6">
+        <div className="hidden grid-cols-3 gap-6 md:grid">
           {features.map((feature) => (
             <Card key={feature.key} feature={feature} />
           ))}
@@ -179,9 +217,9 @@ export default function ApproachSection() {
       </div>
 
       {/* Scroll Indicator - Hidden on mobile */}
-      <div className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+      <div className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 animate-bounce md:block">
         <svg
-          className="w-5 h-5 text-gray-600"
+          className="h-5 w-5 text-gray-600"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

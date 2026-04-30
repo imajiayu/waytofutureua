@@ -20,7 +20,7 @@ export default function ProjectHeroBase({
   children,
 }: ProjectHeroBaseProps) {
   return (
-    <section className={`relative ${heightClass} rounded-xl md:rounded-2xl overflow-hidden group`}>
+    <section className={`relative ${heightClass} group overflow-hidden rounded-xl md:rounded-2xl`}>
       <div className="absolute inset-0">
         <Image
           src={imageSrc}
@@ -36,9 +36,7 @@ export default function ProjectHeroBase({
         {glowEffects}
       </div>
       {overlayEffects}
-      <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6">
-        {children}
-      </div>
+      <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6">{children}</div>
     </section>
   )
 }

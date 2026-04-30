@@ -1,9 +1,14 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { getNowPaymentsCurrencies, getNowPaymentsMinimum, type CurrencyInfo } from '@/app/actions/donation'
+import { useTranslations } from 'next-intl'
+import { useEffect, useMemo, useState } from 'react'
+
+import {
+  type CurrencyInfo,
+  getNowPaymentsCurrencies,
+  getNowPaymentsMinimum,
+} from '@/app/actions/donation'
 import { SpinnerIcon } from '@/components/icons'
 
 interface CryptoSelectorProps {
@@ -108,18 +113,19 @@ export default function CryptoSelector({
 
     // Filter by tab
     if (activeFilter === 'popular') {
-      filtered = filtered.filter(c => c.isPopular)
+      filtered = filtered.filter((c) => c.isPopular)
     } else if (activeFilter === 'stablecoins') {
-      filtered = filtered.filter(c => c.isStable)
+      filtered = filtered.filter((c) => c.isStable)
     }
 
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(currency =>
-        currency.code.toLowerCase().includes(query) ||
-        currency.name.toLowerCase().includes(query) ||
-        currency.network.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (currency) =>
+          currency.code.toLowerCase().includes(query) ||
+          currency.name.toLowerCase().includes(query) ||
+          currency.network.toLowerCase().includes(query)
       )
     }
 
@@ -154,20 +160,20 @@ export default function CryptoSelector({
 
   // Get selected currency info
   const selectedCurrencyInfo = selectedCrypto
-    ? currencies.find(c => c.code === selectedCrypto)
+    ? currencies.find((c) => c.code === selectedCrypto)
     : null
 
   // Loading state
   if (isLoadingCurrencies) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2 font-display">
+          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">
             {t('cryptoSelector.title')}
           </h2>
         </div>
         <div className="flex flex-col items-center justify-center py-12">
-          <SpinnerIcon className="animate-spin h-10 w-10 text-emerald-600 mb-4" />
+          <SpinnerIcon className="mb-4 h-10 w-10 animate-spin text-emerald-600" />
           <p className="text-gray-600">{t('cryptoSelector.loading')}</p>
         </div>
       </div>
@@ -177,19 +183,19 @@ export default function CryptoSelector({
   // Error state
   if (loadError) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2 font-display">
+          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">
             {t('cryptoSelector.title')}
           </h2>
         </div>
-        <div className="p-4 bg-warm-50 border border-warm-200 rounded-lg text-center">
+        <div className="rounded-lg border border-warm-200 bg-warm-50 p-4 text-center">
           <p className="text-warm-700">{loadError}</p>
         </div>
         <button
           type="button"
           onClick={onBack}
-          className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+          className="w-full rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:bg-gray-50"
         >
           {t('cryptoSelector.back')}
         </button>
@@ -198,26 +204,20 @@ export default function CryptoSelector({
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4 p-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-1 font-display">
+        <h2 className="mb-1 font-display text-xl font-bold text-gray-900">
           {t('cryptoSelector.title')}
         </h2>
-        <p className="text-sm text-gray-600">
-          {t('cryptoSelector.subtitle')}
-        </p>
+        <p className="text-sm text-gray-600">{t('cryptoSelector.subtitle')}</p>
       </div>
 
       {/* Amount Display */}
-      <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
+      <div className="rounded-lg border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-3">
         <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">
-            {t('payment.total')}
-          </p>
-          <p className="text-2xl font-bold text-emerald-600 font-data">
-            ${amount.toFixed(2)} USD
-          </p>
+          <p className="mb-1 text-sm text-gray-600">{t('payment.total')}</p>
+          <p className="font-data text-2xl font-bold text-emerald-600">${amount.toFixed(2)} USD</p>
         </div>
       </div>
 
@@ -228,15 +228,20 @@ export default function CryptoSelector({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('cryptoSelector.searchPlaceholder')}
-          className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          className="w-full rounded-lg border border-gray-300 p-3 pl-10 focus:border-transparent focus:ring-2 focus:ring-emerald-500"
         />
         <svg
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+          className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       </div>
 
@@ -247,7 +252,7 @@ export default function CryptoSelector({
             key={filter}
             type="button"
             onClick={() => setActiveFilter(filter)}
-            className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all ${
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
               activeFilter === filter
                 ? 'bg-emerald-600 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -259,7 +264,7 @@ export default function CryptoSelector({
       </div>
 
       {/* Crypto Options */}
-      <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+      <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
         {filteredCurrencies.map((currency) => {
           const isSelected = selectedCrypto === currency.code
 
@@ -269,21 +274,21 @@ export default function CryptoSelector({
               type="button"
               onClick={() => handleSelect(currency.code)}
               disabled={isLoading}
-              className={`w-full p-3 rounded-lg border-2 transition-all duration-200 ${
+              className={`w-full rounded-lg border-2 p-3 transition-all duration-200 ${
                 isSelected
-                  ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-500 ring-offset-1'
-                  : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50'
-              } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-500 ring-offset-1'
+                  : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'
+              } ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <div className="flex items-center gap-3">
                 {/* Logo from NOWPayments */}
-                <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-100">
+                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-gray-100">
                   <Image
                     src={currency.logoUrl}
                     alt={currency.name}
                     width={40}
                     height={40}
-                    className="w-full h-full object-contain"
+                    className="h-full w-full object-contain"
                     onError={(e) => {
                       // Fallback to placeholder on error
                       const target = e.target as HTMLImageElement
@@ -295,25 +300,26 @@ export default function CryptoSelector({
                 {/* Text */}
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">
-                      {currency.name}
-                    </span>
+                    <span className="font-semibold text-gray-900">{currency.name}</span>
                     {currency.isStable && (
-                      <span className="text-xs px-1.5 py-0.5 bg-ukraine-blue-100 text-ukraine-blue-600 rounded">
+                      <span className="rounded bg-ukraine-blue-100 px-1.5 py-0.5 text-xs text-ukraine-blue-600">
                         Stablecoin
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
-                    {getNetworkDisplayName(currency.network)}
-                  </p>
+                  <p className="text-xs text-gray-500">{getNetworkDisplayName(currency.network)}</p>
                 </div>
 
                 {/* Checkmark for selected */}
                 {isSelected && (
                   <div className="flex-shrink-0 text-emerald-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   </div>
                 )}
@@ -325,14 +331,14 @@ export default function CryptoSelector({
 
       {/* Minimum amount info / error */}
       {selectedCrypto && (
-        <div className={`p-3 rounded-lg border ${
-          isBelowMinimum
-            ? 'bg-warm-50 border-warm-200'
-            : 'bg-amber-50 border-amber-200'
-        }`}>
+        <div
+          className={`rounded-lg border p-3 ${
+            isBelowMinimum ? 'border-warm-200 bg-warm-50' : 'border-amber-200 bg-amber-50'
+          }`}
+        >
           <div className="flex items-start gap-2">
             <svg
-              className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+              className={`mt-0.5 h-5 w-5 flex-shrink-0 ${
                 isBelowMinimum ? 'text-warm-600' : 'text-amber-600'
               }`}
               fill="none"
@@ -340,9 +346,19 @@ export default function CryptoSelector({
               viewBox="0 0 24 24"
             >
               {isBelowMinimum ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               )}
             </svg>
             <div className={`text-sm ${isBelowMinimum ? 'text-warm-800' : 'text-amber-800'}`}>
@@ -354,14 +370,14 @@ export default function CryptoSelector({
                     {t('cryptoSelector.amountBelowMinimum', {
                       currency: selectedCurrencyInfo?.name || selectedCrypto,
                       minimum: minAmount.toFixed(2),
-                      current: amount.toFixed(2)
+                      current: amount.toFixed(2),
                     })}
                   </span>
                 ) : (
                   <span>
                     {t('cryptoSelector.minimumAmount', {
                       currency: selectedCurrencyInfo?.name || selectedCrypto,
-                      amount: minAmount.toFixed(2)
+                      amount: minAmount.toFixed(2),
                     })}
                   </span>
                 )
@@ -379,22 +395,27 @@ export default function CryptoSelector({
           type="button"
           onClick={handleConfirm}
           disabled={!canContinue}
-          className={`w-full py-3 px-6 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
+          className={`flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold transition-all ${
             canContinue
-              ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              ? 'bg-emerald-600 text-white shadow-md hover:bg-emerald-700 hover:shadow-lg'
+              : 'cursor-not-allowed bg-gray-200 text-gray-400'
           }`}
         >
           {isLoading ? (
             <>
-              <SpinnerIcon className="animate-spin h-5 w-5" />
+              <SpinnerIcon className="h-5 w-5 animate-spin" />
               {t('cryptoSelector.creating')}
             </>
           ) : (
             <>
               {t('cryptoSelector.continue')}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </>
           )}
@@ -404,10 +425,15 @@ export default function CryptoSelector({
           type="button"
           onClick={onBack}
           disabled={isLoading}
-          className="w-full py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           {t('cryptoSelector.back')}
         </button>

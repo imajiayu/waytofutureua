@@ -1,19 +1,48 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { MapPinIcon, HeartIcon, Building2Icon, ChurchIcon, LandmarkIcon, UserIcon } from '@/components/icons'
+
+import {
+  Building2Icon,
+  ChurchIcon,
+  HeartIcon,
+  LandmarkIcon,
+  MapPinIcon,
+  UserIcon,
+} from '@/components/icons'
 import ProjectHeroBase from '@/components/projects/shared/ProjectHeroBase'
+
 import type { SectionProps } from '../types'
 
 export default function HeroSection({ content, locale }: SectionProps) {
   const t = useTranslations('projects')
 
   const fundingSources = [
-    { icon: HeartIcon, label: t('project0.fundingSources.charities'), color: 'from-rose-500/80 to-pink-500/80' },
-    { icon: Building2Icon, label: t('project0.fundingSources.corporations'), color: 'from-ukraine-blue-500/80 to-ukraine-blue-400/80' },
-    { icon: ChurchIcon, label: t('project0.fundingSources.churches'), color: 'from-amber-500/80 to-orange-500/80' },
-    { icon: LandmarkIcon, label: t('project0.fundingSources.government'), color: 'from-emerald-500/80 to-teal-500/80' },
-    { icon: UserIcon, label: t('project0.fundingSources.individuals'), color: 'from-violet-500/80 to-purple-500/80' },
+    {
+      icon: HeartIcon,
+      label: t('project0.fundingSources.charities'),
+      color: 'from-rose-500/80 to-pink-500/80',
+    },
+    {
+      icon: Building2Icon,
+      label: t('project0.fundingSources.corporations'),
+      color: 'from-ukraine-blue-500/80 to-ukraine-blue-400/80',
+    },
+    {
+      icon: ChurchIcon,
+      label: t('project0.fundingSources.churches'),
+      color: 'from-amber-500/80 to-orange-500/80',
+    },
+    {
+      icon: LandmarkIcon,
+      label: t('project0.fundingSources.government'),
+      color: 'from-emerald-500/80 to-teal-500/80',
+    },
+    {
+      icon: UserIcon,
+      label: t('project0.fundingSources.individuals'),
+      color: 'from-violet-500/80 to-purple-500/80',
+    },
   ]
 
   return (
@@ -29,38 +58,38 @@ export default function HeroSection({ content, locale }: SectionProps) {
           className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
           style={{
             backgroundImage:
-              'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")",
           }}
         />
       }
     >
       {/* Location & Date Tags */}
-      <div className="flex flex-wrap items-center gap-1.5 mb-2">
-        <div className="flex items-center gap-1 px-2 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-          <MapPinIcon className="w-3 h-3 text-ukraine-gold-400" />
-          <span className="text-[10px] md:text-xs text-white/90 font-medium">
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2 py-1 backdrop-blur-md">
+          <MapPinIcon className="h-3 w-3 text-ukraine-gold-400" />
+          <span className="text-[10px] font-medium text-white/90 md:text-xs">
             {content.locationDetail || t('project0.location')}
           </span>
         </div>
-        <div className="flex items-center px-2 py-1 bg-ukraine-gold-500/20 backdrop-blur-md rounded-full border border-ukraine-gold-400/30">
-          <span className="text-[10px] md:text-xs text-ukraine-gold-300 font-medium">
+        <div className="flex items-center rounded-full border border-ukraine-gold-400/30 bg-ukraine-gold-500/20 px-2 py-1 backdrop-blur-md">
+          <span className="text-[10px] font-medium text-ukraine-gold-300 md:text-xs">
             {t('project0.established')}
           </span>
         </div>
       </div>
 
       {/* Title */}
-      <h1 className="font-display text-2xl md:text-4xl font-bold text-white mb-1 leading-[1.1] tracking-tight">
+      <h1 className="mb-1 font-display text-2xl font-bold leading-[1.1] tracking-tight text-white md:text-4xl">
         <span className="block">Way to Health</span>
-        <span className="block text-sm md:text-lg font-medium text-ukraine-gold-300 mt-0.5">
+        <span className="mt-0.5 block text-sm font-medium text-ukraine-gold-300 md:text-lg">
           {t('project0.subtitle')}
         </span>
       </h1>
-      <p className="text-xs md:text-sm text-white/80 max-w-xl">{content.subtitle}</p>
+      <p className="max-w-xl text-xs text-white/80 md:text-sm">{content.subtitle}</p>
 
       {/* Funding Sources */}
-      <div className="flex flex-wrap items-center gap-1.5 mt-2">
-        <span className="text-[10px] md:text-xs text-white/60 font-medium">
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <span className="text-[10px] font-medium text-white/60 md:text-xs">
           {t('project0.fundingSources.title')}:
         </span>
         {fundingSources.map((source, idx) => {
@@ -68,10 +97,10 @@ export default function HeroSection({ content, locale }: SectionProps) {
           return (
             <div
               key={idx}
-              className={`flex items-center gap-1.5 px-2 py-1 bg-gradient-to-r ${source.color} backdrop-blur-sm rounded-full border border-white/20`}
+              className={`flex items-center gap-1.5 bg-gradient-to-r px-2 py-1 ${source.color} rounded-full border border-white/20 backdrop-blur-sm`}
             >
-              <Icon className="w-3 h-3 text-white" />
-              <span className="text-[10px] md:text-xs text-white font-medium">{source.label}</span>
+              <Icon className="h-3 w-3 text-white" />
+              <span className="text-[10px] font-medium text-white md:text-xs">{source.label}</span>
             </div>
           )
         })}

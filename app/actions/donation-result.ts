@@ -1,8 +1,8 @@
 'use server'
 
-import { getInternalClient } from '@/lib/supabase/action-clients'
 import { canViewResult, type DonationStatus } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
+import { getInternalClient } from '@/lib/supabase/action-clients'
 
 /**
  * Get all donation result files with their thumbnails
@@ -53,10 +53,7 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
     }
 
     // 过滤掉 .thumbnails 文件夹和其他隐藏文件（如 .emptyFolderPlaceholder）
-    const originalFiles = files.filter((file) =>
-      file.name &&
-      !file.name.startsWith('.')
-    )
+    const originalFiles = files.filter((file) => file.name && !file.name.startsWith('.'))
 
     const { data: thumbnailFiles } = await supabase.storage
       .from('donation-results')
@@ -96,7 +93,8 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
       }
 
       const isImage =
-        file.metadata?.mimetype?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)
+        file.metadata?.mimetype?.startsWith('image/') ||
+        /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)
       const isVideo =
         file.metadata?.mimetype?.startsWith('video/') || /\.(mp4|mov)$/i.test(file.name)
 
