@@ -20,6 +20,7 @@ interface Props {
   onDeleteFile: (filePath: string) => void
   onUploadOnly: () => void
   onClose: () => void
+  fileInputRef?: React.Ref<HTMLInputElement>
 }
 
 /**
@@ -42,6 +43,7 @@ export default function DonationFileLibrary({
   onDeleteFile,
   onUploadOnly,
   onClose,
+  fileInputRef,
 }: Props) {
   return (
     <div className="mb-6">
@@ -81,6 +83,7 @@ export default function DonationFileLibrary({
           <h4 className="mb-2 text-xs font-medium uppercase text-gray-600">Upload New Files</h4>
           <div className="space-y-2">
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
               onChange={onFileChange}

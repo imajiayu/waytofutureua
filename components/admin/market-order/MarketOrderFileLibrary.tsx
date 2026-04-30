@@ -20,6 +20,7 @@ interface Props {
   onDeleteFile: (path: string) => void
   showCloseButton: boolean
   onClose: () => void
+  mgmtFileInputRef?: React.Ref<HTMLInputElement>
 }
 
 export default function MarketOrderFileLibrary({
@@ -38,6 +39,7 @@ export default function MarketOrderFileLibrary({
   onDeleteFile,
   showCloseButton,
   onClose,
+  mgmtFileInputRef,
 }: Props) {
   const shippingFiles = files.filter((f) => f.category === 'shipping')
   const completionFiles = files.filter((f) => f.category === 'completion')
@@ -87,7 +89,7 @@ export default function MarketOrderFileLibrary({
               </select>
             </div>
             <input
-              id="mgmt-file-input"
+              ref={mgmtFileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
               onChange={onMgmtFileChange}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   createMarketOrderSignedUploadUrl,
@@ -48,6 +48,8 @@ export function useMarketOrderFileUpload({ orderId, autoLoad }: Options) {
 
   // Validation error surfaced to consumer
   const [validationError, setValidationError] = useState<string | null>(null)
+
+  const mgmtFileInputRef = useRef<HTMLInputElement>(null)
 
   const loadFiles = useCallback(async () => {
     try {
@@ -150,8 +152,7 @@ export function useMarketOrderFileUpload({ orderId, autoLoad }: Options) {
       await runBatchUpload(mgmtFiles, mgmtCategory)
       await loadFiles()
       setMgmtFiles([])
-      const input = document.querySelector('#mgmt-file-input') as HTMLInputElement | null
-      if (input) input.value = ''
+      if (mgmtFileInputRef.current) mgmtFileInputRef.current.value = ''
       return null
     } catch (err: unknown) {
       return `Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`
@@ -187,6 +188,7 @@ export function useMarketOrderFileUpload({ orderId, autoLoad }: Options) {
     setMgmtCategory,
     handleTransitionFileChange,
     handleMgmtFileChange,
+    mgmtFileInputRef,
     // existing files
     files,
     loadingFiles,

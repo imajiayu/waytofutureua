@@ -43,25 +43,32 @@ export default function ProjectDonationList({
       return
     }
 
+    const controller = new AbortController()
     const fetchDonations = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`/api/donations/project-public/${projectId}`)
+        const response = await fetch(`/api/donations/project-public/${projectId}`, {
+          signal: controller.signal,
+        })
         if (response.ok) {
           const data = await response.json()
           setDonations(data)
         }
       } catch (error) {
+        if ((error as Error)?.name === 'AbortError') return
         clientLogger.error('API', 'Error fetching project donations', {
           projectId,
           error: error instanceof Error ? error.message : String(error),
         })
       } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchDonations()
+    return () => controller.abort()
   }, [projectId])
 
   // No project selected

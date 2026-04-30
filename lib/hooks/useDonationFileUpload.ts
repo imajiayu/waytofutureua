@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   createSignedUploadUrl,
@@ -51,6 +51,7 @@ export function useDonationFileUpload({ donationId, autoLoad }: Options) {
   const [deletingFile, setDeletingFile] = useState<string | null>(null)
   const [confirmDeletePath, setConfirmDeletePath] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const hasImageFiles = filesToUpload.some((f) => f.type.startsWith('image/'))
 
@@ -157,8 +158,7 @@ export function useDonationFileUpload({ donationId, autoLoad }: Options) {
 
   const resetFileInput = useCallback(() => {
     setFilesToUpload([])
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null
-    if (fileInput) fileInput.value = ''
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
 
   const handleUploadOnly = useCallback(async (): Promise<string | null> => {
@@ -201,6 +201,7 @@ export function useDonationFileUpload({ donationId, autoLoad }: Options) {
     setFaceBlur,
     validationError,
     handleFileChange,
+    fileInputRef,
     // existing files
     files,
     loadingFiles,

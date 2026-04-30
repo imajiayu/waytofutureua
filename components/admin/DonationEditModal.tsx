@@ -128,6 +128,7 @@ export default function DonationEditModal({ donation, statusHistory, onClose, on
             onDeleteFile={handleDeleteFile}
             onUploadOnly={handleUploadOnly}
             onClose={onClose}
+            fileInputRef={fileUpload.fileInputRef}
           />
         )}
 

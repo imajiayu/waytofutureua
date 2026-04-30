@@ -186,6 +186,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
             onDeleteFile={handleDeleteFile}
             showCloseButton={!canUpdate}
             onClose={onClose}
+            mgmtFileInputRef={fileUpload.mgmtFileInputRef}
           />
         )}
       </form>
