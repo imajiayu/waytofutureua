@@ -174,7 +174,7 @@ export default function TrackDonationForm({ locale }: Props) {
           )
         } else if (result.success) {
           // 退款成功，只更新可退款的记录为实际状态
-          const newStatus = (result as any).status || 'refund_processing'
+          const newStatus = ('status' in result && result.status) || 'refund_processing'
           setDonations((prev) =>
             prev
               ? prev.map((d) =>

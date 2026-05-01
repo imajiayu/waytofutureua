@@ -14,13 +14,13 @@ import {
 import { logger } from '@/lib/logger'
 import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { createProjectSchema, updateProjectSchema } from '@/lib/validations'
-import type { AppLocale, I18nText } from '@/types'
+import type { AppLocale, Donation } from '@/types'
 import type { Database } from '@/types/database'
+import type { AdminDonationListItem } from '@/types/dtos'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type ProjectUpdate = Database['public']['Tables']['projects']['Update']
 type ProjectInsert = Database['public']['Tables']['projects']['Insert']
-type Donation = Database['public']['Tables']['donations']['Row']
 
 /**
  * 管理员登录
@@ -167,9 +167,7 @@ export async function getAdminDonations() {
   })
 
   return {
-    donations: sorted as (Donation & {
-      projects: { project_name: string; project_name_i18n: I18nText }
-    })[],
+    donations: sorted as AdminDonationListItem[],
     history: history as Database['public']['Tables']['donation_status_history']['Row'][],
   }
 }

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { MapPinIcon } from '@/components/icons'
 import GlobalLoadingSpinner from '@/components/layout/GlobalLoadingSpinner'
 import { usePathname, useRouter } from '@/i18n/navigation'
-import { formatDate, getLocation, getProjectName, getUnitName } from '@/lib/i18n-utils'
+import { formatDate, getTranslatedText } from '@/lib/i18n-utils'
 import { getProjectProgress } from '@/lib/project-utils'
 import type { AppLocale, ProjectStats } from '@/types'
 
@@ -57,13 +57,13 @@ export default function ProjectCard({
   }, [pathname])
 
   // Get translated project data
-  const projectName = getProjectName(
+  const projectName = getTranslatedText(
     project.project_name_i18n,
     project.project_name,
     locale as AppLocale
   )
-  const location = getLocation(project.location_i18n, project.location, locale as AppLocale)
-  const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as AppLocale)
+  const location = getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
+  const unitName = getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
 
   // P2 优化: useCallback 避免不必要的重渲染
   const handleDonateClick = useCallback(() => {

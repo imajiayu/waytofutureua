@@ -21,6 +21,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'nowpayments.io',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 604800, // P1 优化: 1周缓存 (生产环境)

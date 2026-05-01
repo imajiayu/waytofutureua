@@ -2,6 +2,8 @@
 
 import type { MarketOrderStatus } from '@/types/market'
 
+import AdminButton from '../ui/AdminButton'
+
 interface Props {
   nextStatuses: MarketOrderStatus[]
   newStatus: MarketOrderStatus | ''
@@ -81,21 +83,22 @@ export default function MarketOrderStatusSection({
         )}
 
         <div className="flex justify-end space-x-3 border-t border-gray-200 pt-3">
-          <button
-            type="button"
+          <AdminButton
+            variant="secondary"
             onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
             disabled={loading}
+            className="transition-colors"
           >
             Cancel
-          </button>
-          <button
+          </AdminButton>
+          <AdminButton
             type="submit"
+            variant="primary"
             disabled={loading || uploading || !newStatus}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="transition-colors disabled:cursor-not-allowed"
           >
             {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Update Status'}
-          </button>
+          </AdminButton>
         </div>
       </div>
     </div>

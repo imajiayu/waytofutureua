@@ -2,6 +2,7 @@
 
 import type { DonationFile } from '@/lib/hooks/useDonationFileUpload'
 
+import FileUploadInputPanel from '../ui/FileUploadInputPanel'
 import DonationFileRow from './DonationFileRow'
 
 interface Props {
@@ -81,71 +82,34 @@ export default function DonationFileLibrary({
         {/* Upload New Files */}
         <div className="border-t border-gray-200 pt-4">
           <h4 className="mb-2 text-xs font-medium uppercase text-gray-600">Upload New Files</h4>
-          <div className="space-y-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
-              onChange={onFileChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-              disabled={uploading}
-              multiple
-            />
-            {filesToUpload.length > 0 && !uploading && (
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-green-600">
-                  {filesToUpload.length} file(s) selected:
-                </p>
-                {filesToUpload.map((file, index) => (
-                  <p key={index} className="ml-2 text-xs text-gray-600">
-                    • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                  </p>
-                ))}
-              </div>
-            )}
-            {uploading && (
-              <div>
-                <div className="mb-1 flex justify-between text-sm text-gray-600">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-gray-200">
-                  <div
-                    className="h-2 rounded-full bg-blue-600 transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
+          <FileUploadInputPanel
+            accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
+            fileInputRef={fileInputRef}
+            files={filesToUpload}
+            uploading={uploading}
+            uploadProgress={uploadProgress}
+            onChange={onFileChange}
+            onUpload={onUploadOnly}
+            hint="Accepted formats: JPEG, PNG, GIF, MP4, MOV (max 50MB per file)"
+            selectedSuffix=":"
+            footerExtras={
+              hasImageFiles && (
+                <label className="flex cursor-pointer select-none items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={faceBlur}
+                    onChange={(e) => setFaceBlur(e.target.checked)}
+                    disabled={uploading}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                </div>
-              </div>
-            )}
-            {hasImageFiles && (
-              <label className="flex cursor-pointer select-none items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={faceBlur}
-                  onChange={(e) => setFaceBlur(e.target.checked)}
-                  disabled={uploading}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">Auto face blur</span>
-                <span className="text-xs text-gray-400">
-                  (pixelate detected faces via Cloudinary)
-                </span>
-              </label>
-            )}
-            <button
-              type="button"
-              onClick={onUploadOnly}
-              disabled={uploading || filesToUpload.length === 0}
-              className="rounded-md bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-            >
-              {uploading
-                ? 'Uploading...'
-                : `Upload ${filesToUpload.length > 0 ? `${filesToUpload.length} File(s)` : 'Files'}`}
-            </button>
-            <p className="text-xs text-gray-500">
-              Accepted formats: JPEG, PNG, GIF, MP4, MOV (max 50MB per file)
-            </p>
-          </div>
+                  <span className="text-sm text-gray-700">Auto face blur</span>
+                  <span className="text-xs text-gray-400">
+                    (pixelate detected faces via Cloudinary)
+                  </span>
+                </label>
+              )
+            }
+          />
         </div>
 
         {/* Close button */}

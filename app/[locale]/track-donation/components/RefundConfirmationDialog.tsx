@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 
 import { AlertTriangleIcon } from '@/components/icons'
 import { canRequestRefund } from '@/lib/donation-status'
-import { getProjectName } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import type { AppLocale } from '@/types'
 
 import type { TrackDonation } from './types'
@@ -61,7 +61,7 @@ export default function RefundConfirmationDialog({
           </div>
           <div className="max-h-40 space-y-2 overflow-y-auto">
             {refundableDonations.map((donation) => {
-              const donationProjectName = getProjectName(
+              const donationProjectName = getTranslatedText(
                 donation.projects.project_name_i18n,
                 donation.projects.project_name,
                 locale as AppLocale

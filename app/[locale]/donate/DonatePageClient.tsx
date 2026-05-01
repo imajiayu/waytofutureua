@@ -40,7 +40,7 @@ const ProjectDonationList = dynamic(
 )
 
 import { useBidirectionalSticky } from '@/lib/hooks/useBidirectionalSticky'
-import { getProjectName } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import type { AppLocale } from '@/types'
 
 // P2 优化: 动态加载 BottomSheet 组件（仅移动端使用）
@@ -322,7 +322,7 @@ export default function DonatePageClient({
             <ProjectDonationList
               key={`donations-${selectedProjectId}`}
               projectId={selectedProjectId}
-              projectName={getProjectName(
+              projectName={getTranslatedText(
                 selectedProject.project_name_i18n,
                 selectedProject.project_name,
                 locale as AppLocale

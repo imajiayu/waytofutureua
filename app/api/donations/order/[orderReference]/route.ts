@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { logger } from '@/lib/logger'
 import { createAnonClient } from '@/lib/supabase/server'
+import type { OrderDonationsSecureRow } from '@/types/dtos'
 
 // Disable Next.js caching for this API route
 export const dynamic = 'force-dynamic'
@@ -48,7 +49,7 @@ export async function GET(
     }
 
     // Transform the view data to match expected frontend format
-    const transformedDonations = (donations || []).map((d: any) => ({
+    const transformedDonations = ((donations || []) as OrderDonationsSecureRow[]).map((d) => ({
       id: d.id,
       donation_public_id: d.donation_public_id,
       amount: d.amount,

@@ -278,7 +278,10 @@ export async function updateMarketOrderStatus(
 
         if (fullOrder && fullOrder.buyer_email) {
           const locale = (fullOrder.locale || 'en') as import('@/lib/email/types').Locale
-          const itemTitleI18n = (fullOrder.market_items as any)?.title_i18n || {
+          const linkedItem = Array.isArray(fullOrder.market_items)
+            ? fullOrder.market_items[0]
+            : fullOrder.market_items
+          const itemTitleI18n = (linkedItem?.title_i18n as Record<string, string>) || {
             en: '',
             zh: '',
             ua: '',

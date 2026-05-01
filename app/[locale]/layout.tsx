@@ -12,6 +12,7 @@ import Navigation from '@/components/layout/Navigation'
 import JsonLd from '@/components/seo/JsonLd'
 import { locales } from '@/i18n/config'
 import { BASE_URL } from '@/lib/constants'
+import { isAppLocale } from '@/types'
 
 // 标题字体 - Fraunces 可变字体 (温暖有机的衬线字体)
 const fraunces = Fraunces({
@@ -106,7 +107,7 @@ export default async function RootLayout(props: {
   const { children } = props
 
   // Validate locale
-  if (!locales.includes(locale as any)) {
+  if (!isAppLocale(locale)) {
     notFound()
   }
 

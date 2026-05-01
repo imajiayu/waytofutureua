@@ -3,11 +3,13 @@
 import { useState } from 'react'
 
 import { updateMarketItem } from '@/app/actions/market-admin'
+import { useAsyncForm } from '@/lib/hooks/useAsyncForm'
 import type { I18nText } from '@/types'
 import type { MarketItem } from '@/types/market'
 
 import AdminBaseModal from './AdminBaseModal'
 import I18nFieldGroup from './I18nFieldGroup'
+import AdminButton from './ui/AdminButton'
 import { TextField } from './ui/FormField'
 
 interface Props {
@@ -23,15 +25,13 @@ export default function MarketItemEditModal({ item, onClose, onSaved }: Props) {
     currency: item.currency,
     stock_quantity: item.stock_quantity,
   })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
+  const {
+    loading,
+    error,
+    onSubmit: handleSubmit,
+  } = useAsyncForm(
+    async () => {
       const updates: Partial<MarketItem> = {}
       if (JSON.stringify(formData.title_i18n) !== JSON.stringify(item.title_i18n)) {
         updates.title_i18n = formData.title_i18n
@@ -47,17 +47,11 @@ export default function MarketItemEditModal({ item, onClose, onSaved }: Props) {
       }
 
       const { success, error: err } = await updateMarketItem(item.id, updates)
-      if (err) {
-        setError(err)
-      } else if (success) {
-        onSaved({ ...item, ...updates })
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update item')
-    } finally {
-      setLoading(false)
-    }
-  }
+      if (err) throw new Error(err)
+      if (success) onSaved({ ...item, ...updates })
+    },
+    { fallbackError: 'Failed to update item' }
+  )
 
   return (
     <AdminBaseModal title="Edit Item" onClose={onClose} error={error} maxWidth="3xl">
@@ -96,20 +90,12 @@ export default function MarketItemEditModal({ item, onClose, onSaved }: Props) {
         </div>
 
         <div className="flex justify-end space-x-3 border-t pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-          >
+          <AdminButton variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          >
+          </AdminButton>
+          <AdminButton type="submit" variant="primary" disabled={loading}>
             {loading ? 'Saving...' : 'Save Changes'}
-          </button>
+          </AdminButton>
         </div>
       </form>
     </AdminBaseModal>

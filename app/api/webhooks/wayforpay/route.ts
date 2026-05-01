@@ -9,11 +9,8 @@ import {
 import { sendPaymentSuccessEmail, sendRefundSuccessEmail } from '@/lib/email'
 import type { SupportedLocale } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
-import {
-  generateWebhookResponseSignature,
-  verifyWayForPaySignature,
-  WAYFORPAY_STATUS,
-} from '@/lib/payment/wayforpay/server'
+import { verifyWayForPaySignature, WAYFORPAY_STATUS } from '@/lib/payment/wayforpay/server'
+import { respondWithAccept } from '@/lib/payment/wayforpay/webhook-response'
 import { createServiceClient } from '@/lib/supabase/server'
 
 /**
@@ -281,13 +278,4 @@ export async function POST(req: Request) {
     logger.errorWithStack('WEBHOOK:WAYFORPAY', 'Unexpected error', error)
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
-}
-
-/**
- * Helper function to generate accept response for WayForPay
- */
-function respondWithAccept(orderReference: string) {
-  const time = Math.floor(Date.now() / 1000)
-  const signature = generateWebhookResponseSignature(orderReference, 'accept', time)
-  return NextResponse.json({ orderReference, status: 'accept', time, signature })
 }

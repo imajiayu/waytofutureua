@@ -6,8 +6,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createNowPaymentsDonation, createWayForPayDonation } from '@/app/actions/donation'
 import { createEmailSubscription } from '@/app/actions/subscription'
 import NowPaymentsWidget from '@/components/donate-form/widgets/NowPaymentsWidget'
-import WayForPayWidget from '@/components/donate-form/widgets/WayForPayWidget'
-import { MapPinIcon, SpinnerIcon } from '@/components/icons'
 import { getLocation, getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
 import { clientLogger } from '@/lib/logger-client'
 import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
@@ -15,6 +13,19 @@ import type { ProjectStats } from '@/types'
 
 import CryptoSelector from './CryptoSelector'
 import PaymentMethodSelector, { type PaymentMethod } from './PaymentMethodSelector'
+import PaymentStateView from './PaymentStateView'
+import AmountQuantitySection from './sections/AmountQuantitySection'
+import ContactMethodsSection from './sections/ContactMethodsSection'
+import DonorInfoSection from './sections/DonorInfoSection'
+import EmptyProjectSelected from './sections/EmptyProjectSelected'
+import MessageAndNewsletterSection from './sections/MessageAndNewsletterSection'
+import ProjectInactiveOverlay from './sections/ProjectInactiveOverlay'
+import ProjectSummaryHeader from './sections/ProjectSummaryHeader'
+import SubmitSection from './sections/SubmitSection'
+import TipSection from './sections/TipSection'
+import TotalSummarySection from './sections/TotalSummarySection'
+import type { FieldKey } from './sections/types'
+import { clampAmount } from './sections/utils'
 
 export interface DonorInfo {
   name: string
@@ -34,176 +45,6 @@ interface DonationFormCardProps {
   donorInfo: DonorInfo
   updateDonorInfo: <K extends keyof DonorInfo>(key: K, value: DonorInfo[K]) => void
 }
-
-interface PaymentWidgetContainerProps {
-  processingState:
-    | 'idle'
-    | 'selecting_method'
-    | 'selecting_crypto'
-    | 'creating'
-    | 'ready'
-    | 'crypto_ready'
-    | 'error'
-  paymentParams: any | null
-  amount: number
-  locale: string
-  error: string | null
-  onBack: () => void
-}
-
-// Component that handles all payment widget states
-function PaymentWidgetContainer({
-  processingState,
-  paymentParams,
-  amount,
-  locale,
-  error,
-  onBack,
-}: PaymentWidgetContainerProps) {
-  const t = useTranslations('donate')
-
-  // Creating donation state
-  if (processingState === 'creating') {
-    return (
-      <div className="space-y-6 p-6">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">
-            {t('processing.title')}
-          </h2>
-          <p className="text-sm text-gray-600">{t('processing.wait')}</p>
-        </div>
-
-        {/* Amount Display */}
-        <div className="rounded-lg border border-ukraine-blue-200 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 p-4">
-          <div className="text-center">
-            <p className="mb-1 text-sm text-gray-600">{t('processing.donationAmount')}</p>
-            <p className="font-data text-3xl font-bold text-ukraine-blue-500">
-              ${amount.toFixed(2)} USD
-            </p>
-          </div>
-        </div>
-
-        {/* Processing Animation */}
-        <div className="flex flex-col items-center justify-center space-y-4 py-8">
-          <SpinnerIcon className="h-16 w-16 animate-spin text-ukraine-blue-500" />
-          <p className="font-medium text-gray-600">{t('processing.creatingRecord')}</p>
-        </div>
-
-        {/* Security Notice */}
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <div className="flex gap-3">
-            <svg
-              className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
-            <div className="text-sm text-gray-700">
-              <p className="mb-1 font-medium">{t('securePayment.title')}</p>
-              <p className="text-gray-600">{t('securePayment.description')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Error state
-  if (processingState === 'error' || error) {
-    return (
-      <div className="space-y-6 p-6">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="mb-2 font-display text-xl font-bold text-gray-900">
-            {t('paymentError.title')}
-          </h2>
-        </div>
-
-        {/* Amount Display */}
-        <div className="rounded-lg border border-ukraine-blue-200 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 p-4">
-          <div className="text-center">
-            <p className="mb-1 text-sm text-gray-600">{t('processing.donationAmount')}</p>
-            <p className="font-data text-3xl font-bold text-ukraine-blue-500">
-              ${amount.toFixed(2)} USD
-            </p>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        <div className="rounded-lg border-2 border-warm-200 bg-warm-50 p-5">
-          <div className="mb-4 flex gap-3">
-            <svg
-              className="h-6 w-6 flex-shrink-0 text-warm-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div className="flex-1">
-              <p className="mb-2 text-base font-bold text-warm-800">
-                {t('paymentError.unableToProcess')}
-              </p>
-              <p className="mb-3 text-sm text-warm-700">{error}</p>
-              <p className="text-xs text-warm-600">{t('paymentError.tryAgainMessage')}</p>
-            </div>
-          </div>
-          {/* Network Access Notice */}
-          <div className="border-t border-warm-300 pt-3">
-            <p className="text-sm font-medium text-ukraine-gold-700">{t('networkNotice')}</p>
-          </div>
-        </div>
-
-        {/* Back Button */}
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 shadow-sm transition-all hover:border-gray-400 hover:bg-gray-50"
-        >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          <span>{t('paymentError.backToEdit')}</span>
-        </button>
-      </div>
-    )
-  }
-
-  // Ready state - show WayForPay widget
-  if (processingState === 'ready' && paymentParams) {
-    return (
-      <WayForPayWidget
-        paymentParams={paymentParams}
-        amount={amount}
-        locale={locale}
-        onBack={onBack}
-      />
-    )
-  }
-
-  // Fallback
-  return null
-}
-
-type FieldKey = 'donationAmount' | 'quantity' | 'tipAmount' | 'total' | 'name' | 'email'
 
 export default function DonationFormCard({
   project,
@@ -297,11 +138,6 @@ export default function DonationFormCard({
     : 0
   const totalAmount = projectAmount + tipAmount
 
-  // Quick select options
-  const quantityOptions = [1, 2, 5, 10]
-  const amountOptions = [10, 50, 100, 500] // For aggregated projects
-  const tipOptions = [5, 10, 20]
-
   // Validation constants
   const MAX_QUANTITY = 10 // Maximum units per order
   const MAX_AMOUNT = 10000 // Maximum amount per order
@@ -347,19 +183,6 @@ export default function DonationFormCard({
       })
     }
   }, [paymentParams, scrollToFormArea])
-
-  // Clamp a raw input string to [min, max], round to 1 decimal, fallback if out of range
-  const clampAmount = (
-    raw: string,
-    min: number,
-    max: number,
-    fallback: number
-  ): { value: number; wasInvalid: boolean } => {
-    const num = parseFloat(raw)
-    const outOfRange = isNaN(num) || num < min || num > max
-    const value = isNaN(num) || num < min ? fallback : num > max ? max : Math.round(num * 10) / 10
-    return { value, wasInvalid: outOfRange }
-  }
 
   // Set a field-level error, focus the field, and scroll it into view
   const showFieldError = (
@@ -746,7 +569,7 @@ export default function DonationFormCard({
           {(processingState === 'creating' ||
             processingState === 'ready' ||
             processingState === 'error') && (
-            <PaymentWidgetContainer
+            <PaymentStateView
               processingState={processingState}
               paymentParams={paymentParams}
               amount={totalAmount}
@@ -762,668 +585,105 @@ export default function DonationFormCard({
 
   // Show empty state if no project selected
   if (!project) {
-    return (
-      <div>
-        <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-ukraine-blue-100">
-            <svg
-              className="h-8 w-8 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 11l5-5m0 0l5 5m-5-5v12"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-2 font-display text-lg font-semibold text-gray-700">
-            {t('noProjectSelected')}
-          </h3>
-          <p className="text-sm text-gray-500">{t('formCard.noProjectDescription')}</p>
-        </div>
-      </div>
-    )
+    return <EmptyProjectSelected />
   }
 
   // Show donation form
   return (
     <div ref={formContainerRef}>
       <div className="relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-lg">
-        {/* Project Summary */}
-        <div className="border-b border-gray-200 bg-ukraine-blue-50 p-6">
-          <h3 className="mb-3 line-clamp-2 font-display text-lg font-bold text-gray-900">
-            {projectName}
-          </h3>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <MapPinIcon className="h-4 w-4 flex-shrink-0" />
-              <span>{location}</span>
-            </div>
-            {!isAggregatedProject && (
-              <div className="flex items-baseline gap-2">
-                <span className="font-data text-2xl font-bold text-ukraine-blue-500">
-                  ${(project.unit_price || 0).toFixed(2)}
-                </span>
-                <span className="text-sm text-gray-500">{t('quantity.perUnit', { unitName })}</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <ProjectSummaryHeader
+          projectName={projectName}
+          location={location}
+          unitName={unitName}
+          unitPrice={project.unit_price || 0}
+          isAggregatedProject={isAggregatedProject}
+        />
 
         {/* Donation Form */}
         <form onSubmit={handleSubmit} noValidate className="space-y-4 p-6">
           {/* Amount/Quantity Selection - Different UI based on project type */}
           {isAggregatedProject ? (
-            /* Aggregated Project: Direct Amount Input */
-            <div>
-              <label htmlFor="donation-amount" className="mb-2 block text-sm font-medium">
-                {t('amount.label')} *
-              </label>
-              <div className="mb-3 grid grid-cols-4 gap-2">
-                {amountOptions.map((amount) => (
-                  <button
-                    key={amount}
-                    type="button"
-                    onClick={() => {
-                      clearFieldError('donationAmount')
-                      clearFieldError('total')
-                      setDonationAmount(amount)
-                      setDonationAmountInput(String(amount))
-                    }}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                      donationAmount === amount && donationAmountInput === String(amount)
-                        ? 'border-ukraine-blue-500 bg-ukraine-blue-500 text-white shadow-md'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    ${amount}
-                  </button>
-                ))}
-              </div>
-              <input
-                ref={donationAmountRef}
-                id="donation-amount"
-                type="number"
-                min="0.1"
-                max="10000"
-                step="0.1"
-                value={donationAmountInput}
-                onKeyDown={(e) => {
-                  if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                    e.preventDefault()
-                  }
-                }}
-                onChange={(e) => {
-                  clearFieldError('donationAmount')
-                  clearFieldError('total')
-                  const val = e.target.value
-                  setDonationAmountInput(val)
-                  // Live-update numeric state for total preview
-                  const num = parseFloat(val)
-                  setDonationAmount(!isNaN(num) && num >= 0 ? num : 0)
-                }}
-                onBlur={() => {
-                  const { value } = clampAmount(donationAmountInput, 0.1, MAX_AMOUNT, 10)
-                  setDonationAmount(value)
-                  setDonationAmountInput(String(value))
-                }}
-                aria-invalid={!!fieldErrors.donationAmount}
-                aria-describedby={fieldErrors.donationAmount ? 'donation-amount-error' : undefined}
-                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-                placeholder={t('amount.placeholder')}
-              />
-              {fieldErrors.donationAmount && (
-                <p
-                  id="donation-amount-error"
-                  role="alert"
-                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
-                >
-                  <svg
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{fieldErrors.donationAmount}</span>
-                </p>
-              )}
-              <div className="mt-2 rounded-lg bg-ukraine-blue-50 p-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
-                    {t('payment.projectTotal')}:
-                  </span>
-                  <span className="font-data text-xl font-bold text-ukraine-blue-500">
-                    ${projectAmount.toFixed(2)} {t('payment.currency')}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <AmountQuantitySection
+              isAggregatedProject={true}
+              donationAmount={donationAmount}
+              donationAmountInput={donationAmountInput}
+              setDonationAmount={setDonationAmount}
+              setDonationAmountInput={setDonationAmountInput}
+              donationAmountRef={donationAmountRef}
+              projectAmount={projectAmount}
+              fieldErrors={fieldErrors}
+              clearFieldError={clearFieldError}
+            />
           ) : (
-            /* Unit-based Project: Quantity Selection */
-            <div>
-              <label htmlFor="donation-quantity" className="mb-2 block text-sm font-medium">
-                {t('quantity.label')} *
-              </label>
-              <div className="mb-3 grid grid-cols-4 gap-2">
-                {quantityOptions.map((num) => (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => {
-                      clearFieldError('quantity')
-                      clearFieldError('total')
-                      setQuantity(num)
-                    }}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                      quantity === num
-                        ? 'border-ukraine-blue-500 bg-ukraine-blue-500 text-white shadow-md'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {num}
-                  </button>
-                ))}
-              </div>
-              <input
-                ref={quantityRef}
-                id="donation-quantity"
-                type="number"
-                min="1"
-                max="10"
-                value={quantity}
-                onKeyDown={(e) => {
-                  // Prevent: e, E, +, -, and decimal point (quantity must be integer)
-                  if (
-                    e.key === 'e' ||
-                    e.key === 'E' ||
-                    e.key === '+' ||
-                    e.key === '-' ||
-                    e.key === '.'
-                  ) {
-                    e.preventDefault()
-                  }
-                }}
-                onChange={(e) => {
-                  clearFieldError('quantity')
-                  clearFieldError('total')
-                  const val = e.target.value
-                  if (val === '') {
-                    setQuantity(0)
-                    return
-                  }
-
-                  const num = parseInt(val, 10)
-                  // Prevent negative values and non-integers during input
-                  if (isNaN(num) || num < 0) {
-                    setQuantity(0)
-                    return
-                  }
-
-                  // Limit to max value
-                  if (num > MAX_QUANTITY) {
-                    setQuantity(MAX_QUANTITY)
-                    return
-                  }
-
-                  setQuantity(num)
-                }}
-                onBlur={(e) => {
-                  // Clean up on blur: ensure valid range and no leading zeros
-                  const num = parseInt(e.target.value, 10)
-
-                  if (isNaN(num) || num < 1) {
-                    setQuantity(1)
-                  } else if (num > MAX_QUANTITY) {
-                    setQuantity(MAX_QUANTITY)
-                  } else {
-                    setQuantity(num) // This removes leading zeros
-                  }
-                }}
-                aria-invalid={!!fieldErrors.quantity}
-                aria-describedby={fieldErrors.quantity ? 'donation-quantity-error' : undefined}
-                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-                placeholder={t('quantity.custom')}
-              />
-              {fieldErrors.quantity && (
-                <p
-                  id="donation-quantity-error"
-                  role="alert"
-                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
-                >
-                  <svg
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{fieldErrors.quantity}</span>
-                </p>
-              )}
-              <div className="mt-2 rounded-lg bg-ukraine-blue-50 p-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
-                    {t('payment.projectTotal')}:
-                  </span>
-                  <span className="font-data text-xl font-bold text-ukraine-blue-500">
-                    ${projectAmount.toFixed(2)} {t('payment.currency')}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <AmountQuantitySection
+              isAggregatedProject={false}
+              quantity={quantity}
+              setQuantity={setQuantity}
+              quantityRef={quantityRef}
+              projectAmount={projectAmount}
+              fieldErrors={fieldErrors}
+              clearFieldError={clearFieldError}
+            />
           )}
 
           {/* Tip for Rehabilitation Center - Only show if NOT project 0 */}
           {project.id !== 0 && (
-            <div className="border-t pt-5">
-              <div className="mb-4 flex items-start justify-between gap-2">
-                <h4 className="font-display font-semibold text-gray-900">{t('tip.title')}</h4>
-                <div className="flex-shrink-0 rounded border border-ukraine-gold-200 bg-ukraine-gold-50 px-2 py-1 text-xs font-medium text-ukraine-gold-700">
-                  {t('tip.optional')}
-                </div>
-              </div>
-
-              <div className="mb-3 rounded-lg border border-ukraine-gold-200 bg-gradient-to-br from-ukraine-gold-50 to-ukraine-gold-100 p-4">
-                <p className="mb-3 text-sm font-medium text-gray-800">{t('tip.description')}</p>
-
-                <div className="mb-3 grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-white/80 p-3 text-center">
-                    <div className="font-data text-2xl font-bold text-ukraine-gold-600">1,600+</div>
-                    <div className="mt-1 text-xs text-gray-600">{t('tip.patientsServed')}</div>
-                  </div>
-                  <div className="rounded-lg bg-white/80 p-3 text-center">
-                    <div className="font-data text-2xl font-bold text-ukraine-gold-600">$1,000</div>
-                    <div className="mt-1 text-xs text-gray-600">{t('tip.avgCostPerPatient')}</div>
-                  </div>
-                </div>
-
-                <div className="text-center text-xs text-gray-600">{t('tip.asOfDate')}</div>
-              </div>
-
-              <a
-                href={`/${locale}/donate?project=0`}
-                className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-ukraine-blue-500 hover:text-ukraine-blue-600"
-              >
-                {t('tip.viewDetails')}
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </a>
-
-              <div className="mb-3 grid grid-cols-3 gap-2">
-                {tipOptions.map((amount) => (
-                  <button
-                    key={amount}
-                    type="button"
-                    onClick={() => {
-                      clearFieldError('tipAmount')
-                      clearFieldError('total')
-                      setTipAmount(amount)
-                      setTipAmountInput(String(amount))
-                    }}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                      tipAmount === amount && tipAmountInput === String(amount)
-                        ? 'border-ukraine-gold-600 bg-ukraine-gold-600 text-white shadow-md'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    ${amount}
-                  </button>
-                ))}
-              </div>
-              <input
-                ref={tipAmountRef}
-                id="tip-amount"
-                type="number"
-                min="0"
-                max="9999.9"
-                step="0.1"
-                value={tipAmountInput}
-                onKeyDown={(e) => {
-                  if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                    e.preventDefault()
-                  }
-                }}
-                onChange={(e) => {
-                  clearFieldError('tipAmount')
-                  clearFieldError('total')
-                  const val = e.target.value
-                  setTipAmountInput(val)
-                  const num = parseFloat(val)
-                  setTipAmount(!isNaN(num) && num >= 0 ? num : 0)
-                }}
-                onBlur={() => {
-                  const { value } = clampAmount(tipAmountInput, 0, 9999.9, 0)
-                  setTipAmount(value)
-                  setTipAmountInput(value === 0 ? '' : String(value))
-                }}
-                aria-invalid={!!fieldErrors.tipAmount}
-                aria-describedby={fieldErrors.tipAmount ? 'tip-amount-error' : undefined}
-                className="w-full rounded-lg border border-gray-300 p-2.5 focus:border-transparent focus:ring-2 focus:ring-ukraine-gold-500"
-                placeholder={t('tip.placeholder')}
-              />
-              {fieldErrors.tipAmount && (
-                <p
-                  id="tip-amount-error"
-                  role="alert"
-                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
-                >
-                  <svg
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{fieldErrors.tipAmount}</span>
-                </p>
-              )}
-              {tipAmount > 0 && (
-                <p className="mt-2 flex items-center gap-1 text-xs text-ukraine-gold-700">
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {t('tip.thankYou')}
-                </p>
-              )}
-            </div>
+            <TipSection
+              locale={locale}
+              tipAmount={tipAmount}
+              tipAmountInput={tipAmountInput}
+              setTipAmount={setTipAmount}
+              setTipAmountInput={setTipAmountInput}
+              tipAmountRef={tipAmountRef}
+              fieldErrors={fieldErrors}
+              clearFieldError={clearFieldError}
+            />
           )}
 
           {/* Total Amount Summary */}
-          <div ref={totalAmountRef} className="border-t pt-3" tabIndex={-1}>
-            <div className="rounded-lg border border-ukraine-blue-200 bg-gradient-to-br from-ukraine-blue-50 to-ukraine-gold-50/30 p-3">
-              <div className="space-y-2">
-                {/* Show breakdown if there's a tip */}
-                {tipAmount > 0 && (
-                  <>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{t('payment.projectDonation')}:</span>
-                      <span className="font-data font-semibold text-gray-900">
-                        ${projectAmount.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{t('payment.tipAmount')}:</span>
-                      <span className="font-data font-semibold text-ukraine-gold-700">
-                        ${tipAmount.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="my-2 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                  </>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-base font-bold text-gray-900">{t('payment.total')}:</span>
-                  <span className="font-data text-2xl font-bold text-ukraine-blue-500">
-                    ${totalAmount.toFixed(2)} {t('payment.currency')}
-                  </span>
-                </div>
-              </div>
-            </div>
-            {fieldErrors.total && (
-              <p
-                id="total-amount-error"
-                role="alert"
-                className="mt-2 flex items-start gap-1 text-xs text-red-600"
-              >
-                <svg
-                  className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span>{fieldErrors.total}</span>
-              </p>
-            )}
-          </div>
+          <TotalSummarySection
+            projectAmount={projectAmount}
+            tipAmount={tipAmount}
+            totalAmount={totalAmount}
+            fieldErrors={fieldErrors}
+            totalAmountRef={totalAmountRef}
+          />
 
           {/* Donor Information */}
-          <div className="space-y-3">
-            <h4 className="border-b pb-2 font-display font-semibold text-gray-900">
-              {t('donor.title')}
-            </h4>
-
-            <div>
-              <label htmlFor="donor-name" className="mb-1 block text-sm font-medium">
-                {t('donor.name')} *
-              </label>
-              <input
-                id="donor-name"
-                ref={nameInputRef}
-                type="text"
-                required
-                minLength={2}
-                maxLength={255}
-                value={donorName}
-                onChange={(e) => {
-                  clearFieldError('name')
-                  updateDonorInfo('name', e.target.value)
-                }}
-                aria-invalid={!!fieldErrors.name}
-                aria-describedby={fieldErrors.name ? 'donor-name-error' : undefined}
-                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-                placeholder={t('donor.namePlaceholder')}
-              />
-              <p className="mt-1 text-xs text-gray-500">{t('donor.nameHint')}</p>
-              {fieldErrors.name && (
-                <p
-                  id="donor-name-error"
-                  role="alert"
-                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
-                >
-                  <svg
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{fieldErrors.name}</span>
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="donor-email" className="mb-1 block text-sm font-medium">
-                {t('donor.email')} *
-              </label>
-              <input
-                id="donor-email"
-                ref={emailInputRef}
-                type="email"
-                required
-                value={donorEmail}
-                onChange={(e) => {
-                  clearFieldError('email')
-                  updateDonorInfo('email', e.target.value)
-                }}
-                onBlur={(e) => updateDonorInfo('email', e.target.value.trim())}
-                pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
-                aria-invalid={!!fieldErrors.email}
-                aria-describedby={fieldErrors.email ? 'donor-email-error' : undefined}
-                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-                placeholder={t('donor.emailPlaceholder')}
-              />
-              <p className="mt-1 text-xs text-gray-500">{t('donor.emailHint')}</p>
-              {fieldErrors.email && (
-                <p
-                  id="donor-email-error"
-                  role="alert"
-                  className="mt-1 flex items-start gap-1 text-xs text-red-600"
-                >
-                  <svg
-                    className="mt-0.5 h-3.5 w-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>{fieldErrors.email}</span>
-                </p>
-              )}
-            </div>
-          </div>
+          <DonorInfoSection
+            donorName={donorName}
+            donorEmail={donorEmail}
+            updateDonorInfo={updateDonorInfo}
+            fieldErrors={fieldErrors}
+            clearFieldError={clearFieldError}
+            nameInputRef={nameInputRef}
+            emailInputRef={emailInputRef}
+          />
 
           {/* Contact Methods (Optional) */}
-          <div className="space-y-3">
-            <div>
-              <h4 className="border-b pb-2 font-display font-semibold text-gray-900">
-                {t('contact.title')}
-              </h4>
-              <p className="mt-1 text-xs text-gray-600">{t('contact.description')}</p>
-            </div>
+          <ContactMethodsSection
+            contactTelegram={contactTelegram}
+            contactWhatsapp={contactWhatsapp}
+            updateDonorInfo={updateDonorInfo}
+          />
 
-            <div>
-              <label htmlFor="contact-telegram" className="mb-1 block text-sm font-medium">
-                {t('contact.telegram')}
-              </label>
-              <input
-                id="contact-telegram"
-                type="text"
-                maxLength={255}
-                value={contactTelegram}
-                onChange={(e) => updateDonorInfo('telegram', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-                placeholder={t('contact.telegramPlaceholder')}
-              />
-            </div>
+          {/* Message + Newsletter */}
+          <MessageAndNewsletterSection
+            donorMessage={donorMessage}
+            subscribeToNewsletter={subscribeToNewsletter}
+            updateDonorInfo={updateDonorInfo}
+          />
 
-            <div>
-              <label htmlFor="contact-whatsapp" className="mb-1 block text-sm font-medium">
-                {t('contact.whatsapp')}
-              </label>
-              <input
-                id="contact-whatsapp"
-                type="text"
-                maxLength={255}
-                value={contactWhatsapp}
-                onChange={(e) => updateDonorInfo('whatsapp', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-                placeholder={t('contact.whatsappPlaceholder')}
-              />
-            </div>
-          </div>
-
-          {/* Message (Optional) */}
-          <div>
-            <label htmlFor="donor-message" className="mb-1 block text-sm font-medium">
-              {t('message.label')}
-            </label>
-            <textarea
-              id="donor-message"
-              maxLength={1000}
-              rows={3}
-              value={donorMessage}
-              onChange={(e) => updateDonorInfo('message', e.target.value)}
-              className="w-full resize-none rounded-lg border border-gray-300 p-2 focus:border-transparent focus:ring-2 focus:ring-ukraine-blue-500"
-              placeholder={t('message.placeholder')}
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              {t('message.hint', { remaining: 1000 - donorMessage.length })}
-            </p>
-          </div>
-
-          {/* Newsletter Subscription */}
-          <div className="pt-2">
-            <label className="flex cursor-pointer items-start gap-2">
-              <input
-                type="checkbox"
-                checked={subscribeToNewsletter}
-                onChange={(e) => updateDonorInfo('subscribeToNewsletter', e.target.checked)}
-                className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 bg-transparent text-gray-400 focus:ring-0 focus:ring-offset-0"
-              />
-              <span className="text-xs text-gray-500">
-                {t('subscription.label')} · {t('subscription.privacyNote')}
-              </span>
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={processingState === 'creating' || project.status !== 'active'}
-            className={`group relative w-full overflow-hidden rounded-xl px-6 py-3 font-semibold shadow-md transition-all duration-300 ${
-              project.status !== 'active'
-                ? 'cursor-not-allowed bg-gray-400 text-white'
-                : 'bg-ukraine-gold-500 text-ukraine-blue-900 hover:bg-ukraine-gold-600 hover:shadow-xl disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500'
-            }`}
-          >
-            <div className="absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
-            <span className="relative z-10">
-              {project.status !== 'active' ? t('formCard.projectEnded') : t('submit')}
-            </span>
-          </button>
-
-          {/* Network Access Notice */}
-          <p className="text-center text-sm font-medium text-ukraine-gold-700">
-            {t('networkNotice')}
-          </p>
+          {/* Submit Button + Network Notice */}
+          <SubmitSection
+            isCreating={processingState === 'creating'}
+            projectStatus={project.status}
+          />
         </form>
 
         {/* Overlay when project is not active - covers entire card */}
-        {project.status !== 'active' && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-slate-900/60 backdrop-blur-sm">
-            <div className="mx-4 max-w-sm rounded-2xl bg-white p-8 text-center shadow-2xl">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-                <svg
-                  className="h-8 w-8 text-slate-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                  />
-                </svg>
-              </div>
-              <h3 className="mb-2 font-display text-xl font-bold text-gray-900">
-                {t('formCard.cannotDonateNow')}
-              </h3>
-              <p className="text-sm text-gray-600">{t('formCard.projectNotActive')}</p>
-            </div>
-          </div>
-        )}
+        {project.status !== 'active' && <ProjectInactiveOverlay />}
       </div>
     </div>
   )

@@ -2,13 +2,10 @@
 
 import { logger } from '@/lib/logger'
 import { createServerClient } from '@/lib/supabase/server'
-import type { I18nText } from '@/types'
+import type { BuyerMarketOrder } from '@/types/dtos'
 import type { MarketOrder } from '@/types/market'
 
-/** 买家订单（含商品标题 join） */
-export type BuyerMarketOrder = MarketOrder & {
-  market_items: { title_i18n: I18nText } | null
-}
+export type { BuyerMarketOrder }
 
 /** 获取当前认证用户的所有订单 */
 export async function getMyOrders(): Promise<{

@@ -5,11 +5,10 @@
 
 'use client'
 
-import { useState } from 'react'
-
 import { EmailSubscription } from '@/app/actions/subscription'
 import FilterBar from '@/components/admin/ui/FilterBar'
 import EmptyState from '@/components/ui/EmptyState'
+import { useTableFilters } from '@/lib/hooks/useTableFilters'
 import { formatDateTime } from '@/lib/i18n-utils'
 
 interface SubscriptionsTableProps {
@@ -17,30 +16,33 @@ interface SubscriptionsTableProps {
   onSendBroadcast: () => void
 }
 
+interface SubscriptionFilters {
+  status: 'all' | 'subscribed' | 'unsubscribed'
+  search: string
+  locale: 'all' | 'en' | 'zh' | 'ua'
+}
+
 export default function SubscriptionsTable({
   subscriptions,
   onSendBroadcast,
 }: SubscriptionsTableProps) {
-  const [filter, setFilter] = useState<'all' | 'subscribed' | 'unsubscribed'>('all')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [localeFilter, setLocaleFilter] = useState<'all' | 'en' | 'zh' | 'ua'>('all')
-
-  // Filter subscriptions
-  const filteredSubscriptions = subscriptions.filter((sub) => {
-    // Status filter
-    if (filter === 'subscribed' && !sub.is_subscribed) return false
-    if (filter === 'unsubscribed' && sub.is_subscribed) return false
-
-    // Locale filter
-    if (localeFilter !== 'all' && sub.locale !== localeFilter) return false
-
-    // Search filter
-    if (searchTerm && !sub.email.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false
+  const {
+    filters,
+    setFilters,
+    filtered: filteredSubscriptions,
+  } = useTableFilters<EmailSubscription, SubscriptionFilters>(
+    subscriptions,
+    { status: 'all', search: '', locale: 'all' },
+    (sub, f) => {
+      if (f.status === 'subscribed' && !sub.is_subscribed) return false
+      if (f.status === 'unsubscribed' && sub.is_subscribed) return false
+      if (f.locale !== 'all' && sub.locale !== f.locale) return false
+      if (f.search && !sub.email.toLowerCase().includes(f.search.toLowerCase())) {
+        return false
+      }
+      return true
     }
-
-    return true
-  })
+  )
 
   // Calculate statistics
   const totalSubscriptions = subscriptions.length
@@ -106,8 +108,8 @@ export default function SubscriptionsTable({
           <label className="mb-1 block text-sm font-medium text-gray-700">Search Email</label>
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters.search}
+            onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
             placeholder="Search by email..."
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
           />
@@ -115,8 +117,10 @@ export default function SubscriptionsTable({
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
           <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            value={filters.status}
+            onChange={(e) =>
+              setFilters((p) => ({ ...p, status: e.target.value as SubscriptionFilters['status'] }))
+            }
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="all">All</option>
@@ -127,8 +131,10 @@ export default function SubscriptionsTable({
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Language</label>
           <select
-            value={localeFilter}
-            onChange={(e) => setLocaleFilter(e.target.value as any)}
+            value={filters.locale}
+            onChange={(e) =>
+              setFilters((p) => ({ ...p, locale: e.target.value as SubscriptionFilters['locale'] }))
+            }
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="all">All Languages</option>

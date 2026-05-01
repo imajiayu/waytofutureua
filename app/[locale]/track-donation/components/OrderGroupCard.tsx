@@ -6,7 +6,7 @@ import DonationStatusBadge from '@/components/donation-display/DonationStatusBad
 import { ArrowRightIcon, CheckCircle2Icon, ExternalLinkIcon } from '@/components/icons'
 import { Link } from '@/i18n/navigation'
 import { canRequestRefund, canViewResult, isRefundPending } from '@/lib/donation-status'
-import { formatDate, getProjectName, getUnitName } from '@/lib/i18n-utils'
+import { formatDate, getTranslatedText } from '@/lib/i18n-utils'
 import type { AppLocale } from '@/types'
 
 import type { TrackDonation } from './types'
@@ -42,7 +42,7 @@ export default function OrderGroupCard({
   const projectCount = new Set(orderDonations.map((d) => d.projects.id)).size
 
   // Get unit name for display (from first donation's project)
-  const unitName = getUnitName(
+  const unitName = getTranslatedText(
     firstDonation.projects.unit_name_i18n,
     firstDonation.projects.unit_name,
     locale as AppLocale
@@ -121,7 +121,7 @@ export default function OrderGroupCard({
           <div className="mb-3 text-xs font-medium text-gray-500">{t('results.donations')}</div>
           <div className="space-y-2">
             {orderDonations.map((donation) => {
-              const donationProjectName = getProjectName(
+              const donationProjectName = getTranslatedText(
                 donation.projects.project_name_i18n,
                 donation.projects.project_name,
                 locale as AppLocale

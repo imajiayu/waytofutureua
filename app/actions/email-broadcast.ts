@@ -118,29 +118,31 @@ export async function sendEmailBroadcast(
       errors: [],
     }
 
-    for (const [locale, emails] of Object.entries(recipientsByLocale)) {
-      try {
-        const result = await sendBroadcastEmail({
-          template,
-          locale: locale as Locale,
-          recipients: emails,
-          variables: validated.variables,
-        })
-
-        results.sent += result.successCount
-        results.failed += result.failureCount
-        results.errors?.push(...result.errors)
-      } catch (error) {
-        logger.errorWithStack('EMAIL', `Failed to send broadcast for locale ${locale}`, error)
-        results.failed += emails.length
-        emails.forEach((email) => {
-          results.errors?.push({
-            email,
-            error: error instanceof Error ? error.message : 'Unknown error',
+    await Promise.all(
+      Object.entries(recipientsByLocale).map(async ([locale, emails]) => {
+        try {
+          const result = await sendBroadcastEmail({
+            template,
+            locale: locale as Locale,
+            recipients: emails,
+            variables: validated.variables,
           })
-        })
-      }
-    }
+
+          results.sent += result.successCount
+          results.failed += result.failureCount
+          results.errors?.push(...result.errors)
+        } catch (error) {
+          logger.errorWithStack('EMAIL', `Failed to send broadcast for locale ${locale}`, error)
+          results.failed += emails.length
+          emails.forEach((email) => {
+            results.errors?.push({
+              email,
+              error: error instanceof Error ? error.message : 'Unknown error',
+            })
+          })
+        }
+      })
+    )
 
     results.success = results.failed === 0
 

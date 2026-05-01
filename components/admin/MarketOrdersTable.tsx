@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { getAdminMarketOrders } from '@/app/actions/market-admin'
 import EmptyState from '@/components/ui/EmptyState'
+import { useTableFilters } from '@/lib/hooks/useTableFilters'
 import { getTranslatedText } from '@/lib/i18n-utils'
 import {
   canManageOrderFiles,
@@ -20,14 +21,22 @@ interface MarketOrdersTableProps {
   initialOrders: AdminMarketOrder[]
 }
 
+interface MarketOrderTableFilters {
+  status: MarketOrderStatus | ''
+}
+
 export default function MarketOrdersTable({ initialOrders }: MarketOrdersTableProps) {
   const [orders, setOrders] = useState(initialOrders)
-  const [statusFilter, setStatusFilter] = useState<MarketOrderStatus | ''>('')
   const [editingOrder, setEditingOrder] = useState<AdminMarketOrder | null>(null)
 
-  const filteredOrders = useMemo(
-    () => (statusFilter ? orders.filter((o) => o.status === statusFilter) : orders),
-    [orders, statusFilter]
+  const {
+    filters,
+    setFilters,
+    filtered: filteredOrders,
+  } = useTableFilters<AdminMarketOrder, MarketOrderTableFilters>(
+    orders,
+    { status: '' },
+    (order, f) => !f.status || order.status === f.status
   )
 
   const refresh = async () => {
@@ -47,8 +56,10 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-700">Status:</label>
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as MarketOrderStatus | '')}
+            value={filters.status}
+            onChange={(e) =>
+              setFilters((p) => ({ ...p, status: e.target.value as MarketOrderStatus | '' }))
+            }
             className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm sm:flex-none"
           >
             <option value="">All</option>

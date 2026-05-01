@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 
 import { logger } from '@/lib/logger'
-import { generateWebhookResponseSignature, verifyWayForPaySignature } from '@/lib/market/wayforpay'
+import { verifyWayForPaySignature } from '@/lib/market/wayforpay'
 import { WAYFORPAY_STATUS } from '@/lib/payment/wayforpay/server'
+import { respondWithAccept } from '@/lib/payment/wayforpay/webhook-response'
 import { createServiceClient } from '@/lib/supabase/server'
 import type { MarketOrderStatus } from '@/types/market'
 
@@ -362,11 +363,4 @@ export async function POST(req: Request) {
     })
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
-}
-
-/** 生成 WayForPay 确认响应（含签名） */
-function respondWithAccept(orderReference: string) {
-  const time = Math.floor(Date.now() / 1000)
-  const signature = generateWebhookResponseSignature(orderReference, 'accept', time)
-  return NextResponse.json({ orderReference, status: 'accept', time, signature })
 }

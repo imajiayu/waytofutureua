@@ -1,7 +1,7 @@
 'use client'
 
 import CopyButton from '@/components/common/CopyButton'
-import { getLocation, getProjectName, getUnitName } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import type { AppLocale, I18nText } from '@/types'
 
 type Donation = {
@@ -63,17 +63,17 @@ export default function DonationIdsList({ donations, locale, t }: DonationIdsLis
       </div>
       <div className="space-y-2">
         {donations.map((donation, index) => {
-          const donationProjectName = getProjectName(
+          const donationProjectName = getTranslatedText(
             donation.projects.project_name_i18n,
             donation.projects.project_name,
             locale as AppLocale
           )
-          const donationLocation = getLocation(
+          const donationLocation = getTranslatedText(
             donation.projects.location_i18n,
             donation.projects.location,
             locale as AppLocale
           )
-          const unitName = getUnitName(
+          const unitName = getTranslatedText(
             donation.projects.unit_name_i18n,
             donation.projects.unit_name,
             locale as AppLocale

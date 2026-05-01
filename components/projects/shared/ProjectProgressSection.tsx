@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 
 import { MapPinIcon } from '@/components/icons'
-import { formatDate, getLocation, getUnitName } from '@/lib/i18n-utils'
+import { formatDate, getTranslatedText } from '@/lib/i18n-utils'
 import { getProjectProgress } from '@/lib/project-utils'
 import type { AppLocale, ProjectStats } from '@/types'
 
@@ -19,8 +19,8 @@ interface ProjectProgressSectionProps {
 export default function ProjectProgressSection({ project, locale }: ProjectProgressSectionProps) {
   const t = useTranslations('projects')
 
-  const location = getLocation(project.location_i18n, project.location, locale as AppLocale)
-  const unitName = getUnitName(project.unit_name_i18n, project.unit_name, locale as AppLocale)
+  const location = getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
+  const unitName = getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
   const { currentUnits, targetUnits, totalRaised, hasValidTarget, progressCurrent } =
     getProjectProgress(project)
 

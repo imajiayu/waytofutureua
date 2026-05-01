@@ -8,6 +8,7 @@ import {
   type DonationStatus,
   requiresFileUploadToTransition,
 } from '@/lib/donation-status'
+import { useTableFilters } from '@/lib/hooks/useTableFilters'
 import { formatDate, formatDateTime } from '@/lib/i18n-utils'
 import type { I18nText } from '@/types'
 import type { Database } from '@/types/database'
@@ -26,11 +27,14 @@ interface Props {
   statusHistory: StatusHistory[]
 }
 
+interface DonationTableFilters {
+  status: string
+  project: string
+}
+
 export default function DonationsTable({ initialDonations, statusHistory }: Props) {
   const [donations, setDonations] = useState(initialDonations)
   const [editingDonation, setEditingDonation] = useState<Donation | null>(null)
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [projectFilter, setProjectFilter] = useState<string>('all')
 
   // 批量编辑状态
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
@@ -64,14 +68,19 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
     new Map(donations.map((d) => [d.project_id, d.projects])).entries()
   ).map(([id, project]) => ({ id, name: project.project_name }))
 
-  // 过滤后的捐赠列表 - 移到 handlers 之前避免引用错误
-  const filteredDonations = useMemo(() => {
-    return donations.filter((d) => {
-      const matchesStatus = statusFilter === 'all' || d.donation_status === statusFilter
-      const matchesProject = projectFilter === 'all' || d.project_id === Number(projectFilter)
+  const {
+    filters,
+    setFilters,
+    filtered: filteredDonations,
+  } = useTableFilters<Donation, DonationTableFilters>(
+    donations,
+    { status: 'all', project: 'all' },
+    (d, f) => {
+      const matchesStatus = f.status === 'all' || d.donation_status === f.status
+      const matchesProject = f.project === 'all' || d.project_id === Number(f.project)
       return matchesStatus && matchesProject
-    })
-  }, [donations, statusFilter, projectFilter])
+    }
+  )
 
   // 全选/取消全选 - P2 优化: useCallback 避免不必要的重渲染
   const handleSelectAll = useCallback(
@@ -176,8 +185,8 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                   Status:
                 </label>
                 <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  value={filters.status}
+                  onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm lg:w-auto"
                 >
                   <option value="all">All</option>
@@ -208,8 +217,8 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
                   Project:
                 </label>
                 <select
-                  value={projectFilter}
-                  onChange={(e) => setProjectFilter(e.target.value)}
+                  value={filters.project}
+                  onChange={(e) => setFilters((p) => ({ ...p, project: e.target.value }))}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm lg:w-auto"
                 >
                   <option value="all">All Projects</option>

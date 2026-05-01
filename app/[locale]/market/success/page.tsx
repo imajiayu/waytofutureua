@@ -43,7 +43,10 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
   const { order: orderRef } = await searchParams
   const t = await getTranslations({ locale, namespace: 'market' })
 
-  let order: MarketOrder | null = null
+  type MarketOrderWithItem = MarketOrder & {
+    market_items?: { title_i18n: Record<string, string> }
+  }
+  let order: MarketOrderWithItem | null = null
   let sessionExpired = false
 
   if (orderRef) {
@@ -60,9 +63,7 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
         .eq('order_reference', orderRef)
         .eq('buyer_id', user.id)
         .single()
-      order = data as
-        | (MarketOrder & { market_items?: { title_i18n: Record<string, string> } })
-        | null
+      order = data as MarketOrderWithItem | null
     } else {
       // P2-7: 区分 session 过期 — 用户未登录但有 orderRef
       sessionExpired = true
@@ -162,12 +163,8 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t('order.item')}</span>
               <span className="text-gray-900">
-                {(order as any).market_items?.title_i18n
-                  ? getTranslatedText(
-                      (order as any).market_items.title_i18n,
-                      null,
-                      locale as AppLocale
-                    )
+                {order.market_items?.title_i18n
+                  ? getTranslatedText(order.market_items.title_i18n, null, locale as AppLocale)
                   : `${t('order.item')} #${order.item_id}`}
               </span>
             </div>

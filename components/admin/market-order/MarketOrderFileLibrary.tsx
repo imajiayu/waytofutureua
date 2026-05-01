@@ -2,6 +2,7 @@
 
 import type { MarketOrderFile, MarketOrderFileCategory } from '@/types/market'
 
+import FileUploadInputPanel from '../ui/FileUploadInputPanel'
 import MarketOrderFileGroup from './MarketOrderFileGroup'
 
 interface Props {
@@ -76,65 +77,29 @@ export default function MarketOrderFileLibrary({
 
         <div className="mt-4 border-t border-gray-200 pt-4">
           <h4 className="mb-2 text-xs font-medium uppercase text-gray-600">Upload New Files</h4>
-          <div className="space-y-2">
-            <div className="mb-2 flex items-center gap-2">
-              <label className="text-sm text-gray-700">Category:</label>
-              <select
-                value={mgmtCategory}
-                onChange={(e) => setMgmtCategory(e.target.value as MarketOrderFileCategory)}
-                className="rounded border border-gray-300 px-2 py-1 text-sm"
-              >
-                <option value="shipping">Shipping Proof</option>
-                <option value="completion">Fund Usage Proof</option>
-              </select>
-            </div>
-            <input
-              ref={mgmtFileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
-              onChange={onMgmtFileChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-              disabled={uploading}
-              multiple
-            />
-            {mgmtFiles.length > 0 && !uploading && (
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-green-600">
-                  {mgmtFiles.length} file(s) selected
-                </p>
-                {mgmtFiles.map((file, i) => (
-                  <p key={i} className="ml-2 text-xs text-gray-600">
-                    • {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                  </p>
-                ))}
+          <FileUploadInputPanel
+            accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime"
+            fileInputRef={mgmtFileInputRef}
+            files={mgmtFiles}
+            uploading={uploading}
+            uploadProgress={uploadProgress}
+            onChange={onMgmtFileChange}
+            onUpload={onUploadOnly}
+            hint="Accepted: JPEG, PNG, GIF, MP4, MOV (max 50MB)"
+            topExtras={
+              <div className="mb-2 flex items-center gap-2">
+                <label className="text-sm text-gray-700">Category:</label>
+                <select
+                  value={mgmtCategory}
+                  onChange={(e) => setMgmtCategory(e.target.value as MarketOrderFileCategory)}
+                  className="rounded border border-gray-300 px-2 py-1 text-sm"
+                >
+                  <option value="shipping">Shipping Proof</option>
+                  <option value="completion">Fund Usage Proof</option>
+                </select>
               </div>
-            )}
-            {uploading && (
-              <div>
-                <div className="mb-1 flex justify-between text-sm text-gray-600">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-gray-200">
-                  <div
-                    className="h-2 rounded-full bg-blue-600 transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={onUploadOnly}
-              disabled={uploading || mgmtFiles.length === 0}
-              className="rounded-md bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-            >
-              {uploading
-                ? 'Uploading...'
-                : `Upload ${mgmtFiles.length > 0 ? `${mgmtFiles.length} File(s)` : 'Files'}`}
-            </button>
-            <p className="text-xs text-gray-500">Accepted: JPEG, PNG, GIF, MP4, MOV (max 50MB)</p>
-          </div>
+            }
+          />
         </div>
 
         {showCloseButton && (

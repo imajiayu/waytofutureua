@@ -17,6 +17,7 @@ import { processWayForPayRefund } from '@/lib/payment/wayforpay/server'
 import { getInternalClient, getPublicClient } from '@/lib/supabase/action-clients'
 import { requestRefundSchema, trackDonationSchema } from '@/lib/validations'
 import type { AppLocale } from '@/types'
+import type { DonationByContactRow } from '@/types/dtos'
 
 /**
  * Track Donations - Secure Implementation
@@ -57,7 +58,7 @@ export async function trackDonations(data: { email: string; donationId: string }
     }
 
     // 4. Transform data to match expected format
-    const transformedDonations = donations.map((d: any) => ({
+    const transformedDonations = (donations as DonationByContactRow[]).map((d) => ({
       ...d,
       projects: {
         id: d.project_id,
@@ -116,7 +117,9 @@ export async function requestRefund(data: { donationPublicId: string; email: str
     }
 
     // Find the specific donation
-    const donation = donations.find((d: any) => d.donation_public_id === validated.donationPublicId)
+    const donation = (donations as DonationByContactRow[]).find(
+      (d) => d.donation_public_id === validated.donationPublicId
+    )
 
     if (!donation) {
       return { error: 'donationNotFound' }

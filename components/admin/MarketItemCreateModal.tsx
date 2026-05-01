@@ -3,12 +3,14 @@
 import { useState } from 'react'
 
 import { createMarketItem } from '@/app/actions/market-admin'
+import { useAsyncForm } from '@/lib/hooks/useAsyncForm'
 import type { CreateMarketItemInput } from '@/lib/market/market-validations'
 import type { I18nText } from '@/types'
 import type { MarketItem } from '@/types/market'
 
 import AdminBaseModal from './AdminBaseModal'
 import I18nFieldGroup from './I18nFieldGroup'
+import AdminButton from './ui/AdminButton'
 import { TextField } from './ui/FormField'
 
 interface Props {
@@ -23,27 +25,19 @@ export default function MarketItemCreateModal({ onClose, onCreated }: Props) {
     currency: 'USD',
     stock_quantity: 1,
   })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
+  const {
+    loading,
+    error,
+    onSubmit: handleSubmit,
+  } = useAsyncForm(
+    async () => {
       const { item, error: err } = await createMarketItem(formData)
-      if (err) {
-        setError(err)
-      } else if (item) {
-        onCreated(item)
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to create item')
-    } finally {
-      setLoading(false)
-    }
-  }
+      if (err) throw new Error(err)
+      if (item) onCreated(item)
+    },
+    { fallbackError: 'Failed to create item' }
+  )
 
   return (
     <AdminBaseModal title="Create New Item" onClose={onClose} error={error} maxWidth="3xl">
@@ -82,20 +76,12 @@ export default function MarketItemCreateModal({ onClose, onCreated }: Props) {
         </div>
 
         <div className="flex justify-end space-x-3 border-t pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-          >
+          <AdminButton variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          >
+          </AdminButton>
+          <AdminButton type="submit" variant="primary" disabled={loading}>
             {loading ? 'Creating...' : 'Create Item'}
-          </button>
+          </AdminButton>
         </div>
       </form>
     </AdminBaseModal>

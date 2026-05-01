@@ -3,12 +3,14 @@
 import { useState } from 'react'
 
 import { updateProject } from '@/app/actions/admin'
+import { useAsyncForm } from '@/lib/hooks/useAsyncForm'
 import { formatDateTime } from '@/lib/i18n-utils'
 import type { I18nText } from '@/types'
 import type { Database } from '@/types/database'
 
 import AdminBaseModal from './AdminBaseModal'
 import I18nFieldGroup from './I18nFieldGroup'
+import AdminButton from './ui/AdminButton'
 import { SelectField, TextField } from './ui/FormField'
 
 type Project = Database['public']['Tables']['projects']['Row']
@@ -21,23 +23,18 @@ interface Props {
 
 export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
   const [formData, setFormData] = useState<Project>(project)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
+  const {
+    loading,
+    error,
+    onSubmit: handleSubmit,
+  } = useAsyncForm(
+    async () => {
       const updated = await updateProject(project.id, formData)
       onSaved(updated)
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update project')
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    { fallbackError: 'Failed to update project' }
+  )
 
   const updateField = (field: keyof Project, value: Project[keyof Project]) => {
     setFormData({ ...formData, [field]: value })
@@ -191,20 +188,12 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
         </div>
 
         <div className="flex justify-end space-x-3 border-t pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-          >
+          <AdminButton variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          >
+          </AdminButton>
+          <AdminButton type="submit" variant="primary" disabled={loading}>
             {loading ? 'Saving...' : 'Save'}
-          </button>
+          </AdminButton>
         </div>
       </form>
     </AdminBaseModal>

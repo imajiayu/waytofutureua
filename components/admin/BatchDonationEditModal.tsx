@@ -5,10 +5,12 @@ import { useState } from 'react'
 import { batchUpdateDonationStatus } from '@/app/actions/admin'
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import { type DonationStatus, getNextAllowedStatuses } from '@/lib/donation-status'
+import { useAsyncForm } from '@/lib/hooks/useAsyncForm'
 import type { Database } from '@/types/database'
 
 import AdminBaseModal from './AdminBaseModal'
 import DonationStatusProgress from './DonationStatusProgress'
+import AdminButton from './ui/AdminButton'
 
 type Donation = Database['public']['Tables']['donations']['Row']
 
@@ -20,31 +22,26 @@ interface Props {
 
 export default function BatchDonationEditModal({ donations, onClose, onSaved }: Props) {
   const [newStatus, setNewStatus] = useState<string>('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
-  if (donations.length === 0) {
-    return null
-  }
-
-  const currentStatus = (donations[0].donation_status || '') as DonationStatus
+  const currentStatus = (donations[0]?.donation_status || '') as DonationStatus
   const allowedStatuses = getNextAllowedStatuses(currentStatus)
   const canUpdate = allowedStatuses.length > 0
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
+  const {
+    loading,
+    error,
+    onSubmit: handleSubmit,
+  } = useAsyncForm(
+    async () => {
       const donationIds = donations.map((d) => d.id)
       const updated = await batchUpdateDonationStatus(donationIds, newStatus)
       onSaved(updated)
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update donations')
-    } finally {
-      setLoading(false)
-    }
+    },
+    { fallbackError: 'Failed to update donations' }
+  )
+
+  if (donations.length === 0) {
+    return null
   }
 
   return (
@@ -90,21 +87,22 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
                 )}
 
                 <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
+                  <AdminButton
+                    variant="secondary"
                     onClick={onClose}
-                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                     disabled={loading}
+                    className="transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </AdminButton>
+                  <AdminButton
                     type="submit"
+                    variant="primary"
                     disabled={loading || !newStatus}
-                    className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="transition-colors disabled:cursor-not-allowed"
                   >
                     {loading ? 'Updating...' : `Update ${donations.length} Donations`}
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             )}
@@ -116,13 +114,9 @@ export default function BatchDonationEditModal({ donations, onClose, onSaved }: 
                   <strong>{currentStatus}</strong>
                 </div>
                 <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
-                  >
+                  <AdminButton variant="secondary" onClick={onClose} className="transition-colors">
                     Close
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             )}
