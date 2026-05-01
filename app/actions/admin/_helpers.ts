@@ -11,16 +11,6 @@ import sharp from 'sharp'
 import { logger } from '@/lib/logger'
 import type { getAdminClient } from '@/lib/supabase/action-clients'
 
-/** Allowed upload MIME types and the file extension we use when storing them. */
-export const MIME_TO_EXT: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/gif': 'gif',
-  'image/webp': 'webp',
-  'video/mp4': 'mp4',
-  'video/quicktime': 'mov',
-}
-
 type SupabaseClient = Awaited<ReturnType<typeof getAdminClient>>
 
 interface ThumbnailOptions {

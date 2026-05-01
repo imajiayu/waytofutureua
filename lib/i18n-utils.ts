@@ -6,11 +6,6 @@
 
 import type { AppLocale, I18nText, Json } from '@/types'
 
-/**
- * @deprecated Use `AppLocale` from `@/types` instead.
- */
-export type SupportedLocale = AppLocale
-
 type I18nInput = I18nText | Json | undefined | null
 
 /**
@@ -28,27 +23,6 @@ export function getTranslatedText(
   const value = i18n[locale] ?? i18n.en
   return typeof value === 'string' ? value : fallbackText || ''
 }
-
-/** @deprecated Use `getTranslatedText` directly. */
-export const getProjectName = (
-  projectNameI18n: I18nInput,
-  fallbackName: string | null,
-  locale: AppLocale = 'en'
-) => getTranslatedText(projectNameI18n, fallbackName, locale)
-
-/** @deprecated Use `getTranslatedText` directly. */
-export const getLocation = (
-  locationI18n: I18nInput,
-  fallbackLocation: string | null,
-  locale: AppLocale = 'en'
-) => getTranslatedText(locationI18n, fallbackLocation, locale)
-
-/** @deprecated Use `getTranslatedText` directly. */
-export const getUnitName = (
-  unitNameI18n: I18nInput,
-  fallbackUnitName: string | null,
-  locale: AppLocale = 'en'
-) => getTranslatedText(unitNameI18n, fallbackUnitName, locale)
 
 const JS_LOCALE_MAP: Record<AppLocale, string> = {
   en: 'en-US',

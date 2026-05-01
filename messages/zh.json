@@ -483,6 +483,7 @@
     "cryptoSelector": {
       "title": "选择加密货币",
       "subtitle": "请选择您要使用的加密货币",
+      "stablecoinBadge": "稳定币",
       "continue": "继续支付",
       "creating": "正在创建支付...",
       "back": "返回",

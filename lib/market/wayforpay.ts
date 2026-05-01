@@ -10,7 +10,7 @@ import {
   type WayForPayPaymentParams,
 } from '@/lib/payment/wayforpay/server'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
 
 const WAYFORPAY_LANG_MAP: Record<string, 'UA' | 'EN' | 'RU'> = {
   en: 'EN',

@@ -12,7 +12,8 @@ if (!process.env.WAYFORPAY_SECRET_KEY) {
 
 export const WAYFORPAY_MERCHANT_ACCOUNT = process.env.WAYFORPAY_MERCHANT_ACCOUNT
 export const WAYFORPAY_SECRET_KEY = process.env.WAYFORPAY_SECRET_KEY
-export const WAYFORPAY_MERCHANT_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+export const WAYFORPAY_MERCHANT_DOMAIN =
+  process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
 
 /**
  * Generate WayForPay signature using HMAC-MD5

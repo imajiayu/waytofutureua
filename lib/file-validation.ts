@@ -9,6 +9,16 @@ export const VIDEO_TYPES = ['video/mp4', 'video/quicktime'] as const
 
 export const MAX_MEDIA_FILE_SIZE = 50 * 1024 * 1024 // 50 MB
 
+/** Allowed upload MIME types and the file extension we use when storing them. */
+export const MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'video/mp4': 'mp4',
+  'video/quicktime': 'mov',
+}
+
 interface ValidateOptions {
   /** MIME types accepted by the caller (intersection with IMAGE_TYPES + VIDEO_TYPES). */
   allowed: ReadonlyArray<string>

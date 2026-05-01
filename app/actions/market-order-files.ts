@@ -1,5 +1,6 @@
 'use server'
 
+import { MIME_TO_EXT } from '@/lib/file-validation'
 import { logger } from '@/lib/logger'
 import { getAdminClient, getInternalClient } from '@/lib/supabase/action-clients'
 import { createServerClient } from '@/lib/supabase/server'
@@ -7,15 +8,6 @@ import type { MarketOrderFile, MarketOrderFileCategory, MarketOrderStatus } from
 
 const BUCKET = 'market-order-results'
 const CATEGORIES: MarketOrderFileCategory[] = ['shipping', 'completion']
-
-const MIME_TO_EXT: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/gif': 'gif',
-  'image/webp': 'webp',
-  'video/mp4': 'mp4',
-  'video/quicktime': 'mov',
-}
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 

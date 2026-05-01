@@ -7,7 +7,10 @@ import {
   REFUND_DECLINED_CHECK_STATUSES,
 } from '@/lib/donation-status'
 import { sendPaymentSuccessEmail, sendRefundSuccessEmail } from '@/lib/email'
-import type { SupportedLocale } from '@/lib/i18n-utils'
+import {
+  buildPaymentSuccessPayload,
+  buildRefundSuccessPayload,
+} from '@/lib/email/build-webhook-payload'
 import { logger } from '@/lib/logger'
 import { verifyWayForPaySignature, WAYFORPAY_STATUS } from '@/lib/payment/wayforpay/server'
 import { respondWithAccept } from '@/lib/payment/wayforpay/webhook-response'
@@ -178,53 +181,16 @@ export async function POST(req: Request) {
       // Send confirmation email for successful payments
       if (shouldSendEmail && updatedDonations && updatedDonations.length > 0) {
         try {
-          const firstDonation = updatedDonations[0]
-          const projectIds = [...new Set(updatedDonations.map((d) => d.project_id))]
-
-          const { data: projects } = await supabase
-            .from('projects')
-            .select('id, project_name_i18n, location_i18n, unit_name_i18n, aggregate_donations')
-            .in('id', projectIds)
-
-          if (projects && projects.length > 0) {
-            const projectMap = new Map(projects.map((p) => [p.id, p]))
-
-            const donationItems = updatedDonations.map((donation) => {
-              const project = projectMap.get(donation.project_id)
-              return {
-                donationPublicId: donation.donation_public_id,
-                projectNameI18n: (project?.project_name_i18n || { en: '', zh: '', ua: '' }) as {
-                  en: string
-                  zh: string
-                  ua: string
-                },
-                locationI18n: (project?.location_i18n || { en: '', zh: '', ua: '' }) as {
-                  en: string
-                  zh: string
-                  ua: string
-                },
-                unitNameI18n: (project?.unit_name_i18n || { en: '', zh: '', ua: '' }) as {
-                  en: string
-                  zh: string
-                  ua: string
-                },
-                amount: Number(donation.amount),
-                isAggregate: project?.aggregate_donations === true,
-              }
-            })
-
-            await sendPaymentSuccessEmail({
-              to: firstDonation.donor_email,
-              donorName: firstDonation.donor_name,
-              donations: donationItems,
-              totalAmount: updatedDonations.reduce((sum, d) => sum + Number(d.amount), 0),
-              currency: body.currency,
-              locale: firstDonation.locale as SupportedLocale,
-            })
-
+          const payload = await buildPaymentSuccessPayload(
+            supabase,
+            updatedDonations,
+            body.currency
+          )
+          if (payload) {
+            await sendPaymentSuccessEmail(payload)
             logger.info('WEBHOOK:WAYFORPAY', 'Confirmation email sent', {
               orderReference,
-              to: firstDonation.donor_email,
+              to: payload.to,
             })
           }
         } catch (emailError) {
@@ -238,30 +204,17 @@ export async function POST(req: Request) {
       // Send refund success email when status becomes refunded
       if (newStatus === 'refunded' && updatedDonations && updatedDonations.length > 0) {
         try {
-          const firstDonation = updatedDonations[0]
-          const { data: project } = await supabase
-            .from('projects')
-            .select('project_name_i18n')
-            .eq('id', firstDonation.project_id)
-            .single()
-
-          if (project) {
-            const refundAmount = updatedDonations.reduce((sum, d) => sum + Number(d.amount), 0)
-
-            await sendRefundSuccessEmail({
-              to: firstDonation.donor_email,
-              donorName: firstDonation.donor_name,
-              projectNameI18n: project.project_name_i18n as { en: string; zh: string; ua: string },
-              donationIds: updatedDonations.map((d) => d.donation_public_id),
-              refundAmount,
-              currency: body.currency || 'USD',
-              locale: firstDonation.locale as SupportedLocale,
-              refundReason: body.reason || undefined,
-            })
-
+          const payload = await buildRefundSuccessPayload(
+            supabase,
+            updatedDonations,
+            body.currency || 'USD',
+            body.reason || undefined
+          )
+          if (payload) {
+            await sendRefundSuccessEmail(payload)
             logger.info('WEBHOOK:WAYFORPAY', 'Refund email sent', {
               orderReference,
-              to: firstDonation.donor_email,
+              to: payload.to,
             })
           }
         } catch (emailError) {

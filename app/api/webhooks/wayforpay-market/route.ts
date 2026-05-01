@@ -152,6 +152,59 @@ export async function POST(req: Request) {
         return { matched: !!(data && data.length > 0) }
       }
 
+      // 辅助：恢复路径（widget_load_failed / expired → paid）
+      //   1. 先扣库存（避免超卖）
+      //   2. CAS 更新 fromStatus → newStatus
+      //   3. CAS 失败时回滚刚扣的库存
+      // 仅当 newStatus === 'paid' 时调用。返回是否成功匹配 fromStatus。
+      // itemId/quantity 显式传入，避免 nested fn 边界破坏 TS 对 order 的 narrow。
+      async function attemptStockRecoveryAndCAS(
+        fromStatus: 'widget_load_failed' | 'expired',
+        itemId: number,
+        quantity: number
+      ): Promise<boolean> {
+        const { data: decremented, error: dErr } = await service.rpc('decrement_stock', {
+          p_item_id: itemId,
+          p_quantity: quantity,
+        })
+        if (dErr || !decremented) {
+          logger.error(
+            'WEBHOOK:WAYFORPAY-MARKET',
+            `Re-decrement stock failed for ${fromStatus} recovery — order stays ${fromStatus}`,
+            {
+              orderReference,
+              itemId,
+              error: dErr?.message,
+            }
+          )
+          return false
+        }
+        const r = await casUpdate(fromStatus)
+        if (r.error || !r.matched) {
+          // CAS 失败（已被其他 Webhook 处理） → 回滚刚扣的库存
+          await service.rpc('restore_stock', {
+            p_item_id: itemId,
+            p_quantity: quantity,
+          })
+          logger.warn(
+            'WEBHOOK:WAYFORPAY-MARKET',
+            `${fromStatus} CAS failed after stock decrement — stock restored`,
+            { orderReference }
+          )
+          return false
+        }
+        logger.info(
+          'WEBHOOK:WAYFORPAY-MARKET',
+          `Stock re-decremented + status recovered from ${fromStatus}`,
+          {
+            orderReference,
+            itemId,
+            quantity,
+          }
+        )
+        return true
+      }
+
       // 尝试 1: 从 pending 转换（库存在下单时已扣减，无需额外操作）
       const r1 = await casUpdate('pending')
       if (r1.error) {
@@ -168,47 +221,12 @@ export async function POST(req: Request) {
         // 尝试 2: 从 widget_load_failed 转换
         if (newStatus === 'paid') {
           // 恢复路径：先扣库存再改状态
-          const { data: decremented, error: dErr } = await service.rpc('decrement_stock', {
-            p_item_id: order.item_id,
-            p_quantity: order.quantity,
-          })
-          if (dErr || !decremented) {
-            logger.error(
-              'WEBHOOK:WAYFORPAY-MARKET',
-              'Re-decrement stock failed for widget_load_failed recovery — order stays widget_load_failed',
-              {
-                orderReference,
-                itemId: order.item_id,
-                error: dErr?.message,
-              }
-            )
-            // 扣库存失败 → 不改状态，由管理员人工处理
-          } else {
-            const r2 = await casUpdate('widget_load_failed')
-            if (r2.error || !r2.matched) {
-              // CAS 失败（已被其他 Webhook 处理） → 回滚刚扣的库存
-              await service.rpc('restore_stock', {
-                p_item_id: order.item_id,
-                p_quantity: order.quantity,
-              })
-              logger.warn(
-                'WEBHOOK:WAYFORPAY-MARKET',
-                'widget_load_failed CAS failed after stock decrement — stock restored',
-                { orderReference }
-              )
-            } else {
-              actualPreviousStatus = 'widget_load_failed'
-              logger.info(
-                'WEBHOOK:WAYFORPAY-MARKET',
-                'Stock re-decremented + status recovered from widget_load_failed',
-                {
-                  orderReference,
-                  itemId: order.item_id,
-                  quantity: order.quantity,
-                }
-              )
-            }
+          if (
+            await attemptStockRecoveryAndCAS('widget_load_failed', order.item_id, order.quantity)
+          ) {
+            actualPreviousStatus = 'widget_load_failed'
           }
+          // 扣库存或 CAS 失败 → 不改状态，由管理员人工处理 / 已由 helper 回滚
         } else {
           // 非 paid（expired/declined）→ 无需库存操作，直接改状态
           const r2 = await casUpdate('widget_load_failed')
@@ -224,44 +242,8 @@ export async function POST(req: Request) {
 
         // 尝试 3: 从 expired 恢复（仅 paid）
         if (!actualPreviousStatus && newStatus === 'paid') {
-          const { data: decremented, error: dErr } = await service.rpc('decrement_stock', {
-            p_item_id: order.item_id,
-            p_quantity: order.quantity,
-          })
-          if (dErr || !decremented) {
-            logger.error(
-              'WEBHOOK:WAYFORPAY-MARKET',
-              'Re-decrement stock failed for expired recovery — order stays expired',
-              {
-                orderReference,
-                itemId: order.item_id,
-                error: dErr?.message,
-              }
-            )
-          } else {
-            const r3 = await casUpdate('expired')
-            if (r3.error || !r3.matched) {
-              await service.rpc('restore_stock', {
-                p_item_id: order.item_id,
-                p_quantity: order.quantity,
-              })
-              logger.warn(
-                'WEBHOOK:WAYFORPAY-MARKET',
-                'expired CAS failed after stock decrement — stock restored',
-                { orderReference }
-              )
-            } else {
-              actualPreviousStatus = 'expired'
-              logger.info(
-                'WEBHOOK:WAYFORPAY-MARKET',
-                'Stock re-decremented + status recovered from expired',
-                {
-                  orderReference,
-                  itemId: order.item_id,
-                  quantity: order.quantity,
-                }
-              )
-            }
+          if (await attemptStockRecoveryAndCAS('expired', order.item_id, order.quantity)) {
+            actualPreviousStatus = 'expired'
           }
         }
       }

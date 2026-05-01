@@ -140,7 +140,7 @@ export default function BroadcastModal({
 
   // Build project URL based on template's projectId
   const buildProjectUrl = (locale: string): string => {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
     const projectId = getProjectId()
     if (projectId) {
       return `${baseUrl}/${locale}/donate?project=${projectId}`
@@ -153,7 +153,7 @@ export default function BroadcastModal({
     setError(null)
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
       const response = await previewEmailTemplate(selectedTemplate, previewLocale, {
         project_url: buildProjectUrl(previewLocale),
         unsubscribe_url: `${baseUrl}/api/unsubscribe?token=PREVIEW_TOKEN`,

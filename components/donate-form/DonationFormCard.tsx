@@ -6,10 +6,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createNowPaymentsDonation, createWayForPayDonation } from '@/app/actions/donation'
 import { createEmailSubscription } from '@/app/actions/subscription'
 import NowPaymentsWidget from '@/components/donate-form/widgets/NowPaymentsWidget'
-import { getLocation, getProjectName, getUnitName, type SupportedLocale } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import { clientLogger } from '@/lib/logger-client'
 import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
-import type { ProjectStats } from '@/types'
+import type { AppLocale, ProjectStats } from '@/types'
 import type { DonorInfo } from '@/types/dtos'
 
 import CryptoSelector from './CryptoSelector'
@@ -61,13 +61,13 @@ export default function DonationFormCard({
 
   // Get translated project data
   const projectName = project
-    ? getProjectName(project.project_name_i18n, project.project_name, locale as SupportedLocale)
+    ? getTranslatedText(project.project_name_i18n, project.project_name, locale as AppLocale)
     : ''
   const location = project
-    ? getLocation(project.location_i18n, project.location, locale as SupportedLocale)
+    ? getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
     : ''
   const unitName = project
-    ? getUnitName(project.unit_name_i18n, project.unit_name, locale as SupportedLocale)
+    ? getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
     : ''
 
   // Project-specific fields (reset when project changes)
@@ -329,7 +329,7 @@ export default function DonationFormCard({
         contact_telegram: contactTelegram ? contactTelegram.trim() : undefined,
         contact_whatsapp: contactWhatsapp ? contactWhatsapp.trim() : undefined,
         tip_amount: tipAmount > 0 ? tipAmount : undefined,
-        locale: locale as SupportedLocale,
+        locale: locale as AppLocale,
       })
 
       // Discard stale response if user switched projects during the request
@@ -382,7 +382,7 @@ export default function DonationFormCard({
       // P2 优化: Fire-and-forget 模式 - 邮件订阅不阻塞支付流程
       // 订阅失败不影响支付成功，无需等待
       if (subscribeToNewsletter && donorEmail) {
-        createEmailSubscription(donorEmail.trim(), locale as SupportedLocale).catch(
+        createEmailSubscription(donorEmail.trim(), locale as AppLocale).catch(
           (subscriptionError) => {
             clientLogger.error('FORM:DONATION', 'Failed to create email subscription', {
               error:
@@ -433,7 +433,7 @@ export default function DonationFormCard({
         contact_telegram: contactTelegram ? contactTelegram.trim() : undefined,
         contact_whatsapp: contactWhatsapp ? contactWhatsapp.trim() : undefined,
         tip_amount: tipAmount > 0 ? tipAmount : undefined,
-        locale: locale as SupportedLocale,
+        locale: locale as AppLocale,
         pay_currency: cryptoCurrency,
       })
 
@@ -485,7 +485,7 @@ export default function DonationFormCard({
       // P2 优化: Fire-and-forget 模式 - 邮件订阅不阻塞支付流程
       // 订阅失败不影响支付成功，无需等待
       if (subscribeToNewsletter && donorEmail) {
-        createEmailSubscription(donorEmail.trim(), locale as SupportedLocale).catch(
+        createEmailSubscription(donorEmail.trim(), locale as AppLocale).catch(
           (subscriptionError) => {
             clientLogger.error('FORM:DONATION', 'Failed to create email subscription', {
               error:

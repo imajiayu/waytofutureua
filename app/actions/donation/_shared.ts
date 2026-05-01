@@ -1,4 +1,4 @@
-import { getProjectName, getUnitName } from '@/lib/i18n-utils'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import { logger } from '@/lib/logger'
 import { getPublicClient } from '@/lib/supabase/action-clients'
 import { getProjectStats } from '@/lib/supabase/queries'
@@ -133,7 +133,7 @@ export async function prepareDonationContext(
   }
 
   // Get localized unit name for error messages
-  const unitName = getUnitName(
+  const unitName = getTranslatedText(
     project.unit_name_i18n,
     project.unit_name,
     validated.locale as AppLocale
@@ -214,7 +214,7 @@ export async function prepareDonationContext(
   const orderReference = `DONATE-${project.id}-${timestamp}-${randomSuffix}`
 
   // Get localized project name (used by payment params + metadata)
-  const projectName = getProjectName(
+  const projectName = getTranslatedText(
     project.project_name_i18n,
     project.project_name,
     validated.locale as AppLocale

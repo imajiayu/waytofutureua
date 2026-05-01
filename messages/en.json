@@ -483,6 +483,7 @@
     "cryptoSelector": {
       "title": "Select Cryptocurrency",
       "subtitle": "Choose which cryptocurrency you'd like to pay with",
+      "stablecoinBadge": "Stablecoin",
       "continue": "Continue to Payment",
       "creating": "Creating payment...",
       "back": "Back",

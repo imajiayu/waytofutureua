@@ -20,6 +20,30 @@ import type { AppLocale } from '@/types'
 import type { DonationByContactRow } from '@/types/dtos'
 
 /**
+ * Verify ownership via the secure RPC `get_donations_by_email_verified` and
+ * return the matched donations. Failures are split into `not_found` (no row
+ * matched the email + donation_id pair) and `rpc_error` (DB error) so callers
+ * can decide whether to surface a generic 'donationNotFound' or log + 500.
+ */
+async function fetchVerifiedDonationsByEmail(
+  email: string,
+  donationId: string
+): Promise<
+  | { ok: true; donations: DonationByContactRow[] }
+  | { ok: false; reason: 'not_found' }
+  | { ok: false; reason: 'rpc_error'; message: string }
+> {
+  const supabase = getPublicClient()
+  const { data, error } = await supabase.rpc('get_donations_by_email_verified', {
+    p_email: email,
+    p_donation_id: donationId,
+  })
+  if (error) return { ok: false, reason: 'rpc_error', message: error.message }
+  if (!data || data.length === 0) return { ok: false, reason: 'not_found' }
+  return { ok: true, donations: data as DonationByContactRow[] }
+}
+
+/**
  * Track Donations - Secure Implementation
  *
  * Security Improvements:
@@ -33,32 +57,21 @@ export async function trackDonations(data: { email: string; donationId: string }
     // 1. Validate input
     const validated = trackDonationSchema.parse(data)
 
-    // SECURITY: Use anonymous client - verification handled by database function
-    const supabase = getPublicClient()
-
-    // 2. Call secure database function
-    // Function will:
-    //   - Verify donation ID belongs to this email
-    //   - Return all donations for this email if verified
-    //   - Return empty result if verification fails
-    const { data: donations, error } = await supabase.rpc('get_donations_by_email_verified', {
-      p_email: validated.email,
-      p_donation_id: validated.donationId,
-    })
-
-    if (error) {
-      logger.error('DONATION', 'get_donations_by_email_verified failed', { error: error.message })
-      return { error: 'serverError' }
-    }
-
-    // 3. Check if verification passed (empty result means verification failed)
-    if (!donations || donations.length === 0) {
+    // 2. Verify ownership via secure RPC (anon client + email + donation_id pair)
+    const result = await fetchVerifiedDonationsByEmail(validated.email, validated.donationId)
+    if (!result.ok) {
+      if (result.reason === 'rpc_error') {
+        logger.error('DONATION', 'get_donations_by_email_verified failed', {
+          error: result.message,
+        })
+        return { error: 'serverError' }
+      }
       // Don't reveal if it's wrong email or wrong donation ID (security)
       return { error: 'donationNotFound' }
     }
 
-    // 4. Transform data to match expected format
-    const transformedDonations = (donations as DonationByContactRow[]).map((d) => ({
+    // 3. Transform data to match expected format
+    const transformedDonations = result.donations.map((d) => ({
       ...d,
       projects: {
         id: d.project_id,
@@ -100,24 +113,17 @@ export async function requestRefund(data: { donationPublicId: string; email: str
     // 1. Validate input
     const validated = requestRefundSchema.parse(data)
 
-    // 2. Get donation details (verify ownership and eligibility)
-    const anonSupabase = getPublicClient()
-
-    // First verify ownership using database function
-    const { data: donations, error: verifyError } = await anonSupabase.rpc(
-      'get_donations_by_email_verified',
-      {
-        p_email: validated.email,
-        p_donation_id: validated.donationPublicId,
-      }
+    // 2. Verify ownership via secure RPC (anon client + email + donation_id pair)
+    const verifyResult = await fetchVerifiedDonationsByEmail(
+      validated.email,
+      validated.donationPublicId
     )
-
-    if (verifyError || !donations || donations.length === 0) {
+    if (!verifyResult.ok) {
       return { error: 'donationNotFound' }
     }
 
     // Find the specific donation
-    const donation = (donations as DonationByContactRow[]).find(
+    const donation = verifyResult.donations.find(
       (d) => d.donation_public_id === validated.donationPublicId
     )
 
@@ -342,6 +348,7 @@ export async function requestRefund(data: { donationPublicId: string; email: str
       if (newStatus === 'refunded') {
         try {
           const firstDonation = refundableDonations[0]
+          const anonSupabase = getPublicClient()
           const { data: project } = await anonSupabase
             .from('projects')
             .select('project_name_i18n')

@@ -6,7 +6,10 @@ import {
   REFUND_WEBHOOK_SOURCE_STATUSES,
 } from '@/lib/donation-status'
 import { sendPaymentSuccessEmail, sendRefundSuccessEmail } from '@/lib/email'
-import type { SupportedLocale } from '@/lib/i18n-utils'
+import {
+  buildPaymentSuccessPayload,
+  buildRefundSuccessPayload,
+} from '@/lib/email/build-webhook-payload'
 import { logger } from '@/lib/logger'
 import { NOWPAYMENTS_STATUS, verifyNowPaymentsSignature } from '@/lib/payment/nowpayments/server'
 import type { NowPaymentsWebhookBody } from '@/lib/payment/nowpayments/types'
@@ -192,81 +195,25 @@ export async function POST(req: Request) {
         toStatus: newStatus,
       })
 
-      // Send confirmation email for successful payments
+      // Send confirmation email for successful payments / refund notifications
       if (shouldSendEmail && updatedDonations && updatedDonations.length > 0) {
         try {
-          const firstDonation = updatedDonations[0]
-          const projectIds = [...new Set(updatedDonations.map((d) => d.project_id))]
-
-          const { data: projects } = await supabase
-            .from('projects')
-            .select('id, project_name_i18n, location_i18n, unit_name_i18n, aggregate_donations')
-            .in('id', projectIds)
-
-          if (projects && projects.length > 0) {
-            const projectMap = new Map(projects.map((p) => [p.id, p]))
-
-            if (newStatus === 'paid') {
-              const donationItems = updatedDonations.map((donation) => {
-                const project = projectMap.get(donation.project_id)
-                return {
-                  donationPublicId: donation.donation_public_id,
-                  projectNameI18n: (project?.project_name_i18n || { en: '', zh: '', ua: '' }) as {
-                    en: string
-                    zh: string
-                    ua: string
-                  },
-                  locationI18n: (project?.location_i18n || { en: '', zh: '', ua: '' }) as {
-                    en: string
-                    zh: string
-                    ua: string
-                  },
-                  unitNameI18n: (project?.unit_name_i18n || { en: '', zh: '', ua: '' }) as {
-                    en: string
-                    zh: string
-                    ua: string
-                  },
-                  amount: Number(donation.amount),
-                  isAggregate: project?.aggregate_donations === true,
-                }
-              })
-
-              const totalAmount = updatedDonations.reduce((sum, d) => sum + Number(d.amount), 0)
-
-              await sendPaymentSuccessEmail({
-                to: firstDonation.donor_email,
-                donorName: firstDonation.donor_name,
-                donations: donationItems,
-                totalAmount,
-                currency: 'USD',
-                locale: firstDonation.locale as SupportedLocale,
-              })
-
+          if (newStatus === 'paid') {
+            const payload = await buildPaymentSuccessPayload(supabase, updatedDonations, 'USD')
+            if (payload) {
+              await sendPaymentSuccessEmail(payload)
               logger.info('WEBHOOK:NOWPAYMENTS', 'Confirmation email sent', {
                 orderId,
-                to: firstDonation.donor_email,
+                to: payload.to,
               })
-            } else if (newStatus === 'refunded') {
-              const project = projectMap.get(firstDonation.project_id)
-              const refundAmount = updatedDonations.reduce((sum, d) => sum + Number(d.amount), 0)
-
-              await sendRefundSuccessEmail({
-                to: firstDonation.donor_email,
-                donorName: firstDonation.donor_name,
-                projectNameI18n: (project?.project_name_i18n || { en: '', zh: '', ua: '' }) as {
-                  en: string
-                  zh: string
-                  ua: string
-                },
-                donationIds: updatedDonations.map((d) => d.donation_public_id),
-                refundAmount,
-                currency: 'USD',
-                locale: firstDonation.locale as SupportedLocale,
-              })
-
+            }
+          } else if (newStatus === 'refunded') {
+            const payload = await buildRefundSuccessPayload(supabase, updatedDonations, 'USD')
+            if (payload) {
+              await sendRefundSuccessEmail(payload)
               logger.info('WEBHOOK:NOWPAYMENTS', 'Refund email sent', {
                 orderId,
-                to: firstDonation.donor_email,
+                to: payload.to,
               })
             }
           }

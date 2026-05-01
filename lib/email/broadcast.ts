@@ -36,7 +36,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 export async function sendBroadcastEmail(params: BroadcastEmailParams): Promise<BroadcastResult> {
   const { template, locale, recipients, variables = {} } = params
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
 
   const content = loadTemplateContent(template.fileName)
   if (!content) {

@@ -1,10 +1,11 @@
 'use server'
 
 import { isCloudinaryConfigured, processImageWithCloudinary } from '@/lib/cloudinary'
+import { MIME_TO_EXT } from '@/lib/file-validation'
 import { logger } from '@/lib/logger'
 import { getAdminClient } from '@/lib/supabase/action-clients'
 
-import { generateAndUploadThumbnail, MIME_TO_EXT } from './_helpers'
+import { generateAndUploadThumbnail } from './_helpers'
 
 /**
  * 上传捐赠结果文件（通过 FormData）

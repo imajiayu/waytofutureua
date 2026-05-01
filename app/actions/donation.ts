@@ -19,14 +19,12 @@ import {
   prepareDonationContext,
 } from './donation/_shared'
 
-type WayForPayPaymentResult =
-  | {
-      success: true
-      paymentParams: WayForPayPaymentParams & Record<string, unknown>
-      amount: number
-      orderReference: string
-      allProjectsStats: ProjectStats[]
-    }
+/**
+ * Failure variants shared between donation creation actions. WayForPay and
+ * NOWPayments diverge only in the success shape and one extra `api_error`
+ * branch (NOWPayments-only); the rest of the failure modes are byte-equal.
+ */
+type DonationFailure =
   | {
       success: false
       error: 'quantity_exceeded'
@@ -47,6 +45,16 @@ type WayForPayPaymentResult =
       allProjectsStats?: ProjectStats[]
     }
 
+type WayForPayPaymentResult =
+  | {
+      success: true
+      paymentParams: WayForPayPaymentParams & Record<string, unknown>
+      amount: number
+      orderReference: string
+      allProjectsStats: ProjectStats[]
+    }
+  | DonationFailure
+
 type NowPaymentsResult =
   | {
       success: true
@@ -55,26 +63,8 @@ type NowPaymentsResult =
       orderReference: string
       allProjectsStats: ProjectStats[]
     }
-  | {
-      success: false
-      error: 'quantity_exceeded'
-      remainingUnits: number
-      unitName: string
-      allProjectsStats: ProjectStats[]
-    }
-  | {
-      success: false
-      error: 'amount_limit_exceeded'
-      maxQuantity: number
-      unitName: string
-      allProjectsStats: ProjectStats[]
-    }
+  | DonationFailure
   | { success: false; error: 'api_error'; message: string; allProjectsStats: ProjectStats[] }
-  | {
-      success: false
-      error: 'project_not_found' | 'project_not_active' | 'server_error'
-      allProjectsStats?: ProjectStats[]
-    }
 
 /** Adapt the shared error union into the per-action `success: false` shape. */
 function asActionError<T extends { success: boolean }>(err: DonationCreationError): T {
@@ -116,7 +106,7 @@ export async function createWayForPayDonation(
     else if (validated.locale === 'ua') language = 'UA'
 
     // Prepare return and callback URLs
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
     // Use API route to handle POST redirect from WayForPay, then redirect to success page
     const returnUrl = `${baseUrl}/api/donate/success-redirect?order=${orderReference}&locale=${validated.locale}`
     const serviceUrl = `${baseUrl}/api/webhooks/wayforpay`
@@ -242,7 +232,7 @@ export async function createNowPaymentsDonation(
     // The API will return specific error messages for amounts that are too small
 
     // Create NOWPayments payment
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
     const ipnCallbackUrl = `${baseUrl}/api/webhooks/nowpayments`
     const successUrl = `${baseUrl}/${validated.locale}/donate/success?order=${orderReference}`
 
