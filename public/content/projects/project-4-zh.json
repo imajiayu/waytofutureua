@@ -119,6 +119,7 @@
   "donationResults": {
     "title": "捐赠成果",
     "items": [
+      { "image": "/images/projects/project-4/results/result-19.webp", "orientation": "landscape", "aspectRatio": 1, "priority": 10 },
       { "image": "/images/projects/project-4/results/result-02.webp", "orientation": "landscape", "priority": 10 },
       { "image": "/images/projects/project-4/results/result-04.webp", "orientation": "portrait", "priority": 6 },
       { "image": "/images/projects/project-4/results/result-05.webp", "orientation": "portrait", "priority": 6 },
