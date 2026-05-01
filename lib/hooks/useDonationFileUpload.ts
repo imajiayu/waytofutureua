@@ -8,6 +8,7 @@ import {
   getDonationResultFiles,
   processUploadedImage,
 } from '@/app/actions/admin'
+import { MAX_MEDIA_FILE_SIZE, validateMediaFiles } from '@/lib/file-validation'
 import { clientLogger } from '@/lib/logger-client'
 import { createClient } from '@/lib/supabase/client'
 
@@ -21,6 +22,7 @@ export interface DonationFile {
   updatedAt: string
 }
 
+// Donation result files: legacy type set (no webp).
 const VALID_TYPES = [
   'image/jpeg',
   'image/png',
@@ -28,7 +30,7 @@ const VALID_TYPES = [
   'video/mp4',
   'video/quicktime',
 ] as const
-const MAX_SIZE = 50 * 1024 * 1024 // 50MB
+const MAX_SIZE = MAX_MEDIA_FILE_SIZE
 
 interface Options {
   donationId: number
@@ -82,21 +84,16 @@ export function useDonationFileUpload({ donationId, autoLoad }: Options) {
     const selectedFiles = Array.from(e.target.files || [])
     if (selectedFiles.length === 0) return
 
-    const invalidFiles = selectedFiles.filter(
-      (file) => !(VALID_TYPES as readonly string[]).includes(file.type)
-    )
-    if (invalidFiles.length > 0) {
-      setValidationError(
-        `Invalid file type: ${invalidFiles.map((f) => f.name).join(', ')}. Only images (JPEG, PNG, GIF) and videos (MP4, MOV) are allowed.`
-      )
-      return
-    }
-
-    const oversizedFiles = selectedFiles.filter((file) => file.size > MAX_SIZE)
-    if (oversizedFiles.length > 0) {
-      setValidationError(
-        `File too large: ${oversizedFiles.map((f) => f.name).join(', ')}. Maximum size is 50MB per file.`
-      )
+    const result = validateMediaFiles(selectedFiles, {
+      allowed: VALID_TYPES,
+      maxSize: MAX_SIZE,
+      formatInvalidType: (names) =>
+        `Invalid file type: ${names.join(', ')}. Only images (JPEG, PNG, GIF) and videos (MP4, MOV) are allowed.`,
+      formatOversized: (names) =>
+        `File too large: ${names.join(', ')}. Maximum size is 50MB per file.`,
+    })
+    if (!result.ok) {
+      setValidationError(result.error)
       return
     }
 

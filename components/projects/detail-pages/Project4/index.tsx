@@ -12,7 +12,7 @@ import ProjectProgressSection from '@/components/projects/shared/ProjectProgress
 import type { ResultImage } from '@/components/projects/shared/UnifiedResultsSection'
 import UnifiedResultsSection from '@/components/projects/shared/UnifiedResultsSection'
 import { useActiveSection } from '@/lib/hooks/useActiveSection'
-import { useLightbox } from '@/lib/hooks/useLightbox'
+import { useLightbox, useLightboxFromUrls } from '@/lib/hooks/useLightbox'
 import { useProjectContents } from '@/lib/hooks/useProjectContent'
 
 // Sections
@@ -39,30 +39,26 @@ export default function Project4DetailContent({ project, locale }: Project4Detai
     { url: `/content/projects/project-4-aid-${locale}.json`, projectId: 4 },
   ])
 
-  const detailLightbox = useLightbox()
+  const { lightbox: detailLightbox, images: detailLightboxImages } = useLightboxFromUrls(
+    content?.images
+  )
   const galleryLightbox = useLightbox()
-  const livingConditionsLightbox = useLightbox()
+  const livingConditionsImageUrls = useMemo(() => {
+    const defaultImages = [
+      '/images/projects/project-4/details/wood-stove.webp',
+      '/images/projects/project-4/details/desk.webp',
+    ]
+    return content?.livingConditions?.images || defaultImages
+  }, [content?.livingConditions?.images])
+  const { lightbox: livingConditionsLightbox, images: livingConditionsLightboxImages } =
+    useLightboxFromUrls(livingConditionsImageUrls)
   const talentLightbox = useLightbox()
   const receiptLightbox = useLightbox()
-
-  const detailLightboxImages = useMemo<LightboxImage[]>(
-    () => content?.images?.map((url) => ({ url })) || [],
-    [content]
-  )
 
   const galleryLightboxImages = useMemo<LightboxImage[]>(
     () => content?.familyGallery?.images?.map((img) => ({ url: img.url })) || [],
     [content]
   )
-
-  const livingConditionsLightboxImages = useMemo<LightboxImage[]>(() => {
-    const defaultImages = [
-      '/images/projects/project-4/details/wood-stove.webp',
-      '/images/projects/project-4/details/desk.webp',
-    ]
-    const images = content?.livingConditions?.images || defaultImages
-    return images.map((url) => ({ url }))
-  }, [content])
 
   const talentLightboxImages = useMemo<LightboxImage[]>(() => {
     const images: LightboxImage[] = []

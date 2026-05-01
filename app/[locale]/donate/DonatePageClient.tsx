@@ -4,10 +4,11 @@ import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import DonationFormCard, { type DonorInfo } from '@/components/donate-form/DonationFormCard'
+import DonationFormCard from '@/components/donate-form/DonationFormCard'
 import { ChevronDownIcon, ChevronUpIcon } from '@/components/icons'
 import ProjectsGallery from '@/components/projects/ProjectsGallery'
 import type { ProjectStats } from '@/types'
+import type { DonorInfo } from '@/types/dtos'
 
 // P0-8 优化: 项目详情组件按需加载（每次渲染只用 1 个，4 个全静态 import 浪费首屏 bundle）
 const detailLoading = () => <div className="h-96 animate-pulse rounded-2xl bg-gray-100" />
@@ -40,6 +41,7 @@ const ProjectDonationList = dynamic(
 )
 
 import { useBidirectionalSticky } from '@/lib/hooks/useBidirectionalSticky'
+import { useHideAtFooter } from '@/lib/hooks/useHideAtFooter'
 import { getTranslatedText } from '@/lib/i18n-utils'
 import type { AppLocale } from '@/types'
 
@@ -101,7 +103,7 @@ export default function DonatePageClient({
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(initialProjectId)
   const [isFlowExpanded, setIsFlowExpanded] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(true) // Default open on mobile
-  const [hideSheetAtBottom, setHideSheetAtBottom] = useState(false)
+  const hideSheetAtBottom = useHideAtFooter()
   const [expandSheetTrigger, setExpandSheetTrigger] = useState(0)
 
   // Shared form fields state (preserved across project switches)
@@ -119,9 +121,7 @@ export default function DonatePageClient({
   }, [])
 
   // Constants
-  const FOOTER_SAFE_ZONE = 150 // px from bottom to hide sheet
   const MOBILE_BREAKPOINT = 1024 // lg breakpoint
-  const SCROLL_DEBOUNCE_MS = 100
   const NAV_HEIGHT = 96 // top-24 = 6rem = 96px
   const BOTTOM_PADDING = 40 // padding from viewport bottom
 
@@ -165,54 +165,6 @@ export default function DonatePageClient({
     url.searchParams.set('project', id.toString())
     window.history.replaceState({}, '', url.toString())
   }
-
-  // Detect scroll to bottom and hide minimized sheet (debounced)
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout
-
-    const handleScroll = () => {
-      // Debounce: only execute after SCROLL_DEBOUNCE_MS of no scrolling
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        const windowHeight = window.innerHeight
-        const documentHeight = document.documentElement.scrollHeight
-        const scrollTop = window.scrollY || document.documentElement.scrollTop
-
-        // Calculate distance from bottom
-        const distanceFromBottom = documentHeight - (scrollTop + windowHeight)
-
-        // Hide sheet when near bottom (within FOOTER_SAFE_ZONE px of footer)
-        setHideSheetAtBottom(distanceFromBottom < FOOTER_SAFE_ZONE)
-      }, SCROLL_DEBOUNCE_MS)
-    }
-
-    const checkMobileAndAddListener = () => {
-      // Remove existing listener if any
-      window.removeEventListener('scroll', handleScroll)
-
-      // Add scroll listener on mobile only
-      if (window.innerWidth < MOBILE_BREAKPOINT) {
-        window.addEventListener('scroll', handleScroll, { passive: true })
-        // Check initial scroll position
-        handleScroll()
-      } else {
-        // Reset state on desktop
-        setHideSheetAtBottom(false)
-      }
-    }
-
-    // Initial check
-    checkMobileAndAddListener()
-
-    // Listen for window resize
-    window.addEventListener('resize', checkMobileAndAddListener)
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', checkMobileAndAddListener)
-    }
-  }, [])
 
   return (
     <div className="min-h-screen bg-slate-50">

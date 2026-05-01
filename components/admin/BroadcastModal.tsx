@@ -13,9 +13,12 @@ import {
   previewEmailTemplate,
   sendEmailBroadcast,
 } from '@/app/actions/email-broadcast'
-import { SpinnerIcon } from '@/components/icons'
 import { clientLogger } from '@/lib/logger-client'
 import type { AppLocale } from '@/types'
+
+import BroadcastPreviewView from './broadcast/BroadcastPreviewView'
+import BroadcastResultView from './broadcast/BroadcastResultView'
+import BroadcastSendForm from './broadcast/BroadcastSendForm'
 
 export interface Subscriber {
   email: string
@@ -29,14 +32,6 @@ interface BroadcastModalProps {
   subscribers: Subscriber[]
   /** Fired when a broadcast finishes (success or partial failure), regardless of exact counts */
   onSent?: () => void
-}
-
-type PreviewLocale = AppLocale
-
-const LOCALE_LABELS: Record<PreviewLocale, string> = {
-  en: 'English',
-  zh: 'Chinese',
-  ua: 'Українська',
 }
 
 export default function BroadcastModal({
@@ -53,7 +48,7 @@ export default function BroadcastModal({
     Array<{ name: string; fileName: string; projectId?: string }>
   >([])
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [previewLocale, setPreviewLocale] = useState<PreviewLocale>('en')
+  const [previewLocale, setPreviewLocale] = useState<AppLocale>('en')
   const [previewHtml, setPreviewHtml] = useState<string | null>(null)
   const [previewSubject, setPreviewSubject] = useState<string | null>(null)
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false)
@@ -270,237 +265,36 @@ export default function BroadcastModal({
 
           {/* Content */}
           {showPreview ? (
-            // Preview View
-            <div className="space-y-4">
-              {/* Subject Line */}
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                <span className="text-sm text-gray-500">Subject: </span>
-                <span className="font-medium text-gray-900">{previewSubject}</span>
-              </div>
-
-              {/* Email Preview */}
-              <div className="overflow-hidden rounded-lg border border-gray-200">
-                <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-100 px-4 py-2">
-                  <div className="flex gap-1.5">
-                    <div className="h-3 w-3 rounded-full bg-red-400"></div>
-                    <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
-                    <div className="h-3 w-3 rounded-full bg-green-400"></div>
-                  </div>
-                  <span className="ml-2 text-xs text-gray-500">
-                    Preview ({LOCALE_LABELS[previewLocale]})
-                  </span>
-                </div>
-                <iframe
-                  srcDoc={previewHtml || ''}
-                  className="h-[300px] w-full bg-white sm:h-[500px]"
-                  title="Email Preview"
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleBackFromPreview}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
-                >
-                  Back
-                </button>
-              </div>
-            </div>
+            <BroadcastPreviewView
+              previewSubject={previewSubject}
+              previewHtml={previewHtml}
+              previewLocale={previewLocale}
+              onBack={handleBackFromPreview}
+            />
           ) : result ? (
-            // Success/Result View
-            <div className="space-y-4">
-              <div
-                className={`rounded-lg p-4 ${result.success ? 'border border-green-200 bg-green-50' : 'border border-yellow-200 bg-yellow-50'}`}
-              >
-                <div className="flex items-start gap-3">
-                  <svg
-                    className={`h-6 w-6 flex-shrink-0 ${result.success ? 'text-green-600' : 'text-yellow-600'}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <div>
-                    <h3
-                      className={`font-medium ${result.success ? 'text-green-900' : 'text-yellow-900'}`}
-                    >
-                      {result.success
-                        ? 'Broadcast Sent Successfully!'
-                        : 'Broadcast Completed with Errors'}
-                    </h3>
-                    <div className="mt-2 text-sm text-gray-700">
-                      <p>Successfully sent: {result.sent}</p>
-                      {result.failed > 0 && <p>Failed: {result.failed}</p>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={handleClose}
-                className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-              >
-                Close
-              </button>
-            </div>
+            <BroadcastResultView result={result} onClose={handleClose} />
           ) : (
-            // Send Form
-            <>
-              <div className="space-y-3">
-                {/* Template Selector */}
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                  <label className="mb-2 block text-sm font-medium text-blue-900">Template</label>
-                  {isLoadingTemplates ? (
-                    <div className="text-sm text-blue-700">Loading templates...</div>
-                  ) : templates.length === 0 ? (
-                    <div className="text-sm text-blue-700">No templates available</div>
-                  ) : (
-                    <select
-                      value={selectedTemplate}
-                      onChange={(e) => setSelectedTemplate(e.target.value)}
-                      className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                    >
-                      {templates.map((template) => (
-                        <option key={template.fileName} value={template.fileName}>
-                          {template.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-
-                {/* Preview Language Selector */}
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Preview Language
-                  </label>
-                  <div className="flex gap-2">
-                    {(Object.keys(LOCALE_LABELS) as PreviewLocale[]).map((locale) => (
-                      <button
-                        key={locale}
-                        onClick={() => setPreviewLocale(locale)}
-                        className={`flex-1 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                          previewLocale === locale
-                            ? 'border-blue-600 bg-blue-600 text-white'
-                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        {LOCALE_LABELS[locale]}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={handlePreview}
-                    disabled={isLoadingPreview || !selectedTemplate}
-                    className="mt-3 w-full rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-400"
-                  >
-                    {isLoadingPreview ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <SpinnerIcon className="h-4 w-4 animate-spin" />
-                        Loading...
-                      </span>
-                    ) : (
-                      'Preview Email'
-                    )}
-                  </button>
-                </div>
-
-                {/* Recipients Selector */}
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <label className="text-sm font-medium text-gray-700">
-                      Recipients ({selectedEmails.size} of {activeSubscribers.length} selected)
-                    </label>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleSelectAll}
-                        disabled={isAllSelected}
-                        className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 disabled:cursor-not-allowed disabled:text-gray-400"
-                      >
-                        Select All
-                      </button>
-                      <span className="text-gray-300">|</span>
-                      <button
-                        onClick={handleDeselectAll}
-                        disabled={isNoneSelected}
-                        className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 disabled:cursor-not-allowed disabled:text-gray-400"
-                      >
-                        Deselect All
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Subscriber List */}
-                  <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white">
-                    {activeSubscribers.length === 0 ? (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        No active subscribers
-                      </div>
-                    ) : (
-                      <ul className="divide-y divide-gray-100">
-                        {activeSubscribers.map((subscriber) => (
-                          <li key={subscriber.email}>
-                            <label className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-gray-50">
-                              <input
-                                type="checkbox"
-                                checked={selectedEmails.has(subscriber.email)}
-                                onChange={() => handleToggleEmail(subscriber.email)}
-                                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="flex-1 truncate text-sm text-gray-900">
-                                {subscriber.email}
-                              </span>
-                              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                                {LOCALE_LABELS[subscriber.locale]}
-                              </span>
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-
-                {/* Error Message */}
-                {error && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleClose}
-                  disabled={isSending}
-                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSend}
-                  disabled={isSending || selectedEmails.size === 0 || !selectedTemplate}
-                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                >
-                  {isSending ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <SpinnerIcon className="h-4 w-4 animate-spin" />
-                      Sending...
-                    </span>
-                  ) : (
-                    `Send to ${selectedEmails.size} recipient${selectedEmails.size !== 1 ? 's' : ''}`
-                  )}
-                </button>
-              </div>
-            </>
+            <BroadcastSendForm
+              templates={templates}
+              selectedTemplate={selectedTemplate}
+              setSelectedTemplate={setSelectedTemplate}
+              isLoadingTemplates={isLoadingTemplates}
+              previewLocale={previewLocale}
+              setPreviewLocale={setPreviewLocale}
+              isLoadingPreview={isLoadingPreview}
+              onPreview={handlePreview}
+              activeSubscribers={activeSubscribers}
+              selectedEmails={selectedEmails}
+              isAllSelected={isAllSelected}
+              isNoneSelected={isNoneSelected}
+              onSelectAll={handleSelectAll}
+              onDeselectAll={handleDeselectAll}
+              onToggleEmail={handleToggleEmail}
+              error={error}
+              isSending={isSending}
+              onClose={handleClose}
+              onSend={handleSend}
+            />
           )}
         </div>
       </div>

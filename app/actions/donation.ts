@@ -77,12 +77,8 @@ type NowPaymentsResult =
     }
 
 /** Adapt the shared error union into the per-action `success: false` shape. */
-function asWayForPayError(err: DonationCreationError): WayForPayPaymentResult {
-  return { success: false, ...err } as WayForPayPaymentResult
-}
-
-function asNowPaymentsError(err: DonationCreationError): NowPaymentsResult {
-  return { success: false, ...err } as NowPaymentsResult
+function asActionError<T extends { success: boolean }>(err: DonationCreationError): T {
+  return { success: false, ...err } as unknown as T
 }
 
 /**
@@ -93,7 +89,7 @@ export async function createWayForPayDonation(
 ): Promise<WayForPayPaymentResult> {
   try {
     const prep = await prepareDonationContext(data)
-    if (!prep.ok) return asWayForPayError(prep.err)
+    if (!prep.ok) return asActionError<WayForPayPaymentResult>(prep.err)
 
     const {
       validated,
@@ -238,7 +234,7 @@ export async function createNowPaymentsDonation(
 ): Promise<NowPaymentsResult> {
   try {
     const prep = await prepareDonationContext(data)
-    if (!prep.ok) return asNowPaymentsError(prep.err)
+    if (!prep.ok) return asActionError<NowPaymentsResult>(prep.err)
 
     const { validated, totalAmount, projectName, orderReference, allProjectsStats } = prep.ctx
 

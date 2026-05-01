@@ -75,3 +75,16 @@ export interface OrderDonationsSecureRow {
   unit_name_i18n: I18nText | null
   aggregate_donations: boolean
 }
+
+/**
+ * Donor information shared between the donate page client and the donation form card.
+ * Only personal contact info — project-specific fields stay local to the form.
+ */
+export interface DonorInfo {
+  name: string
+  email: string
+  message: string
+  telegram: string
+  whatsapp: string
+  subscribeToNewsletter: boolean
+}

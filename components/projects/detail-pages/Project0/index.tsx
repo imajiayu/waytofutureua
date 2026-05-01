@@ -15,7 +15,7 @@ import {
 } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
 import { useActiveSection } from '@/lib/hooks/useActiveSection'
-import { useLightbox } from '@/lib/hooks/useLightbox'
+import { useLightbox, useLightboxFromUrls } from '@/lib/hooks/useLightbox'
 import { useProjectContent } from '@/lib/hooks/useProjectContent'
 
 import CollapsibleGallery from './CollapsibleGallery'
@@ -48,17 +48,15 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
   )
 
   // Lightbox states
-  const eventLightbox = useLightbox()
+  const { lightbox: eventLightbox, images: eventLightboxImages } = useLightboxFromUrls(
+    content?.images
+  )
   const successLightbox = useLightbox()
   const reportLightbox = useLightbox()
-  const employerLightbox = useLightbox()
+  const { lightbox: employerLightbox, images: employerLightboxImages } =
+    useLightboxFromUrls(employerImages)
 
-  // Prepare lightbox images
-  const eventLightboxImages = useMemo<LightboxImage[]>(
-    () => (content?.images || []).map((url) => ({ url })),
-    [content?.images]
-  )
-
+  // Prepare lightbox images for non-trivial mappings
   const successLightboxImages = useMemo<LightboxImage[]>(
     () => (content?.successStories || []).map((story) => ({ url: story.image })),
     [content?.successStories]
@@ -70,11 +68,6 @@ export default function Project0DetailContent({ project, locale }: Project0Detai
         .filter((year) => year.reportImage)
         .map((year) => ({ url: year.reportImage! })),
     [content?.financialStatus?.yearlyData]
-  )
-
-  const employerLightboxImages = useMemo<LightboxImage[]>(
-    () => employerImages.map((url) => ({ url })),
-    [employerImages]
   )
 
   // Section navigation

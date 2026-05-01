@@ -3,9 +3,11 @@
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { Link } from '@/i18n/navigation'
+import { useBidirectionalSticky } from '@/lib/hooks/useBidirectionalSticky'
+import { useHideAtFooter } from '@/lib/hooks/useHideAtFooter'
 import { useMarketItemContent } from '@/lib/hooks/useMarketItemContent'
 import { getTranslatedText } from '@/lib/i18n-utils'
 import { getItemDisplayInfo } from '@/lib/market/market-status'
@@ -27,8 +29,6 @@ const BottomSheet = dynamic(() => import('@/components/common/BottomSheet'), {
 const NAV_HEIGHT = 96 // top-24 = 6rem
 const BOTTOM_PADDING = 40
 const MOBILE_BREAKPOINT = 1024
-const FOOTER_SAFE_ZONE = 150
-const SCROLL_DEBOUNCE_MS = 100
 
 interface MarketItemDetailProps {
   item: PublicMarketItem
@@ -48,118 +48,17 @@ export default function MarketItemDetail({ item, locale }: MarketItemDetailProps
 
   // ── BottomSheet state (mobile) ──
   const [isSheetOpen, setIsSheetOpen] = useState(true)
-  const [hideSheetAtBottom, setHideSheetAtBottom] = useState(false)
+  const hideSheetAtBottom = useHideAtFooter()
 
   // ── Bidirectional sticky sidebar (desktop) ──
   const sidebarRef = useRef<HTMLDivElement>(null)
   const sidebarInnerRef = useRef<HTMLDivElement>(null)
-  const [stickyTop, setStickyTop] = useState(NAV_HEIGHT)
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    let lastScrollY = window.scrollY
-    let currentTop = NAV_HEIGHT
-    let ticking = false
-    let lastSidebarHeight = 0
-
-    const updatePosition = () => {
-      const sidebarInner = sidebarInnerRef.current
-      if (!sidebarInner || window.innerWidth < MOBILE_BREAKPOINT) {
-        setStickyTop(NAV_HEIGHT)
-        ticking = false
-        return
-      }
-
-      const scrollY = window.scrollY
-      const scrollDelta = scrollY - lastScrollY
-      const viewportHeight = window.innerHeight
-      const sidebarHeight = sidebarInner.offsetHeight
-
-      if (Math.abs(sidebarHeight - lastSidebarHeight) > 50) {
-        currentTop = NAV_HEIGHT
-        lastSidebarHeight = sidebarHeight
-      }
-
-      if (sidebarHeight <= viewportHeight - NAV_HEIGHT - BOTTOM_PADDING) {
-        setStickyTop(NAV_HEIGHT)
-        lastScrollY = scrollY
-        ticking = false
-        return
-      }
-
-      const minTop = viewportHeight - sidebarHeight - BOTTOM_PADDING
-      const maxTop = NAV_HEIGHT
-
-      currentTop = currentTop - scrollDelta
-      currentTop = Math.max(minTop, Math.min(maxTop, currentTop))
-
-      setStickyTop(currentTop)
-      lastScrollY = scrollY
-      ticking = false
-    }
-
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(updatePosition)
-        ticking = true
-      }
-    }
-
-    lastSidebarHeight = sidebarInnerRef.current?.offsetHeight || 0
-    updatePosition()
-
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', updatePosition)
-
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(updatePosition)
-    })
-    if (sidebarInnerRef.current) {
-      resizeObserver.observe(sidebarInnerRef.current)
-    }
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', updatePosition)
-      resizeObserver.disconnect()
-    }
-  }, [])
-
-  // ── Hide sheet at footer (mobile) ──
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout
-
-    const handleScroll = () => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        const windowHeight = window.innerHeight
-        const documentHeight = document.documentElement.scrollHeight
-        const scrollTop = window.scrollY || document.documentElement.scrollTop
-        const distanceFromBottom = documentHeight - (scrollTop + windowHeight)
-        setHideSheetAtBottom(distanceFromBottom < FOOTER_SAFE_ZONE)
-      }, SCROLL_DEBOUNCE_MS)
-    }
-
-    const checkMobileAndAddListener = () => {
-      window.removeEventListener('scroll', handleScroll)
-      if (window.innerWidth < MOBILE_BREAKPOINT) {
-        window.addEventListener('scroll', handleScroll, { passive: true })
-        handleScroll()
-      } else {
-        setHideSheetAtBottom(false)
-      }
-    }
-
-    checkMobileAndAddListener()
-    window.addEventListener('resize', checkMobileAndAddListener)
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', checkMobileAndAddListener)
-    }
-  }, [])
+  const stickyTop = useBidirectionalSticky({
+    innerRef: sidebarInnerRef,
+    navHeight: NAV_HEIGHT,
+    bottomPadding: BOTTOM_PADDING,
+    desktopBreakpoint: MOBILE_BREAKPOINT,
+  })
 
   // ── Shared sub-components ──
 

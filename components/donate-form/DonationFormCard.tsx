@@ -10,6 +10,7 @@ import { getLocation, getProjectName, getUnitName, type SupportedLocale } from '
 import { clientLogger } from '@/lib/logger-client'
 import type { CreatePaymentResponse } from '@/lib/payment/nowpayments/types'
 import type { ProjectStats } from '@/types'
+import type { DonorInfo } from '@/types/dtos'
 
 import CryptoSelector from './CryptoSelector'
 import PaymentMethodSelector, { type PaymentMethod } from './PaymentMethodSelector'
@@ -27,14 +28,8 @@ import TotalSummarySection from './sections/TotalSummarySection'
 import type { FieldKey } from './sections/types'
 import { clampAmount } from './sections/utils'
 
-export interface DonorInfo {
-  name: string
-  email: string
-  message: string
-  telegram: string
-  whatsapp: string
-  subscribeToNewsletter: boolean
-}
+// Re-export for backward compatibility (DonatePageClient imports it from here historically)
+export type { DonorInfo }
 
 interface DonationFormCardProps {
   project: ProjectStats | null

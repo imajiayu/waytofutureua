@@ -8,9 +8,11 @@ import {
   getMarketOrderFiles,
   uploadMarketOrderFile,
 } from '@/app/actions/market-order-files'
+import { MAX_MEDIA_FILE_SIZE, validateMediaFiles } from '@/lib/file-validation'
 import { createClient } from '@/lib/supabase/client'
 import type { MarketOrderFile, MarketOrderFileCategory } from '@/types/market'
 
+// Market order proof files accept webp on top of the legacy donation set.
 const VALID_TYPES = [
   'image/jpeg',
   'image/png',
@@ -19,7 +21,7 @@ const VALID_TYPES = [
   'video/mp4',
   'video/quicktime',
 ] as const
-const MAX_SIZE = 50 * 1024 * 1024
+const MAX_SIZE = MAX_MEDIA_FILE_SIZE
 
 interface Options {
   orderId: number
@@ -72,14 +74,14 @@ export function useMarketOrderFileUpload({ orderId, autoLoad }: Options) {
   }, [autoLoad, loadFiles])
 
   const validateFiles = useCallback((selected: File[]): boolean => {
-    const invalid = selected.filter((f) => !(VALID_TYPES as readonly string[]).includes(f.type))
-    if (invalid.length > 0) {
-      setValidationError(`Invalid file type: ${invalid.map((f) => f.name).join(', ')}`)
-      return false
-    }
-    const oversized = selected.filter((f) => f.size > MAX_SIZE)
-    if (oversized.length > 0) {
-      setValidationError(`File too large: ${oversized.map((f) => f.name).join(', ')} (max 50MB)`)
+    const result = validateMediaFiles(selected, {
+      allowed: VALID_TYPES,
+      maxSize: MAX_SIZE,
+      formatInvalidType: (names) => `Invalid file type: ${names.join(', ')}`,
+      formatOversized: (names) => `File too large: ${names.join(', ')} (max 50MB)`,
+    })
+    if (!result.ok) {
+      setValidationError(result.error)
       return false
     }
     return true

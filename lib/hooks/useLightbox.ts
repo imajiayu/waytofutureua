@@ -1,6 +1,8 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+
+import type { LightboxImage } from '@/components/common/ImageLightbox'
 
 interface UseLightboxReturn {
   isOpen: boolean
@@ -27,4 +29,18 @@ export function useLightbox(): UseLightboxReturn {
   }, [])
 
   return { isOpen, currentIndex, open, close }
+}
+
+/**
+ * Wrap `useLightbox` with a memoized `LightboxImage[]` derived from a list of URLs.
+ * Saves the boilerplate `useMemo<LightboxImage[]>(() => urls.map((url) => ({ url })), [urls])`
+ * that appears in every Project detail page.
+ */
+export function useLightboxFromUrls(urls: ReadonlyArray<string> | null | undefined): {
+  lightbox: UseLightboxReturn
+  images: LightboxImage[]
+} {
+  const lightbox = useLightbox()
+  const images = useMemo<LightboxImage[]>(() => (urls ? urls.map((url) => ({ url })) : []), [urls])
+  return { lightbox, images }
 }
