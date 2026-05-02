@@ -9,13 +9,14 @@
  * Uses inline styles for maximum email client compatibility
  */
 
-import { Locale } from '../../types'
+import type { AppLocale } from '@/types'
+
 import { createFooter, createHeader } from './components'
 
 interface EmailLayoutParams {
   title: string
   content: string
-  locale: Locale
+  locale: AppLocale
   badge?: string // Optional badge text above title
   subtitle?: string // Optional subtitle below title
 }

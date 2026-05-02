@@ -2,7 +2,7 @@
  * Market Order Paid Email Content
  */
 
-import { Locale } from '../../../types'
+import type { AppLocale } from '@/types'
 
 export interface MarketOrderPaidContent {
   subject: (orderRef: string) => string
@@ -23,7 +23,7 @@ export interface MarketOrderPaidContent {
   contact: string
 }
 
-export const marketOrderPaidContent: Record<Locale, MarketOrderPaidContent> = {
+export const marketOrderPaidContent: Record<AppLocale, MarketOrderPaidContent> = {
   en: {
     subject: (orderRef: string) => `Order Confirmed - ${orderRef}`,
     title: 'Your Order is Confirmed!',

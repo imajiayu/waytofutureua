@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 
+import { BASE_URL } from '@/lib/constants'
 import { logger } from '@/lib/logger'
 
 if (!process.env.WAYFORPAY_MERCHANT_ACCOUNT) {
@@ -12,8 +13,7 @@ if (!process.env.WAYFORPAY_SECRET_KEY) {
 
 export const WAYFORPAY_MERCHANT_ACCOUNT = process.env.WAYFORPAY_MERCHANT_ACCOUNT
 export const WAYFORPAY_SECRET_KEY = process.env.WAYFORPAY_SECRET_KEY
-export const WAYFORPAY_MERCHANT_DOMAIN =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+export const WAYFORPAY_MERCHANT_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
 
 /**
  * Generate WayForPay signature using HMAC-MD5

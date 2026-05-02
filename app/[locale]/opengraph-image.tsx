@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 
+import { BASE_URL } from '@/lib/constants'
 import en from '@/messages/en.json'
 import ua from '@/messages/ua.json'
 import zh from '@/messages/zh.json'
@@ -13,10 +14,7 @@ const allMessages: Record<string, typeof en> = { en, zh, ua }
 
 export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const bgUrl = new URL(
-    '/og-bg.jpg',
-    process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
-  )
+  const bgUrl = new URL('/og-bg.jpg', process.env.NEXT_PUBLIC_APP_URL || BASE_URL)
   const bgData = await fetch(bgUrl).then((res) => res.arrayBuffer())
   const bgBase64 = `data:image/jpeg;base64,${Buffer.from(bgData).toString('base64')}`
 

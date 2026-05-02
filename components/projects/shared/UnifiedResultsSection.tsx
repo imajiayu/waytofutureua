@@ -1,15 +1,13 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 
 import type { LightboxImage } from '@/components/common/ImageLightbox'
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import type { ProjectResult } from '@/types'
 
 import ProjectResultsMasonry from './ProjectResultsMasonry'
-
-const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export interface ResultImage {
   imageUrl: string

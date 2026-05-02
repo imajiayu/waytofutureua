@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { updateMarketOrderStatus } from '@/app/actions/market-admin'
 import { useMarketOrderFileUpload } from '@/lib/hooks/useMarketOrderFileUpload'
 import { getTranslatedText } from '@/lib/i18n-utils'
+import { MARKET_ORDER_CATEGORY_LABELS } from '@/lib/market/market-categories'
 import {
   canManageOrderFiles,
   getFileCategory,
@@ -12,7 +13,7 @@ import {
   needsFileUpload,
   needsTrackingNumber,
 } from '@/lib/market/market-status'
-import type { AdminMarketOrder, MarketOrderFileCategory, MarketOrderStatus } from '@/types/market'
+import type { AdminMarketOrder, MarketOrderStatus } from '@/types/market'
 
 import AdminBaseModal from './AdminBaseModal'
 import MarketOrderFileLibrary from './market-order/MarketOrderFileLibrary'
@@ -24,11 +25,6 @@ interface Props {
   order: AdminMarketOrder
   onClose: () => void
   onSaved: () => void
-}
-
-const CATEGORY_LABELS: Record<MarketOrderFileCategory, string> = {
-  shipping: 'Shipping Proof',
-  completion: 'Fund Usage Proof',
 }
 
 export default function MarketOrderEditModal({ order, onClose, onSaved }: Props) {
@@ -84,7 +80,9 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
 
       if (showFileUpload && selectedCategory) {
         if (fileUpload.transitionFiles.length === 0) {
-          setError(`Please upload at least one ${CATEGORY_LABELS[selectedCategory]} file`)
+          setError(
+            `Please upload at least one ${MARKET_ORDER_CATEGORY_LABELS[selectedCategory]} file`
+          )
           setLoading(false)
           return
         }

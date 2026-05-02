@@ -2,7 +2,7 @@
  * Refund Success Email Content
  */
 
-import { Locale } from '../../../types'
+import type { AppLocale } from '@/types'
 
 export interface RefundSuccessContent {
   subject: string
@@ -17,7 +17,7 @@ export interface RefundSuccessContent {
   contact: string
 }
 
-export const refundSuccessContent: Record<Locale, RefundSuccessContent> = {
+export const refundSuccessContent: Record<AppLocale, RefundSuccessContent> = {
   en: {
     subject: 'Your Refund Has Been Completed',
     title: 'Refund Completed',

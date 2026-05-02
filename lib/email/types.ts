@@ -4,15 +4,12 @@
 
 import type { AppLocale, I18nText } from '@/types'
 
-/** @deprecated Use `AppLocale` from `@/types`. */
-export type Locale = AppLocale
-
 export { type I18nText }
 
 // Base email parameters
 export interface BaseEmailParams {
   to: string
-  locale: Locale
+  locale: AppLocale
 }
 
 // Single donation item for email display

@@ -15,7 +15,6 @@ export type {
   DonationItem,
   EmailContent,
   I18nText,
-  Locale,
   MarketOrderCompletedEmailParams,
   MarketOrderPaidEmailParams,
   MarketOrderShippedEmailParams,

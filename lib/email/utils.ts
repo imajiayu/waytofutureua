@@ -2,12 +2,15 @@
  * Email Utility Functions
  */
 
-import { I18nText, Locale } from './types'
+import { BASE_URL } from '@/lib/constants'
+import type { AppLocale } from '@/types'
+
+import { I18nText } from './types'
 
 /**
  * Get localized text from i18n object
  */
-export function getLocalizedText(i18nText: I18nText | null | undefined, locale: Locale): string {
+export function getLocalizedText(i18nText: I18nText | null | undefined, locale: AppLocale): string {
   if (!i18nText) return ''
   return i18nText[locale] || i18nText.en || ''
 }
@@ -37,15 +40,15 @@ export function escapeHtml(text: string | null | undefined): string {
 /**
  * Get tracking URL for donation
  */
-export function getTrackingUrl(locale: Locale): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+export function getTrackingUrl(locale: AppLocale): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
   return `${baseUrl}/${locale}/track-donation`
 }
 
 /**
  * Get market orders URL for buyer
  */
-export function getMarketOrdersUrl(locale: Locale): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+export function getMarketOrdersUrl(locale: AppLocale): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
   return `${baseUrl}/${locale}/market/orders`
 }

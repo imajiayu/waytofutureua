@@ -10,6 +10,7 @@ import {
 } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
 import { getAdminClient } from '@/lib/supabase/action-clients'
+import { STORAGE_BUCKETS } from '@/lib/supabase/storage-buckets'
 import type { AppLocale, Donation } from '@/types'
 import type { Database } from '@/types/database'
 import type { AdminDonationListItem } from '@/types/dtos'
@@ -102,7 +103,7 @@ export async function updateDonationStatus(
     } else {
       try {
         const { data: files } = await supabase.storage
-          .from('donation-results')
+          .from(STORAGE_BUCKETS.donationResults)
           .list(current.donation_public_id, { limit: 100 })
 
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
@@ -114,7 +115,7 @@ export async function updateDonationStatus(
           const {
             data: { publicUrl },
           } = supabase.storage
-            .from('donation-results')
+            .from(STORAGE_BUCKETS.donationResults)
             .getPublicUrl(`${current.donation_public_id}/${imageFile.name}`)
           resultImageUrl = publicUrl
         }

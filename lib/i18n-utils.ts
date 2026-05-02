@@ -44,6 +44,13 @@ export function formatDate(
   return date.toLocaleDateString(JS_LOCALE_MAP[locale] ?? 'en-US', { timeZone: 'UTC', ...options })
 }
 
+/** Locale 在 admin UI 中的展示名（broadcast 收件人选择 / preview 标题等） */
+export const LOCALE_DISPLAY_NAMES: Record<AppLocale, string> = {
+  en: 'English',
+  zh: 'Chinese',
+  ua: 'Українська',
+}
+
 /**
  * Format a date string with time for display.
  */

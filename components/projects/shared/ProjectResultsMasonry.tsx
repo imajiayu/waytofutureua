@@ -1,14 +1,11 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 
 import type { LightboxImage } from '@/components/common/ImageLightbox'
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import type { ProjectResult } from '@/types'
-
-// P2 优化: 动态加载灯箱组件，减少初始 bundle
-const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 interface ProjectResultsMasonryProps {
   results: ProjectResult[]

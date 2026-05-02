@@ -1,11 +1,13 @@
+import { BASE_URL } from '@/lib/constants'
 import { logger } from '@/lib/logger'
+import type { AppLocale } from '@/types'
 
 import { getFromEmail, resend } from './client'
 import { EmailTemplate, loadTemplateContent, replaceTemplateVariables } from './templates'
 
 interface BroadcastEmailParams {
   template: EmailTemplate
-  locale: 'en' | 'zh' | 'ua'
+  locale: AppLocale
   recipients: string[]
   variables?: Record<string, string>
 }
@@ -36,7 +38,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 export async function sendBroadcastEmail(params: BroadcastEmailParams): Promise<BroadcastResult> {
   const { template, locale, recipients, variables = {} } = params
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
 
   const content = loadTemplateContent(template.fileName)
   if (!content) {

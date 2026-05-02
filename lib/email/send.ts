@@ -1,12 +1,12 @@
 import type { LogCategory } from '@/lib/logger'
 import { logger } from '@/lib/logger'
+import type { AppLocale } from '@/types'
 
 import { getFromEmail, resend } from './client'
-import type { Locale } from './types'
 
 interface SendEmailParams {
   to: string
-  locale: Locale
+  locale: AppLocale
   subject: string
   html: string
   text: string

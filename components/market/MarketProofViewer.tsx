@@ -8,14 +8,13 @@ import { getPublicOrderProofFiles } from '@/app/actions/market-order-files'
 import ImageLightbox, { type LightboxImage } from '@/components/common/ImageLightbox'
 import { SpinnerIcon } from '@/components/icons'
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
-import type { MarketOrderFile, MarketOrderFileCategory } from '@/types/market'
+import { MARKET_ORDER_CATEGORIES } from '@/lib/market/market-categories'
+import type { MarketOrderFile } from '@/types/market'
 
 interface Props {
   orderReference: string
   onClose: () => void
 }
-
-const CATEGORY_ORDER: MarketOrderFileCategory[] = ['shipping', 'completion']
 
 export default function MarketProofViewer({ orderReference, onClose }: Props) {
   const t = useTranslations('market.proof')
@@ -75,7 +74,7 @@ export default function MarketProofViewer({ orderReference, onClose }: Props) {
     contentType: f.contentType,
   }))
 
-  const grouped = CATEGORY_ORDER.map((cat) => ({
+  const grouped = MARKET_ORDER_CATEGORIES.map((cat) => ({
     category: cat,
     label: cat === 'shipping' ? t('shippingProof') : t('completionProof'),
     items: files.filter((f) => f.category === cat),

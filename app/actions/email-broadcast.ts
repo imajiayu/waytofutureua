@@ -14,13 +14,11 @@ import { getAdminClient, getUserClient } from '@/lib/supabase/action-clients'
 import { sendBroadcastSchema } from '@/lib/validations'
 import type { AppLocale } from '@/types'
 
-type Locale = AppLocale
-
 // ==================== Types ====================
 
 export interface BroadcastRecipient {
   email: string
-  locale: Locale
+  locale: AppLocale
 }
 
 export interface SendBroadcastParams {
@@ -107,7 +105,7 @@ export async function sendEmailBroadcast(
         acc[recipient.locale].push(recipient.email)
         return acc
       },
-      {} as Record<Locale, string[]>
+      {} as Record<AppLocale, string[]>
     )
 
     // Send emails for each locale
@@ -123,7 +121,7 @@ export async function sendEmailBroadcast(
         try {
           const result = await sendBroadcastEmail({
             template,
-            locale: locale as Locale,
+            locale: locale as AppLocale,
             recipients: emails,
             variables: validated.variables,
           })
@@ -206,7 +204,7 @@ export async function getAvailableBroadcastTemplates(): Promise<{
  */
 export async function previewEmailTemplate(
   templateName: string,
-  locale: Locale,
+  locale: AppLocale,
   variables?: Record<string, string>
 ): Promise<{ data: { subject: string; html: string } | null; error?: string }> {
   try {

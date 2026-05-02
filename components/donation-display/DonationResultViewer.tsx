@@ -1,17 +1,14 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 
 import { getAllDonationResultFiles } from '@/app/actions/donation-result'
 import type { LightboxImage } from '@/components/common/ImageLightbox'
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import { DownloadIcon, ImageIcon, Loader2Icon, PlayCircleIcon, XIcon } from '@/components/icons'
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { clientLogger } from '@/lib/logger-client'
-
-// P2 优化: 动态加载灯箱组件
-const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 interface DonationResultViewerProps {
   donationPublicId: string

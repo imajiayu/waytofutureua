@@ -4,8 +4,9 @@
 
 import { Resend } from 'resend'
 
+import type { AppLocale } from '@/types'
+
 import { ORG_BRANDING } from './config'
-import type { Locale } from './types'
 import { getLocalizedText } from './utils'
 
 // Lazy initialization to allow dotenv to load first
@@ -37,7 +38,7 @@ const DEFAULT_FROM_ADDRESS = 'noreply@waytofutureua.org.ua'
  * Example: `WAY TO FUTURE UA <noreply@waytofutureua.org.ua>`
  */
 export function getFromEmail(
-  locale: Locale,
+  locale: AppLocale,
   address: string = process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_ADDRESS
 ): string {
   const displayName = getLocalizedText(ORG_BRANDING.name, locale)

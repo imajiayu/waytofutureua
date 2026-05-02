@@ -1,11 +1,11 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 
 import type { LightboxImage } from '@/components/common/ImageLightbox'
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import { CheckCircle2Icon } from '@/components/icons'
 import { FadeInSection, SectionNav } from '@/components/projects/shared'
 import ProjectProgressSection from '@/components/projects/shared/ProjectProgressSection'
@@ -26,8 +26,6 @@ import {
   WhyGiftsSection,
 } from './sections'
 import type { AidListData, Project4Content, Project4DetailContentProps } from './types'
-
-const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project4DetailContent({ project, locale }: Project4DetailContentProps) {
   const t = useTranslations('projects')

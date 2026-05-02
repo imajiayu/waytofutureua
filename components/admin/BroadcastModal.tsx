@@ -13,6 +13,7 @@ import {
   previewEmailTemplate,
   sendEmailBroadcast,
 } from '@/app/actions/email-broadcast'
+import { BASE_URL } from '@/lib/constants'
 import { clientLogger } from '@/lib/logger-client'
 import type { AppLocale } from '@/types'
 
@@ -140,7 +141,7 @@ export default function BroadcastModal({
 
   // Build project URL based on template's projectId
   const buildProjectUrl = (locale: string): string => {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
     const projectId = getProjectId()
     if (projectId) {
       return `${baseUrl}/${locale}/donate?project=${projectId}`
@@ -153,7 +154,7 @@ export default function BroadcastModal({
     setError(null)
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
       const response = await previewEmailTemplate(selectedTemplate, previewLocale, {
         project_url: buildProjectUrl(previewLocale),
         unsubscribe_url: `${baseUrl}/api/unsubscribe?token=PREVIEW_TOKEN`,

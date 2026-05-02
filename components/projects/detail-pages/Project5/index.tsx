@@ -1,9 +1,9 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import { CheckCircle2Icon } from '@/components/icons'
 import type { ResultImage } from '@/components/projects/shared'
 import { FadeInSection, SectionNav } from '@/components/projects/shared'
@@ -15,8 +15,6 @@ import { useProjectContent } from '@/lib/hooks/useProjectContent'
 
 import { BackgroundSection, EventsSection, HeroSection } from './sections'
 import type { Project5Content, Project5DetailContentProps } from './types'
-
-const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project5DetailContent({ project, locale }: Project5DetailContentProps) {
   const t = useTranslations('projects')

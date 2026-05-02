@@ -1,10 +1,10 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
 import type { LightboxImage } from '@/components/common/ImageLightbox'
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import { CheckCircle2Icon } from '@/components/icons'
 import type { ResultImage } from '@/components/projects/shared'
 import {
@@ -33,9 +33,6 @@ import {
   TreatmentSection,
 } from './sections'
 import type { Project0Content, Project0DetailContentProps } from './types'
-
-// Dynamic import for Lightbox
-const ImageLightbox = dynamic(() => import('@/components/common/ImageLightbox'), { ssr: false })
 
 export default function Project0DetailContent({ project, locale }: Project0DetailContentProps) {
   const t = useTranslations('projects')

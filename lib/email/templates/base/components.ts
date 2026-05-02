@@ -15,8 +15,9 @@
  * All components use inline styles for maximum email client compatibility
  */
 
+import type { AppLocale } from '@/types'
+
 import { EMAIL_COLORS, ORG_BRANDING } from '../../config'
-import { Locale } from '../../types'
 import { getLocalizedText } from '../../utils'
 
 /**
@@ -24,7 +25,7 @@ import { getLocalizedText } from '../../utils'
  */
 export function createHeader(
   title: string,
-  locale: Locale,
+  locale: AppLocale,
   badge?: string,
   subtitle?: string
 ): string {
@@ -61,7 +62,7 @@ export function createHeader(
 /**
  * Email footer with organization information and links - Ukraine themed
  */
-export function createFooter(locale: Locale): string {
+export function createFooter(locale: AppLocale): string {
   const orgName = getLocalizedText(ORG_BRANDING.name, locale)
 
   const footerText = {
@@ -111,7 +112,7 @@ export function createFooter(locale: Locale): string {
 /**
  * Email signature - Ukraine themed
  */
-export function createSignature(locale: Locale): string {
+export function createSignature(locale: AppLocale): string {
   const orgName = getLocalizedText(ORG_BRANDING.name, locale)
 
   const signatureText = {

@@ -1,12 +1,7 @@
 'use client'
 
+import { LOCALE_DISPLAY_NAMES } from '@/lib/i18n-utils'
 import type { AppLocale } from '@/types'
-
-const LOCALE_LABELS: Record<AppLocale, string> = {
-  en: 'English',
-  zh: 'Chinese',
-  ua: 'Українська',
-}
 
 interface Props {
   previewSubject: string | null
@@ -38,7 +33,7 @@ export default function BroadcastPreviewView({
             <div className="h-3 w-3 rounded-full bg-green-400"></div>
           </div>
           <span className="ml-2 text-xs text-gray-500">
-            Preview ({LOCALE_LABELS[previewLocale]})
+            Preview ({LOCALE_DISPLAY_NAMES[previewLocale]})
           </span>
         </div>
         <iframe

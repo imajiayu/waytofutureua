@@ -2,7 +2,7 @@
  * Payment Success Email Content
  */
 
-import { Locale } from '../../../types'
+import type { AppLocale } from '@/types'
 
 export interface PaymentSuccessContent {
   subject: string
@@ -26,7 +26,7 @@ export interface PaymentSuccessContent {
   contact: string
 }
 
-export const paymentSuccessContent: Record<Locale, PaymentSuccessContent> = {
+export const paymentSuccessContent: Record<AppLocale, PaymentSuccessContent> = {
   en: {
     subject: 'Thank You for Your Donation - Payment Received',
     title: 'Thank You for Your Donation!',

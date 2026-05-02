@@ -11,21 +11,19 @@ import { getUserClient } from '@/lib/supabase/action-clients'
 import { createSubscriptionSchema } from '@/lib/validations'
 import type { AppLocale } from '@/types'
 
-type Locale = AppLocale
-
 // ==================== Types ====================
 
 export interface EmailSubscription {
   id: number
   email: string
-  locale: Locale
+  locale: AppLocale
   is_subscribed: boolean
   updated_at: string
 }
 
 export interface SubscriptionFilter {
   isSubscribed?: boolean
-  locale?: Locale
+  locale?: AppLocale
   search?: string
 }
 
@@ -37,7 +35,7 @@ export interface SubscriptionFilter {
  */
 export async function createEmailSubscription(
   email: string,
-  locale: Locale
+  locale: AppLocale
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Validate input

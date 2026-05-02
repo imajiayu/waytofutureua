@@ -2,6 +2,8 @@
  * Email System Configuration
  */
 
+import { BASE_URL } from '@/lib/constants'
+
 import { OrgBranding } from './types'
 
 // Organization Branding Configuration
@@ -12,7 +14,7 @@ export const ORG_BRANDING: OrgBranding = {
     ua: 'ШЛЯХ ДО МАЙБУТНЬОГО UA',
   },
   logoUrl: '', // No logo in emails
-  websiteUrl: 'https://waytofutureua.org.ua',
+  websiteUrl: BASE_URL,
   contactEmail: 'contact@waytofutureua.org.ua',
   socialLinks: {
     // TODO: Add actual social media links if available

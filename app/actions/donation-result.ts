@@ -3,6 +3,7 @@
 import { canViewResult, type DonationStatus } from '@/lib/donation-status'
 import { logger } from '@/lib/logger'
 import { getInternalClient } from '@/lib/supabase/action-clients'
+import { STORAGE_BUCKETS } from '@/lib/supabase/storage-buckets'
 
 /**
  * Get all donation result files with their thumbnails
@@ -35,7 +36,7 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
     }
 
     const { data: files, error: storageError } = await supabase.storage
-      .from('donation-results')
+      .from(STORAGE_BUCKETS.donationResults)
       .list(donationPublicId, {
         sortBy: { column: 'name', order: 'asc' },
       })
@@ -56,7 +57,7 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
     const originalFiles = files.filter((file) => file.name && !file.name.startsWith('.'))
 
     const { data: thumbnailFiles } = await supabase.storage
-      .from('donation-results')
+      .from(STORAGE_BUCKETS.donationResults)
       .list(`${donationPublicId}/.thumbnails`, {
         sortBy: { column: 'name', order: 'asc' },
       })
@@ -65,7 +66,7 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
       const filePath = `${donationPublicId}/${file.name}`
       const {
         data: { publicUrl },
-      } = supabase.storage.from('donation-results').getPublicUrl(filePath)
+      } = supabase.storage.from(STORAGE_BUCKETS.donationResults).getPublicUrl(filePath)
 
       const fileTimestamp = file.name.split('.')[0]
       let thumbnailUrl = null
@@ -87,7 +88,7 @@ export async function getAllDonationResultFiles(donationPublicId: string) {
           const thumbnailPath = `${donationPublicId}/.thumbnails/${matchingThumb.name}`
           const {
             data: { publicUrl: thumbUrl },
-          } = supabase.storage.from('donation-results').getPublicUrl(thumbnailPath)
+          } = supabase.storage.from(STORAGE_BUCKETS.donationResults).getPublicUrl(thumbnailPath)
           thumbnailUrl = thumbUrl
         }
       }

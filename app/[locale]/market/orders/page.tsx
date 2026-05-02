@@ -13,6 +13,7 @@ import { getTranslatedText } from '@/lib/i18n-utils'
 import { ORDER_STATUS_COLORS } from '@/lib/market/market-status'
 import { formatMarketPrice } from '@/lib/market/market-utils'
 import { createClient } from '@/lib/supabase/client'
+import type { AppLocale } from '@/types'
 import type { MarketOrderStatus } from '@/types/market'
 
 // ── 状态色条映射 ──────────────────────────────────
@@ -287,7 +288,7 @@ export default function MarketOrdersPage() {
                         ? getTranslatedText(
                             order.market_items.title_i18n,
                             null,
-                            locale as 'en' | 'zh' | 'ua'
+                            locale as AppLocale
                           )
                         : `${t('order.item')} #${order.item_id}`}
                       {order.quantity > 1 && (

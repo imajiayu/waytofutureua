@@ -12,6 +12,7 @@ import {
 import type { CreateMarketItemInput } from '@/lib/market/market-validations'
 import { createMarketItemSchema, updateOrderStatusSchema } from '@/lib/market/market-validations'
 import { getAdminClient } from '@/lib/supabase/action-clients'
+import type { AppLocale } from '@/types'
 import type {
   AdminMarketOrder,
   MarketItem,
@@ -277,7 +278,7 @@ export async function updateMarketOrderStatus(
           .single()
 
         if (fullOrder && fullOrder.buyer_email) {
-          const locale = (fullOrder.locale || 'en') as import('@/lib/email/types').Locale
+          const locale = (fullOrder.locale || 'en') as AppLocale
           const linkedItem = Array.isArray(fullOrder.market_items)
             ? fullOrder.market_items[0]
             : fullOrder.market_items

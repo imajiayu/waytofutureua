@@ -3,6 +3,7 @@
 // 复用 lib/payment/wayforpay/server.ts 的基础函数
 // ============================================
 
+import { BASE_URL } from '@/lib/constants'
 import {
   createWayForPayPayment,
   generateWebhookResponseSignature,
@@ -10,7 +11,7 @@ import {
   type WayForPayPaymentParams,
 } from '@/lib/payment/wayforpay/server'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
 
 const WAYFORPAY_LANG_MAP: Record<string, 'UA' | 'EN' | 'RU'> = {
   en: 'EN',

@@ -2,7 +2,7 @@
  * Donation Completed Email Content
  */
 
-import { Locale } from '../../../types'
+import type { AppLocale } from '@/types'
 
 export interface DonationCompletedContent {
   subject: string
@@ -26,7 +26,7 @@ export interface DonationCompletedContent {
   contact: string
 }
 
-export const donationCompletedContent: Record<Locale, DonationCompletedContent> = {
+export const donationCompletedContent: Record<AppLocale, DonationCompletedContent> = {
   en: {
     subject: 'Your Donation Has Been Delivered!',
     title: 'Your Donation Has Been Delivered!',

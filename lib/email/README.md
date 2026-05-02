@@ -380,10 +380,10 @@ export interface DonationReminderEmailParams extends BaseEmailParams {
 创建 `templates/donation-reminder/content.ts`:
 
 ```typescript
-import { Locale } from '../../types'
+import type { AppLocale } from '@/types'
 
 export const donationReminderContent: Record<
-  Locale,
+  AppLocale,
   {
     subject: string
     title: string

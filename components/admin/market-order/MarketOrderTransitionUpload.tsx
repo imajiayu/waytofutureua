@@ -1,11 +1,7 @@
 'use client'
 
+import { MARKET_ORDER_CATEGORY_LABELS } from '@/lib/market/market-categories'
 import type { MarketOrderFileCategory } from '@/types/market'
-
-const CATEGORY_LABELS: Record<MarketOrderFileCategory, string> = {
-  shipping: 'Shipping Proof',
-  completion: 'Fund Usage Proof',
-}
 
 interface Props {
   category: MarketOrderFileCategory
@@ -27,7 +23,7 @@ export default function MarketOrderTransitionUpload({
       <div className="rounded-lg border-2 border-dashed border-blue-300 bg-white p-4">
         <h3 className="mb-3 flex items-center gap-2 font-body text-sm font-semibold text-gray-700">
           <span className="text-blue-600">📸</span>
-          Upload {CATEGORY_LABELS[category]}
+          Upload {MARKET_ORDER_CATEGORY_LABELS[category]}
           <span className="text-red-500">*</span>
         </h3>
         <input

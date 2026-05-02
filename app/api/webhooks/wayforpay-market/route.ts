@@ -5,6 +5,7 @@ import { verifyWayForPaySignature } from '@/lib/market/wayforpay'
 import { WAYFORPAY_STATUS } from '@/lib/payment/wayforpay/server'
 import { respondWithAccept } from '@/lib/payment/wayforpay/webhook-response'
 import { createServiceClient } from '@/lib/supabase/server'
+import type { AppLocale } from '@/types'
 import type { MarketOrderStatus } from '@/types/market'
 
 /**
@@ -306,7 +307,7 @@ export async function POST(req: Request) {
             const { sendMarketOrderPaidEmail } = await import('@/lib/email')
             await sendMarketOrderPaidEmail({
               to: fullOrder.buyer_email,
-              locale: (fullOrder.locale || 'en') as 'en' | 'zh' | 'ua',
+              locale: (fullOrder.locale || 'en') as AppLocale,
               shippingName: fullOrder.shipping_name,
               orderReference: fullOrder.order_reference,
               itemTitleI18n: (fullOrder.market_items as any)?.title_i18n || {

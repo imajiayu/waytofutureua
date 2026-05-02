@@ -2,12 +2,13 @@
 
 import { MIME_TO_EXT } from '@/lib/file-validation'
 import { logger } from '@/lib/logger'
+import { MARKET_ORDER_CATEGORIES } from '@/lib/market/market-categories'
 import { getAdminClient, getInternalClient } from '@/lib/supabase/action-clients'
 import { createServerClient } from '@/lib/supabase/server'
+import { STORAGE_BUCKETS } from '@/lib/supabase/storage-buckets'
 import type { MarketOrderFile, MarketOrderFileCategory, MarketOrderStatus } from '@/types/market'
 
-const BUCKET = 'market-order-results'
-const CATEGORIES: MarketOrderFileCategory[] = ['shipping', 'completion']
+const BUCKET = STORAGE_BUCKETS.marketOrderResults
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
@@ -81,7 +82,7 @@ export async function uploadMarketOrderFile(formData: FormData): Promise<{
     throw new Error('Missing file, order ID, or category')
   }
 
-  if (!CATEGORIES.includes(category)) {
+  if (!MARKET_ORDER_CATEGORIES.includes(category)) {
     throw new Error('Invalid category')
   }
 
@@ -145,7 +146,7 @@ export async function createMarketOrderSignedUploadUrl(
 ): Promise<{ path: string; token: string }> {
   const client = await getAdminClient()
 
-  if (!CATEGORIES.includes(category)) throw new Error('Invalid category')
+  if (!MARKET_ORDER_CATEGORIES.includes(category)) throw new Error('Invalid category')
 
   const fileExt = MIME_TO_EXT[fileType]
   if (!fileExt) throw new Error('Invalid file type')
@@ -176,7 +177,7 @@ export async function getMarketOrderFiles(
   const client = await getAdminClient()
   const orderReference = await getOrderReference(client, orderId)
 
-  const categoriesToList = category ? [category] : CATEGORIES
+  const categoriesToList = category ? [category] : MARKET_ORDER_CATEGORIES
   const allFiles: MarketOrderFile[] = []
 
   for (const cat of categoriesToList) {
@@ -274,7 +275,7 @@ export async function getOrderProofFiles(
   if (status === 'shipped') {
     categoriesToShow = ['shipping']
   } else if (status === 'completed') {
-    categoriesToShow = ['shipping', 'completion']
+    categoriesToShow = MARKET_ORDER_CATEGORIES
   } else {
     return { files: [] }
   }
@@ -338,7 +339,7 @@ export async function getPublicOrderProofFiles(
   if (order.status === 'shipped') {
     categoriesToShow = ['shipping']
   } else if (order.status === 'completed') {
-    categoriesToShow = ['shipping', 'completion']
+    categoriesToShow = MARKET_ORDER_CATEGORIES
   } else {
     return { files: [] }
   }

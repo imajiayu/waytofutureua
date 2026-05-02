@@ -36,7 +36,7 @@ export interface DonationCreationInput {
   contact_telegram?: string
   contact_whatsapp?: string
   tip_amount?: number
-  locale: 'en' | 'zh' | 'ua'
+  locale: AppLocale
 }
 
 export interface DonationCreationContext {

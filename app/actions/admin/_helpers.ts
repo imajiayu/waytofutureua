@@ -10,6 +10,7 @@ import sharp from 'sharp'
 
 import { logger } from '@/lib/logger'
 import type { getAdminClient } from '@/lib/supabase/action-clients'
+import { STORAGE_BUCKETS } from '@/lib/supabase/storage-buckets'
 
 type SupabaseClient = Awaited<ReturnType<typeof getAdminClient>>
 
@@ -46,11 +47,13 @@ export async function generateAndUploadThumbnail({
     const thumbnailFileName = `${timestamp}_thumb.jpg`
     const thumbnailPath = `${donationPublicId}/.thumbnails/${thumbnailFileName}`
 
-    await supabase.storage.from('donation-results').upload(thumbnailPath, thumbnailBuffer, {
-      contentType: 'image/jpeg',
-      cacheControl: '3600',
-      upsert,
-    })
+    await supabase.storage
+      .from(STORAGE_BUCKETS.donationResults)
+      .upload(thumbnailPath, thumbnailBuffer, {
+        contentType: 'image/jpeg',
+        cacheControl: '3600',
+        upsert,
+      })
 
     logger.debug('ADMIN', 'Thumbnail created', { fileName: thumbnailFileName })
   } catch (thumbnailError) {

@@ -1,5 +1,6 @@
 'use server'
 
+import { BASE_URL } from '@/lib/constants'
 import { logger } from '@/lib/logger'
 import {
   createNowPaymentsPayment,
@@ -106,7 +107,7 @@ export async function createWayForPayDonation(
     else if (validated.locale === 'ua') language = 'UA'
 
     // Prepare return and callback URLs
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
     // Use API route to handle POST redirect from WayForPay, then redirect to success page
     const returnUrl = `${baseUrl}/api/donate/success-redirect?order=${orderReference}&locale=${validated.locale}`
     const serviceUrl = `${baseUrl}/api/webhooks/wayforpay`
@@ -232,7 +233,7 @@ export async function createNowPaymentsDonation(
     // The API will return specific error messages for amounts that are too small
 
     // Create NOWPayments payment
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://waytofutureua.org.ua'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || BASE_URL
     const ipnCallbackUrl = `${baseUrl}/api/webhooks/nowpayments`
     const successUrl = `${baseUrl}/${validated.locale}/donate/success?order=${orderReference}`
 

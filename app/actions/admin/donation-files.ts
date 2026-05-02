@@ -4,6 +4,7 @@ import { isCloudinaryConfigured, processImageWithCloudinary } from '@/lib/cloudi
 import { MIME_TO_EXT } from '@/lib/file-validation'
 import { logger } from '@/lib/logger'
 import { getAdminClient } from '@/lib/supabase/action-clients'
+import { STORAGE_BUCKETS } from '@/lib/supabase/storage-buckets'
 
 import { generateAndUploadThumbnail } from './_helpers'
 
@@ -93,7 +94,7 @@ export async function uploadDonationResultFile(formData: FormData) {
 
       // 上传处理后的文件到 Supabase
       const { error: uploadError } = await supabase.storage
-        .from('donation-results')
+        .from(STORAGE_BUCKETS.donationResults)
         .upload(finalFilePath, buffer, {
           contentType,
           cacheControl: '3600',
@@ -118,7 +119,7 @@ export async function uploadDonationResultFile(formData: FormData) {
       })
 
       const { error: uploadError } = await supabase.storage
-        .from('donation-results')
+        .from(STORAGE_BUCKETS.donationResults)
         .upload(filePath, buffer, {
           contentType: file.type,
           cacheControl: '3600',
@@ -150,7 +151,7 @@ export async function uploadDonationResultFile(formData: FormData) {
     }
 
     const { error: uploadError } = await supabase.storage
-      .from('donation-results')
+      .from(STORAGE_BUCKETS.donationResults)
       .upload(filePath, buffer, {
         contentType: file.type,
         cacheControl: '3600',
@@ -180,7 +181,7 @@ export async function uploadDonationResultFile(formData: FormData) {
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from('donation-results').getPublicUrl(finalFilePath)
+  } = supabase.storage.from(STORAGE_BUCKETS.donationResults).getPublicUrl(finalFilePath)
 
   return {
     publicUrl,
@@ -220,7 +221,7 @@ export async function createSignedUploadUrl(donationId: number, fileType: string
 
   // 创建签名上传 URL
   const { data, error } = await supabase.storage
-    .from('donation-results')
+    .from(STORAGE_BUCKETS.donationResults)
     .createSignedUploadUrl(filePath)
 
   if (error || !data) {
@@ -246,7 +247,7 @@ export async function processUploadedImage(
 
   // 从 Storage 下载已上传的原图
   const { data: blob, error: downloadError } = await supabase.storage
-    .from('donation-results')
+    .from(STORAGE_BUCKETS.donationResults)
     .download(filePath)
 
   if (downloadError || !blob) {
@@ -284,7 +285,7 @@ export async function processUploadedImage(
 
       // 上传处理后的文件
       const { error: uploadError } = await supabase.storage
-        .from('donation-results')
+        .from(STORAGE_BUCKETS.donationResults)
         .upload(newFilePath, processedBuffer, {
           contentType,
           cacheControl: '3600',
@@ -297,7 +298,7 @@ export async function processUploadedImage(
 
       // 如果格式变了（路径不同），删除原始文件
       if (newFilePath !== filePath) {
-        await supabase.storage.from('donation-results').remove([filePath])
+        await supabase.storage.from(STORAGE_BUCKETS.donationResults).remove([filePath])
       }
 
       finalFilePath = newFilePath
@@ -337,7 +338,7 @@ export async function processUploadedImage(
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from('donation-results').getPublicUrl(finalFilePath)
+  } = supabase.storage.from(STORAGE_BUCKETS.donationResults).getPublicUrl(finalFilePath)
 
   return { publicUrl }
 }
@@ -361,7 +362,7 @@ export async function getDonationResultFiles(donationId: number) {
 
   // 列出文件夹中的所有文件
   const { data: files, error: listError } = await supabase.storage
-    .from('donation-results')
+    .from(STORAGE_BUCKETS.donationResults)
     .list(donation.donation_public_id, {
       sortBy: { column: 'created_at', order: 'desc' },
     })
@@ -380,7 +381,7 @@ export async function getDonationResultFiles(donationId: number) {
     const filePath = `${donation.donation_public_id}/${file.name}`
     const {
       data: { publicUrl },
-    } = supabase.storage.from('donation-results').getPublicUrl(filePath)
+    } = supabase.storage.from(STORAGE_BUCKETS.donationResults).getPublicUrl(filePath)
 
     return {
       name: file.name,
@@ -434,7 +435,7 @@ export async function deleteDonationResultFile(donationId: number, filePath: str
 
   // 批量删除文件（原始文件 + 缩略图）
   const { error: deleteError } = await supabase.storage
-    .from('donation-results')
+    .from(STORAGE_BUCKETS.donationResults)
     .remove(filesToDelete)
 
   if (deleteError) {

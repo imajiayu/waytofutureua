@@ -11,6 +11,7 @@ import {
 import { MAX_MEDIA_FILE_SIZE, validateMediaFiles } from '@/lib/file-validation'
 import { clientLogger } from '@/lib/logger-client'
 import { createClient } from '@/lib/supabase/client'
+import { STORAGE_BUCKETS } from '@/lib/supabase/storage-buckets'
 
 export interface DonationFile {
   name: string
@@ -108,7 +109,7 @@ export function useDonationFileUpload({ donationId, autoLoad }: Options) {
       const { path, token } = await createSignedUploadUrl(donationId, file.type)
       const supabase = createClient()
       const { error } = await supabase.storage
-        .from('donation-results')
+        .from(STORAGE_BUCKETS.donationResults)
         .uploadToSignedUrl(path, token, file, {
           contentType: file.type,
         })
@@ -123,7 +124,7 @@ export function useDonationFileUpload({ donationId, autoLoad }: Options) {
         } catch {
           const {
             data: { publicUrl },
-          } = supabase.storage.from('donation-results').getPublicUrl(path)
+          } = supabase.storage.from(STORAGE_BUCKETS.donationResults).getPublicUrl(path)
           return publicUrl
         }
       }

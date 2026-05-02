@@ -10,6 +10,7 @@ import FilterBar from '@/components/admin/ui/FilterBar'
 import EmptyState from '@/components/ui/EmptyState'
 import { useTableFilters } from '@/lib/hooks/useTableFilters'
 import { formatDateTime } from '@/lib/i18n-utils'
+import type { AppLocale } from '@/types'
 
 interface SubscriptionsTableProps {
   subscriptions: EmailSubscription[]
@@ -19,7 +20,7 @@ interface SubscriptionsTableProps {
 interface SubscriptionFilters {
   status: 'all' | 'subscribed' | 'unsubscribed'
   search: string
-  locale: 'all' | 'en' | 'zh' | 'ua'
+  locale: 'all' | AppLocale
 }
 
 export default function SubscriptionsTable({
