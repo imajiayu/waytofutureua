@@ -134,14 +134,6 @@ export interface FullCurrencyInfo {
 }
 
 /**
- * Full Currencies Response
- * GET https://api.nowpayments.io/v1/full-currencies
- */
-export interface FullCurrenciesResponse {
-  currencies: FullCurrencyInfo[]
-}
-
-/**
  * API Error Response
  */
 export interface NowPaymentsError {

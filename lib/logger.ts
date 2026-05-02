@@ -174,5 +174,3 @@ export const logger = {
     log('error', category, message, errorContext)
   },
 }
-
-export default logger

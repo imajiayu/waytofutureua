@@ -2,7 +2,12 @@ import crypto from 'crypto'
 
 import { logger } from '@/lib/logger'
 
-import type { CreatePaymentRequest, CreatePaymentResponse, NowPaymentsError } from './types'
+import type {
+  CreatePaymentRequest,
+  CreatePaymentResponse,
+  FullCurrencyInfo,
+  NowPaymentsError,
+} from './types'
 
 // Validate environment variables
 if (!process.env.NOWPAYMENTS_API_KEY) {
@@ -213,21 +218,6 @@ async function getFallbackMinimum(payCurrency: string): Promise<number> {
 
   const data = await response.json()
   return data.min_amount || 20 // Default to $20 if no data
-}
-
-/**
- * Full currency info returned from /full-currencies endpoint
- */
-export interface FullCurrencyInfo {
-  id: number
-  code: string
-  name: string
-  logo_url: string
-  network: string
-  is_popular: boolean
-  is_stable: boolean
-  available_for_payment: boolean
-  ticker: string
 }
 
 /**

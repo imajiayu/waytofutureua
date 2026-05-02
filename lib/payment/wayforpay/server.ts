@@ -185,8 +185,6 @@ export const WAYFORPAY_STATUS = {
   VOIDED: 'Voided', // Asset un-holding completed (pre-auth cancellation)
 } as const
 
-export type WayForPayStatus = (typeof WAYFORPAY_STATUS)[keyof typeof WAYFORPAY_STATUS]
-
 /**
  * Generate WayForPay webhook response signature
  * Required to confirm webhook receipt and stop WayForPay retries

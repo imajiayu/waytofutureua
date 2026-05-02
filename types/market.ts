@@ -91,15 +91,6 @@ export interface MarketOrder {
   updated_at: string
 }
 
-/** market_order_status_history — 订单状态历史 */
-export interface MarketOrderStatusHistory {
-  id: number
-  order_id: number
-  from_status: MarketOrderStatus | null
-  to_status: MarketOrderStatus
-  changed_at: string
-}
-
 /** 管理员订单（含商品标题 join） */
 export interface AdminMarketOrder extends MarketOrder {
   market_items: { title_i18n: I18nText } | null

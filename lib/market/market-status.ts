@@ -77,17 +77,6 @@ export const ORDER_STATUS_COLORS: Record<MarketOrderStatus, { bg: string; text: 
 }
 
 // ============================================
-// 3b. Webhook 可更新的源状态（对齐捐赠系统 PAYMENT_WEBHOOK_SOURCE_STATUSES 模式）
-// ============================================
-
-/** 支付 Webhook 可更新的源状态 — widget_load_failed 和 expired（cron 清理后）也可被 webhook 恢复为 paid */
-export const MARKET_WEBHOOK_SOURCE_STATUSES: readonly MarketOrderStatus[] = [
-  'pending',
-  'widget_load_failed',
-  'expired',
-] as const
-
-// ============================================
 // 4. 订单状态分组（成功页展示）
 // ============================================
 

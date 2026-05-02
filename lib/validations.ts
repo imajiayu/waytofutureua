@@ -60,16 +60,6 @@ export const updateProjectSchema = z
 // Donation Schemas
 // ============================================
 
-export const createDonationSchema = z.object({
-  project_id: z.number().int().min(0, 'Project ID is required'), // Allow 0 for rehabilitation center support
-  donor_name: z.string().min(2, 'Name must be at least 2 characters').max(255),
-  donor_email: z.string().email('Invalid email address').max(255),
-  donor_phone: z.string().max(50).optional().nullable(),
-  amount: z.number().positive('Amount must be greater than 0'),
-  currency: z.string().length(3).toUpperCase().optional().default('USD'),
-  payment_method: z.string().max(50).optional(),
-})
-
 export const donationFormSchema = z.object({
   project_id: z.number().int().min(0), // Allow 0 for rehabilitation center support (tip project)
   quantity: z.number().int().min(1).max(10), // Max 10 units per order to prevent performance issues

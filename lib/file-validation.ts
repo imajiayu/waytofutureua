@@ -3,10 +3,6 @@
  * (donation result files / market order proof files).
  */
 
-export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const
-
-export const VIDEO_TYPES = ['video/mp4', 'video/quicktime'] as const
-
 export const MAX_MEDIA_FILE_SIZE = 50 * 1024 * 1024 // 50 MB
 
 /** Allowed upload MIME types and the file extension we use when storing them. */
@@ -20,7 +16,7 @@ export const MIME_TO_EXT: Record<string, string> = {
 }
 
 interface ValidateOptions {
-  /** MIME types accepted by the caller (intersection with IMAGE_TYPES + VIDEO_TYPES). */
+  /** MIME types accepted by the caller. */
   allowed: ReadonlyArray<string>
   /** Per-file max size in bytes. Defaults to MAX_MEDIA_FILE_SIZE. */
   maxSize?: number

@@ -40,8 +40,6 @@ export const salePurchaseSchema = z.object({
   shipping: shippingAddressSchema,
 })
 
-export type SalePurchaseInput = z.infer<typeof salePurchaseSchema>
-
 // ============================================
 // 管理员：创建商品
 // ============================================
@@ -66,5 +64,3 @@ export const updateOrderStatusSchema = z.object({
   tracking_carrier: z.string().max(100).optional(),
   note: z.string().max(500).optional(),
 })
-
-export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>

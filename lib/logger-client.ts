@@ -126,5 +126,3 @@ export const clientLogger = {
     log('error', category, message, errorContext)
   },
 }
-
-export default clientLogger
