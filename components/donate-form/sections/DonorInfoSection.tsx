@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl'
 
-import type { DonorInfo } from '../DonationFormCard'
+import type { DonorInfo } from '@/types/dtos'
+
 import type { FieldErrors, FieldKey } from './types'
 
 interface Props {

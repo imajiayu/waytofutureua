@@ -119,17 +119,3 @@ export const sendBroadcastSchema = z.object({
   templateName: z.string().min(1, 'Template name is required'),
   variables: z.record(z.string()).optional(),
 })
-
-// ============================================
-// Type Exports
-// ============================================
-
-export type CreateProjectInput = z.infer<typeof createProjectSchema>
-export type UpdateProjectInput = z.infer<typeof updateProjectSchema>
-export type CreateDonationInput = z.infer<typeof createDonationSchema>
-export type DonationFormInput = z.infer<typeof donationFormSchema>
-export type CreateSubscriptionInput = z.infer<typeof createSubscriptionSchema>
-export type UnsubscribeInput = z.infer<typeof unsubscribeSchema>
-export type TrackDonationInput = z.infer<typeof trackDonationSchema>
-export type RequestRefundInput = z.infer<typeof requestRefundSchema>
-export type SendBroadcastInput = z.infer<typeof sendBroadcastSchema>

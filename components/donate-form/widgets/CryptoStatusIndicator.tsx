@@ -1,5 +1,15 @@
 import { useTranslations } from 'next-intl'
 
+const STATUS_LABEL_KEYS = {
+  waiting: 'status.waiting',
+  confirming: 'status.confirming',
+  confirmed: 'status.confirmed',
+  sending: 'status.sending',
+  finished: 'status.finished',
+} as const
+
+type StatusKey = keyof typeof STATUS_LABEL_KEYS
+
 const statusConfig: Record<string, { color: string; bgColor: string; icon: React.ReactNode }> = {
   waiting: {
     color: 'text-amber-700',
@@ -78,13 +88,13 @@ const statusConfig: Record<string, { color: string; bgColor: string; icon: React
 export default function CryptoStatusIndicator({ status }: { status: string }) {
   const t = useTranslations('nowpaymentsWidget')
   const config = statusConfig[status] || statusConfig.waiting
-  const statusKey = status as keyof typeof statusConfig
+  const statusKey: StatusKey = status in STATUS_LABEL_KEYS ? (status as StatusKey) : 'waiting'
 
   return (
     <div className={`rounded-lg border p-4 ${config.bgColor}`}>
       <div className={`flex items-center gap-3 ${config.color}`}>
         {config.icon}
-        <span className="font-medium">{t(`status.${statusKey}` as any)}</span>
+        <span className="font-medium">{t(STATUS_LABEL_KEYS[statusKey])}</span>
       </div>
     </div>
   )

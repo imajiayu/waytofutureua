@@ -381,37 +381,3 @@ export function createOrderTotal(label: string, amount: string): string {
     </table>
   `
 }
-
-/**
- * Stats card component - Ukraine themed for displaying key metrics
- */
-export function createStatsCard(
-  value: string,
-  label: string,
-  color: 'blue' | 'green' | 'gold' = 'blue'
-): string {
-  const gradients = {
-    blue: 'linear-gradient(135deg, #076CB3 0%, #065A96 100%)',
-    green: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-    gold: 'linear-gradient(135deg, #F5B800 0%, #D19A00 100%)',
-  }
-
-  const textColors = {
-    blue: '#ffffff',
-    green: '#ffffff',
-    gold: '#02263E',
-  }
-
-  return `
-    <td style="padding: 6px;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background: ${gradients[color]}; border-radius: 16px;">
-        <tr>
-          <td style="padding: 20px 12px; text-align: center;">
-            <div style="font-family: 'Courier New', monospace; font-size: 32px; font-weight: 700; color: ${textColors[color]};">${value}</div>
-            <div style="font-size: 12px; color: ${color === 'gold' ? 'rgba(2,38,62,0.8)' : 'rgba(255,255,255,0.9)'}; margin-top: 4px; font-weight: 600;">${label}</div>
-          </td>
-        </tr>
-      </table>
-    </td>
-  `
-}

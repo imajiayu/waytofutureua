@@ -1,4 +1,4 @@
-import { EmailTemplate } from '../../index'
+import type { EmailTemplate } from '../../types'
 
 /**
  * Project 3 Completed - Christmas Gift Program Success

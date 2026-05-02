@@ -3,7 +3,6 @@
 import { logger } from '@/lib/logger'
 import { createServerClient } from '@/lib/supabase/server'
 import type { BuyerMarketOrder } from '@/types/dtos'
-import type { MarketOrder } from '@/types/market'
 
 export type { BuyerMarketOrder }
 
@@ -34,33 +33,4 @@ export async function getMyOrders(): Promise<{
   }
 
   return { orders: (data || []) as BuyerMarketOrder[] }
-}
-
-/** 获取单个订单详情 */
-export async function getOrderDetail(
-  orderReference: string
-): Promise<{ order: MarketOrder | null; error?: string }> {
-  const supabase = await createServerClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    return { order: null, error: 'not_authenticated' }
-  }
-
-  const { data, error } = await supabase
-    .from('market_orders')
-    .select('*')
-    .eq('order_reference', orderReference)
-    .eq('buyer_id', user.id)
-    .single()
-
-  if (error) {
-    if (error.code === 'PGRST116') return { order: null, error: 'not_found' }
-    return { order: null, error: error.message }
-  }
-
-  return { order: data as MarketOrder }
 }

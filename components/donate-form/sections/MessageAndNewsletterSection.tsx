@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 
-import type { DonorInfo } from '../DonationFormCard'
+import type { DonorInfo } from '@/types/dtos'
 
 interface Props {
   donorMessage: string

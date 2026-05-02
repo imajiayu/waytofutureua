@@ -1,10 +1,10 @@
 'use client'
 
 import { SpinnerIcon } from '@/components/icons'
-import { LOCALE_DISPLAY_NAMES } from '@/lib/i18n-utils'
+import { localeNames } from '@/i18n/config'
 import type { AppLocale } from '@/types'
 
-import type { Subscriber } from '../BroadcastModal'
+import type { Subscriber } from './types'
 
 interface Template {
   name: string
@@ -84,7 +84,7 @@ export default function BroadcastSendForm({
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
           <label className="mb-2 block text-sm font-medium text-gray-700">Preview Language</label>
           <div className="flex gap-2">
-            {(Object.keys(LOCALE_DISPLAY_NAMES) as AppLocale[]).map((locale) => (
+            {(Object.keys(localeNames) as AppLocale[]).map((locale) => (
               <button
                 key={locale}
                 onClick={() => setPreviewLocale(locale)}
@@ -94,7 +94,7 @@ export default function BroadcastSendForm({
                     : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                {LOCALE_DISPLAY_NAMES[locale]}
+                {localeNames[locale]}
               </button>
             ))}
           </div>
@@ -158,7 +158,7 @@ export default function BroadcastSendForm({
                         {subscriber.email}
                       </span>
                       <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                        {LOCALE_DISPLAY_NAMES[subscriber.locale]}
+                        {localeNames[subscriber.locale]}
                       </span>
                     </label>
                   </li>

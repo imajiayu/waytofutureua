@@ -1,20 +1,3 @@
-export interface EmailTemplate {
-  name: string // 模板名称（用于显示）
-  fileName: string // 文件名（不含扩展名）
-  subject: {
-    en: string
-    zh: string
-    ua: string
-  }
-  projectId?: string // 关联的项目 ID（用于生成 project_url）
-}
-
-export interface TemplateContent {
-  en: string
-  zh: string
-  ua: string
-}
-
 // ==================== 静态模板注册表 ====================
 // 在 Vercel serverless 环境中，fs 模块无法正常工作
 // 因此需要静态注册所有可用的模板和内容
@@ -26,7 +9,6 @@ export interface TemplateContent {
 // 4. 将模板添加到 REGISTERED_TEMPLATES 数组
 // 5. 将内容添加到 TEMPLATE_CONTENTS 映射
 
-// 模板定义
 import { logger } from '@/lib/logger'
 
 import project0Ongoing from './broadcast/project0-ongoing'
@@ -50,6 +32,7 @@ import project4OngoingZh from './content/project4-ongoing/zh.html'
 import project5OngoingEn from './content/project5-ongoing/en.html'
 import project5OngoingUa from './content/project5-ongoing/ua.html'
 import project5OngoingZh from './content/project5-ongoing/zh.html'
+import type { EmailTemplate, TemplateContent } from './types'
 
 const REGISTERED_TEMPLATES: EmailTemplate[] = [
   project0Ongoing,
@@ -169,3 +152,5 @@ export function getCompleteEmailTemplate(fileName: string): {
 
   return { template, content }
 }
+
+export type { EmailTemplate, TemplateContent } from './types'

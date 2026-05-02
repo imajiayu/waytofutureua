@@ -1,4 +1,4 @@
-import { EmailTemplate } from '../../index'
+import type { EmailTemplate } from '../../types'
 
 /**
  * Project 4 Ongoing - Aid for Single Mother with 8 Children Near Frontline

@@ -26,15 +26,6 @@ export interface ProjectFilters {
   search?: string
 }
 
-export interface DonationFilters {
-  project_id?: number
-  status?: DonationStatus
-  donor_email?: string
-  date_from?: string
-  date_to?: string
-  locale?: AppLocale
-}
-
 // Constants (internal, used for type derivation)
 const PROJECT_STATUSES = ['planned', 'active', 'completed', 'paused'] as const
 

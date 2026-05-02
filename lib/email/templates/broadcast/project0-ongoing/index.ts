@@ -1,4 +1,4 @@
-import { EmailTemplate } from '../../index'
+import type { EmailTemplate } from '../../types'
 
 /**
  * Project 0 Ongoing - Way to Health Rehabilitation Center Appeal

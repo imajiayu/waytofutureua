@@ -1,4 +1,4 @@
-import { EmailTemplate } from '../../index'
+import type { EmailTemplate } from '../../types'
 
 /**
  * Project 5 Ongoing - Hot Meals and Support for Dnipro Residents in Need

@@ -17,7 +17,7 @@ interface FormFieldProps {
  * Pair with `<TextField>` / `<SelectField>` for common input patterns,
  * or pass any custom child that consumes `ADMIN_INPUT_CLASS` directly.
  */
-export default function FormField({ label, required, hint, error, children }: FormFieldProps) {
+function FormField({ label, required, hint, error, children }: FormFieldProps) {
   return (
     <div>
       <label className="mb-1 block text-sm font-medium text-gray-700">

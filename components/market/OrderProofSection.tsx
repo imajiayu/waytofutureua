@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
 import { getOrderProofFiles } from '@/app/actions/market-order-files'
-import ImageLightbox, { type LightboxImage } from '@/components/common/ImageLightbox'
+import type { LightboxImage } from '@/components/common/ImageLightbox'
+import ImageLightbox from '@/components/common/LazyImageLightbox'
 import { MARKET_ORDER_CATEGORIES } from '@/lib/market/market-categories'
 import type { MarketOrderFile } from '@/types/market'
 

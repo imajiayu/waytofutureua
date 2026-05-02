@@ -20,12 +20,9 @@ import type { AppLocale } from '@/types'
 import BroadcastPreviewView from './broadcast/BroadcastPreviewView'
 import BroadcastResultView from './broadcast/BroadcastResultView'
 import BroadcastSendForm from './broadcast/BroadcastSendForm'
+import type { Subscriber } from './broadcast/types'
 
-export interface Subscriber {
-  email: string
-  locale: AppLocale
-  is_subscribed: boolean
-}
+export type { Subscriber } from './broadcast/types'
 
 interface BroadcastModalProps {
   isOpen: boolean

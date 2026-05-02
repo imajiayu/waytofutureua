@@ -132,39 +132,3 @@ export async function verifyOTP(
     return { success: false, error: 'verify_failed' }
   }
 }
-
-export async function getMarketSession(): Promise<{
-  authenticated: boolean
-  userId?: string
-  email?: string
-}> {
-  try {
-    const supabase = await createServerClient()
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-
-    if (error || !user) {
-      return { authenticated: false }
-    }
-
-    return {
-      authenticated: true,
-      userId: user.id,
-      email: user.email,
-    }
-  } catch {
-    return { authenticated: false }
-  }
-}
-
-export async function signOutMarket(): Promise<{ success: boolean }> {
-  try {
-    const supabase = await createServerClient()
-    await supabase.auth.signOut()
-    return { success: true }
-  } catch {
-    return { success: false }
-  }
-}
