@@ -164,7 +164,7 @@ export default async function MarketSuccessPage({ params, searchParams }: Props)
               <span className="text-gray-500">{t('order.item')}</span>
               <span className="text-gray-900">
                 {order.market_items?.title_i18n
-                  ? getTranslatedText(order.market_items.title_i18n, null, locale as AppLocale)
+                  ? getTranslatedText(order.market_items.title_i18n, locale as AppLocale)
                   : `${t('order.item')} #${order.item_id}`}
               </span>
             </div>

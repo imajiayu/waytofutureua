@@ -9,19 +9,19 @@ import type { AppLocale, I18nText, Json } from '@/types'
 type I18nInput = I18nText | Json | undefined | null
 
 /**
- * Get translated text from an i18n object. Falls back to English, then to `fallbackText`.
+ * Get translated text from an i18n object. Falls back to English, then to `fallback`.
  */
 export function getTranslatedText(
   i18nText: I18nInput,
-  fallbackText: string | null,
-  locale: AppLocale = 'en'
+  locale: AppLocale = 'en',
+  fallback: string = ''
 ): string {
   if (!i18nText || typeof i18nText !== 'object' || Array.isArray(i18nText)) {
-    return fallbackText || ''
+    return fallback
   }
   const i18n = i18nText as Record<string, unknown>
   const value = i18n[locale] ?? i18n.en
-  return typeof value === 'string' ? value : fallbackText || ''
+  return typeof value === 'string' ? value : fallback
 }
 
 const JS_LOCALE_MAP: Record<AppLocale, string> = {

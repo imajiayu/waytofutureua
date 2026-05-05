@@ -61,13 +61,14 @@ export default function DonationFormCard({
 
   // Get translated project data
   const projectName = project
-    ? getTranslatedText(project.project_name_i18n, project.project_name, locale as AppLocale)
+    ? getTranslatedText(project.project_name_i18n, locale as AppLocale)
     : ''
-  const location = project
-    ? getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
-    : ''
+  const location = project ? getTranslatedText(project.location_i18n, locale as AppLocale) : ''
+  // Aggregated projects have no meaningful unit — donations are amount-based, so use 'USD'.
   const unitName = project
-    ? getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
+    ? project.aggregate_donations
+      ? 'USD'
+      : getTranslatedText(project.unit_name_i18n, locale as AppLocale)
     : ''
 
   // Project-specific fields (reset when project changes)

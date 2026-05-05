@@ -79,34 +79,52 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Basic Info */}
+        {/* Translations — single source of truth for project name / location / unit name */}
         <div className="border-b pb-4">
-          <h3 className="mb-3 font-body text-lg font-semibold">Basic Information</h3>
-          <div className="space-y-4">
-            <TextField
-              label="Project Name"
-              required
-              value={formData.project_name}
-              onChange={(v) => updateField('project_name', v)}
+          <h3 className="mb-3 font-body text-lg font-semibold">Translations</h3>
+          <p className="mb-4 text-sm text-gray-600">
+            English is required and used as the canonical fallback. Unit name is only read for
+            non-aggregated projects (aggregated projects display amounts in USD).
+          </p>
+          <div className="space-y-6">
+            <I18nFieldGroup
+              title="Project Name"
+              requiredLocale="en"
+              value={formData.project_name_i18n as I18nText}
+              onChange={(v) => updateField('project_name_i18n', v)}
+              placeholders={{ en: 'Project Name', zh: '项目名称', ua: 'Назва проекту' }}
             />
-            <TextField
-              label="Location"
-              required
-              value={formData.location}
-              onChange={(v) => updateField('location', v)}
+            <I18nFieldGroup
+              title="Location"
+              requiredLocale="en"
+              value={formData.location_i18n as I18nText}
+              onChange={(v) => updateField('location_i18n', v)}
+              placeholders={{ en: 'Location', zh: '地点', ua: 'Розташування' }}
             />
-            <SelectField
-              label="Status"
-              required
-              value={formData.status || 'planned'}
-              onChange={(v) => updateField('status', v)}
-            >
-              <option value="planned">Planned</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-              <option value="paused">Paused</option>
-            </SelectField>
+            <I18nFieldGroup
+              title="Unit Name (non-aggregated only)"
+              requiredLocale={formData.aggregate_donations ? undefined : 'en'}
+              value={formData.unit_name_i18n as I18nText}
+              onChange={(v) => updateField('unit_name_i18n', v)}
+              placeholders={{ en: 'unit', zh: '件', ua: 'одиниця' }}
+            />
           </div>
+        </div>
+
+        {/* Status */}
+        <div className="border-b pb-4">
+          <h3 className="mb-3 font-body text-lg font-semibold">Status</h3>
+          <SelectField
+            label="Status"
+            required
+            value={formData.status || 'planned'}
+            onChange={(v) => updateField('status', v)}
+          >
+            <option value="planned">Planned</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="paused">Paused</option>
+          </SelectField>
         </div>
 
         {/* Pricing & Units */}
@@ -129,11 +147,6 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
               value={formData.target_units || 0}
               onChange={(v) => updateField('target_units', Number(v))}
             />
-            <TextField
-              label="Unit Name"
-              value={formData.unit_name || ''}
-              onChange={(v) => updateField('unit_name', v)}
-            />
           </div>
         </div>
 
@@ -153,36 +166,6 @@ export default function ProjectEditModal({ project, onClose, onSaved }: Props) {
               type="date"
               value={formData.end_date || ''}
               onChange={(v) => updateField('end_date', v || null)}
-            />
-          </div>
-        </div>
-
-        {/* i18n Fields */}
-        <div className="border-b pb-4">
-          <h3 className="mb-3 font-body text-lg font-semibold">Internationalization (Optional)</h3>
-          <p className="mb-4 text-sm text-gray-600">
-            Provide translations for different languages. Leave empty to use the basic information
-            above.
-          </p>
-
-          <div className="space-y-6">
-            <I18nFieldGroup
-              title="Project Name Translations"
-              value={formData.project_name_i18n as I18nText}
-              onChange={(v) => updateField('project_name_i18n', v)}
-              placeholders={{ en: 'Project Name', zh: 'Project name', ua: 'Назва проекту' }}
-            />
-            <I18nFieldGroup
-              title="Location Translations"
-              value={formData.location_i18n as I18nText}
-              onChange={(v) => updateField('location_i18n', v)}
-              placeholders={{ en: 'Location', zh: 'Location', ua: 'Розташування' }}
-            />
-            <I18nFieldGroup
-              title="Unit Name Translations"
-              value={formData.unit_name_i18n as I18nText}
-              onChange={(v) => updateField('unit_name_i18n', v)}
-              placeholders={{ en: 'unit', zh: 'Unit', ua: 'одиниця' }}
             />
           </div>
         </div>

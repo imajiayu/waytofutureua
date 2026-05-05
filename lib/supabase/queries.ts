@@ -26,10 +26,6 @@ export async function getAllProjectsWithStats(filters?: ProjectFilters) {
     query = query.eq('status', filters.status)
   }
 
-  if (filters?.location) {
-    query = query.eq('location', filters.location)
-  }
-
   if (filters?.is_long_term !== undefined) {
     query = query.eq('is_long_term', filters.is_long_term)
   }

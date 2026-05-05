@@ -42,11 +42,7 @@ export default function OrderGroupCard({
   const projectCount = new Set(orderDonations.map((d) => d.projects.id)).size
 
   // Get unit name for display (from first donation's project)
-  const unitName = getTranslatedText(
-    firstDonation.projects.unit_name_i18n,
-    firstDonation.projects.unit_name,
-    locale as AppLocale
-  )
+  const unitName = getTranslatedText(firstDonation.projects.unit_name_i18n, locale as AppLocale)
 
   // Check if any donation in this order belongs to an aggregate project
   const hasAggregateProject = orderDonations.some((d) => d.projects.aggregate_donations === true)
@@ -123,7 +119,6 @@ export default function OrderGroupCard({
             {orderDonations.map((donation) => {
               const donationProjectName = getTranslatedText(
                 donation.projects.project_name_i18n,
-                donation.projects.project_name,
                 locale as AppLocale
               )
 

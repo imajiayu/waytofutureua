@@ -77,7 +77,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-gray-900">
-                    {getTranslatedText(item.title_i18n, null, 'en') || '—'}
+                    {getTranslatedText(item.title_i18n, 'en') || '—'}
                   </div>
                   <div className="mt-0.5 font-mono text-xs text-gray-500">#{item.id}</div>
                 </div>
@@ -160,7 +160,7 @@ export default function MarketItemsTable({ initialItems }: MarketItemsTableProps
                 <tr key={item.id}>
                   <td className="px-4 py-3 font-mono text-sm text-gray-500">{item.id}</td>
                   <td className="max-w-[200px] truncate px-4 py-3 text-sm font-medium text-gray-900">
-                    {getTranslatedText(item.title_i18n, null, 'en') || '—'}
+                    {getTranslatedText(item.title_i18n, 'en') || '—'}
                   </td>
                   <td className="px-4 py-3 font-data text-sm">
                     {formatMarketPrice(item.fixed_price || 0, item.currency)}

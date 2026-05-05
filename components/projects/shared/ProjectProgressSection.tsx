@@ -19,8 +19,8 @@ interface ProjectProgressSectionProps {
 export default function ProjectProgressSection({ project, locale }: ProjectProgressSectionProps) {
   const t = useTranslations('projects')
 
-  const location = getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
-  const unitName = getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
+  const location = getTranslatedText(project.location_i18n, locale as AppLocale)
+  const unitName = getTranslatedText(project.unit_name_i18n, locale as AppLocale)
   const { currentUnits, targetUnits, totalRaised, hasValidTarget, progressCurrent } =
     getProjectProgress(project)
 

@@ -37,7 +37,7 @@ interface MarketItemDetailProps {
 
 export default function MarketItemDetail({ item, locale }: MarketItemDetailProps) {
   const t = useTranslations('market')
-  const title = getTranslatedText(item.title_i18n, null, locale as AppLocale) || 'Untitled'
+  const title = getTranslatedText(item.title_i18n, locale as AppLocale) || 'Untitled'
   const { labelKey, colors } = getItemDisplayInfo(item.status, item.stock_quantity)
   const { data: content, loading } = useMarketItemContent(item.id, locale)
   const price = item.fixed_price || 0

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 
 import ProjectStatusBadge from '@/components/projects/ProjectStatusBadge'
+import { getTranslatedText } from '@/lib/i18n-utils'
+import type { I18nText } from '@/types'
 import type { Database } from '@/types/database'
 
 import ProjectCreateModal from './ProjectCreateModal'
@@ -59,8 +61,12 @@ export default function ProjectsTable({ initialProjects }: Props) {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-gray-900">{project.project_name}</div>
-                  <div className="mt-0.5 text-xs text-gray-500">{project.location}</div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {getTranslatedText(project.project_name_i18n as I18nText, 'en')}
+                  </div>
+                  <div className="mt-0.5 text-xs text-gray-500">
+                    {getTranslatedText(project.location_i18n as I18nText, 'en')}
+                  </div>
                 </div>
                 <ProjectStatusBadge status={project.status || 'active'} />
               </div>
@@ -123,10 +129,10 @@ export default function ProjectsTable({ initialProjects }: Props) {
                     {project.id}
                   </td>
                   <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 sm:px-6">
-                    {project.project_name}
+                    {getTranslatedText(project.project_name_i18n as I18nText, 'en')}
                   </td>
                   <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:px-6">
-                    {project.location}
+                    {getTranslatedText(project.location_i18n as I18nText, 'en')}
                   </td>
                   <td className="whitespace-nowrap px-3 py-4 sm:px-6">
                     <ProjectStatusBadge status={project.status || 'active'} />

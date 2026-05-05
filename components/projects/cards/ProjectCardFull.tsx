@@ -30,13 +30,9 @@ export default function ProjectCardFull({ project, locale, showProgress = true }
     setIsNavigating(false)
   }, [pathname])
 
-  const projectName = getTranslatedText(
-    project.project_name_i18n,
-    project.project_name,
-    locale as AppLocale
-  )
-  const location = getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
-  const unitName = getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
+  const projectName = getTranslatedText(project.project_name_i18n, locale as AppLocale)
+  const location = getTranslatedText(project.location_i18n, locale as AppLocale)
+  const unitName = getTranslatedText(project.unit_name_i18n, locale as AppLocale)
 
   const handleDonateClick = useCallback(() => {
     setIsNavigating(true)

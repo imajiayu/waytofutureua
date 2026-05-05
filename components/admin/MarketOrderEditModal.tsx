@@ -47,7 +47,7 @@ export default function MarketOrderEditModal({ order, onClose, onSaved }: Props)
     newStatus && needsTrackingNumber(currentStatus, newStatus as MarketOrderStatus)
 
   const itemTitle = order.market_items
-    ? getTranslatedText(order.market_items.title_i18n, null, 'en')
+    ? getTranslatedText(order.market_items.title_i18n, 'en')
     : `#${order.item_id}`
 
   const fileUpload = useMarketOrderFileUpload({

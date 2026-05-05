@@ -132,12 +132,12 @@ export async function prepareDonationContext(
     return { ok: false, err: { error: 'project_not_active', allProjectsStats } }
   }
 
-  // Get localized unit name for error messages
-  const unitName = getTranslatedText(
-    project.unit_name_i18n,
-    project.unit_name,
-    validated.locale as AppLocale
-  )
+  // Localized unit name for error messages.
+  // Aggregated projects don't have a meaningful unit — donations are amount-based,
+  // so unit name is always 'USD' (matches the hardcoded substitution in error paths below).
+  const unitName = project.aggregate_donations
+    ? 'USD'
+    : getTranslatedText(project.unit_name_i18n, validated.locale as AppLocale)
 
   // Calculate project amount based on project type
   const unitPrice = project.unit_price ?? 0
@@ -214,11 +214,7 @@ export async function prepareDonationContext(
   const orderReference = `DONATE-${project.id}-${timestamp}-${randomSuffix}`
 
   // Get localized project name (used by payment params + metadata)
-  const projectName = getTranslatedText(
-    project.project_name_i18n,
-    project.project_name,
-    validated.locale as AppLocale
-  )
+  const projectName = getTranslatedText(project.project_name_i18n, validated.locale as AppLocale)
 
   return {
     ok: true,

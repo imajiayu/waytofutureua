@@ -30,7 +30,6 @@ export async function getAdminDonations() {
     supabase.from('donations').select(`
         *,
         projects (
-          project_name,
           project_name_i18n
         )
       `),

@@ -10,10 +10,33 @@ const localeSchema = z.enum(['en', 'zh', 'ua'])
 // ============================================
 // Project Schemas
 // ============================================
+
+// i18n object where en is required (the canonical fallback used everywhere).
+const i18nEnRequired = z
+  .object({
+    en: z.string().min(1, 'English translation is required'),
+    zh: z.string().optional(),
+    ua: z.string().optional(),
+  })
+  .passthrough()
+
+// i18n object where all locales are optional. Aggregated projects don't read
+// unit_name at all (they substitute 'USD'), so it's fully optional in the base
+// shape; non-aggregated projects require .en, enforced via superRefine below.
+const i18nAllOptional = z
+  .object({
+    en: z.string().optional(),
+    zh: z.string().optional(),
+    ua: z.string().optional(),
+  })
+  .passthrough()
+
 export const createProjectSchema = z
   .object({
-    project_name: z.string().min(3, 'Project name must be at least 3 characters').max(255),
-    location: z.string().min(2, 'Location is required').max(255),
+    project_name_i18n: i18nEnRequired,
+    location_i18n: i18nEnRequired,
+    unit_name_i18n: i18nAllOptional.optional(),
+    unit_price: z.number().positive('Unit price must be > 0'),
     start_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
       message: 'Invalid date format',
     }),
@@ -23,8 +46,8 @@ export const createProjectSchema = z
       .nullable()
       .refine((date) => !date || !isNaN(Date.parse(date)), { message: 'Invalid date format' }),
     is_long_term: z.boolean().optional().default(false),
+    aggregate_donations: z.boolean().optional().default(false),
     target_units: z.number().int().min(0),
-    unit_name: z.string().max(50).optional().default('kit'),
     status: z.enum(['planned', 'active']).optional().default('planned'),
   })
   .passthrough()
@@ -32,11 +55,22 @@ export const createProjectSchema = z
     message: 'Fixed-term projects require target_units >= 1',
     path: ['target_units'],
   })
+  .superRefine((data, ctx) => {
+    if (!data.aggregate_donations && !data.unit_name_i18n?.en) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Unit name (English) is required for non-aggregated projects',
+        path: ['unit_name_i18n', 'en'],
+      })
+    }
+  })
 
 export const updateProjectSchema = z
   .object({
-    project_name: z.string().min(3).max(255).optional(),
-    location: z.string().min(2).max(255).optional(),
+    project_name_i18n: i18nEnRequired.optional(),
+    location_i18n: i18nEnRequired.optional(),
+    unit_name_i18n: i18nAllOptional.optional(),
+    unit_price: z.number().positive().optional(),
     start_date: z
       .string()
       .refine((date) => !isNaN(Date.parse(date)), {
@@ -51,10 +85,25 @@ export const updateProjectSchema = z
     is_long_term: z.boolean().optional(),
     target_units: z.number().int().min(0).optional(),
     current_units: z.number().int().min(0).optional(),
-    unit_name: z.string().max(50).optional(),
     status: z.enum(['planned', 'active', 'completed', 'paused']).optional(),
   })
   .passthrough()
+  .superRefine((data, ctx) => {
+    // Only validate when both fields are present in the update payload.
+    // If the caller isn't touching aggregate_donations or unit_name_i18n,
+    // we can't infer the project's current type and must stay permissive.
+    if (
+      data.aggregate_donations === false &&
+      data.unit_name_i18n !== undefined &&
+      !data.unit_name_i18n.en
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Unit name (English) is required for non-aggregated projects',
+        path: ['unit_name_i18n', 'en'],
+      })
+    }
+  })
 
 // ============================================
 // Donation Schemas

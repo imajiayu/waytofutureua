@@ -13,9 +13,7 @@ export type TrackDonation = {
   updated_at: string
   projects: {
     id: number
-    project_name: string
     project_name_i18n: I18nText | null
-    unit_name: string
     unit_name_i18n: I18nText | null
     aggregate_donations: boolean | null
   }

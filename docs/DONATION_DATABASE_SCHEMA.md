@@ -39,9 +39,7 @@
 | 字段                | 类型          | 约束                    | 说明                                              |
 | ------------------- | ------------- | ----------------------- | ------------------------------------------------- |
 | id                  | BIGSERIAL     | PK                      | 主键                                              |
-| project_name        | VARCHAR(255)  | NOT NULL                | 项目名称                                          |
 | project_name_i18n   | JSONB         | DEFAULT '{}'            | 多语言名称 `{"en":"...", "zh":"...", "ua":"..."}` |
-| location            | VARCHAR(255)  | NOT NULL                | 地点                                              |
 | location_i18n       | JSONB         | DEFAULT '{}'            | 多语言地点                                        |
 | start_date          | DATE          | NOT NULL                | 开始日期                                          |
 | end_date            | DATE          | NULL                    | 结束日期                                          |
@@ -49,8 +47,7 @@
 | target_units        | INTEGER       | NULL                    | 目标单位数                                        |
 | current_units       | INTEGER       | DEFAULT 0, NOT NULL     | 当前单位数（触发器自动更新）                      |
 | unit_price          | NUMERIC(10,2) | NOT NULL, >0            | 单位价格                                          |
-| unit_name           | VARCHAR(50)   | DEFAULT 'kit'           | 单位名称                                          |
-| unit_name_i18n      | JSONB         | DEFAULT '{}'            | 多语言单位名称                                    |
+| unit_name_i18n      | JSONB         | DEFAULT '{}'            | 多语言单位名称（聚合项目展示 'USD'，不读此字段）  |
 | status              | VARCHAR(20)   | DEFAULT 'planned'       | planned/active/completed/paused                   |
 | aggregate_donations | BOOLEAN       | DEFAULT false, NOT NULL | 捐赠聚合标志 **[不可修改]**                       |
 | created_at          | TIMESTAMPTZ   | DEFAULT now()           | 创建时间 **[不可修改]**                           |

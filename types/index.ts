@@ -21,7 +21,6 @@ export type ProjectStats = Tables<'project_stats'>
 // Filter and search types
 export interface ProjectFilters {
   status?: 'planned' | 'active' | 'completed' | 'paused'
-  location?: string
   is_long_term?: boolean
   search?: string
 }

@@ -285,11 +285,7 @@ export default function MarketOrdersPage() {
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-gray-900">
                       {order.market_items
-                        ? getTranslatedText(
-                            order.market_items.title_i18n,
-                            null,
-                            locale as AppLocale
-                          )
+                        ? getTranslatedText(order.market_items.title_i18n, locale as AppLocale)
                         : `${t('order.item')} #${order.item_id}`}
                       {order.quantity > 1 && (
                         <span className="ml-1 text-gray-500">× {order.quantity}</span>

@@ -32,13 +32,9 @@ export default function ProjectCardCompact({
 
   const t = useTranslations('projects')
 
-  const projectName = getTranslatedText(
-    project.project_name_i18n,
-    project.project_name,
-    locale as AppLocale
-  )
-  const location = getTranslatedText(project.location_i18n, project.location, locale as AppLocale)
-  const unitName = getTranslatedText(project.unit_name_i18n, project.unit_name, locale as AppLocale)
+  const projectName = getTranslatedText(project.project_name_i18n, locale as AppLocale)
+  const location = getTranslatedText(project.location_i18n, locale as AppLocale)
+  const unitName = getTranslatedText(project.unit_name_i18n, locale as AppLocale)
 
   const handleSelectClick = useCallback(() => {
     if (project.id !== null && project.id !== undefined && onSelect) {

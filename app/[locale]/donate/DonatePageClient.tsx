@@ -274,11 +274,7 @@ export default function DonatePageClient({
             <ProjectDonationList
               key={`donations-${selectedProjectId}`}
               projectId={selectedProjectId}
-              projectName={getTranslatedText(
-                selectedProject.project_name_i18n,
-                selectedProject.project_name,
-                locale as AppLocale
-              )}
+              projectName={getTranslatedText(selectedProject.project_name_i18n, locale as AppLocale)}
               locale={locale}
             />
           </div>

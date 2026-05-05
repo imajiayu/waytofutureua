@@ -22,7 +22,7 @@ export default function MarketItemCard({ item, content, onNavigate }: MarketItem
   const locale = useLocale() as AppLocale
   const router = useRouter()
 
-  const title = getTranslatedText(item.title_i18n, null, locale) || 'Untitled'
+  const title = getTranslatedText(item.title_i18n, locale) || 'Untitled'
   const { labelKey, colors, hasStock, isSold } = getItemDisplayInfo(
     item.status,
     item.stock_quantity

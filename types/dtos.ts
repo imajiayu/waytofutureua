@@ -26,11 +26,8 @@ export interface DonationByContactRow {
   donation_status: DonationStatus
   donated_at: string
   updated_at: string
-  project_name: string
   project_name_i18n: I18nText | null
-  location: string
   location_i18n: I18nText | null
-  unit_name: string
   unit_name_i18n: I18nText | null
   aggregate_donations: boolean
 }
@@ -47,7 +44,7 @@ export interface DonationByContactRow {
  * Source: getAdminDonations() in app/actions/admin.ts (joined select).
  */
 export type AdminDonationListItem = Donation & {
-  projects: { project_name: string; project_name_i18n: I18nText }
+  projects: { project_name_i18n: I18nText }
 }
 
 /**
@@ -67,11 +64,8 @@ export interface OrderDonationsSecureRow {
   order_reference: string
   donor_email_obfuscated: string
   project_id: number
-  project_name: string
   project_name_i18n: I18nText | null
-  location: string
   location_i18n: I18nText | null
-  unit_name: string
   unit_name_i18n: I18nText | null
   aggregate_donations: boolean
 }

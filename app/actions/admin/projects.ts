@@ -32,7 +32,7 @@ export async function getAdminProjects() {
 export async function createProject(project: ProjectInsert) {
   const supabase = await getAdminClient()
 
-  // 运行时验证已知字段，passthrough 放行 i18n 等额外字段
+  // 运行时验证已知字段，passthrough 放行额外字段
   let validated: ProjectInsert
   try {
     validated = createProjectSchema.parse(project) as ProjectInsert
@@ -61,10 +61,10 @@ export async function updateProject(id: number, updates: ProjectUpdate) {
   // 确保不修改这些字段
   const { id: _, created_at, updated_at, ...safeUpdates } = updates as Record<string, unknown>
 
-  // 运行时验证已知字段，passthrough 放行 i18n 等额外字段
+  // 运行时验证已知字段，passthrough 放行额外字段
   let validated: ProjectUpdate
   try {
-    validated = updateProjectSchema.passthrough().parse(safeUpdates) as ProjectUpdate
+    validated = updateProjectSchema.parse(safeUpdates) as ProjectUpdate
   } catch (err) {
     if (err instanceof z.ZodError) {
       throw new Error(`Validation failed: ${err.errors.map((e) => e.message).join(', ')}`)

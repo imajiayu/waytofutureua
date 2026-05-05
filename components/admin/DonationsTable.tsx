@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { canBatchEdit, type DonationStatus } from '@/lib/donation-status'
 import { useTableFilters } from '@/lib/hooks/useTableFilters'
+import { getTranslatedText } from '@/lib/i18n-utils'
 import type { Database } from '@/types/database'
 
 import BatchDonationEditModal from './BatchDonationEditModal'
@@ -57,7 +58,7 @@ export default function DonationsTable({ initialDonations, statusHistory }: Prop
   // Get unique projects for filter
   const uniqueProjects = Array.from(
     new Map(donations.map((d) => [d.project_id, d.projects])).entries()
-  ).map(([id, project]) => ({ id, name: project.project_name }))
+  ).map(([id, project]) => ({ id, name: getTranslatedText(project.project_name_i18n, 'en') }))
 
   const {
     filters,

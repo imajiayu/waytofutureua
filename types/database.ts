@@ -1,10 +1,16 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.1'
+    PostgrestVersion: "14.1"
   }
   graphql_public: {
     Tables: {
@@ -57,25 +63,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'donation_status_history_donation_id_fkey'
-            columns: ['donation_id']
+            foreignKeyName: "donation_status_history_donation_id_fkey"
+            columns: ["donation_id"]
             isOneToOne: false
-            referencedRelation: 'donations'
-            referencedColumns: ['id']
+            referencedRelation: "donations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'donation_status_history_donation_id_fkey'
-            columns: ['donation_id']
+            foreignKeyName: "donation_status_history_donation_id_fkey"
+            columns: ["donation_id"]
             isOneToOne: false
-            referencedRelation: 'order_donations_secure'
-            referencedColumns: ['id']
+            referencedRelation: "order_donations_secure"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'donation_status_history_donation_id_fkey'
-            columns: ['donation_id']
+            foreignKeyName: "donation_status_history_donation_id_fkey"
+            columns: ["donation_id"]
             isOneToOne: false
-            referencedRelation: 'public_project_donations'
-            referencedColumns: ['id']
+            referencedRelation: "public_project_donations"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -139,25 +145,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'fk_project'
-            columns: ['project_id']
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'order_donations_secure'
-            referencedColumns: ['project_id']
+            referencedRelation: "order_donations_secure"
+            referencedColumns: ["project_id"]
           },
           {
-            foreignKeyName: 'fk_project'
-            columns: ['project_id']
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'project_stats'
-            referencedColumns: ['id']
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'fk_project'
-            columns: ['project_id']
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'projects'
-            referencedColumns: ['id']
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -242,11 +248,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'market_order_status_history_order_id_fkey'
-            columns: ['order_id']
+            foreignKeyName: "market_order_status_history_order_id_fkey"
+            columns: ["order_id"]
             isOneToOne: false
-            referencedRelation: 'market_orders'
-            referencedColumns: ['id']
+            referencedRelation: "market_orders"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -331,11 +337,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'market_orders_item_id_fkey'
-            columns: ['item_id']
+            foreignKeyName: "market_orders_item_id_fkey"
+            columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: 'market_items'
-            referencedColumns: ['id']
+            referencedRelation: "market_items"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -347,14 +353,11 @@ export type Database = {
           end_date: string | null
           id: number
           is_long_term: boolean | null
-          location: string
           location_i18n: Json | null
-          project_name: string
           project_name_i18n: Json | null
           start_date: string
           status: string | null
           target_units: number | null
-          unit_name: string | null
           unit_name_i18n: Json | null
           unit_price: number
           updated_at: string | null
@@ -366,14 +369,11 @@ export type Database = {
           end_date?: string | null
           id?: number
           is_long_term?: boolean | null
-          location: string
           location_i18n?: Json | null
-          project_name: string
           project_name_i18n?: Json | null
           start_date: string
           status?: string | null
           target_units?: number | null
-          unit_name?: string | null
           unit_name_i18n?: Json | null
           unit_price: number
           updated_at?: string | null
@@ -385,14 +385,11 @@ export type Database = {
           end_date?: string | null
           id?: number
           is_long_term?: boolean | null
-          location?: string
           location_i18n?: Json | null
-          project_name?: string
           project_name_i18n?: Json | null
           start_date?: string
           status?: string | null
           target_units?: number | null
-          unit_name?: string | null
           unit_name_i18n?: Json | null
           unit_price?: number
           updated_at?: string | null
@@ -440,11 +437,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'market_orders_item_id_fkey'
-            columns: ['item_id']
+            foreignKeyName: "market_orders_item_id_fkey"
+            columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: 'market_items'
-            referencedColumns: ['id']
+            referencedRelation: "market_items"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -456,13 +453,10 @@ export type Database = {
           donation_status: string | null
           donor_email_obfuscated: string | null
           id: number | null
-          location: string | null
           location_i18n: Json | null
           order_reference: string | null
           project_id: number | null
-          project_name: string | null
           project_name_i18n: Json | null
-          unit_name: string | null
           unit_name_i18n: Json | null
         }
         Relationships: []
@@ -475,15 +469,12 @@ export type Database = {
           end_date: string | null
           id: number | null
           is_long_term: boolean | null
-          location: string | null
           location_i18n: Json | null
-          project_name: string | null
           project_name_i18n: Json | null
           start_date: string | null
           status: string | null
           target_units: number | null
           total_raised: number | null
-          unit_name: string | null
           unit_name_i18n: Json | null
           unit_price: number | null
         }
@@ -528,30 +519,53 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'fk_project'
-            columns: ['project_id']
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'order_donations_secure'
-            referencedColumns: ['project_id']
+            referencedRelation: "order_donations_secure"
+            referencedColumns: ["project_id"]
           },
           {
-            foreignKeyName: 'fk_project'
-            columns: ['project_id']
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'project_stats'
-            referencedColumns: ['id']
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'fk_project'
-            columns: ['project_id']
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: 'projects'
-            referencedColumns: ['id']
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
           },
         ]
       }
     }
     Functions: {
+      create_market_order_atomic: {
+        Args: {
+          p_buyer_email: string
+          p_buyer_id: string
+          p_currency: string
+          p_item_id: number
+          p_locale: string
+          p_order_reference: string
+          p_payment_method: string
+          p_quantity: number
+          p_shipping_address_line1: string
+          p_shipping_address_line2: string
+          p_shipping_city: string
+          p_shipping_country: string
+          p_shipping_name: string
+          p_shipping_phone: string
+          p_shipping_postal_code: string
+          p_shipping_state: string
+          p_total_amount: number
+          p_unit_price: number
+        }
+        Returns: string
+      }
       decrement_stock: {
         Args: { p_item_id: number; p_quantity: number }
         Returns: boolean
@@ -572,13 +586,10 @@ export type Database = {
           donation_status: string
           donor_email: string
           id: number
-          location: string
           location_i18n: Json
           order_reference: string
           project_id: number
-          project_name: string
           project_name_i18n: Json
-          unit_name: string
           unit_name_i18n: Json
           updated_at: string
         }[]
@@ -603,31 +614,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -636,23 +649,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -661,23 +674,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -686,36 +699,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

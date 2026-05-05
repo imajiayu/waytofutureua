@@ -9,11 +9,8 @@ type Donation = {
   donation_public_id: string
   amount: number
   projects: {
-    project_name: string
     project_name_i18n: I18nText | null
-    location: string
     location_i18n: I18nText | null
-    unit_name: string
     unit_name_i18n: I18nText | null
     aggregate_donations: boolean | null
   }
@@ -65,19 +62,13 @@ export default function DonationIdsList({ donations, locale, t }: DonationIdsLis
         {donations.map((donation, index) => {
           const donationProjectName = getTranslatedText(
             donation.projects.project_name_i18n,
-            donation.projects.project_name,
             locale as AppLocale
           )
           const donationLocation = getTranslatedText(
             donation.projects.location_i18n,
-            donation.projects.location,
             locale as AppLocale
           )
-          const unitName = getTranslatedText(
-            donation.projects.unit_name_i18n,
-            donation.projects.unit_name,
-            locale as AppLocale
-          )
+          const unitName = getTranslatedText(donation.projects.unit_name_i18n, locale as AppLocale)
           const isAggregateProject = donation.projects.aggregate_donations === true
 
           return (

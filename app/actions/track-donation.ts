@@ -75,11 +75,8 @@ export async function trackDonations(data: { email: string; donationId: string }
       ...d,
       projects: {
         id: d.project_id,
-        project_name: d.project_name,
         project_name_i18n: d.project_name_i18n,
-        location: d.location,
         location_i18n: d.location_i18n,
-        unit_name: d.unit_name,
         unit_name_i18n: d.unit_name_i18n,
         aggregate_donations: d.aggregate_donations,
       },

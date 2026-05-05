@@ -63,7 +63,6 @@ export default function RefundConfirmationDialog({
             {refundableDonations.map((donation) => {
               const donationProjectName = getTranslatedText(
                 donation.projects.project_name_i18n,
-                donation.projects.project_name,
                 locale as AppLocale
               )
               return (

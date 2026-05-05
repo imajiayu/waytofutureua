@@ -82,7 +82,7 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
           const nextStatuses = getNextOrderStatuses(order.status)
           const hasFiles = canManageOrderFiles(order.status)
           const itemTitle = order.market_items
-            ? getTranslatedText(order.market_items.title_i18n, null, 'en')
+            ? getTranslatedText(order.market_items.title_i18n, 'en')
             : null
           return (
             <div
@@ -184,7 +184,7 @@ export default function MarketOrdersTable({ initialOrders }: MarketOrdersTablePr
               const nextStatuses = getNextOrderStatuses(order.status)
               const hasFiles = canManageOrderFiles(order.status)
               const itemTitle = order.market_items
-                ? getTranslatedText(order.market_items.title_i18n, null, 'en')
+                ? getTranslatedText(order.market_items.title_i18n, 'en')
                 : null
               return (
                 <tr key={order.id}>

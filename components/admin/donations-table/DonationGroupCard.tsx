@@ -2,7 +2,7 @@
 
 import DonationStatusBadge from '@/components/donation-display/DonationStatusBadge'
 import type { DonationStatus } from '@/lib/donation-status'
-import { formatDate, formatDateTime } from '@/lib/i18n-utils'
+import { formatDate, formatDateTime, getTranslatedText } from '@/lib/i18n-utils'
 
 import type { Donation, DonationGroup } from './types'
 
@@ -100,7 +100,7 @@ export default function DonationGroupCard({
               </span>
             </div>
             <div className="mt-1 truncate text-xs text-gray-400" onClick={() => onEdit(donation)}>
-              {donation.projects.project_name}
+              {getTranslatedText(donation.projects.project_name_i18n, 'en')}
             </div>
           </div>
         ))}
@@ -178,7 +178,9 @@ export default function DonationGroupCard({
                   className="max-w-[150px] cursor-pointer px-3 py-3 text-sm text-gray-500"
                   onClick={() => onEdit(donation)}
                 >
-                  <div className="truncate">{donation.projects.project_name}</div>
+                  <div className="truncate">
+                    {getTranslatedText(donation.projects.project_name_i18n, 'en')}
+                  </div>
                 </td>
                 <td
                   className="cursor-pointer whitespace-nowrap px-3 py-3 text-sm text-gray-900"
