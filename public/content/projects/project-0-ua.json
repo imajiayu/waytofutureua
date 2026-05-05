@@ -326,6 +326,11 @@
         "image": "/images/projects/project-0/result/result17.webp",
         "orientation": "landscape",
         "aspectRatio": 1.35
+      },
+      {
+        "image": "/images/projects/project-0/result/result18.webp",
+        "orientation": "landscape",
+        "aspectRatio": 1.5
       }
     ]
   }

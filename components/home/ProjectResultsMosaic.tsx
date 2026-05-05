@@ -180,8 +180,8 @@ const MOSAIC_ITEMS: MosaicItem[] = [
     rowEnd: 9,
   },
   {
-    imageUrl: '/images/projects/project-3/results/activity-41.webp',
-    projectId: 3,
+    imageUrl: '/images/projects/project-0/result/result18.webp',
+    projectId: 0,
     colStart: 11,
     colEnd: 13,
     rowStart: 7,
