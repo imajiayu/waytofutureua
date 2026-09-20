@@ -681,6 +681,7 @@
       "cannotRefundPending": "Cannot refund pending or failed donations. Please contact support if payment was deducted.",
       "invalidStatus": "This donation cannot be refunded due to its current status.",
       "offlineNotRefundable": "This donation was received offline and cannot be refunded online. Please contact support for assistance.",
+      "providerDiscontinued": "The payment provider used for this donation has ceased operations, so it cannot be refunded online. Please contact support and we will handle it for you.",
       "refundDeclined": "Refund was declined by the payment provider. Please contact support for assistance.",
       "refundApiError": "Failed to process refund with payment provider. Please try again later or contact support."
     },

@@ -1,7 +1,11 @@
 /**
- * QmmPay v2 API Type Definitions
+ * EPay (易支付) v2 API Type Definitions
  *
- * API base: https://yzf.qmmpay.com/api/pay
+ * A payment protocol deployed independently by several vendors (Ezfp, QmmPay, …).
+ * Paths, parameter names and signing are identical across them; only the domain
+ * and merchant credentials differ — see `providers.ts` for the active instance.
+ *
+ * API base: resolved from `EPAY_API_BASE` in providers.ts
  * Protocol: application/x-www-form-urlencoded requests, JSON responses
  * Signature: RSA SHA256WithRSA (merchant private key signs, platform public key verifies)
  * Webhook: GET request to notify_url (NOT POST like WayForPay/NOWPayments)
@@ -9,7 +13,7 @@
 
 // ── Create Order ────────────────────────────────────────────────
 
-export interface QmmPayCreateResponse {
+export interface EPayCreateResponse {
   code: number // 0 = success
   msg?: string
   trade_no?: string // Platform order number
@@ -22,7 +26,7 @@ export interface QmmPayCreateResponse {
 
 // ── Webhook Callback (GET query string) ─────────────────────────
 
-export interface QmmPayWebhookParams {
+export interface EPayWebhookParams {
   pid: string
   trade_no: string // Platform order number
   out_trade_no: string // Merchant order number = orderReference
@@ -42,7 +46,7 @@ export interface QmmPayWebhookParams {
 
 // ── Refund ──────────────────────────────────────────────────────
 
-export interface QmmPayRefundResponse {
+export interface EPayRefundResponse {
   code: number // 0 = success (synchronous, no webhook)
   msg?: string
   refund_no?: string // Platform refund number
@@ -55,7 +59,7 @@ export interface QmmPayRefundResponse {
 // ── Order Query ─────────────────────────────────────────────────
 
 /** Payment status returned by the order-query endpoint. */
-export const QMMPAY_ORDER_STATUS = {
+export const EPAY_ORDER_STATUS = {
   UNPAID: 0,
   PAID: 1,
   REFUNDED: 2,
@@ -63,7 +67,7 @@ export const QMMPAY_ORDER_STATUS = {
   PRE_AUTH: 4,
 } as const
 
-export interface QmmPayQueryResponse {
+export interface EPayQueryResponse {
   code: number // 0 = success
   msg?: string
   trade_no?: string // Platform order number
@@ -87,7 +91,7 @@ export interface QmmPayQueryResponse {
 
 // ── Frontend Payment Data (returned from Server Action) ─────────
 
-export interface QmmPayPaymentData {
+export interface EPayPaymentData {
   orderReference: string
   payType: 'jump' | 'qrcode' | 'html' | string
   payInfo: string // Redirect URL (method='jump' always returns a jump URL)

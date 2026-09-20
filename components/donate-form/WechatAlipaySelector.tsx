@@ -99,7 +99,7 @@ export default function WechatAlipaySelector({
 
       {/* Amount Display */}
       {(() => {
-        const rate = parseFloat(process.env.NEXT_PUBLIC_QMMPAY_USD_CNY_RATE || '0')
+        const rate = parseFloat(process.env.NEXT_PUBLIC_EPAY_USD_CNY_RATE || '0')
         const cnyAmount = rate > 0 ? Math.round(amount * rate * 100) / 100 : null
         return (
           <div className="rounded-lg border border-life-200 bg-life-50 p-4">

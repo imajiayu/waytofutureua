@@ -681,6 +681,7 @@
       "cannotRefundPending": "支付待确认或失败的捐赠无法退款。如款项已扣除请联系客服。",
       "invalidStatus": "此捐赠当前状态无法申请退款。",
       "offlineNotRefundable": "该捐赠为线下收款，无法在线申请退款。如需帮助请联系客服。",
+      "providerDiscontinued": "该笔捐赠所用的支付渠道已停止服务，无法在线退款。请联系我们，我们会为您人工处理。",
       "refundDeclined": "支付平台拒绝了退款请求。请联系客服寻求帮助。",
       "refundApiError": "退款处理失败，请稍后重试或联系客服。"
     },

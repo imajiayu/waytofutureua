@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
+  createEPayDonation,
   createNowPaymentsDonation,
-  createQmmPayDonation,
   createWayForPayDonation,
 } from '@/app/actions/donation'
 import { createEmailSubscription } from '@/app/actions/subscription'
@@ -32,7 +32,7 @@ import TotalSummarySection from './sections/TotalSummarySection'
 import type { FieldKey } from './sections/types'
 import { clampAmount } from './sections/utils'
 // 支付组件懒加载：首屏 idle 状态全不渲染，用户填表 → 点击后才按 processingState 逐步加载。
-// 三套支付集成（WayForPay/NOWPayments/QmmPay）+ selector 移出首屏 bundle，改善 donate 页 FCP。
+// 三套支付集成（WayForPay/NOWPayments/EPay）+ selector 移出首屏 bundle，改善 donate 页 FCP。
 const paymentLoading = () => (
   <div className="flex items-center justify-center p-8">
     <SpinnerIcon className="h-8 w-8 animate-spin text-ukraine-blue-500" />
@@ -573,7 +573,7 @@ export default function DonationFormCard({
       const submitQuantity = isAggregatedProject ? 1 : quantity
       const submitAmount = isAggregatedProject ? donationAmount : undefined
 
-      const result = await createQmmPayDonation({
+      const result = await createEPayDonation({
         project_id: project.id,
         quantity: submitQuantity,
         amount: submitAmount,
@@ -636,13 +636,13 @@ export default function DonationFormCard({
         }
       }
 
-      // method='jump' → payInfo is a redirect URL. Navigate directly; QmmPay's
+      // method='jump' → payInfo is a redirect URL. Navigate directly; the platform's
       // cashier page handles the environment (WeChat / mobile / PC). The
       // 'creating' panel stays visible until the browser navigates away.
       window.location.href = result.paymentData!.payInfo
     } catch (err) {
       if (activeProjectIdRef.current !== requestProjectId) return
-      clientLogger.error('FORM:DONATION', 'Error creating QmmPay payment', {
+      clientLogger.error('FORM:DONATION', 'Error creating EPay payment', {
         error: err instanceof Error ? err.message : String(err),
       })
       setError(t('errors.serverError'))

@@ -15,7 +15,7 @@
 4. [状态流程图](#4-状态流程图)
 5. [状态转换规则](#5-状态转换规则)
 6. [WayForPay 状态映射](#6-wayforpay-状态映射)
-7. [QmmPay 状态映射](#7-qmmpay-状态映射)
+7. [EPay 状态映射](#7-epay-状态映射)
 8. [数据库实现](#8-数据库实现)
 9. [状态历史审计](#9-状态历史审计)
 10. [应用层实现](#10-应用层实现)
@@ -267,8 +267,8 @@ export const REFUND_STATUSES = ['refunding', 'refund_processing', 'refunded'] as
 | **用户创建**          | 只能创建 `pending`                                                                | RLS INSERT 策略  |
 | **客户端**            | `pending` → `widget_load_failed`                                                  | RLS UPDATE 策略  |
 | **WayForPay Webhook** | 支付/退款状态                                                                     | 应用层软过滤     |
-| **QmmPay Webhook**    | 仅支付成功（`TRADE_SUCCESS` → `paid`）；退款无 webhook，同步返回结果              | 应用层软过滤     |
-| **用户退款请求**      | `paid/confirmed/delivering` → `refunding`（或 QmmPay 同步成功直接 → `refunded`） | 应用层验证       |
+| **EPay Webhook**      | 仅支付成功（`TRADE_SUCCESS` → `paid`）；退款无 webhook，同步返回结果              | 应用层软过滤     |
+| **用户退款请求**      | `paid/confirmed/delivering` → `refunding`（或 EPay 同步成功直接 → `refunded`）   | 应用层验证       |
 | **管理员**            | `paid→confirmed→delivering→completed`                                             | 数据库触发器强制 |
 
 ---
@@ -309,15 +309,18 @@ export const WAYFORPAY_STATUS = {
 
 ---
 
-## 7. QmmPay 状态映射
+## 7. EPay 状态映射
 
-QmmPay 用于微信支付（wxpay）和支付宝（alipay），面向海外华人用户，以人民币（CNY）结算。
+EPay（易支付）用于微信支付（wxpay）和支付宝（alipay），面向海外华人用户，以人民币（CNY）结算。
+
+「易支付」是被多家服务商各自部署的同一套协议，代码按协议组织（`lib/payment/epay/`），
+当前启用的服务商由 `EPAY_PROVIDER` 决定。详见 [EPay 集成文档](EPAY_INTEGRATION.md)。
 
 ### 7.1 支付 Webhook 映射
 
-QmmPay 支付回调通过 **GET 请求**发送（与 WayForPay/NOWPayments 的 POST 不同）。
+EPay 支付回调通过 **GET 请求**发送（与 WayForPay/NOWPayments 的 POST 不同）。
 
-| QmmPay trade_status | 系统状态 | 说明                           |
+| EPay trade_status   | 系统状态 | 说明                           |
 | ------------------- | -------- | ------------------------------ |
 | `TRADE_SUCCESS`     | `paid`   | 支付成功（唯一触发更新的状态） |
 | 其他 / 缺失         | 不更新   | 忽略，仅记录日志               |
@@ -326,7 +329,7 @@ QmmPay 支付回调通过 **GET 请求**发送（与 WayForPay/NOWPayments 的 P
 
 ### 7.2 退款状态流转
 
-QmmPay 退款为**同步 API**，无退款 webhook。退款结果在 HTTP 响应中直接返回。
+EPay 退款为**同步 API**，无退款 webhook。退款结果在 HTTP 响应中直接返回。
 
 | 退款结果              | 系统状态                          | 说明                                           |
 | --------------------- | --------------------------------- | ---------------------------------------------- |
@@ -334,7 +337,9 @@ QmmPay 退款为**同步 API**，无退款 webhook。退款结果在 HTTP 响应
 | API 拒绝（`code≠0`）  | `refunding`（人工介入标记）       | API 明确拒绝，写 refunding 供管理员识别并处理  |
 | 网络错误 / 异常       | `refunding`（人工介入标记）       | 结果未知，写 refunding 供管理员识别并处理      |
 
-> **`refunding` 作为人工介入标记**：对于 QmmPay，`refunding` 状态并不意味着"等待 webhook 确认"（QmmPay 无退款 webhook），而是一个**人工处理标记**——管理员看到此状态后应登录 QmmPay 商户后台确认实际退款结果，并手动推进或联系用户。
+> **`refunding` 作为人工介入标记**：对于 EPay，`refunding` 状态并不意味着"等待 webhook 确认"（EPay 无退款 webhook），而是一个**人工处理标记**——管理员看到此状态后应登录服务商后台确认实际退款结果，并手动推进或联系用户。
+
+> **已停运服务商不进入此流程**：历史实例（如 2026-09 停运的 QmmPay）的订单在 `requestRefund()` 中提前返回 `providerDiscontinued`，不会调用退款 API，也不会被写成 `refunding`。商户密钥只有当前启用的那一套，对旧平台既签不出有效请求、站点往往也已关停。
 
 ### 7.3 部分退款计算
 
@@ -342,10 +347,10 @@ QmmPay 退款为**同步 API**，无退款 webhook。退款结果在 HTTP 响应
 
 ```
 refundRatio = refundableDonationsUSD / fullOrderUSD
-refundCNY   = originalPaidCNY × refundRatio   （从 QmmPay 订单查询接口获取）
+refundCNY   = originalPaidCNY × refundRatio   （从 EPay 订单查询接口获取）
 ```
 
-CNY 金额来源于 QmmPay 订单查询接口（非重新换算），避免汇率漂移导致的差额。
+CNY 金额来源于 EPay 订单查询接口（非重新换算），避免汇率漂移导致的差额。
 
 ---
 
@@ -556,8 +561,8 @@ export const MAIN_FLOW_STATUSES: readonly DonationStatus[]
 | ---------------------------- | ------------------------------- | --------------------------------------------------- |
 | `createWayForPayDonation()`  | `app/actions/donation.ts`       | 创建 `pending` 状态记录                             |
 | `createNowPaymentsDonation()`| `app/actions/donation.ts`       | 创建 `pending` 状态记录                             |
-| `createQmmPayDonation()`     | `app/actions/donation.ts`       | 创建 `pending` 状态记录，返回支付跳转 URL           |
-| `requestRefund()`            | `app/actions/track-donation.ts` | 更新为 `refunding` 或（QmmPay 成功时）`refunded`    |
+| `createEPayDonation()`       | `app/actions/donation.ts`       | 创建 `pending` 状态记录，返回支付跳转 URL           |
+| `requestRefund()`            | `app/actions/track-donation.ts` | 更新为 `refunding` 或（EPay 成功时）`refunded`      |
 | `updateDonationStatus()`     | `app/actions/admin.ts`          | 管理员状态转换                                      |
 | `getAdminDonations()`        | `app/actions/admin.ts`          | 获取捐赠及状态历史                                  |
 
@@ -575,7 +580,7 @@ const REFUND_WEBHOOK_ALLOWED_FROM = [
 ]
 ```
 
-**QmmPay** (`app/api/webhooks/qmmpay/route.ts`，**GET**):
+**EPay** (`app/api/webhooks/epay/route.ts`，**GET**):
 
 - 仅处理 `trade_status === 'TRADE_SUCCESS'`，写 `paid`
 - 使用 RSA SHA256WithRSA 验签（平台公钥）
@@ -681,10 +686,10 @@ const REFUND_WEBHOOK_ALLOWED_FROM = [
 3. **批量编辑 delivering 状态的限制**
    - 设计: `delivering→completed` 需要上传文件，不支持批量
 
-4. **QmmPay 的 `refunding` 含义与其他支付方式不同**
+4. **EPay 的 `refunding` 含义与其他支付方式不同**
    - WayForPay：`refunding` = 退款已发起，等待 webhook 确认（异步）
-   - QmmPay：`refunding` = 退款 API 拒绝或网络异常，需**人工介入**（无 webhook）
-   - 管理员看到 QmmPay 订单的 `refunding` 状态，应登录 QmmPay 商户后台确认实际退款结果，必要时手动退款或联系用户
+   - EPay：`refunding` = 退款 API 拒绝或网络异常，需**人工介入**（无 webhook）
+   - 管理员看到 EPay 订单的 `refunding` 状态，应登录服务商后台确认实际退款结果，必要时手动退款或联系用户
 
 ---
 
@@ -697,13 +702,14 @@ const REFUND_WEBHOOK_ALLOWED_FROM = [
 | `lib/donation-status.ts`              | 状态工具库（常量、分组、辅助函数）                 |
 | `types/index.ts`                      | 重新导出类型定义                                   |
 | `lib/payment/wayforpay/server.ts`     | WayForPay 状态常量                                 |
-| `lib/payment/qmmpay/server.ts`        | QmmPay 支付创建 / 订单查询 / 退款处理              |
-| `lib/payment/qmmpay/crypto.ts`        | QmmPay RSA 签名与验签                              |
-| `lib/payment/qmmpay/types.ts`         | QmmPay API 类型定义                                |
+| `lib/payment/epay/server.ts`          | EPay 支付创建 / 订单查询 / 退款处理                |
+| `lib/payment/epay/providers.ts`       | EPay 服务商注册表（当前启用 / 已停运实例）         |
+| `lib/payment/epay/crypto.ts`          | EPay RSA 签名与验签                                |
+| `lib/payment/epay/types.ts`           | EPay API 类型定义                                  |
 | `app/api/webhooks/wayforpay/route.ts` | WayForPay Webhook 处理和状态映射                   |
-| `app/api/webhooks/qmmpay/route.ts`    | QmmPay Webhook 处理（GET 请求，仅支付成功）        |
-| `app/actions/donation.ts`             | 创建捐赠（pending 状态，含 QmmPay）                |
-| `app/actions/track-donation.ts`       | 追踪捐赠和退款请求（含 QmmPay 同步退款流程）       |
+| `app/api/webhooks/epay/route.ts`      | EPay Webhook 处理（GET 请求，仅支付成功）          |
+| `app/actions/donation.ts`             | 创建捐赠（pending 状态，含 EPay）                  |
+| `app/actions/track-donation.ts`       | 追踪捐赠和退款请求（含 EPay 同步退款流程）         |
 | `app/actions/admin.ts`                | 管理员状态更新                                     |
 
 ### 14.2 UI 组件
@@ -748,13 +754,13 @@ A: 不能。管理员只能按照 `paid → confirmed → delivering → complet
 
 A: Service Role（用于 Webhooks）可以执行任意状态转换，不受管理员转换限制。这是因为支付网关回调需要根据实际支付结果设置状态。
 
-**Q: QmmPay 订单的 `refunding` 状态是否和其他支付方式一样？**
+**Q: EPay 订单的 `refunding` 状态是否和其他支付方式一样？**
 
-A: 不一样。对于 WayForPay，`refunding` 表示退款已发起、等待 webhook 自动推进。对于 QmmPay，由于退款 API 是同步的（无 webhook），`refunding` 表示退款 API **拒绝或网络失败**，需要管理员登录 QmmPay 商户后台手动确认并处理。
+A: 不一样。对于 WayForPay，`refunding` 表示退款已发起、等待 webhook 自动推进。对于 EPay，由于退款 API 是同步的（无 webhook），`refunding` 表示退款 API **拒绝或网络失败**，需要管理员登录服务商后台手动确认并处理。
 
-**Q: QmmPay 退款成功的流程是什么？**
+**Q: EPay 退款成功的流程是什么？**
 
-A: `requestRefund()` 直接调用 QmmPay 退款 API，若 `code === 0` 则立即将 donation 更新为 `refunded` 并发送退款确认邮件，整个过程无需 webhook。
+A: `requestRefund()` 直接调用 EPay 退款 API，若 `code === 0` 则立即将 donation 更新为 `refunded` 并发送退款确认邮件，整个过程无需 webhook。
 
 ### 15.3 历史重构记录
 

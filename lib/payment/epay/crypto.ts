@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger'
  *
  * Handles two formats:
  *  1. Full PEM (has -----BEGIN ... ----- headers) — restore literal \n to real newlines
- *  2. Raw Base64 (no headers, as stored in qmmpay merchant backend) — wrap with headers
+ *  2. Raw Base64 (no headers, as stored in the merchant backend) — wrap with headers
  */
 function getPem(envKey: string, type: 'private' | 'public'): string {
   const raw = process.env[envKey]
@@ -28,7 +28,7 @@ function getPem(envKey: string, type: 'private' | 'public'): string {
 }
 
 /**
- * Build the canonical sign string used by qmmpay v2.
+ * Build the canonical sign string used by EPay v2 (易支付).
  *
  * Rules:
  *  - Exclude fields with empty/null/undefined values
@@ -60,14 +60,14 @@ export function buildSignString(
 export function signWithPrivateKey(signString: string): string {
   const signer = createSign('SHA256')
   signer.update(signString, 'utf8')
-  return signer.sign(getPem('QMMPAY_MERCHANT_PRIVATE_KEY', 'private'), 'base64')
+  return signer.sign(getPem('EPAY_MERCHANT_PRIVATE_KEY', 'private'), 'base64')
 }
 
 /**
  * Verify a webhook callback signature using the platform RSA public key.
  * Returns false on any error (treats errors as invalid signatures).
  */
-export function verifyQmmPaySignature(
+export function verifyEPaySignature(
   params: Record<string, string | undefined | null>,
   receivedSign: string
 ): boolean {
@@ -75,9 +75,9 @@ export function verifyQmmPaySignature(
     const signString = buildSignString(params)
     const verifier = createVerify('SHA256')
     verifier.update(signString, 'utf8')
-    return verifier.verify(getPem('QMMPAY_PLATFORM_PUBLIC_KEY', 'public'), receivedSign, 'base64')
+    return verifier.verify(getPem('EPAY_PLATFORM_PUBLIC_KEY', 'public'), receivedSign, 'base64')
   } catch (error) {
-    logger.error('PAYMENT:QMMPAY', 'Signature verification failed', {
+    logger.error('PAYMENT:EPAY', 'Signature verification failed', {
       error: error instanceof Error ? error.message : String(error),
     })
     return false

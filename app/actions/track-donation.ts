@@ -13,9 +13,10 @@ import {
 } from '@/lib/donation-status'
 import { sendRefundSuccessEmail } from '@/lib/email'
 import { logger } from '@/lib/logger'
-import { processQmmPayRefund } from '@/lib/payment/qmmpay/server'
+import { isRefundableByEPay } from '@/lib/payment/epay/providers'
+import { processEPayRefund } from '@/lib/payment/epay/server'
 import { processWayForPayRefund } from '@/lib/payment/wayforpay/server'
-import { isOfflineDonation } from '@/lib/payment-method'
+import { isEPayDonation, isOfflineDonation } from '@/lib/payment-method'
 import { getInternalClient, getPublicClient } from '@/lib/supabase/action-clients'
 import { requestRefundSchema, trackDonationSchema } from '@/lib/validations'
 import type { AppLocale } from '@/types'
@@ -159,6 +160,14 @@ export async function requestRefund(data: { donationPublicId: string; email: str
       return { error: 'offlineNotRefundable' }
     }
 
+    // 易支付系的历史实例同样无法在线退款：商户密钥只有当前启用的那一套，
+    // 旧平台既签不出有效请求、站点往往也已关停（如 2026-09 整站停运的 QmmPay）。
+    // 和上面的线下捐赠一样必须在这里停住——否则会落到下面的 EPay 分支，
+    // 拿当前密钥去退一个别家平台的订单号，必然失败并把整单翻成 'refunding'。
+    if (isEPayDonation(donation.payment_method) && !isRefundableByEPay(donation.payment_method)) {
+      return { error: 'providerDiscontinued' }
+    }
+
     // 4. Get order reference and all donations in this order
     // order_reference / currency / payment_method 全部来自已验证的 RPC 返回，
     // 无需回查 donations 表（payment_method 由迁移 20260802000000 加进 RPC）。
@@ -217,7 +226,7 @@ export async function requestRefund(data: { donationPublicId: string; email: str
     const totalOrderAmount = refundableDonations.reduce((sum, d) => sum + Number(d.amount), 0)
 
     // Full order amount across ALL rows (incl. already-refunded ones) — used as
-    // the denominator for proportional partial refunds (QmmPay).
+    // the denominator for proportional partial refunds (EPay).
     const fullOrderAmount = orderDonations.reduce((sum, d) => sum + Number(d.amount), 0)
 
     // 5. Handle refund based on payment method
@@ -258,14 +267,14 @@ export async function requestRefund(data: { donationPublicId: string; email: str
       }
     }
 
-    // For QmmPay (WeChat/Alipay): Synchronous refund — no webhook, result is immediate
-    if (paymentMethod === 'QmmPay') {
+    // For EPay (WeChat/Alipay): Synchronous refund — no webhook, result is immediate
+    if (isEPayDonation(paymentMethod)) {
       try {
         // Partial refund: refund the CNY portion proportional to the refundable
         // donations' USD share of the full order. The authoritative CNY total
-        // comes from QmmPay's order-query endpoint, not recomputed from USD.
+        // comes from the platform's order-query endpoint, not recomputed from USD.
         const refundRatio = fullOrderAmount > 0 ? totalOrderAmount / fullOrderAmount : 1
-        const refundResult = await processQmmPayRefund({
+        const refundResult = await processEPayRefund({
           orderReference: donationData.order_reference,
           refundRatio,
         })
@@ -273,7 +282,7 @@ export async function requestRefund(data: { donationPublicId: string; email: str
         const donationIds = refundableDonations.map((d) => d.id)
 
         if (refundResult.code !== 0) {
-          logger.error('REFUND', 'QmmPay refund failed', {
+          logger.error('REFUND', 'EPay refund failed', {
             code: refundResult.code,
             msg: refundResult.msg,
             orderReference: donationData.order_reference,
@@ -295,13 +304,13 @@ export async function requestRefund(data: { donationPublicId: string; email: str
           .in('donation_status', REFUNDABLE_STATUSES)
 
         if (updateError) {
-          logger.error('REFUND', 'QmmPay: failed to update donation status', {
+          logger.error('REFUND', 'EPay: failed to update donation status', {
             error: updateError.message,
           })
           return { error: 'serverError' }
         }
 
-        logger.info('REFUND', 'QmmPay refund success', {
+        logger.info('REFUND', 'EPay refund success', {
           count: donationIds.length,
           orderReference: donationData.order_reference,
           refundNo: refundResult.refund_no,
@@ -327,10 +336,10 @@ export async function requestRefund(data: { donationPublicId: string; email: str
               currency: 'CNY',
               locale: (firstDonation.locale as AppLocale) || 'zh',
             })
-            logger.info('REFUND', 'QmmPay refund email sent', { to: firstDonation.donor_email })
+            logger.info('REFUND', 'EPay refund email sent', { to: firstDonation.donor_email })
           }
         } catch (emailError) {
-          logger.error('REFUND', 'QmmPay: failed to send refund email', {
+          logger.error('REFUND', 'EPay: failed to send refund email', {
             error: emailError instanceof Error ? emailError.message : String(emailError),
           })
         }
@@ -341,9 +350,9 @@ export async function requestRefund(data: { donationPublicId: string; email: str
           affectedDonations: refundableDonations.length,
           totalAmount: totalOrderAmount,
         }
-      } catch (qmmPayError: unknown) {
-        logger.error('REFUND', 'QmmPay refund API error', {
-          error: qmmPayError instanceof Error ? qmmPayError.message : String(qmmPayError),
+      } catch (ePayError: unknown) {
+        logger.error('REFUND', 'EPay refund API error', {
+          error: ePayError instanceof Error ? ePayError.message : String(ePayError),
           orderReference: donationData.order_reference,
         })
         const donationIds = refundableDonations.map((d) => d.id)
@@ -359,7 +368,7 @@ export async function requestRefund(data: { donationPublicId: string; email: str
         return {
           error: 'refundApiError',
           message:
-            qmmPayError instanceof Error ? qmmPayError.message : 'Failed to process QmmPay refund',
+            ePayError instanceof Error ? ePayError.message : 'Failed to process EPay refund',
         }
       }
     }

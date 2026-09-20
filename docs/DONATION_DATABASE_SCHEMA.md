@@ -79,7 +79,7 @@
 | contact_whatsapp   | VARCHAR(255)  | NULL                    | WhatsApp                                 |
 | amount             | NUMERIC(10,2) | NOT NULL, >0            | 金额 **[不可修改]**                      |
 | currency           | VARCHAR(10)   | DEFAULT 'USD'           | USD/UAH/EUR                              |
-| payment_method     | VARCHAR(50)   | NULL                    | 支付方式（`WayForPay` / `NOWPayments` / `QmmPay` / `Offline`） |
+| payment_method     | VARCHAR(50)   | NULL                    | 支付方式（`WayForPay` / `NOWPayments` / `Ezfp` / `QmmPay` / `Offline`）<br>易支付系记**具体服务商实例名**而非笼统的 `EPay`，退款需据此判断用哪套密钥；取值见 `lib/payment-method.ts` |
 | order_reference    | VARCHAR(255)  | NULL                    | 订单号（各支付网关共用）**[不可修改]**   |
 | donation_status    | VARCHAR(20)   | DEFAULT 'paid'          | 状态（14个有效值）                       |
 | locale             | VARCHAR(5)    | DEFAULT 'en'            | 语言: en/zh/ua                           |
@@ -368,8 +368,8 @@ Supabase 客户端
 | 更新 pending → widget_load_failed | Anonymous     | ✅       |
 | WayForPay Webhook 更新状态        | Service Role  | ❌       |
 | NOWPayments Webhook 更新状态      | Service Role  | ❌       |
-| QmmPay Webhook 更新状态（GET）    | Service Role  | ❌       |
-| QmmPay 退款（同步，无 webhook）   | Service Role  | ❌       |
+| EPay Webhook 更新状态（GET）      | Service Role  | ❌       |
+| EPay 退款（同步，无 webhook）     | Service Role  | ❌       |
 | 管理员操作                        | Authenticated | ✅       |
 | 管理员批量操作                    | Service Role  | ❌       |
 

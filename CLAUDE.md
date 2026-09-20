@@ -20,7 +20,7 @@
 
 ## 项目概述
 
-**当前版本**: 2.8.0
+**当前版本**: 2.9.0
 **开发状态**: 生产就绪
 
 ### 主要特性
@@ -28,7 +28,7 @@
 - 多语言支持 (en/zh/ua)
 - WayForPay 支付网关集成（法币，银行卡）
 - NOWPayments 加密货币支付集成
-- QmmPay 支付集成（微信支付 / 支付宝，面向海外华人用户）
+- EPay 易支付集成（微信支付 / 支付宝，面向海外华人用户），服务商可配置切换
 - Supabase 实时数据同步
 - Resend 多语言邮件通知
 - 捐赠追踪与订单分组
@@ -50,7 +50,7 @@
 | 类型 | 技术                                                                               |
 | ---- | ---------------------------------------------------------------------------------- |
 | 前端 | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, next-intl             |
-| 后端 | Supabase (PostgreSQL + Auth), WayForPay, NOWPayments, QmmPay, Resend, Cloudinary   |
+| 后端 | Supabase (PostgreSQL + Auth), WayForPay, NOWPayments, EPay, Resend, Cloudinary     |
 | 部署 | Vercel, Supabase Cloud                                                             |
 
 ---
@@ -183,7 +183,7 @@ waytofutureua/
 │       ├── webhooks/wayforpay/   # WayForPay 捐赠支付回调
 │       ├── webhooks/wayforpay-market/ # WayForPay 义卖支付回调
 │       ├── webhooks/nowpayments/ # NOWPayments 加密货币回调
-│       ├── webhooks/qmmpay/      # QmmPay 微信/支付宝回调（GET 请求）
+│       ├── webhooks/epay/        # EPay 微信/支付宝回调（GET 请求）
 │       ├── webhooks/resend-inbound/ # 入站邮件转发
 │       ├── donations/            # 捐赠 API
 │       ├── donate/success-redirect/ # 重定向
@@ -205,7 +205,7 @@ waytofutureua/
 │   ├── supabase/                 # 数据库集成
 │   ├── wayforpay/                # WayForPay 支付集成（捐赠）
 │   ├── payment/nowpayments/      # NOWPayments 加密货币集成
-│   ├── payment/qmmpay/           # QmmPay 微信/支付宝集成（server.ts / crypto.ts / types.ts）
+│   ├── payment/epay/             # EPay 易支付集成（providers.ts / crypto.ts / types.ts / server.ts）
 │   ├── market/                   # 义卖工具 (状态、验证、WayForPay、工具函数)
 │   ├── analytics/                # 客户端分析上报 (track.ts — sessionStorage sid + 30s 去重 + sendBeacon)
 │   ├── projects/                 # 项目元数据（supported IDs、内容 JSON loader）
@@ -324,7 +324,8 @@ Section 指顶层大区块（如"项目介绍"=整个 article 卡片、"项目�
 | `utils.ts`                       | `cn()`, `formatCurrency()`                                                                  | 类名合并 (clsx+twMerge)、货币格式化 |
 | `i18n-utils.ts`                  | `getTranslatedText()`, `formatDate()`                                                       | 数据库 i18n 字段解析、日期格式化    |
 | `donation-status.ts`             | 状态常量、状态判断函数                                                                      | 捐赠状态相关的所有逻辑              |
-| `payment-method.ts`              | `OFFLINE_PAYMENT_METHOD`, `isOfflineDonation()`, `OnlinePaymentMethod`                      | `donations.payment_method` 取值单一数据源 |
+| `payment-method.ts`              | `OFFLINE_PAYMENT_METHOD`, `isOfflineDonation()`, `isEPayDonation()`, `OnlinePaymentMethod`  | `donations.payment_method` 取值单一数据源 |
+| `payment/epay/providers.ts`      | `ACTIVE_EPAY_PROVIDER`, `EPAY_API_BASE`, `isRefundableByEPay()`, `isDiscontinuedEPayProvider()`, `isKnownEPayProvider()` | 易支付服务商注册表；换服务商的唯一改动点 |
 | `market/market-status.ts`        | 商品/订单状态转换规则、判断函数                                                             | 义卖状态逻辑的单一数据源            |
 | `market/market-validations.ts`   | Zod schemas                                                                                 | 义卖表单验证                        |
 | `market/market-utils.ts`         | `formatMarketPrice()`                                                                       | 义卖金额格式化                      |
@@ -400,18 +401,23 @@ needsFileUpload(from, to) // 转换是否需要上传文件
 → 9. 重定向成功页 → 10. 展示捐赠详情
 ```
 
-### 捐赠流程（QmmPay 微信/支付宝）
+### 捐赠流程（EPay 微信/支付宝）
 
 ```
 1. 选择项目 → 2. 填写表单 → 3. 选择微信支付或支付宝
-→ 4. createQmmPayDonation()（创建 pending 记录 + 获取支付 URL）
-→ 5. 浏览器跳转 QmmPay 收银台（method='jump'，适配微信内/H5/PC）
+→ 4. createEPayDonation()（创建 pending 记录 + 获取支付 URL）
+→ 5. 浏览器跳转服务商收银台（method='jump'，适配微信内/H5/PC）
 → 6. 用户完成支付 → 7. GET Webhook 更新状态（仅 TRADE_SUCCESS）→ 8. 发送邮件
-→ 9. QmmPay 跳转 return_url（/donate/success）→ 10. 展示捐赠详情
+→ 9. 平台跳转 return_url（/donate/success）→ 10. 展示捐赠详情
 ```
 
-**QmmPay 退款特性**：退款为同步 API，无 webhook。退款成功直接写 `refunded`；
+**EPay 退款特性**：退款为同步 API，无 webhook。退款成功直接写 `refunded`；
 若 API 拒绝或网络失败，写 `refunding` 作为人工介入标记，由管理员手动处理。
+
+**已停运服务商不可退款**：商户密钥只有当前启用的那一套，历史实例（如 2026-09 停运的
+QmmPay）既签不出有效请求、站点往往也已关停。`requestRefund` 对其提前返回
+`providerDiscontinued`，追踪页同步隐藏退款按钮——与线下捐赠同一处理位置，
+避免落到 EPay 分支后把整单污染成 `refunding` 并回滚 `total_raised`。
 
 ### 捐赠管理员流程
 
@@ -485,11 +491,12 @@ RESEND_FROM_EMAIL=
 NOWPAYMENTS_API_KEY=
 NOWPAYMENTS_IPN_SECRET=
 
-# QmmPay (微信支付 / 支付宝)
-QMMPAY_PID=
-QMMPAY_MERCHANT_PRIVATE_KEY=
-QMMPAY_PLATFORM_PUBLIC_KEY=
-NEXT_PUBLIC_QMMPAY_USD_CNY_RATE=
+# EPay 易支付 (微信支付 / 支付宝)
+EPAY_PROVIDER=            # 当前启用实例，见 lib/payment/epay/providers.ts
+EPAY_PID=
+EPAY_MERCHANT_PRIVATE_KEY=
+EPAY_PLATFORM_PUBLIC_KEY=
+NEXT_PUBLIC_EPAY_USD_CNY_RATE=
 
 # Cloudinary (可选)
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
@@ -597,7 +604,7 @@ getTranslatedText(project.project_name_i18n, locale, fallback)
 - WayForPay 捐赠 Webhook: `https://domain.com/api/webhooks/wayforpay`
 - WayForPay 义卖 Webhook: `https://domain.com/api/webhooks/wayforpay-market`
 - NOWPayments IPN: `https://domain.com/api/webhooks/nowpayments`
-- QmmPay 回调（GET）: `https://domain.com/api/webhooks/qmmpay`（在 QmmPay 商户后台配置 notify_url）
+- EPay 回调（GET）: `https://domain.com/api/webhooks/epay`（notify_url 每次请求动态传入；商户后台需把生产域名加进「授权支付域名」）
 - Resend 域名验证 (SPF, DKIM, DMARC)
 - Resend Inbound Webhook: `https://domain.com/api/webhooks/resend-inbound`
 - Cloudinary 配置 (可选)
@@ -608,6 +615,7 @@ getTranslatedText(project.project_name_i18n, locale, fallback)
 
 - [捐赠模块数据库架构](docs/DONATION_DATABASE_SCHEMA.md)
 - [捐赠状态系统](docs/DONATION_STATUS.md)
+- [EPay 易支付集成与换服务商指南](docs/EPAY_INTEGRATION.md)
 - [义卖市场数据库架构](docs/MARKET_DATABASE_SCHEMA.md)
 - [义卖市场状态系统](docs/MARKET_STATUS.md)
 - [Supabase 文档](https://supabase.com/docs)
@@ -616,5 +624,5 @@ getTranslatedText(project.project_name_i18n, locale, fallback)
 
 ---
 
-**文档版本**: 2.8.0
-**最后更新**: 2026-08-02
+**文档版本**: 2.9.0
+**最后更新**: 2026-09-20

@@ -1,25 +1,24 @@
 import { logger } from '@/lib/logger'
 
 import { attachSignature } from './crypto'
+import { EPAY_API_BASE } from './providers'
 import type {
-  QmmPayCreateResponse,
-  QmmPayPaymentData,
-  QmmPayQueryResponse,
-  QmmPayRefundResponse,
+  EPayCreateResponse,
+  EPayPaymentData,
+  EPayQueryResponse,
+  EPayRefundResponse,
 } from './types'
-import { QMMPAY_ORDER_STATUS } from './types'
-
-const API_BASE = 'https://yzf.qmmpay.com/api/pay'
+import { EPAY_ORDER_STATUS } from './types'
 
 function getPid(): number {
-  const pid = parseInt(process.env.QMMPAY_PID || '0', 10)
-  if (!pid) throw new Error('QMMPAY_PID is not configured')
+  const pid = parseInt(process.env.EPAY_PID || '0', 10)
+  if (!pid) throw new Error('EPAY_PID is not configured')
   return pid
 }
 
 function getRate(): number {
-  const rate = parseFloat(process.env.NEXT_PUBLIC_QMMPAY_USD_CNY_RATE || '0')
-  if (!rate) throw new Error('NEXT_PUBLIC_QMMPAY_USD_CNY_RATE is not configured')
+  const rate = parseFloat(process.env.NEXT_PUBLIC_EPAY_USD_CNY_RATE || '0')
+  if (!rate) throw new Error('NEXT_PUBLIC_EPAY_USD_CNY_RATE is not configured')
   return rate
 }
 
@@ -33,34 +32,34 @@ async function postForm(path: string, params: Record<string, string | number>) {
   const signed = attachSignature(params)
   const body = new URLSearchParams(Object.entries(signed).map(([k, v]) => [k, String(v)]))
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${EPAY_API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
   })
 
   if (!res.ok) {
-    throw new Error(`QmmPay HTTP error: ${res.status} ${res.statusText}`)
+    throw new Error(`EPay HTTP error: ${res.status} ${res.statusText}`)
   }
 
   return res.json()
 }
 
 /**
- * Create a QmmPay payment order.
+ * Create an EPay payment order.
  *
  * Returns payType + payInfo for the frontend widget:
  *   - payType === 'jump'   → payInfo is a redirect URL
  *   - payType === 'qrcode' → payInfo is a QR code image URL or content
  */
-export async function createQmmPayPayment(params: {
+export async function createEPayPayment(params: {
   orderReference: string
   totalAmountUsd: number
   name: string
   clientIp: string
   locale: string
   payType: 'alipay' | 'wxpay'
-}): Promise<QmmPayPaymentData> {
+}): Promise<EPayPaymentData> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL
   if (!baseUrl) throw new Error('NEXT_PUBLIC_APP_URL is not configured')
 
@@ -69,14 +68,14 @@ export async function createQmmPayPayment(params: {
 
   const reqParams: Record<string, string | number> = {
     pid: getPid(),
-    // 'jump' returns a single redirect URL; QmmPay's cashier page handles the
+    // 'jump' returns a single redirect URL; the platform's cashier page handles the
     // environment (WeChat-browser JSAPI, mobile H5, PC QR) so we don't have to
     // detect the device ourselves. 'web' would default to PC and hand back a QR
     // that mobile / in-WeChat users can't scan.
     method: 'jump',
     type: params.payType,
     out_trade_no: params.orderReference,
-    notify_url: `${baseUrl}/api/webhooks/qmmpay`,
+    notify_url: `${baseUrl}/api/webhooks/epay`,
     return_url: `${baseUrl}/${params.locale}/donate/success?order=${params.orderReference}`,
     name: params.name.substring(0, 127), // API truncates at 127 chars
     money,
@@ -84,25 +83,25 @@ export async function createQmmPayPayment(params: {
     timestamp,
   }
 
-  logger.info('PAYMENT:QMMPAY', 'Creating payment order', {
+  logger.info('PAYMENT:EPAY', 'Creating payment order', {
     orderReference: params.orderReference,
     amountUsd: params.totalAmountUsd,
     amountCny: money,
     payType: params.payType,
   })
 
-  const result = (await postForm('/create', reqParams)) as QmmPayCreateResponse
+  const result = (await postForm('/create', reqParams)) as EPayCreateResponse
 
   if (result.code !== 0 || !result.pay_info) {
-    logger.error('PAYMENT:QMMPAY', 'Create payment failed', {
+    logger.error('PAYMENT:EPAY', 'Create payment failed', {
       code: result.code,
       msg: result.msg,
       orderReference: params.orderReference,
     })
-    throw new Error(`QmmPay error: ${result.msg || 'unknown error'}`)
+    throw new Error(`EPay error: ${result.msg || 'unknown error'}`)
   }
 
-  logger.info('PAYMENT:QMMPAY', 'Payment order created', {
+  logger.info('PAYMENT:EPAY', 'Payment order created', {
     orderReference: params.orderReference,
     platformTradeNo: result.trade_no,
     payType: result.pay_type,
@@ -118,14 +117,14 @@ export async function createQmmPayPayment(params: {
 }
 
 /**
- * Query a QmmPay order by merchant order reference.
+ * Query an EPay order by merchant order reference.
  *
  * Returns the authoritative order record, including `money` (the original
  * CNY amount charged) and `refundmoney` (amount already refunded). Use this
  * instead of recomputing CNY from USD, since the USD→CNY rate may have
  * changed since payment time.
  */
-export async function queryQmmPayOrder(orderReference: string): Promise<QmmPayQueryResponse> {
+export async function queryEPayOrder(orderReference: string): Promise<EPayQueryResponse> {
   const timestamp = String(Math.floor(Date.now() / 1000))
 
   const reqParams: Record<string, string | number> = {
@@ -134,9 +133,9 @@ export async function queryQmmPayOrder(orderReference: string): Promise<QmmPayQu
     timestamp,
   }
 
-  const result = (await postForm('/query', reqParams)) as QmmPayQueryResponse
+  const result = (await postForm('/query', reqParams)) as EPayQueryResponse
 
-  logger.info('PAYMENT:QMMPAY', 'Order query response', {
+  logger.info('PAYMENT:EPAY', 'Order query response', {
     orderReference,
     code: result.code,
     status: result.status,
@@ -148,10 +147,10 @@ export async function queryQmmPayOrder(orderReference: string): Promise<QmmPayQu
 }
 
 /**
- * Issue a (possibly partial) refund for a QmmPay order.
+ * Issue a (possibly partial) refund for an EPay order.
  *
  * Refunds are synchronous — the result is returned immediately in the
- * HTTP response. There is no refund webhook from qmmpay.
+ * HTTP response. There is no refund webhook from the platform.
  *
  * An order may group several donation rows; a refund request can target only
  * a subset of them. `refundRatio` is the fraction of the original order being
@@ -165,25 +164,25 @@ export async function queryQmmPayOrder(orderReference: string): Promise<QmmPayQu
  * `refundedCny` is the CNY amount actually submitted for refund.
  * code === 0 means the refund was accepted successfully.
  */
-export async function processQmmPayRefund(params: {
+export async function processEPayRefund(params: {
   orderReference: string
   /** Fraction of the original order to refund now (0, 1]. Defaults to full (1). */
   refundRatio?: number
-}): Promise<QmmPayRefundResponse & { refundedCny: number }> {
+}): Promise<EPayRefundResponse & { refundedCny: number }> {
   // 1. Query the order to obtain the authoritative paid amount (CNY)
-  const order = await queryQmmPayOrder(params.orderReference)
+  const order = await queryEPayOrder(params.orderReference)
   if (order.code !== 0) {
-    throw new Error(`QmmPay query error: ${order.msg || 'unknown error'}`)
+    throw new Error(`EPay query error: ${order.msg || 'unknown error'}`)
   }
 
   // Reject orders that were never (fully) paid. status 2 (已退款) is allowed
   // here because partial refunds may leave a refundable remainder.
   if (
-    order.status === QMMPAY_ORDER_STATUS.UNPAID ||
-    order.status === QMMPAY_ORDER_STATUS.FROZEN ||
-    order.status === QMMPAY_ORDER_STATUS.PRE_AUTH
+    order.status === EPAY_ORDER_STATUS.UNPAID ||
+    order.status === EPAY_ORDER_STATUS.FROZEN ||
+    order.status === EPAY_ORDER_STATUS.PRE_AUTH
   ) {
-    throw new Error(`QmmPay order is not in a refundable state (status=${order.status})`)
+    throw new Error(`EPay order is not in a refundable state (status=${order.status})`)
   }
 
   const paidCny = parseFloat(order.money || '0')
@@ -192,7 +191,7 @@ export async function processQmmPayRefund(params: {
 
   if (!(remainingCny > 0)) {
     throw new Error(
-      `QmmPay order has no refundable amount remaining (status=${order.status}, money=${order.money}, refundmoney=${order.refundmoney})`
+      `EPay order has no refundable amount remaining (status=${order.status}, money=${order.money}, refundmoney=${order.refundmoney})`
     )
   }
 
@@ -202,7 +201,7 @@ export async function processQmmPayRefund(params: {
   if (refundCny > remainingCny) refundCny = remainingCny
 
   if (!(refundCny > 0)) {
-    throw new Error(`QmmPay computed refund amount is zero (ratio=${ratio}, money=${order.money})`)
+    throw new Error(`EPay computed refund amount is zero (ratio=${ratio}, money=${order.money})`)
   }
 
   const money = refundCny.toFixed(2)
@@ -216,16 +215,16 @@ export async function processQmmPayRefund(params: {
     timestamp,
   }
 
-  logger.info('PAYMENT:QMMPAY', 'Initiating refund', {
+  logger.info('PAYMENT:EPAY', 'Initiating refund', {
     orderReference: params.orderReference,
     amountCny: money,
     ratio,
     remainingCny,
   })
 
-  const result = (await postForm('/refund', reqParams)) as QmmPayRefundResponse
+  const result = (await postForm('/refund', reqParams)) as EPayRefundResponse
 
-  logger.info('PAYMENT:QMMPAY', 'Refund response', {
+  logger.info('PAYMENT:EPAY', 'Refund response', {
     orderReference: params.orderReference,
     code: result.code,
     msg: result.msg,

@@ -7,7 +7,8 @@ import { ArrowRightIcon, CheckCircle2Icon, ExternalLinkIcon } from '@/components
 import { Link } from '@/i18n/navigation'
 import { canRequestRefund, canViewResult, isRefundPending } from '@/lib/donation-status'
 import { formatDate, getTranslatedText } from '@/lib/i18n-utils'
-import { isOfflineDonation } from '@/lib/payment-method'
+import { isDiscontinuedEPayProvider } from '@/lib/payment/epay/providers'
+import { isEPayDonation, isOfflineDonation } from '@/lib/payment-method'
 import type { AppLocale } from '@/types'
 
 import type { TrackDonation } from './types'
@@ -56,6 +57,13 @@ export default function OrderGroupCard({
   // Offline donations have no gateway order to refund against — hide the action.
   // requestRefund rejects them server-side too; this only avoids a dead button.
   const isOffline = orderDonations.some((d) => isOfflineDonation(d.payment_method))
+
+  // 支付渠道已停运（如 2026-09 关站的 QmmPay）——密钥与平台都不在了，
+  // 退款通道永久消失。requestRefund 服务端也会拒（providerDiscontinued），
+  // 这里只是避免一个点下去必然失败的死按钮。
+  const isDiscontinued = orderDonations.some(
+    (d) => isEPayDonation(d.payment_method) && isDiscontinuedEPayProvider(d.payment_method)
+  )
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 hover:border-ukraine-blue-300 hover:shadow-lg">
@@ -199,7 +207,7 @@ export default function OrderGroupCard({
         </div>
 
         {/* Action Buttons - Order Level */}
-        {refundableAmount > 0 && !isOffline && (
+        {refundableAmount > 0 && !isOffline && !isDiscontinued && (
           <div className="flex flex-col gap-3 border-t border-gray-100 pt-4">
             {refundError && (
               <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

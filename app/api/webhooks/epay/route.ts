@@ -9,15 +9,16 @@ import {
   buildPaymentSuccessPayload,
 } from '@/lib/email/build-webhook-payload'
 import { logger } from '@/lib/logger'
-import { verifyQmmPaySignature } from '@/lib/payment/qmmpay/crypto'
-import type { QmmPayWebhookParams } from '@/lib/payment/qmmpay/types'
+import { verifyEPaySignature } from '@/lib/payment/epay/crypto'
+import type { EPayWebhookParams } from '@/lib/payment/epay/types'
+import { isEPayDonation } from '@/lib/payment-method'
 import { createServiceClient } from '@/lib/supabase/server'
 
 /**
- * QmmPay Payment Webhook Handler
+ * EPay (易支付) Payment Webhook Handler
  *
  * Key differences from WayForPay/NOWPayments:
- *  - qmmpay sends a GET request (not POST)
+ *  - the platform sends a GET request (not POST)
  *  - Must return plain text "success" (not JSON)
  *  - Signature uses RSA SHA256WithRSA (not HMAC)
  *  - Only fires for TRADE_SUCCESS; no separate failure/expiry notifications
@@ -32,12 +33,12 @@ export async function GET(request: NextRequest) {
     rawParams[key] = value
   })
 
-  const params = rawParams as unknown as Partial<QmmPayWebhookParams>
+  const params = rawParams as unknown as Partial<EPayWebhookParams>
   const orderReference = params.out_trade_no
   const tradeStatus = params.trade_status
   const receivedSign = params.sign
 
-  logger.info('WEBHOOK:QMMPAY', 'Webhook received', {
+  logger.info('WEBHOOK:EPAY', 'Webhook received', {
     orderReference,
     tradeStatus,
     tradeNo: params.trade_no,
@@ -49,8 +50,8 @@ export async function GET(request: NextRequest) {
   const paramsForVerify = { ...rawParams }
   delete paramsForVerify.sign
 
-  if (!receivedSign || !verifyQmmPaySignature(paramsForVerify, receivedSign)) {
-    logger.error('WEBHOOK:QMMPAY', 'Invalid signature', { orderReference })
+  if (!receivedSign || !verifyEPaySignature(paramsForVerify, receivedSign)) {
+    logger.error('WEBHOOK:EPAY', 'Invalid signature', { orderReference })
     // Return success to prevent infinite retries; do NOT update DB
     return new NextResponse('success', {
       status: 200,
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
 
   // Only TRADE_SUCCESS triggers a status update
   if (tradeStatus !== 'TRADE_SUCCESS') {
-    logger.info('WEBHOOK:QMMPAY', 'Non-success status, ignoring', {
+    logger.info('WEBHOOK:EPAY', 'Non-success status, ignoring', {
       orderReference,
       tradeStatus,
     })
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!orderReference) {
-    logger.error('WEBHOOK:QMMPAY', 'Missing out_trade_no')
+    logger.error('WEBHOOK:EPAY', 'Missing out_trade_no')
     return new NextResponse('success', {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
     .eq('order_reference', orderReference)
 
   if (fetchError) {
-    logger.error('WEBHOOK:QMMPAY', 'Database query failed', {
+    logger.error('WEBHOOK:EPAY', 'Database query failed', {
       orderReference,
       error: fetchError.message,
     })
@@ -98,17 +99,19 @@ export async function GET(request: NextRequest) {
   }
 
   if (!donations || donations.length === 0) {
-    logger.warn('WEBHOOK:QMMPAY', 'Order not found', { orderReference })
+    logger.warn('WEBHOOK:EPAY', 'Order not found', { orderReference })
     return new NextResponse('success', {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
     })
   }
 
-  // Verify this order belongs to QmmPay
-  const isQmmPayOrder = donations.some((d) => d.payment_method === 'QmmPay')
-  if (!isQmmPayOrder) {
-    logger.warn('WEBHOOK:QMMPAY', 'Not a QmmPay order', { orderReference })
+  // Verify this order belongs to an EPay gateway. Matching the whole provider
+  // family (not just the active instance) is safe because the signature check
+  // above already proves the callback came from the platform we hold keys for.
+  const isEPayOrder = donations.some((d) => isEPayDonation(d.payment_method))
+  if (!isEPayOrder) {
+    logger.warn('WEBHOOK:EPAY', 'Not an EPay order', { orderReference })
     return new NextResponse('success', {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
@@ -121,7 +124,7 @@ export async function GET(request: NextRequest) {
   )
 
   if (updatableDonations.length === 0) {
-    logger.debug('WEBHOOK:QMMPAY', 'No donations in transitionable state', {
+    logger.debug('WEBHOOK:EPAY', 'No donations in transitionable state', {
       orderReference,
       currentStatuses: donations.map((d) => d.donation_status),
     })
@@ -140,7 +143,7 @@ export async function GET(request: NextRequest) {
     .select('project_id, donation_public_id, donor_email, donor_name, locale, amount')
 
   if (updateError) {
-    logger.error('WEBHOOK:QMMPAY', 'Status update failed', {
+    logger.error('WEBHOOK:EPAY', 'Status update failed', {
       orderReference,
       error: updateError.message,
     })
@@ -150,7 +153,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  logger.info('WEBHOOK:QMMPAY', 'Donations updated to paid', {
+  logger.info('WEBHOOK:EPAY', 'Donations updated to paid', {
     orderReference,
     count: updatedDonations?.length ?? 0,
   })
@@ -159,17 +162,17 @@ export async function GET(request: NextRequest) {
   if (updatedDonations && updatedDonations.length > 0) {
     after(async () => {
       try {
-        // Use 'CNY' as currency since qmmpay processes in RMB
+        // Use 'CNY' as currency since the platform settles in RMB
         const payload = await buildPaymentSuccessPayload(supabase, updatedDonations, 'CNY')
         if (payload) {
           await sendPaymentSuccessEmail(payload)
-          logger.info('WEBHOOK:QMMPAY', 'Confirmation email sent', {
+          logger.info('WEBHOOK:EPAY', 'Confirmation email sent', {
             orderReference,
             to: payload.to,
           })
         }
       } catch (emailError) {
-        logger.error('WEBHOOK:QMMPAY', 'Email send failed', {
+        logger.error('WEBHOOK:EPAY', 'Email send failed', {
           orderReference,
           error: emailError instanceof Error ? emailError.message : String(emailError),
         })

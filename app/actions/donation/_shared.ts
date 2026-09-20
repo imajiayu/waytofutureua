@@ -360,13 +360,12 @@ export async function insertPendingDonations(
     throw new Error(`Failed to create pending donations: ${dbError.message}`)
   }
 
-  // Log message intentionally tracks the previous per-action wording
-  // (WayForPay path used "Pending records created"; NowPayments used
-  // "Pending records created (NOWPayments)"; QmmPay uses "(QmmPay)") so log
-  // output stays identical to pre-refactor for existing providers.
-  const logSuffix =
-    paymentMethod === 'NOWPayments' ? ' (NOWPayments)' :
-    paymentMethod === 'QmmPay' ? ' (QmmPay)' : ''
+  // Log message intentionally tracks the previous per-action wording:
+  // the WayForPay path used a bare "Pending records created", every other
+  // gateway appends its own name. Derived from paymentMethod rather than
+  // enumerated, because EPay instance names are configuration (see
+  // lib/payment/epay/providers.ts) and would otherwise drift out of this list.
+  const logSuffix = paymentMethod === 'WayForPay' ? '' : ` (${paymentMethod})`
   logger.info('DONATION', `Pending records created${logSuffix}`, {
     count: donationRecords.length,
     orderReference,
